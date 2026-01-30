@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ | Finance-Simulator Help & Documentation</title>
+    <meta name="description" content="Häufig gestellte Fragen zum Finanz-Simulator. Hilfe zu Zinseszins, Steuern und Inflation. Frequently asked questions about the finance simulator.">
+    
+    <link rel="alternate" hreflang="de" href="faq.html" />
+    <link rel="alternate" hreflang="en" href="faq.html" />
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Wie genau ist die Berechnung?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Der Simulator nutzt mathematische Standardformeln für Zinseszins und Inflation unter Berücksichtigung von Steuern."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How accurate is the calculation?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The simulator uses standard mathematical formulas for compound interest and inflation, including tax considerations."
+          }
+        }
+      ]
+    }
+    </script>
+
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #27ae60;
+            --bg: #f4f7f6;
+            --card-bg: #ffffff;
+            --text: #333;
+            --text-muted: #7f8c8d;
+            --border: #dcdde1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .btn-back {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-back:hover {
+            text-decoration: underline;
+        }
+
+        .lang-btn {
+            background: var(--border);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 10px;
+        }
+
+        .faq-item {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .question {
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 1.1rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .answer {
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+
+        .disclaimer {
+            margin-top: 50px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-left: 4px solid var(--text-muted);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .disclaimer strong {
+            color: var(--primary);
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 20px; }
+            h1 { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="top-nav">
+        <a href="index.html" class="btn-back" id="t-back">← Zurück zum Simulator</a>
+        <button class="lang-btn" onclick="toggleLanguage()" id="langBtn">EN</button>
+    </div>
+
+    <h1 id="t-title">Häufig gestellte Fragen (FAQ)</h1>
+
+    <div id="faq-content">
+        </div>
+
+    <div class="disclaimer">
+        <strong id="t-disc-title">Wichtiger Hinweis: Keine Anlageberatung</strong>
+        <p id="t-disc-text">Die hier berechneten Werte basieren auf mathematischen Simulationen und stellen keine Anlageberatung dar. Finanzmärkte sind volatil, und vergangene Erfolge garantieren keine zukünftigen Erträge. Bitte konsultieren Sie einen zertifizierten Berater vor finanziellen Entscheidungen.</p>
+    </div>
+</div>
+
+<script>
+    let curLang = 'DE';
+
+    const content = {
+        DE: {
+            title: "Häufig gestellte Fragen (FAQ)",
+            back: "← Zurück zum Simulator",
+            discTitle: "Wichtiger Hinweis: Keine Anlageberatung",
+            discText: "Die hier berechneten Werte basieren auf mathematischen Simulationen und stellen keine Anlageberatung dar. Finanzmärkte sind volatil, und vergangene Erfolge garantieren keine zukünftigen Erträge. Bitte konsultieren Sie einen zertifizierten Berater vor finanziellen Entscheidungen.",
+            faqs: [
+                { q: "Werden meine Daten gespeichert?", a: "Nein. Alle Berechnungen finden lokal in deinem Browser statt. Es werden keine Daten an einen Server übertragen." },
+                { q: "Wie genau ist die Berechnung?", a: "Der Simulator nutzt mathematische Standardformeln für Zinseszins und Inflation. Steuern werden jährlich auf realisierte Gewinne und Dividenden unter Berücksichtigung des Freibetrags berechnet." },
+                { q: "Was bedeutet 'Kaufkraft'?", a: "Die Kaufkraft zeigt an, was dein zukünftiges Vermögen nach Abzug der Inflation in heutigen Euro wert wäre. Das hilft dir zu verstehen, wie viel du dir später wirklich davon leisten kannst." },
+                { q: "Wie werden reinvestierte Gewinne behandelt?", a: "Das Script folgt einer Rebalancing-Logik: Realisierte Gewinne und Netto-Dividenden werden sofort dem Depotwert gutgeschrieben. Im Folgejahr erwirtschaftet dieses Kapital automatisch wieder die volle Kurs- und Dividendenrendite." },
+                { q: "Was ist der Unterschied zwischen Dividendenrendite und -wachstum?", a: "Die Rendite bezieht sich auf den aktuellen Depotwert. Das Wachstum (p.a.) erhöht diesen prozentualen Auszahlungsbetrag jedes Jahr zusätzlich, um steigende Unternehmensgewinne zu simulieren." },
+                { q: "Wie wird die Steuer berechnet?", a: "Jedes Jahr prüft das System: (Dividenden + realisierte Gewinne) - Freibetrag. Ist das Ergebnis positiv, wird auf diesen Teil der gewählte Steuersatz angewendet." }
+            ]
+        },
+        EN: {
+            title: "Frequently Asked Questions (FAQ)",
+            back: "← Back to Simulator",
+            discTitle: "Important Notice: No Investment Advice",
+            discText: "The values calculated here are based on mathematical simulations and do not constitute investment advice. Financial markets are volatile, and past performance does not guarantee future results. Please consult a certified advisor before making financial decisions.",
+            faqs: [
+                { q: "Is my data being saved?", a: "No. All calculations take place locally in your browser. No data is transmitted to a server." },
+                { q: "How accurate is the calculation?", a: "The simulator uses standard formulas for compound interest and inflation. Taxes are calculated annually on realized gains and dividends." },
+                { q: "What does 'Purchasing Power' mean?", a: "Purchasing power shows what your future wealth is worth in today's terms. Inflation reduces the real value of your capital over time." },
+                { q: "How are reinvested gains handled?", a: "The script follows a rebalancing logic: Realized gains and net dividends are immediately credited to the portfolio value. In the next year, this capital earns the full yields again." },
+                { q: "What is the difference between dividend yield and growth?", a: "The yield refers to the current portfolio value. The growth increases this payout percentage every year, simulating dividend hikes." },
+                { q: "How is tax calculated?", a: "Each year, the system calculates: (Dividends + realized gains) - allowance. If positive, the selected tax rate is applied." }
+            ]
+        }
+    };
+
+    function toggleLanguage() {
+        curLang = (curLang === 'DE') ? 'EN' : 'DE';
+        document.getElementById('langBtn').innerText = (curLang === 'DE') ? 'EN' : 'DE';
+        applyLang();
+    }
+
+    function applyLang() {
+        const l = content[curLang];
+        document.getElementById('t-title').innerText = l.title;
+        document.getElementById('t-back').innerText = l.back;
+        document.getElementById('t-disc-title').innerText = l.discTitle;
+        document.getElementById('t-disc-text').innerText = l.discText;
+
+        let html = '';
+        l.faqs.forEach(item => {
+            html += `<div class="faq-item">
+                <span class="question">${item.q}</span>
+                <div class="answer">${item.a}</div>
+            </div>`;
+        });
+        document.getElementById('faq-content').innerHTML = html;
+    }
+
+    window.onload = applyLang;
+</script>
+
+</body>
+</html>
