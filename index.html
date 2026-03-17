@@ -810,9 +810,9 @@
         </div>
 
         <div id="magicContainer">
-            <div id="mm1" class="magic-badge">Level 1: Dividende > Sparrate!💰</div>
-            <div id="mm2" class="magic-badge">Level 2: Zinseszins > Einzahlung!🚀</div>
-            <div id="mm3" class="magic-badge">Level 3: Finanzielle Flexibilität!🏖️ </div>
+            <div id="mm1" class="magic-badge">Dividende > Sparrate!💰</div>
+            <div id="mm2" class="magic-badge">Zinseszins > Einzahlung!🚀</div>
+            <div id="mm3" class="magic-badge">Finanzielle Flexibilität!🏖️ </div>
         </div>
 
         <div class="dashboard-grid">
@@ -889,7 +889,7 @@
                 },
                 pop: { title: "Supporte das Projekt ☕", desc: "Dir gefällt der Simulator? Unterstütze die Weiterentwicklung mit einer kleinen Spende!", btn: "Via PayPal spenden" },
                 table: [
-                    { t: "Jahr", tip: "Jahr" }, { t: "Eigenkapital", tip: "Reine Einzahlungen" }, { t: "Depotwert", tip: "Gesamtwert" }, { t: "Kursgewinn (%)", tip: "Marktwachstum" }, { t: "Div. Brutto", tip: "Dividende vor Steuer" }, { t: "Steuer", tip: "Steuern" }, { t: "Div. Netto", tip: "Dividende nach Steuer" }, { t: "Ø Monat", tip: "Netto / 12" }, { t: "YoC", tip: "Yield on Cost" }, { t: "Invest Kum.", tip: "EK + reinvestierte Erträge" }, { t: "Kaufkraft", tip: "Inflationsbereinigt" }
+                    { t: "Jahr", tip: "Jahr" }, { t: "Eigenkapital", tip: "Reine Einzahlungen" }, { t: "Depotwert", tip: "Gesamtwert" }, { t: "Kosten", tip: "Jährliche Gebühren (nominal)" }, { t: "Kursgewinn (%)", tip: "Marktwachstum" }, { t: "Div. Brutto", tip: "Dividende vor Steuer" }, { t: "Steuer", tip: "Steuern" }, { t: "Div. Netto", tip: "Dividende nach Steuer" }, { t: "Ø Monat", tip: "Netto / 12" }, { t: "YoC", tip: "Yield on Cost" }, { t: "Invest Kum.", tip: "EK + reinvestierte Erträge" }, { t: "Kaufkraft", tip: "Inflationsbereinigt" }
                 ],
                 mm: ["Dividenden decken die Sparrate!💰", "Zinseszins schlägt Einzahlung!🚀", "Finanzielle Flexibilität erreicht!🏖️"],
                 mmTips: [
@@ -924,7 +924,7 @@
                 },
                 pop: { title: "Support the Project ☕", desc: "Enjoying the simulator? Support further development with a small donation!", btn: "Donate via PayPal" },
                 table: [
-                    { t: "Year", tip: "Year" }, { t: "Equity", tip: "Net Deposits" }, { t: "Portfolio", tip: "Total Value" }, { t: "Cap. Gain (%)", tip: "Market Growth" }, { t: "Div. Gross", tip: "Gross Dividend" }, { t: "Tax", tip: "Taxes" }, { t: "Div. Net", tip: "Net Dividend" }, { t: "Ø Month", tip: "Net / 12" }, { t: "YoC", tip: "Yield on Cost" }, { t: "Total Invest", tip: "Capital + Reinvestments" }, { t: "Purch. Power", tip: "Adj. for Inflation" }
+                    { t: "Year", tip: "Year" }, { t: "Equity", tip: "Net Deposits" }, { t: "Portfolio", tip: "Total Value" }, { t: "Costs", tip: "Annual Fees (nominal)" }, { t: "Cap. Gain (%)", tip: "Market Growth" }, { t: "Div. Gross", tip: "Gross Dividend" }, { t: "Tax", tip: "Taxes" }, { t: "Div. Net", tip: "Net Dividend" }, { t: "Ø Month", tip: "Net / 12" }, { t: "YoC", tip: "Yield on Cost" }, { t: "Total Invest", tip: "Capital + Reinvestments" }, { t: "Purch. Power", tip: "Adj. for Inflation" }
                 ],
                 mm: ["Dividends cover savings!💰", "Compound beats deposits!🚀", "Financial flexibility reached!🏖️"],
                 mmTips: [
@@ -1025,7 +1025,7 @@
             saveToStorage(); runSimulation();
         }
 
-        function generateAISummary(years, depot, ek, kk, gain, divNet, divNetReal, giroKK) {
+        function generateAISummary(years, depot, ek, kk, gain, divNet, divNetReal, giroKK, totalTax, totalFees) {
             const box = document.getElementById('aiSummaryBox');
             const content = document.getElementById('aiSummaryContent');
             box.style.display = 'block';
@@ -1036,13 +1036,15 @@
                 content.innerHTML = `Über eine Laufzeit von <b>${years} Jahren</b> entwickelt sich dein Vermögen wie folgt: <br>
         Dein Depotwert steigt nominal auf <b>${fmt(depot)}</b> an. Dabei hast du insgesamt <b>${fmt(ek)}</b> aus eigener Tasche eingezahlt. 
         Unter Berücksichtigung der Inflation entspricht dies einer heutigen Kaufkraft von <b>${fmt(kk)}</b>, was einem realen Vermögenszuwachs von <b>${fmt(gain)}</b> entspricht. 
-        Im letzten Jahr der Laufzeit fließen dir jährlich <b>${fmt(divNet)} netto</b> an Dividenden zu, Inflationsbereinigt <b>${fmt(divNetReal)}</b>. <br><br>
+        Im letzten Jahr der Laufzeit fließen dir jährlich <b>${fmt(divNet)} netto</b> an Dividenden zu, Inflationsbereinigt <b>${fmt(divNetReal)}</b>. <br>
+        Im Laufe der gesamten Laufzeit hast du <b style="color:#e74c3c">${fmt(totalTax)}</b> an Steuern und <b style="color:#e74c3c">${fmt(totalFees)}</b> an Gebühren &amp; Kosten gezahlt &ndash; zusammen <b style="color:#e74c3c">${fmt(totalTax + totalFees)}</b>. <br><br>
         <i>Vergleich:</i> Hättest du das Eigenkapital stattdessen auf einem unverzinsten Girokonto (0% Zins) bespart, läge dessen inflationsbereinigte Kaufkraft heute bei nur <b>${fmt(giroKK)}</b>.`;
             } else {
                 content.innerHTML = `Over a period of <b>${years} years</b>, your wealth is projected to develop as follows: <br>
         Your portfolio value grows nominally to <b>${fmt(depot)}</b>. You have invested a total of <b>${fmt(ek)}</b> of your own capital. 
         Adjusted for inflation, this represents a purchasing power of <b>${fmt(kk)}</b> in today's terms, resulting in a real gain of <b>${fmt(gain)}</b>. 
-        In the final year, you will receive <b>${fmt(divNet)} net</b> in annual dividends, inflation-adjusted <b>${fmt(divNetReal)}</b>. <br><br>
+        In the final year, you will receive <b>${fmt(divNet)} net</b> in annual dividends, inflation-adjusted <b>${fmt(divNetReal)}</b>. <br>
+        Over the entire period, you will have paid <b style="color:#e74c3c">${fmt(totalTax)}</b> in taxes and <b style="color:#e74c3c">${fmt(totalFees)}</b> in fees &amp; costs &ndash; a combined total of <b style="color:#e74c3c">${fmt(totalTax + totalFees)}</b>. <br><br>
         <i>Comparison:</i> If you had saved the capital on a non-interest-bearing checking account (0% interest), its inflation-adjusted purchasing power would be only <b>${fmt(giroKK)}</b>.`;
             }
         }
@@ -1070,13 +1072,14 @@
             let sumEigenKapital = p.startI;
             let investKum = p.startI;
             let tableHTML = '';
-            let dData = { years: [], depot: [], pureI: [], divY: [], divM: [], zz: [], kk: [] };
+            let dData = { years: [], depot: [], pureI: [], divY: [], divM: [], zz: [], kk: [], fees: [], taxY: [] };
             let mmFlags = [false, false, false];
             let totalTaxPaid = 0;
+            let totalFeesPaid = 0;
             let lastDivNet = 0;
 
             for (let i = 0; i <= p.jahre; i++) {
-                let kG = 0, kGPerc = 0, rG_brutto = 0, dB = 0, st_total = 0, dN = 0, rN = 0;
+                let kG = 0, kGPerc = 0, rG_brutto = 0, dB = 0, st_total = 0, dN = 0, rN = 0, annualFee = 0;
                 if (i === 0) {
                     investKum = p.startI;
                     if (p.divType === 'netto') { dN = p.divIstVal; dB = (dN > p.frei) ? p.frei + (dN - p.frei) / (1 - p.steuer) : dN; }
@@ -1096,23 +1099,24 @@
                     let st_real = Math.max(0, rG_brutto - fr_v) * p.steuer;
                     dN = dB - st_div; rN = rG_brutto - st_real; st_total = st_div + st_real;
 
-                    let fees = curK * p.feePerc;
-                    curK += rJ + growth + dN + rN - fees;
+                    annualFee = curK * p.feePerc;
+                    curK += rJ + growth + dN + rN - annualFee;
 
                     sumEigenKapital += rJ;
-                    investKum += rJ + dN + rN - fees;
+                    investKum += rJ + dN + rN - annualFee;
                     kG = curK - investKum;
                     kGPerc = investKum > 0 ? (kG / investKum * 100) : 0;
                 }
                 totalTaxPaid += st_total;
+                totalFeesPaid += annualFee;
                 lastDivNet = dN;
 
                 let kk = curK / Math.pow(1 + p.infl, i);
-                if (!mmFlags[0] && dN > (p.rateM * 12)) { mmFlags[0] = true; showMM('mm1', i); }
+                if (!mmFlags[0] && p.rateM > 0 && dN > (p.rateM * 12)) { mmFlags[0] = true; showMM('mm1', i); }
                 if (!mmFlags[1] && (curK - sumEigenKapital) > sumEigenKapital && i > 0) { mmFlags[1] = true; showMM('mm2', i); }
-                if (!mmFlags[2] && dN > (p.rateM * 12 * 1.5)) { mmFlags[2] = true; showMM('mm3', i); }
+                if (!mmFlags[2] && p.rateM > 0 && dN > (p.rateM * 12 * 1.5)) { mmFlags[2] = true; showMM('mm3', i); }
 
-                tableHTML += `<tr><td>${i === 0 ? 'Start' : i}</td><td>${Math.round(sumEigenKapital).toLocaleString()} €</td><td class="col-sticky">${Math.round(curK).toLocaleString()} €</td><td>${Math.round(kG).toLocaleString()} € (${kGPerc.toFixed(1)}%)</td><td>${Math.round(dB).toLocaleString()} €</td><td style="color:#e74c3c">-${Math.round(st_total).toLocaleString()} €</td><td style="color:#2980b9">${Math.round(dN).toLocaleString()} €</td><td>${(dN / 12).toFixed(2)} €</td><td>${investKum > 0 ? (dN / investKum * 100).toFixed(2) : 0}%</td><td style="font-weight:bold;">${Math.round(investKum).toLocaleString()} €</td><td>${Math.round(kk).toLocaleString()} €</td></tr>`;
+                tableHTML += `<tr><td>${i === 0 ? 'Start' : i}</td><td>${Math.round(sumEigenKapital).toLocaleString()} €</td><td class="col-sticky">${Math.round(curK).toLocaleString()} €</td><td style="color:#e74c3c">${annualFee > 0 ? '-' : ''}${Math.round(annualFee).toLocaleString()} €</td><td>${Math.round(kG).toLocaleString()} € (${kGPerc.toFixed(1)}%)</td><td>${Math.round(dB).toLocaleString()} €</td><td style="color:#e74c3c">-${Math.round(st_total).toLocaleString()} €</td><td style="color:#2980b9">${Math.round(dN).toLocaleString()} €</td><td>${(dN / 12).toFixed(2)} €</td><td>${investKum > 0 ? (dN / investKum * 100).toFixed(2) : 0}%</td><td style="font-weight:bold;">${Math.round(investKum).toLocaleString()} €</td><td>${Math.round(kk).toLocaleString()} €</td></tr>`;
 
                 dData.years.push("J " + i);
                 dData.depot.push(curK);
@@ -1121,9 +1125,8 @@
                 dData.divM.push(dN / 12);
                 dData.zz.push(curK - sumEigenKapital);
                 dData.kk.push(kk);
-                dData.feeLoss = dData.feeLoss || [];
-                let feeLossCumulative = i === 0 ? 0 : (dData.feeLoss[i - 1] + (curK / (1 - p.feePerc) * p.feePerc));
-                dData.feeLoss.push(feeLossCumulative);
+                dData.fees.push(annualFee);
+                dData.taxY.push(st_total);
             }
             const lastKaufkraft = dData.kk[dData.kk.length - 1];
             const realG = (curK - sumEigenKapital) / Math.pow(1 + p.infl, p.jahre);
@@ -1146,7 +1149,7 @@
             if (!mmFlags[1]) document.getElementById('mm2').style.display = 'none';
             if (!mmFlags[2]) document.getElementById('mm3').style.display = 'none';
 
-            generateAISummary(p.jahre, curK, sumEigenKapital, lastKaufkraft, realG, lastDivNet, lastDivNetReal, giroKK);
+            generateAISummary(p.jahre, curK, sumEigenKapital, lastKaufkraft, realG, lastDivNet, lastDivNetReal, giroKK, totalTaxPaid, totalFeesPaid);
             updateCharts(dData);
         }
 
@@ -1154,7 +1157,9 @@
             const el = document.getElementById(id);
             const index = id === 'mm1' ? 0 : id === 'mm2' ? 1 : 2;
             el.style.display = 'block';
-            el.innerText = (curLang === 'DE' ? 'Jahr ' : 'Year ') + `${year}: ${trans[curLang].mm[index]}`;
+            const levelText = `Level ${index + 1}: `;
+            const yearText = (curLang === 'DE' ? 'Jahr ' : 'Year ') + year + ': ';
+            el.innerText = levelText + yearText + trans[curLang].mm[index];
             el.title = trans[curLang].mmTips[index];
         }
 
@@ -1207,7 +1212,6 @@
             });
 
             const inflLoss = d.depot.map((val, i) => Math.max(0, val - d.kk[i]));
-            const costLoss = d.feeLoss;
 
             if (charts.c1) charts.c1.destroy();
             charts.c1 = new Chart(document.getElementById('chart1'), {
@@ -1216,11 +1220,10 @@
                     labels: d.years,
                     datasets: [
                         { label: (curLang === 'DE' ? 'Kaufkraft' : 'Purch. Power'), data: d.kk, backgroundColor: colorNet },
-                        { label: (curLang === 'DE' ? 'Inflationsverlust' : 'Inflation Loss'), data: inflLoss, backgroundColor: '#e67e22' },
-                        { label: (curLang === 'DE' ? 'Kostenverlust' : 'Cost Loss'), data: costLoss, backgroundColor: '#c0392b' }
+                        { label: (curLang === 'DE' ? 'Inflationsverlust' : 'Inflation Loss'), data: inflLoss, backgroundColor: '#e67e22' }
                     ]
                 },
-                options: optBase(curLang === 'DE' ? 'Depot vs. Kaufkraft' : 'Portfolio vs. Purchasing Power', true, curLang === 'DE' ? 'Gesamtwert Brutto: ' : 'Total Gross Value: ')
+                options: optBase(curLang === 'DE' ? 'Depot vs. Kaufkraft' : 'Portfolio vs. Purchasing Power', true, curLang === 'DE' ? 'Depotwert: ' : 'Portfolio Value: ')
             });
 
             if (charts.c2) charts.c2.destroy();
@@ -1239,7 +1242,7 @@
             const taxDiffY = d.divY.map((net, i) => {
                 const row = document.getElementById('resultBody').rows[i];
                 if (!row) return 0;
-                const brutto = parseFloat(row.cells[4].innerText.replace(/[^0-9,-]/g, '').replace(',', '.'));
+                const brutto = parseFloat(row.cells[5].innerText.replace(/[^0-9,-]/g, '').replace(',', '.'));
                 return Math.max(0, brutto - net);
             });
             const taxDiffM = taxDiffY.map(val => val / 12);
