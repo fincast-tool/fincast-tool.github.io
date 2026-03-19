@@ -13,24 +13,27 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
     <meta name="description"
-        content="fincast – Dein smarter Finanz-Simulator für präzise Berechnungen von Zinseszins, Dividenden und Vermögensaufbau. Inklusive Steuern, Inflation und PDF-Export.">
+        content="fincast – Dein professioneller Finanz-Simulator für präzise Berechnungen von Zinseszins, Dividendenwachstum und Vermögensaufbau. Inklusive Steuern, Inflation und PDF-Export.">
     <meta name="keywords"
-        content="fincast, Finanzrechner, Zinseszins, Dividendenrechner, ETF Simulator, Vermögensaufbau, Sparplan Rechner, Zinseszinsrechner, Vermögensrechner, Cashflow Calculator, Compound Interest Calculator, Dividend Tracker">
+        content="fincast, Finanzrechner, Zinseszins, Dividendenrechner, ETF Simulator, Vermögensaufbau, Sparplan Rechner, Rechner Vermögen, Cashflow Calculator, Compound Interest Calculator, Dividend Tracker, Zinsrechner Online">
     <meta name="author" content="Nikolai Bretthauer">
+    <link rel="canonical" href="https://fincast-tool.github.io/" />
 
     <link rel="alternate" hreflang="de" href="https://fincast-tool.github.io/" />
     <link rel="alternate" hreflang="en" href="https://fincast-tool.github.io/" />
     <link rel="alternate" hreflang="x-default" href="https://fincast-tool.github.io/" />
 
     <meta property="og:type" content="website">
-    <meta property="og:title" content="fincast | Zinseszins & Dividenden Rechner">
+    <meta property="og:url" content="https://fincast-tool.github.io/">
+    <meta property="og:title" content="fincast | Zinseszins, Dividenden & Vermögensaufbau Rechner">
     <meta property="og:description"
-        content="Simuliere dein Depotwachstum mit Berücksichtigung von Steuern, Inflation und Dividenden-Wachstum mit fincast.">
+        content="Simuliere dein Depotwachstum mit Berücksichtigung von Steuern, Inflation und Dividenden-Wachstum mit fincast. Smarter Finanzrechner für Privatanleger.">
 
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="fincast | Compound Interest Calculator">
+    <meta name="twitter:url" content="https://fincast-tool.github.io/">
+    <meta name="twitter:title" content="fincast | Compound Interest & Dividend Calculator">
     <meta name="twitter:description"
-        content="Simulate portfolio growth including taxes, inflation, and dividend growth with fincast.">
+        content="Simulate portfolio growth including taxes, inflation, and dividend growth with fincast. Advanced Financial Simulator.">
 
     <script type="application/ld+json">
     [
@@ -264,6 +267,45 @@
             justify-content: space-between;
             position: relative;
             cursor: pointer;
+            z-index: 1;
+        }
+
+        h2:hover {
+            z-index: 10000;
+        }
+
+        h2:hover .tooltip-box {
+            visibility: visible;
+            opacity: 1;
+            transform: translateX(-50%) translateY(5px);
+        }
+
+        .magic-badge {
+            display: none;
+            background: linear-gradient(135deg, #f1c40f, #f39c12);
+            color: #000;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            cursor: pointer;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin-bottom: 5px;
+            white-space: nowrap;
+            z-index: 1;
+        }
+
+        .magic-badge:hover {
+            z-index: 10000;
+        }
+
+        .magic-badge:hover .tooltip-box {
+            visibility: visible;
+            opacity: 1;
+            transform: translateX(-50%) translateY(5px);
         }
 
         h2:hover .tooltip-box {
@@ -397,6 +439,11 @@
             justify-content: center;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
             cursor: help;
+            z-index: 1;
+        }
+
+        .info-card:hover {
+            z-index: 10000;
         }
 
         .info-card-title {
@@ -418,7 +465,7 @@
 
         .tooltip-box {
             visibility: hidden;
-            width: 220px;
+            width: 250px;
             background-color: #2c3e50;
             color: #fff;
             text-align: center;
@@ -437,6 +484,7 @@
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.1);
             pointer-events: none;
+            white-space: normal;
         }
 
         .tooltip-box::after {
@@ -623,6 +671,11 @@
         th {
             position: relative;
             cursor: pointer;
+            z-index: 1;
+        }
+
+        th:hover {
+            z-index: 10000;
         }
 
         th:hover .tooltip-box {
@@ -866,9 +919,15 @@
         </div>
 
         <div id="magicContainer">
-            <div id="mm1" class="magic-badge">Dividende > Sparrate!💰</div>
-            <div id="mm2" class="magic-badge">Zinseszins > Einzahlung!🚀</div>
-            <div id="mm3" class="magic-badge">Finanzielle Flexibilität!🏖️ </div>
+            <div id="mm1" class="magic-badge"><span class="mm-text"></span>
+                <div class="tooltip-box"></div>
+            </div>
+            <div id="mm2" class="magic-badge"><span class="mm-text"></span>
+                <div class="tooltip-box"></div>
+            </div>
+            <div id="mm3" class="magic-badge"><span class="mm-text"></span>
+                <div class="tooltip-box"></div>
+            </div>
         </div>
 
         <div class="dashboard-grid">
@@ -1243,8 +1302,9 @@
             el.style.display = 'block';
             const levelText = `Level ${index + 1}: `;
             const yearText = (curLang === 'DE' ? 'Jahr ' : 'Year ') + year + ': ';
-            el.innerText = levelText + yearText + trans[curLang].mm[index];
-            el.title = trans[curLang].mmTips[index];
+
+            el.querySelector('.mm-text').innerText = levelText + yearText + trans[curLang].mm[index];
+            el.querySelector('.tooltip-box').innerText = trans[curLang].mmTips[index];
         }
 
         function updateCharts(d) {
