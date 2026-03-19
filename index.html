@@ -155,8 +155,9 @@
         .top-btns {
             display: flex;
             justify-content: flex-end;
-            gap: 10px;
-            margin-bottom: -10px;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
         }
 
         #t-h1-main {
@@ -171,24 +172,66 @@
             display: block;
         }
 
-        .mini-btn {
-            background: var(--border);
-            border: none;
-            padding: 10px 15px;
-            border-radius: 6px;
+        /* Der Button-Container allgemein */
+        .toggle-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
-            font-size: 0.85rem;
-            color: var(--text);
-            font-weight: bold;
-            transition: all 0.2s;
-            align-self: center;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
             flex-shrink: 0;
+            position: relative;
         }
 
-        .mini-btn:hover {
-            background: var(--accent);
-            color: white;
-            transform: translateY(-1px);
+        .toggle-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        #theme-toggle img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            /* Weiche Drehung über 0.6 Sekunden */
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #lang-toggle img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            /* Weiche Drehung über 0.6 Sekunden */
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Zustand im Dark Mode */
+        body.dark-mode #theme-toggle {
+            /* Dezenter Schein um den Button */
+            box-shadow: 0 0 20px rgba(136, 244, 248, 0.2);
+            border-color: #88f4f8;
+        }
+
+        body.dark-mode #theme-toggle img {
+            /* Das Icon wird um 180 Grad gedreht (Sonne weg -> Mond nach oben) */
+            transform: rotate(180deg);
+            /* Neon-Glow für das Icon selbst */
+            filter: drop-shadow(0 0 5px #88f4f8);
+        }
+
+        body.dark-mode #lang-toggle {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(46, 204, 113, 0.1);
+        }
+
+        body.lang-en #lang-toggle img {
+            transform: rotate(180deg);
         }
 
         .header-area {
@@ -219,7 +262,14 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            position: relative;
             cursor: pointer;
+        }
+
+        h2:hover .tooltip-box {
+            visibility: visible;
+            opacity: 1;
+            transform: translateX(-50%) translateY(5px);
         }
 
         .info-icon {
@@ -235,17 +285,6 @@
             opacity: 0.6;
         }
 
-        .info-text {
-            display: none;
-            background: rgba(0, 0, 0, 0.05);
-            padding: 12px;
-            border-left: 3px solid var(--accent);
-            font-size: 0.75rem;
-            color: var(--text);
-            margin-bottom: 15px;
-            border-radius: 0 6px 6px 0;
-            line-height: 1.4;
-        }
 
         .input-group {
             margin-bottom: 15px;
@@ -581,6 +620,17 @@
             white-space: nowrap;
         }
 
+        th {
+            position: relative;
+            cursor: pointer;
+        }
+
+        th:hover .tooltip-box {
+            visibility: visible;
+            opacity: 1;
+            transform: translateX(-50%) translateY(5px);
+        }
+
         .col-sticky {
             font-weight: bold;
             color: var(--accent);
@@ -654,8 +704,12 @@
             <h1 id="t-h1-main">
                 <img src="favicon.png" alt="fincast logo" class="brand-logo">
             </h1>
-            <button class="mini-btn" onclick="toggleLanguage()" id="langBtn">EN</button>
-            <button class="mini-btn" onclick="toggleDarkMode()" id="darkBtn">🌙</button>
+            <div class="toggle-btn" onclick="toggleLanguage()" id="lang-toggle">
+                <img src="theme-toggle-language.png" alt="Language Toggle">
+            </div>
+            <div class="toggle-btn" onclick="toggleDarkMode()" id="theme-toggle">
+                <img src="theme-toggle-icon.png" alt="Theme Toggle">
+            </div>
         </div>
 
         <div class="header-area">
@@ -664,18 +718,20 @@
         </div>
 
         <div id="section1">
-            <h2 onclick="toggleInfo('info1')"><span id="t-h2-s1">1. Analyse Ist-Zustand</span> <span
-                    class="info-icon">i</span></h2>
-            <div id="info1" class="info-text">Hier kannst du deine aktuellen Depotdaten eingeben. Wenn du ein
-                bestehendes Depot hast, berechnet das Tool automatisch deine bisherige Kurs- und Dividendenrendite und
-                übernimmt diese für die Zukunftsprognose. Es Werden keine Werte erfasst, gespeichert oder anderweitig
-                verwendet.</div>
+            <h2><span id="t-h2-s1">1. Analyse Ist-Zustand</span> <span class="info-icon">?</span>
+                <div id="info1" class="tooltip-box">Hier kannst du deine aktuellen Depotdaten eingeben. Wenn du ein
+                    bestehendes Depot hast, berechnet das Tool automatisch deine bisherige Kurs- und Dividendenrendite
+                    und übernimmt diese für die Zukunftsprognose. ⚠️ Es werden keine Eingaben gespeichert, verarbeitet
+                    oder anderweitig verwendet!</div>
+            </h2>
             <div class="input-group"><label id="l-istDepot">Aktueller Depotwert (€)</label><input type="number"
                     id="istDepot" value="0"></div>
             <div class="input-group"><label id="l-istInvest">Investiertes Eigenkapital (€)</label><input type="number"
                     id="istInvest" value="0"></div>
             <div class="input-group"><label id="l-istJahre">Investitionsjahre bisher</label><input type="number"
                     id="istJahre" value="0"></div>
+            <div class="input-group"><label id="l-istRealG">Davon realisierte Gewinne (€)</label><input type="number"
+                    id="istRealG" value="0"></div>
             <div class="input-group"><label id="l-istDivType">Dividende eingeben als:</label><select id="istDivType">
                     <option id="opt-netto" value="netto">Netto (nach Steuer)</option>
                     <option id="opt-brutto" value="brutto">Brutto (vor Steuer)</option>
@@ -689,9 +745,9 @@
         </div>
 
         <div id="section2">
-            <h2 onclick="toggleInfo('info2')"><span id="t-h2-s2">2. Parameter</span> <span class="info-icon">i</span>
+            <h2><span id="t-h2-s2">2. Parameter</span> <span class="info-icon">?</span>
+                <div id="info2" class="tooltip-box">Hier definierst du die zukünftige Entwicklung.</div>
             </h2>
-            <div id="info2" class="info-text">Hier definierst du die zukünftige Entwicklung.</div>
             <div class="input-group"><label id="l-rate">Monatliche Sparrate (€)</label><input type="number" id="rate"
                     value="700"></div>
             <div class="input-group"><label id="l-kursR">Erw. Kursrendite p.a. (%)</label><input type="number"
@@ -705,9 +761,9 @@
         </div>
 
         <div id="section3">
-            <h2 onclick="toggleInfo('info3')"><span id="t-h2-s3">3. Steuern & Zeit</span> <span
-                    class="info-icon">i</span></h2>
-            <div id="info3" class="info-text">Steuer- und Inflationsparameter.</div>
+            <h2><span id="t-h2-s3">3. Steuern & Zeit</span> <span class="info-icon">?</span>
+                <div id="info3" class="tooltip-box">Steuer- und Inflationsparameter.</div>
+            </h2>
             <div class="input-group">
                 <label id="l-taxModel">Steuersatz Modell</label>
                 <select id="taxScenario" onchange="updateTaxInput()">
@@ -867,12 +923,12 @@
                 h1: "fincast", welcome: "Analysiere dein Portfolio und simuliere den Zinseszins-Effekt mit fincast.",
                 s1: "1. Analyse Ist-Zustand", s2: "2. Parameter", s3: "3. Steuern & Zeit",
                 btnIst: "Ist-Zustand übernehmen", btnSim: "Simulation starten",
-                info1: "Hier kannst du deine aktuellen Depotdaten eingeben. Wenn du ein bestehendes Depot hast, berechnet das Tool automatisch deine bisherige Kurs- und Dividendenrendite und übernimmt diese für die Zukunftsprognose.",
+                info1: "Hier kannst du deine aktuellen Depotdaten eingeben. Wenn du ein bestehendes Depot hast, berechnet das Tool automatisch deine bisherige Kurs- und Dividendenrendite und übernimmt diese für die Zukunftsprognose. ⚠️ Es werden keine Eingaben gespeichert, verarbeitet oder anderweitig verwendet ⚠️",
                 info2: "Hier definierst du die zukünftige Entwicklung.",
                 info3: "Steuer- und Inflationsparameter.",
                 aiTitle: "🤖 KI-Analyse & Zusammenfassung",
                 labels: {
-                    istDepot: "Aktueller Depotwert (€)", istInvest: "Investiertes Eigenkapital (€)", istJahre: "Investitionsjahre bisher", istDivType: "Dividende eingeben als:", istDiv: "Dividende / Jahr (€)",
+                    istDepot: "Aktueller Depotwert (€)", istInvest: "Investiertes Eigenkapital (€)", istJahre: "Investitionsjahre bisher", istRealG: "Davon realisierte Gewinne (€)", istDivType: "Dividende eingeben als:", istDiv: "Dividende / Jahr (€)",
                     rate: "Monatliche Sparrate (€)", kursR: "Erw. Kursrendite p.a. (%)", realR: "Realisierte Gewinne p.a. (%)", divR: "Dividendenrendite p.a. (%)", divW: "Dividendenwachstum p.a. (%)",
                     taxModel: "Steuersatz Modell", taxVal: "Individueller Steuersatz (%)", freiModel: "Freibetrag / Jahr (€)", frei: "Individueller Freibetrag (€)", jahre: "Laufzeit (Jahre)", infl: "Inflation p.a. (%)",
                     istFees: "Gebühren / Kosten gesamt (€)", feePerc: "Kosten p.a. (%)"
@@ -902,12 +958,12 @@
                 h1: "fincast", welcome: "Analyze your portfolio and simulate growth with fincast.",
                 s1: "1. Current Status", s2: "2. Parameters", s3: "3. Taxes & Time",
                 btnIst: "Apply Status", btnSim: "Start Simulation",
-                info1: "Enter your current portfolio data here. If you have an existing portfolio, the tool calculates your previous price and dividend yield and applies it to the forecast.",
+                info1: "Enter your current portfolio data here. If you have an existing portfolio, the tool calculates your previous price and dividend yield and applies it to the forecast. ⚠️ No data is stored, processed, or otherwise used ⚠️",
                 info2: "Define future growth parameters here.",
                 info3: "Tax and inflation parameters.",
                 aiTitle: "🤖 AI Analysis & Summary",
                 labels: {
-                    istDepot: "Current Portfolio Value (€)", istInvest: "Invested Capital (€)", istJahre: "Years invested so far", istDivType: "Enter Dividend as:", istDiv: "Dividend / Year (€)",
+                    istDepot: "Current Portfolio Value (€)", istInvest: "Invested Capital (€)", istJahre: "Years invested so far", istRealG: "Thereof realized gains (€)", istDivType: "Enter Dividend as:", istDiv: "Dividend / Year (€)",
                     rate: "Monthly Savings (€)", kursR: "Exp. Price Return p.a. (%)", realR: "Realized Gains p.a. (%)", divR: "Dividend Yield p.a. (%)", divW: "Div. Growth p.a. (%)",
                     taxModel: "Tax Model", taxVal: "Custom Tax Rate (%)", freiModel: "Tax Allowance / Year (€)", frei: "Custom Allowance (€)", jahre: "Duration (Years)", infl: "Inflation p.a. (%)",
                     istFees: "Total Fees / Costs (€)", feePerc: "Costs p.a. (%)"
@@ -936,8 +992,11 @@
         };
 
         function saveToStorage() {
-            const data = {};
-            const ids = ['istDepot', 'istInvest', 'istJahre', 'istDivType', 'istDiv', 'istFees', 'rate', 'kursR', 'realR', 'divR', 'divW', 'taxScenario', 'taxVal', 'freiScenario', 'frei', 'jahre', 'infl', 'feePerc'];
+            const data = {
+                darkMode: document.body.classList.contains('dark-mode'),
+                curLang: curLang
+            };
+            const ids = ['istDepot', 'istInvest', 'istJahre', 'istRealG', 'istDivType', 'istDiv', 'istFees', 'rate', 'kursR', 'realR', 'divR', 'divW', 'taxScenario', 'taxVal', 'freiScenario', 'frei', 'jahre', 'infl', 'feePerc'];
             ids.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) data[id] = el.value;
@@ -949,8 +1008,17 @@
             const saved = localStorage.getItem('financeSimData');
             if (saved) {
                 const data = JSON.parse(saved);
-                const ids = ['istDepot', 'istInvest', 'istJahre', 'istDivType', 'istDiv', 'istFees', 'rate', 'kursR', 'realR', 'divR', 'divW', 'taxScenario', 'taxVal', 'freiScenario', 'frei', 'jahre', 'infl', 'feePerc'];
+                const ids = ['istDepot', 'istInvest', 'istJahre', 'istRealG', 'istDivType', 'istDiv', 'istFees', 'rate', 'kursR', 'realR', 'divR', 'divW', 'taxScenario', 'taxVal', 'freiScenario', 'frei', 'jahre', 'infl', 'feePerc'];
                 ids.forEach(id => { if (data[id] !== undefined && document.getElementById(id)) { document.getElementById(id).value = data[id]; } });
+
+                if (data.darkMode) {
+                    document.body.classList.add('dark-mode');
+                }
+                if (data.curLang) {
+                    curLang = data.curLang;
+                    document.body.classList.toggle('lang-en', curLang === 'EN');
+                }
+
                 updateTaxInput(false); updateFreiInput(false);
             }
         }
@@ -969,9 +1037,14 @@
             if (run) { saveToStorage(); runSimulation(); }
         }
 
-        function toggleLanguage() { curLang = (curLang === 'DE') ? 'EN' : 'DE'; document.getElementById('langBtn').innerText = (curLang === 'DE') ? 'EN' : 'DE'; applyLang(); runSimulation(); }
-        function toggleDarkMode() { document.body.classList.toggle('dark-mode'); runSimulation(); }
-        function toggleInfo(id) { const e = document.getElementById(id); e.style.display = (e.style.display === 'block') ? 'none' : 'block'; }
+        function toggleLanguage() {
+            curLang = (curLang === 'DE') ? 'EN' : 'DE';
+            document.body.classList.toggle('lang-en', curLang === 'EN');
+            applyLang();
+            saveToStorage();
+            runSimulation();
+        }
+        function toggleDarkMode() { document.body.classList.toggle('dark-mode'); saveToStorage(); runSimulation(); }
 
         function applyLang() {
             const l = trans[curLang];
@@ -1005,24 +1078,35 @@
             document.getElementById('t-pop-title').innerText = l.pop.title;
             document.getElementById('t-pop-desc').innerText = l.pop.desc;
             document.getElementById('t-pop-btn').innerText = l.pop.btn;
-            let h = "<tr>"; l.table.forEach(col => h += `<th title="${col.tip}">${col.t}</th>`);
+            let h = "<tr>"; l.table.forEach(col => h += `<th>${col.t}<div class="tooltip-box">${col.tip}</div></th>`);
             document.getElementById('t-head').innerHTML = h + "</tr>";
         }
 
         function analysiereIstZustand() {
             const d = parseFloat(document.getElementById('istDepot').value) || 0;
-            const inv = parseFloat(document.getElementById('istInvest').value) || 1;
+            const inv = parseFloat(document.getElementById('istInvest').value) || 0;
             const j = parseFloat(document.getElementById('istJahre').value) || 1;
             const divVal = parseFloat(document.getElementById('istDiv').value) || 0;
             const fees = parseFloat(document.getElementById('istFees').value) || 0;
             const divType = document.getElementById('istDivType').value;
-            const st = parseFloat(document.getElementById('taxVal').value) / 100;
-            const fr = parseFloat(document.getElementById('frei').value);
-            document.getElementById('kursR').value = ((Math.pow(d / inv, 1 / j) - 1) * 100).toFixed(2);
+            const st = (parseFloat(document.getElementById('taxVal').value) || 0) / 100;
+            const fr = parseFloat(document.getElementById('frei').value) || 0;
+
+            let calcKursR = 0;
+            if (inv > 0 && d > 0) {
+                calcKursR = (Math.pow(d / inv, 1 / j) - 1) * 100;
+            }
+            document.getElementById('kursR').value = calcKursR.toFixed(2);
+
+            const rG = parseFloat(document.getElementById('istRealG').value) || 0;
+            document.getElementById('realR').value = (d > 0) ? (((rG / j) / d) * 100).toFixed(2) : "0.00";
+
             let dB = (divType === 'netto') ? (divVal > fr ? fr + (divVal - fr) / (1 - st) : divVal) : divVal;
-            document.getElementById('divR').value = ((dB / d) * 100).toFixed(2);
-            document.getElementById('feePerc').value = (((fees / j) / d) * 100).toFixed(2);
-            saveToStorage(); runSimulation();
+            document.getElementById('divR').value = (d > 0) ? ((dB / d) * 100).toFixed(2) : "0.00";
+            document.getElementById('feePerc').value = (d > 0) ? (((fees / j) / d) * 100).toFixed(2) : "0.00";
+
+            saveToStorage();
+            runSimulation();
         }
 
         function generateAISummary(years, depot, ek, kk, gain, divNet, divNetReal, giroKK, totalTax, totalFees) {
@@ -1054,16 +1138,16 @@
             const p = {
                 startK: parseFloat(document.getElementById('istDepot').value) || 0,
                 startI: parseFloat(document.getElementById('istInvest').value) || 0,
-                rateM: parseFloat(document.getElementById('rate').value),
-                kursR: parseFloat(document.getElementById('kursR').value) / 100,
-                realR: parseFloat(document.getElementById('realR').value) / 100,
-                divR: parseFloat(document.getElementById('divR').value) / 100,
-                divW: parseFloat(document.getElementById('divW').value) / 100,
-                steuer: parseFloat(document.getElementById('taxVal').value) / 100,
-                frei: parseFloat(document.getElementById('frei').value),
-                jahre: parseInt(document.getElementById('jahre').value),
-                infl: parseFloat(document.getElementById('infl').value) / 100,
-                feePerc: parseFloat(document.getElementById('feePerc').value) / 100,
+                rateM: parseFloat(document.getElementById('rate').value) || 0,
+                kursR: (parseFloat(document.getElementById('kursR').value) || 0) / 100,
+                realR: (parseFloat(document.getElementById('realR').value) || 0) / 100,
+                divR: (parseFloat(document.getElementById('divR').value) || 0) / 100,
+                divW: (parseFloat(document.getElementById('divW').value) || 0) / 100,
+                steuer: (parseFloat(document.getElementById('taxVal').value) || 0) / 100,
+                frei: parseFloat(document.getElementById('frei').value) || 0,
+                jahre: parseInt(document.getElementById('jahre').value) || 0,
+                infl: (parseFloat(document.getElementById('infl').value) || 0) / 100,
+                feePerc: (parseFloat(document.getElementById('feePerc').value) || 0) / 100,
                 divType: document.getElementById('istDivType').value,
                 divIstVal: parseFloat(document.getElementById('istDiv').value) || 0
             };
