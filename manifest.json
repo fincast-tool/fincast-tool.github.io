@@ -1,7 +1,7 @@
 {
-  "name": "fincast | Zinseszins & Dividenden Rechner",
+  "name": "Zinseszinsrechner & Dividendenrechner | fincast",
   "short_name": "fincast",
-  "description": "Dein smarter Finanz-Simulator für präzise Berechnungen.",
+  "description": "Zinseszinsrechner & Dividendenrechner: Simuliere deinen Vermögensaufbau mit fincast. Berechne Zinseszins, Dividendenwachstum, Inflation und Steuern präzise online.",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#f4f7f6",

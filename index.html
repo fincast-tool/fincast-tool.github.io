@@ -4,18 +4,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>fincast | Zinseszins & Dividenden Rechner</title>
-    <link rel="icon" type="image/png" href="favicon2.png">
-    <link rel="apple-touch-icon" href="favicon2.png">
+    <title>Zinseszinsrechner & Dividendenrechner | fincast Finanzsimulator</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon2.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon2.png">
+    <link rel="shortcut icon" href="favicon2.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="favicon2.png">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#27ae60">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="image" content="https://fincast-tool.github.io/favicon2.png">
+    <meta property="og:image" content="https://fincast-tool.github.io/favicon2.png">
+    <meta name="twitter:image" content="https://fincast-tool.github.io/favicon2.png">
 
     <meta name="description"
-        content="fincast – Dein professioneller Finanz-Simulator für präzise Berechnungen von Zinseszins, Dividendenwachstum und Vermögensaufbau. Inklusive Steuern, Inflation und PDF-Export.">
+        content="Zinseszinsrechner & Dividendenrechner: Simuliere deinen Vermögensaufbau mit fincast. Berechne Zinseszins, Dividendenwachstum, Inflation und Steuern präzise online.">
     <meta name="keywords"
-        content="fincast, Finanzrechner, Zinseszins, Dividendenrechner, ETF Simulator, Vermögensaufbau, Sparplan Rechner, Rechner Vermögen, Cashflow Calculator, Compound Interest Calculator, Dividend Tracker, Zinsrechner Online">
+        content="Zinseszinsrechner, Dividendenrechner, Finanzrechner, Vermögensaufbau, ETF Sparplan Rechner, Dividende Rechner, Zinseszins Rechner Online, fincast, Dividenden-Wachstum, Finanzsimulator">
     <meta name="author" content="Nikolai Bretthauer">
     <link rel="canonical" href="https://fincast-tool.github.io/" />
 
@@ -49,7 +54,9 @@
           "price": "0",
           "priceCurrency": "EUR"
         },
-        "description": "fincast - Interaktiver Finanzrechner für Zinseszins, Dividendenwachstum und Inflationsbereinigung."
+        "description": "fincast - Interaktiver Finanzrechner für Zinseszins, Dividendenwachstum und Inflationsbereinigung.",
+        "image": "https://fincast-tool.github.io/favicon2.png",
+        "logo": "https://fincast-tool.github.io/favicon2.png"
       }
     ]
     </script>
@@ -613,6 +620,44 @@
             font-weight: bold;
         }
 
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .seo-content {
+            margin-top: 60px;
+            padding: 30px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+
+        .seo-content h2 {
+            color: var(--primary);
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            text-transform: none;
+            letter-spacing: normal;
+        }
+
+        .seo-content h3 {
+            color: var(--primary);
+            font-size: 1rem;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -914,7 +959,8 @@
     <div class="sidebar">
         <div class="top-btns">
             <h1 id="t-h1-main">
-                <img src="favicon.png" alt="fincast logo" class="brand-logo">
+                <img src="favicon.png" alt="fincast Finanzrechner" class="brand-logo">
+                <span class="visually-hidden">Zinseszinsrechner & Dividendenrechner</span>
             </h1>
             <div class="toggle-btn" onclick="toggleLanguage()" id="lang-toggle">
                 <img src="theme-toggle-language.png" alt="Language Toggle">
@@ -1106,10 +1152,677 @@
                 </table>
             </div>
         </div>
+
+        <section class="seo-content">
+            <h2 id="t-seo-h2">Der ultimative Zinseszinsrechner & Dividendenrechner für deinen Vermögensaufbau</h2>
+            <p id="t-seo-p1">
+                Willkommen bei <strong>fincast</strong>, deinem fortschrittlichen Finanzsimulator. Mein Tool kombiniert
+                einen
+                <strong>Zinseszinsrechner</strong> mit einem spezialisierten <strong>Dividendenrechner</strong>, um dir
+                eine
+                ganzheitliche Prognose deines Portfoliowachstums zu ermöglichen. Egal ob du in ETFs, Einzelaktien oder
+                Kryptowährungen investierst – fincast hilft dir, realistische Ziele für deine finanzielle Freiheit zu
+                setzen.
+            </p>
+
+            <h3 id="t-seo-h3-1">Warum ist ein Zinseszinsrechner wichtig?</h3>
+            <p id="t-seo-p2">
+                Der Zinseszins-Effekt wird oft als das achte Weltwunder bezeichnet. Mit meinem Rechner kannst du
+                simulieren,
+                wie monatliche Sparraten und Kursgewinne über Jahrzehnte hinweg die Macht des Zinseszinses entfalten.
+                Dabei
+                berücksichtige ich nicht nur die nominalen Gewinne, sondern zeige dir auch die
+                <strong>Kaufkraft</strong>
+                nach Inflation an.
+            </p>
+
+            <h3 id="t-seo-h3-2">Präziser Dividendenrechner mit Wachstumsfaktor</h3>
+            <p id="t-seo-p3">
+                Für Dividendenstrategen bietet fincast einzigartige Funktionen: Berechne dein passives Einkommen unter
+                Einbeziehung von Dividendenwachstum (Dividend Growth). Der Rechner simuliert automatisch die
+                Reinvestition
+                deiner Erträge, um das exponentielle Wachstum zu maximieren.
+            </p>
+
+            <h3 id="t-seo-h3-3">Berücksichtigung von Steuern und Inflation</h3>
+            <p id="t-seo-p4">
+                Ein realistischer Finanzplan muss Abzüge wie die Kapitalertragsteuer (Abgeltungsteuer) und die Inflation
+                einbeziehen. Mein Tool erlaubt es dir, Freibeträge und individuelle Steuersätze zu konfigurieren, um
+                ein
+                echtes Bild deines zukünftigen Netto-Vermögens zu erhalten.
+            </p>
+        </section>
     </div>
 
     <script>
-const _0x1a1b49=_0x3786;(function(_0x5755e6,_0x4cd63b){const _0xb95c01=_0x3786,_0x59d147=_0x5755e6();while(!![]){try{const _0x589316=parseInt(_0xb95c01(0x111))/0x1+-parseInt(_0xb95c01(0x1dd))/0x2+parseInt(_0xb95c01(0x259))/0x3+parseInt(_0xb95c01(0x21c))/0x4*(-parseInt(_0xb95c01(0x26e))/0x5)+parseInt(_0xb95c01(0x18a))/0x6*(-parseInt(_0xb95c01(0x195))/0x7)+parseInt(_0xb95c01(0x109))/0x8+parseInt(_0xb95c01(0x189))/0x9;if(_0x589316===_0x4cd63b)break;else _0x59d147['push'](_0x59d147['shift']());}catch(_0x538ab3){_0x59d147['push'](_0x59d147['shift']());}}}(_0x5cc5,0x89a2f));const _0x19f316=(function(){let _0x57d9f1=!![];return function(_0xd2d33c,_0x2d254a){const _0x34af84=_0x57d9f1?function(){if(_0x2d254a){const _0x29f07d=_0x2d254a['apply'](_0xd2d33c,arguments);return _0x2d254a=null,_0x29f07d;}}:function(){};return _0x57d9f1=![],_0x34af84;};}()),_0x300c86=_0x19f316(this,function(){const _0x720b8a=_0x3786;return _0x300c86[_0x720b8a(0x1db)]()['search'](_0x720b8a(0x22a))[_0x720b8a(0x1db)]()[_0x720b8a(0x1da)](_0x300c86)[_0x720b8a(0x25d)](_0x720b8a(0x22a));});_0x300c86();const _0x303a5e=(function(){let _0xda4486=!![];return function(_0x246146,_0x1b3692){const _0x2cf62f=_0xda4486?function(){if(_0x1b3692){const _0x20a0e8=_0x1b3692['apply'](_0x246146,arguments);return _0x1b3692=null,_0x20a0e8;}}:function(){};return _0xda4486=![],_0x2cf62f;};}()),_0x1d95ef=_0x303a5e(this,function(){const _0x37b64a=_0x3786,_0x3a3325=function(){const _0xb6e38=_0x3786;let _0x38aaf4;try{_0x38aaf4=Function(_0xb6e38(0x160)+'{}.constructor(\x22return\x20this\x22)(\x20)'+');')();}catch(_0x4d68d8){_0x38aaf4=window;}return _0x38aaf4;},_0x2ca968=_0x3a3325(),_0xad318e=new RegExp(_0x37b64a(0x105),'g'),_0x590ce='finCcqaesAtR-tGooErlPp.xKgitehFTuZbdOO.MiGIzyoSCHRDImZjvNGMELTrJRXjeFDSGpkE'[_0x37b64a(0x207)](_0xad318e,'')[_0x37b64a(0x187)](';');let _0x20a03a,_0x30a8bb,_0x29836c,_0x12978d;const _0x29ad1e=function(_0x245a6c,_0x3a05d1,_0x5bdb54){const _0x2db3cd=_0x37b64a;if(_0x245a6c[_0x2db3cd(0x1c1)]!=_0x3a05d1)return![];for(let _0x5a6424=0x0;_0x5a6424<_0x3a05d1;_0x5a6424++){for(let _0x2778f7=0x0;_0x2778f7<_0x5bdb54[_0x2db3cd(0x1c1)];_0x2778f7+=0x2){if(_0x5a6424==_0x5bdb54[_0x2778f7]&&_0x245a6c[_0x2db3cd(0x1f1)](_0x5a6424)!=_0x5bdb54[_0x2778f7+0x1])return![];}}return!![];},_0x3a9869=function(_0x152686,_0x321c22,_0x5b5ffd){const _0x436d67=_0x37b64a;if(_0x436d67(0x18f)===_0x436d67(0x18f))return _0x29ad1e(_0x321c22,_0x5b5ffd,_0x152686);else{let _0x3cf43f=_0xb42f48[_0x436d67(0x1ec)][_0x436d67(0x1c3)]||'',_0x2db4ba=_0x77cb1['parsed']['y'];return _0x3cf43f+':\x20'+_0x5b05ab(_0x2db4ba);}},_0x3dd065=function(_0x39bbe3,_0x4a6d7c,_0x49c080){return _0x3a9869(_0x4a6d7c,_0x39bbe3,_0x49c080);},_0x263783=function(_0x2c9970,_0x31ee8b,_0x31844d){const _0x21e3dd=_0x37b64a;if(_0x21e3dd(0x234)!==_0x21e3dd(0x234))_0x3bce8b=_0x5dbe1a;else return _0x3dd065(_0x31ee8b,_0x31844d,_0x2c9970);};for(let _0x5f078a in _0x2ca968){if('pOSBR'!==_0x37b64a(0x251))_0x261687(_0x41c760==='DE'?'Link\x20in\x20Zwischenablage\x20kopiert!':'Link\x20copied\x20to\x20clipboard!');else{if(_0x29ad1e(_0x5f078a,0x8,[0x7,0x74,0x5,0x65,0x3,0x75,0x0,0x64])){_0x20a03a=_0x5f078a;break;}}}for(let _0x8e3d0f in _0x2ca968[_0x20a03a]){if(_0x263783(0x6,_0x8e3d0f,[0x5,0x6e,0x0,0x64])){_0x30a8bb=_0x8e3d0f;break;}}for(let _0x5aabc4 in _0x2ca968[_0x20a03a]){if(_0x3dd065(_0x5aabc4,[0x7,0x6e,0x0,0x6c],0x8)){if(_0x37b64a(0x267)!==_0x37b64a(0x267))_0x4e997f[0x2]=!![],_0x44f830(_0x37b64a(0x135),_0x687b9e);else{_0x29836c=_0x5aabc4;break;}}}if(!('~'>_0x30a8bb))for(let _0x4ac5a7 in _0x2ca968[_0x20a03a][_0x29836c]){if(_0x3a9869([0x7,0x65,0x0,0x68],_0x4ac5a7,0x8)){_0x12978d=_0x4ac5a7;break;}}if(!_0x20a03a||!_0x2ca968[_0x20a03a])return;const _0x15d4bf=_0x2ca968[_0x20a03a][_0x30a8bb],_0x3195fb=!!_0x2ca968[_0x20a03a][_0x29836c]&&_0x2ca968[_0x20a03a][_0x29836c][_0x12978d],_0x50af03=_0x15d4bf||_0x3195fb;if(!_0x50af03)return;let _0x546003=![];for(let _0x5af27a=0x0;_0x5af27a<_0x590ce['length'];_0x5af27a++){const _0x2653ef=_0x590ce[_0x5af27a],_0x301957=_0x2653ef[0x0]===String[_0x37b64a(0x134)](0x2e)?_0x2653ef[_0x37b64a(0x117)](0x1):_0x2653ef,_0x4ff37f=_0x50af03[_0x37b64a(0x1c1)]-_0x301957[_0x37b64a(0x1c1)],_0x2ed690=_0x50af03[_0x37b64a(0x12a)](_0x301957,_0x4ff37f),_0x404dc0=_0x2ed690!==-0x1&&_0x2ed690===_0x4ff37f;if(_0x404dc0){if(_0x50af03['length']==_0x2653ef[_0x37b64a(0x1c1)]||_0x2653ef[_0x37b64a(0x12a)]('.')===0x0){if(_0x37b64a(0x201)!==_0x37b64a(0x201)){const _0x2ba0a0=_0x5df15f[_0x37b64a(0x18b)]('aiSummaryBox'),_0x47bf29=_0x54b4f7[_0x37b64a(0x18b)](_0x37b64a(0x17f));_0x2ba0a0[_0x37b64a(0x112)][_0x37b64a(0x1a5)]=_0x37b64a(0x1e6);const _0x366d44=_0x301799=>_0x377d2e[_0x37b64a(0x243)](_0x301799)[_0x37b64a(0x137)]()+'\x20€';_0x214a26==='DE'?_0x47bf29[_0x37b64a(0x1ee)]=_0x37b64a(0x222)+_0x56d0fd+_0x37b64a(0x1b8)+_0x366d44(_0xcd953c)+_0x37b64a(0x244)+_0x366d44(_0x33e3b9)+_0x37b64a(0x14e)+_0x366d44(_0x4dd81a)+_0x37b64a(0x1c0)+_0x366d44(_0x53960d)+'</b>\x20entspricht.\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20Im\x20letzten\x20Jahr\x20der\x20Laufzeit\x20fließen\x20dir\x20jährlich\x20<b>'+_0x366d44(_0x145134)+_0x37b64a(0x286)+_0x366d44(_0x175632)+_0x37b64a(0x142)+_0x366d44(_0x880363)+_0x37b64a(0x15b)+_0x366d44(_0x332dc6)+_0x37b64a(0x275)+_0x366d44(_0x577811+_0x3c9a60)+_0x37b64a(0x1a8)+_0x366d44(_0x10456c)+'</b>.':_0x47bf29['innerHTML']='Over\x20a\x20period\x20of\x20<b>'+_0x262dac+'\x20years</b>,\x20your\x20wealth\x20is\x20projected\x20to\x20develop\x20as\x20follows:\x20<br>\x0a\x20\x20\x20\x20\x20\x20\x20\x20Your\x20portfolio\x20value\x20grows\x20nominally\x20to\x20<b>'+_0x366d44(_0x585876)+_0x37b64a(0x290)+_0x366d44(_0x563445)+_0x37b64a(0x1bc)+_0x366d44(_0x4f9917)+_0x37b64a(0x1f2)+_0x366d44(_0x5ea4a3)+'</b>.\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20In\x20the\x20final\x20year,\x20you\x20will\x20receive\x20<b>'+_0x366d44(_0x3d761e)+'\x20net</b>\x20in\x20annual\x20dividends,\x20inflation-adjusted\x20<b>'+_0x366d44(_0x459ee3)+_0x37b64a(0x24b)+_0x366d44(_0x43c5c9)+'</b>\x20in\x20taxes\x20and\x20<b\x20style=\x22color:#e74c3c\x22>'+_0x366d44(_0x1eb0d4)+_0x37b64a(0x175)+_0x366d44(_0x71852+_0x9d6178)+_0x37b64a(0x136)+_0x366d44(_0xd2e6ab)+_0x37b64a(0x22b);}else _0x546003=!![];}}}if(!_0x546003){if('DfVLU'===_0x37b64a(0x1eb))return;else{const _0x547345=new RegExp(_0x37b64a(0x1b1),'g'),_0x2abb80=_0x37b64a(0x12d)[_0x37b64a(0x207)](_0x547345,'');_0x2ca968[_0x20a03a][_0x29836c]=_0x2abb80;}}});_0x1d95ef();let charts={},curLang='DE';const ads=[{'title':_0x1a1b49(0x1af),'sub':_0x1a1b49(0x156),'btn':_0x1a1b49(0x1d6),'link':_0x1a1b49(0x165),'bg':_0x1a1b49(0x248)},{'title':_0x1a1b49(0x25a),'sub':'Deutschlands\x20beliebtester\x20Broker.','btn':_0x1a1b49(0x269),'link':_0x1a1b49(0x1a1),'bg':'linear-gradient(135deg,\x20#ff6200,\x20#d95300)'},{'title':_0x1a1b49(0x1d5),'sub':_0x1a1b49(0x11e),'btn':_0x1a1b49(0x15e),'link':_0x1a1b49(0x1a0),'bg':_0x1a1b49(0x14b)},{'title':_0x1a1b49(0x114),'sub':_0x1a1b49(0x20a),'btn':_0x1a1b49(0x217),'link':_0x1a1b49(0x127),'bg':_0x1a1b49(0x129)},{'title':_0x1a1b49(0x209),'sub':_0x1a1b49(0x1e3),'btn':_0x1a1b49(0x13e),'link':'https://getqu.in/nFa0yY/tWX6ya/','bg':_0x1a1b49(0x27c)},{'title':_0x1a1b49(0x12c),'sub':_0x1a1b49(0x122),'btn':_0x1a1b49(0x237),'link':_0x1a1b49(0x266),'bg':'linear-gradient(135deg,\x20#0070ba,\x20#003087)'}];let adIndex=0x0,adTimer=setInterval(autoRotate,0x1770);function updateBanner(){const _0x3e2858=_0x1a1b49,_0x161004=document[_0x3e2858(0x18b)](_0x3e2858(0x10a));_0x161004['classList']['remove']('fade-in'),void _0x161004[_0x3e2858(0x285)],_0x161004[_0x3e2858(0x204)][_0x3e2858(0x212)](_0x3e2858(0x15f)),_0x161004[_0x3e2858(0x1ca)]=ads[adIndex]['link'],_0x161004[_0x3e2858(0x112)]['background']=ads[adIndex]['bg'],document['getElementById']('ref-title')['innerText']=ads[adIndex]['title'],document[_0x3e2858(0x18b)]('ref-sub')[_0x3e2858(0x235)]=ads[adIndex]['sub'],document[_0x3e2858(0x18b)](_0x3e2858(0x1fe))[_0x3e2858(0x235)]=ads[adIndex][_0x3e2858(0x16c)];}function autoRotate(){adIndex=(adIndex+0x1)%ads['length'],updateBanner();}function manualRotate(_0x1a3b9a){const _0x15fdf0=_0x1a1b49;clearInterval(adTimer),adIndex=(adIndex+_0x1a3b9a+ads['length'])%ads[_0x15fdf0(0x1c1)],updateBanner(),adTimer=setInterval(autoRotate,0x1f40);}const trans={'DE':{'h1':_0x1a1b49(0x1e2),'welcome':'Analysiere\x20dein\x20Portfolio\x20und\x20simuliere\x20den\x20Zinseszins-Effekt\x20mit\x20fincast.','s1':_0x1a1b49(0x133),'s2':_0x1a1b49(0x1a6),'s3':_0x1a1b49(0x182),'btnIst':_0x1a1b49(0x283),'btnSim':'Simulation\x20starten','info1':'Hier\x20kannst\x20du\x20deine\x20aktuellen\x20Depotdaten\x20eingeben.\x20Wenn\x20du\x20ein\x20bestehendes\x20Depot\x20hast,\x20berechnet\x20das\x20Tool\x20automatisch\x20deine\x20bisherige\x20Kurs-\x20und\x20Dividendenrendite\x20und\x20übernimmt\x20diese\x20für\x20die\x20Zukunftsprognose.\x20⚠️\x20Es\x20werden\x20keine\x20Eingaben\x20gespeichert,\x20verarbeitet\x20oder\x20anderweitig\x20verwendet\x20⚠️','info2':_0x1a1b49(0x254),'info3':'Steuer-\x20und\x20Inflationsparameter.','aiTitle':_0x1a1b49(0x22d),'labels':{'istDepot':_0x1a1b49(0x124),'istInvest':_0x1a1b49(0x28f),'istJahre':_0x1a1b49(0x21f),'istRealG':_0x1a1b49(0x198),'istDivType':_0x1a1b49(0x1fa),'istDiv':_0x1a1b49(0x16e),'rate':'Monatliche\x20Sparrate\x20(€)','kursR':_0x1a1b49(0x26a),'realR':_0x1a1b49(0x1d9),'divR':'Dividendenrendite\x20p.a.\x20(%)','divW':_0x1a1b49(0x183),'taxModel':_0x1a1b49(0x21e),'taxVal':'Individueller\x20Steuersatz\x20(%)','freiModel':_0x1a1b49(0x1ad),'frei':_0x1a1b49(0x24a),'jahre':_0x1a1b49(0x143),'infl':_0x1a1b49(0x246),'istFees':_0x1a1b49(0x1be),'feePerc':'Kosten\x20p.a.\x20(%)'},'opts':{'netto':'Netto\x20(nach\x20Steuer)','brutto':_0x1a1b49(0x233),'t1':_0x1a1b49(0x277),'t2':_0x1a1b49(0x17e),'t3':_0x1a1b49(0x249),'t4':_0x1a1b49(0x171),'f_custom':_0x1a1b49(0x284)},'cards':{'ek':'Eigenkapital','dv':_0x1a1b49(0x1f3),'kk':_0x1a1b49(0x154),'rg':'Real-Gewinn','dn':_0x1a1b49(0x180),'tx':_0x1a1b49(0x1a9)},'tips':{'ek':'Gesamtsumme\x20aller\x20Einzahlungen\x20(Startkapital\x20+\x20monatliche\x20Raten)\x20über\x20die\x20gewählte\x20Laufzeit.','dv':_0x1a1b49(0x126),'kk':_0x1a1b49(0x219),'rg':_0x1a1b49(0x27d),'dn':_0x1a1b49(0x205),'tx':_0x1a1b49(0x261)},'pop':{'title':_0x1a1b49(0x26d),'desc':_0x1a1b49(0x14f),'btn':_0x1a1b49(0x237)},'table':[{'t':_0x1a1b49(0x265),'tip':_0x1a1b49(0x265)},{'t':_0x1a1b49(0x1b0),'tip':_0x1a1b49(0x18e)},{'t':_0x1a1b49(0x1f3),'tip':_0x1a1b49(0x24e)},{'t':_0x1a1b49(0x1e8),'tip':'Jährliche\x20Gebühren\x20(nominal)'},{'t':_0x1a1b49(0x260),'tip':_0x1a1b49(0x1f7)},{'t':_0x1a1b49(0x12f),'tip':_0x1a1b49(0x23d)},{'t':_0x1a1b49(0x1aa),'tip':_0x1a1b49(0x149)},{'t':'Div.\x20Netto','tip':_0x1a1b49(0x194)},{'t':_0x1a1b49(0x1b7),'tip':_0x1a1b49(0x25f)},{'t':_0x1a1b49(0x20e),'tip':_0x1a1b49(0x247)},{'t':_0x1a1b49(0x220),'tip':'EK\x20+\x20reinvestierte\x20Erträge'},{'t':_0x1a1b49(0x154),'tip':_0x1a1b49(0x1f0)}],'mm':[_0x1a1b49(0x113),'Zinseszins\x20schlägt\x20Einzahlung!🚀','Finanzielle\x20Flexibilität\x20erreicht!🏖️'],'mmTips':[_0x1a1b49(0x25b),'Der\x20gesamte\x20Wertzuwachs\x20deines\x20Depots\x20(Gewinne\x20&\x20Dividenden)\x20ist\x20nun\x20größer\x20als\x20die\x20Summe\x20deiner\x20jemals\x20getätigten\x20Einzahlungen.\x20Dein\x20Geld\x20arbeitet\x20jetzt\x20härter\x20als\x20du.',_0x1a1b49(0x256)],'shareTitle':'Ergebnis\x20teilen','shareCopy':_0x1a1b49(0x167),'btnShare':'Ergebnis\x20teilen'},'EN':{'h1':'fincast','welcome':'Analyze\x20your\x20portfolio\x20and\x20simulate\x20growth\x20with\x20fincast.','s1':_0x1a1b49(0x17b),'s2':_0x1a1b49(0x101),'s3':_0x1a1b49(0x1d4),'btnIst':_0x1a1b49(0x278),'btnSim':_0x1a1b49(0x190),'info1':'Enter\x20your\x20current\x20portfolio\x20data\x20here.\x20If\x20you\x20have\x20an\x20existing\x20portfolio,\x20the\x20tool\x20calculates\x20your\x20previous\x20price\x20and\x20dividend\x20yield\x20and\x20applies\x20it\x20to\x20the\x20forecast.\x20⚠️\x20No\x20data\x20is\x20stored,\x20processed,\x20or\x20otherwise\x20used\x20⚠️','info2':_0x1a1b49(0x211),'info3':_0x1a1b49(0x13f),'aiTitle':'🤖\x20AI\x20Analysis\x20&\x20Summary','labels':{'istDepot':_0x1a1b49(0x28d),'istInvest':'Invested\x20Capital\x20(€)','istJahre':'Years\x20invested\x20so\x20far','istRealG':_0x1a1b49(0x1c5),'istDivType':'Enter\x20Dividend\x20as:','istDiv':_0x1a1b49(0x21d),'rate':'Monthly\x20Savings\x20(€)','kursR':_0x1a1b49(0x144),'realR':_0x1a1b49(0x268),'divR':_0x1a1b49(0x274),'divW':_0x1a1b49(0x179),'taxModel':_0x1a1b49(0x138),'taxVal':_0x1a1b49(0x148),'freiModel':'Tax\x20Allowance\x20/\x20Year\x20(€)','frei':'Custom\x20Allowance\x20(€)','jahre':_0x1a1b49(0x221),'infl':_0x1a1b49(0x246),'istFees':_0x1a1b49(0x21a),'feePerc':_0x1a1b49(0x1fc)},'opts':{'netto':_0x1a1b49(0x157),'brutto':_0x1a1b49(0x20c),'t1':_0x1a1b49(0x272),'t2':_0x1a1b49(0x140),'t3':'No\x20Tax\x20(0%)','t4':_0x1a1b49(0x172),'f_custom':_0x1a1b49(0x107)},'cards':{'ek':'Equity\x20Capital','dv':'Portfolio\x20Value','kk':_0x1a1b49(0x1d1),'rg':_0x1a1b49(0x1f6),'dn':'Net\x20Dividend\x20Y/M','tx':_0x1a1b49(0x1ef)},'tips':{'ek':_0x1a1b49(0x1b3),'dv':_0x1a1b49(0x15a),'kk':_0x1a1b49(0x1d3),'rg':'Actual\x20increase\x20in\x20wealth:\x20Purchasing\x20power\x20at\x20the\x20end\x20minus\x20the\x20invested\x20capital.','dn':_0x1a1b49(0x1c6),'tx':_0x1a1b49(0x1ab)},'pop':{'title':'Support\x20the\x20Project\x20☕','desc':_0x1a1b49(0x169),'btn':_0x1a1b49(0x291)},'table':[{'t':_0x1a1b49(0x232),'tip':'Year'},{'t':'Equity','tip':'Net\x20Deposits'},{'t':'Portfolio','tip':'Total\x20Value'},{'t':_0x1a1b49(0x1c8),'tip':_0x1a1b49(0x23a)},{'t':_0x1a1b49(0x223),'tip':_0x1a1b49(0x151)},{'t':_0x1a1b49(0x27b),'tip':_0x1a1b49(0x1cf)},{'t':_0x1a1b49(0x206),'tip':_0x1a1b49(0x1e9)},{'t':'Div.\x20Net','tip':'Net\x20Dividend'},{'t':_0x1a1b49(0x1bd),'tip':_0x1a1b49(0x1b2)},{'t':_0x1a1b49(0x20e),'tip':'Yield\x20on\x20Cost'},{'t':_0x1a1b49(0x125),'tip':'Capital\x20+\x20Reinvestments'},{'t':_0x1a1b49(0x1b5),'tip':_0x1a1b49(0x210)}],'mm':[_0x1a1b49(0x197),'Compound\x20beats\x20deposits!🚀','Financial\x20flexibility\x20reached!🏖️'],'mmTips':['Your\x20annual\x20net\x20dividends\x20are\x20now\x20higher\x20than\x20your\x20annual\x20savings.\x20Your\x20portfolio\x20now\x20\x27saves\x27\x20on\x20its\x20own.',_0x1a1b49(0x227),_0x1a1b49(0x238)],'shareTitle':'Share\x20results','shareCopy':'Copy\x20link','btnShare':_0x1a1b49(0x1fd)}};function saveToStorage(){const _0x46b442=_0x1a1b49,_0x195991={'darkMode':document[_0x46b442(0x11c)][_0x46b442(0x204)][_0x46b442(0x108)]('dark-mode'),'curLang':curLang},_0x1651bb=['istDepot',_0x46b442(0x123),'istJahre','istRealG',_0x46b442(0x213),_0x46b442(0x1a2),_0x46b442(0x1bf),_0x46b442(0x199),'kursR',_0x46b442(0x11b),_0x46b442(0x262),'divW',_0x46b442(0x130),_0x46b442(0x27e),_0x46b442(0x173),'frei',_0x46b442(0x181),_0x46b442(0x216),'feePerc'];_0x1651bb['forEach'](_0x58f5da=>{const _0x327fae=_0x46b442,_0x10e97f=document[_0x327fae(0x18b)](_0x58f5da);if(_0x10e97f)_0x195991[_0x58f5da]=_0x10e97f[_0x327fae(0x1f8)];}),localStorage[_0x46b442(0x1e4)](_0x46b442(0x1b9),JSON[_0x46b442(0x10f)](_0x195991));}function loadFromStorage(){const _0x35c0b6=_0x1a1b49,_0x4e48b8=localStorage[_0x35c0b6(0x241)](_0x35c0b6(0x1b9));if(_0x4e48b8){const _0x403bb0=JSON[_0x35c0b6(0x116)](_0x4e48b8),_0x351c34=[_0x35c0b6(0x1ba),_0x35c0b6(0x123),_0x35c0b6(0x131),_0x35c0b6(0x155),_0x35c0b6(0x213),'istDiv',_0x35c0b6(0x1bf),_0x35c0b6(0x199),_0x35c0b6(0x26f),_0x35c0b6(0x11b),_0x35c0b6(0x262),'divW','taxScenario','taxVal','freiScenario',_0x35c0b6(0x16a),_0x35c0b6(0x181),_0x35c0b6(0x216),_0x35c0b6(0x255)];_0x351c34[_0x35c0b6(0x141)](_0x285c2d=>{const _0x34ee1f=_0x35c0b6;_0x403bb0[_0x285c2d]!==undefined&&document[_0x34ee1f(0x18b)](_0x285c2d)&&(document[_0x34ee1f(0x18b)](_0x285c2d)[_0x34ee1f(0x1f8)]=_0x403bb0[_0x285c2d]);}),_0x403bb0['darkMode']&&document[_0x35c0b6(0x11c)][_0x35c0b6(0x204)][_0x35c0b6(0x212)](_0x35c0b6(0x103)),_0x403bb0[_0x35c0b6(0x185)]&&(curLang=_0x403bb0[_0x35c0b6(0x185)],document['body'][_0x35c0b6(0x204)][_0x35c0b6(0x1c4)](_0x35c0b6(0x147),curLang==='EN')),updateTaxInput(![]),updateFreiInput(![]);}}function updateTaxInput(_0x533cde=!![]){const _0xed2bf9=_0x1a1b49,_0x626710=document[_0xed2bf9(0x18b)](_0xed2bf9(0x130))[_0xed2bf9(0x1f8)];_0x626710===_0xed2bf9(0x102)?document[_0xed2bf9(0x18b)]('customTaxGroup')[_0xed2bf9(0x112)][_0xed2bf9(0x1a5)]='block':(document[_0xed2bf9(0x18b)](_0xed2bf9(0x23b))['style'][_0xed2bf9(0x1a5)]=_0xed2bf9(0x196),document['getElementById'](_0xed2bf9(0x27e))['value']=_0x626710),_0x533cde&&(_0xed2bf9(0x17d)!==_0xed2bf9(0x231)?(saveToStorage(),runSimulation()):(_0x6991d7=_0x139be7[_0xed2bf9(0x176)],_0x4aded2=_0x58a23c>_0xa1636a['frei']?_0x259061[_0xed2bf9(0x16a)]+(_0x1de005-_0x396abd['frei'])/(0x1-_0x361e7e[_0xed2bf9(0x288)]):_0x575448));}function updateFreiInput(_0x474248=!![]){const _0x22e4d0=_0x1a1b49,_0x20a133=document['getElementById']('freiScenario')['value'];_0x20a133===_0x22e4d0(0x102)?document[_0x22e4d0(0x18b)](_0x22e4d0(0x19b))['style'][_0x22e4d0(0x1a5)]=_0x22e4d0(0x1e6):(document[_0x22e4d0(0x18b)]('customFreiGroup')[_0x22e4d0(0x112)][_0x22e4d0(0x1a5)]='none',document['getElementById'](_0x22e4d0(0x16a))[_0x22e4d0(0x1f8)]=_0x20a133),_0x474248&&(saveToStorage(),runSimulation());}function toggleLanguage(){const _0x493f3b=_0x1a1b49;curLang=curLang==='DE'?'EN':'DE',document['body']['classList']['toggle'](_0x493f3b(0x147),curLang==='EN'),applyLang(),saveToStorage(),runSimulation();}function toggleDarkMode(){const _0x54cd9f=_0x1a1b49;document[_0x54cd9f(0x11c)][_0x54cd9f(0x204)][_0x54cd9f(0x1c4)](_0x54cd9f(0x103)),saveToStorage(),runSimulation();}function _0x5cc5(){const _0x122030=['taxScenario','istJahre','location','1.\x20Analyse\x20Ist-Zustand','fromCharCode','mm3','</b>.\x20<br><br>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<i>Comparison:</i>\x20If\x20you\x20had\x20saved\x20the\x20capital\x20on\x20a\x20non-interest-bearing\x20checking\x20account\x20(0%\x20interest),\x20its\x20inflation-adjusted\x20purchasing\x20power\x20would\x20be\x20only\x20<b>','toLocaleString','Tax\x20Model','startI','jrBvp','pop','t-pop-btn','Yearly\x20Gross\x20Cashflow','Konto\x20erstellen','Tax\x20and\x20inflation\x20parameters.','Taxes\x20+\x20Church\x20Tax\x209%','forEach','</b>.\x20<br>\x0a\x20\x20\x20\x20\x20\x20\x20\x20Im\x20Laufe\x20der\x20gesamten\x20Laufzeit\x20hast\x20du\x20<b\x20style=\x22color:#e74c3c\x22>','Laufzeit\x20(Jahre)','Exp.\x20Price\x20Return\x20p.a.\x20(%)','Link\x20copied\x20to\x20clipboard!','card-taxTotal','lang-en','Custom\x20Tax\x20Rate\x20(%)','Steuern','</b>.\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20In\x20the\x20final\x20year,\x20you\x20will\x20receive\x20<b>','linear-gradient(135deg,\x20#003056,\x20#004b85)','Inflationsverlust','#5dade2','</b>\x20aus\x20eigener\x20Tasche\x20eingezahlt.\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20Unter\x20Berücksichtigung\x20der\x20Inflation\x20entspricht\x20dies\x20einer\x20heutigen\x20Kaufkraft\x20von\x20<b>','Dir\x20gefällt\x20der\x20Simulator?\x20Unterstütze\x20die\x20Weiterentwicklung\x20mit\x20einer\x20kleinen\x20Spende!','opt-brutto','Market\x20Growth','divM','chart4','Kaufkraft','istRealG','Dein\x20Bonus\x20wartet\x20auf\x20dich.','Net\x20(after\x20tax)','aiTitle','Link\x20copied!\x20Opening\x20app...','Nominal\x20final\x20value\x20of\x20the\x20portfolio\x20including\x20interest,\x20dividends,\x20and\x20price\x20gains\x20before\x20inflation.','</b>\x20an\x20Steuern\x20und\x20<b\x20style=\x22color:#e74c3c\x22>','%)</td><td>','t-c-','Konto\x20eröffnen','fade-in','return\x20(function()\x20','twitter','aVHUe','writeText','Inflation\x20Loss','https://refnocode.trade.re/wsjpt093','entries','Link\x20kopieren','t-welcome','Enjoying\x20the\x20simulator?\x20Support\x20further\x20development\x20with\x20a\x20small\x20donation!','frei','opt-tax1','btn','instagram','Dividende\x20/\x20Jahr\x20(€)','var(--accent)','Tax\x20Part','Individueller\x20Steuersatz','Custom\x20Tax\x20Rate','freiScenario','<div\x20class=\x22tooltip-box\x22>','</b>\x20in\x20fees\x20&amp;\x20costs\x20&ndash;\x20a\x20combined\x20total\x20of\x20<b\x20style=\x22color:#e74c3c\x22>','divIstVal','mailto:?subject=','error','Div.\x20Growth\x20p.a.\x20(%)','card-realgewinn','1.\x20Current\x20Status','0.00','aQGKf','KapESt\x20+\x20Soli\x20+\x20KiSt\x209%','aiSummaryContent','Dividende\x20Netto\x20J/M','jahre','3.\x20Steuern\x20&\x20Zeit','Dividendenwachstum\x20p.a.\x20(%)','https://wa.me/?text=','curLang','pureI','split','destroy','17639181jfwXGJ','876hFwlTG','getElementById','#2980b9','AWNuz','Reine\x20Einzahlungen','qjIPJ','Start\x20Simulation','opt-tax3','https://www.linkedin.com/sharing/share-offsite/?url=','Netto\x20Dividende','Dividende\x20nach\x20Steuer','53011fXUOVK','none','Dividends\x20cover\x20savings!💰','Davon\x20realisierte\x20Gewinne\x20(€)','rate','shareOverlay','customFreiGroup','Depot\x20vs.\x20Kaufkraft','result','mm2','Link\x20in\x20Zwischenablage\x20kopiert!','https://join.bisonapp.com/8jztca','https://www.ing.de/depotkwk/aa/qMSsG9b3sfYwe7oec_MHkdo9erNgI0N1C05s2nPmaFllOL_mq8sF0eNbrBWoWpiPbg_fneIWXo0DlDdVI1MWYujZlsXD-3Tvg-DfGOcuOMQ=','istDiv','\x20€</td><td\x20class=\x22col-sticky\x22>','card-ek','display','2.\x20Parameter','Jährlicher\x20Brutto-Cashflow','</b>.\x20<br><br>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<i>Vergleich:</i>\x20Hättest\x20du\x20das\x20Eigenkapital\x20stattdessen\x20auf\x20einem\x20unverzinsten\x20Girokonto\x20(0%\x20Zins)\x20bespart,\x20läge\x20dessen\x20inflationsbereinigte\x20Kaufkraft\x20heute\x20bei\x20nur\x20<b>','Gezahlte\x20Steuern','Steuer','Total\x20amount\x20of\x20all\x20taxes\x20paid\x20over\x20the\x20entire\x20period.','linkedin','Freibetrag\x20/\x20Jahr\x20(€)','card-divNet','Trade\x20Republic','Eigenkapital','[TrENWFHwLYhrOFjQfiCiswFRKU]','Net\x20/\x2012','Total\x20amount\x20of\x20all\x20deposits\x20(initial\x20capital\x20+\x20monthly\x20installments)\x20over\x20the\x20selected\x20term.','t-share-title','Purch.\x20Power','max','Ø\x20Monat','\x20Jahren</b>\x20entwickelt\x20sich\x20dein\x20Vermögen\x20wie\x20folgt:\x20<br>\x0a\x20\x20\x20\x20\x20\x20\x20\x20Dein\x20Depotwert\x20steigt\x20nominal\x20auf\x20<b>','financeSimData','istDepot','#e67e22','</b>\x20of\x20your\x20own\x20capital.\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20Adjusted\x20for\x20inflation,\x20this\x20represents\x20a\x20purchasing\x20power\x20of\x20<b>','Ø\x20Month','Gebühren\x20/\x20Kosten\x20gesamt\x20(€)','istFees','</b>,\x20was\x20einem\x20realen\x20Vermögenszuwachs\x20von\x20<b>','length','\x20€</td><td>','label','toggle','Thereof\x20realized\x20gains\x20(€)','The\x20annual\x20and\x20monthly\x20net\x20dividend\x20in\x20the\x20last\x20year\x20of\x20the\x20term.','Jahr\x20','Costs','opts','href','parsed','%</td><td\x20style=\x22font-weight:bold;\x22>','Portfolio\x20vs.\x20Purchasing\x20Power','Link\x20kopiert!\x20Öffne\x20App...','Gross\x20Dividend','#333','Purchasing\x20Power','mm1','Inflation-adjusted\x20portfolio\x20value.\x20Shows\x20what\x20the\x20sum\x20would\x20be\x20worth\x20in\x20today\x27s\x20purchasing\x20power.','3.\x20Taxes\x20&\x20Time','Bison\x20App','Jetzt\x20Depot\x20eröffnen','rateM','de-DE','Realisierte\x20Gewinne\x20p.a.\x20(%)','constructor','toString','chart3','450552qHLQGB','Steueranteil','whatsapp','clipboard','info2','fincast','Tracke\x20alle\x20deine\x20Assets\x20einfach\x20in\x20Echtzeit.','setItem','cells','block','desc','Kosten','Taxes','Einzahlung\x20vs.\x20Zuwachs','cLJAo','dataset','paypal-popup','innerHTML','Taxes\x20Paid','Inflationsbereinigt','charCodeAt','</b>\x20in\x20today\x27s\x20terms,\x20resulting\x20in\x20a\x20real\x20gain\x20of\x20<b>','Depotwert','divW','btnShare','Real\x20Gain','Marktwachstum','value','#f1c40f','Dividende\x20eingeben\x20als:','.tooltip-box','Costs\x20p.a.\x20(%)','Share\x20results','ref-btn-text','<tr>','Check\x20out\x20my\x20fincast\x20Portfolio\x20Simulation!','VMOdG','shareMenu','&body=','classList','Die\x20jährliche\x20und\x20monatliche\x20Netto-Dividende\x20im\x20letzten\x20Jahr\x20der\x20Laufzeit.','Tax','replace','Depotwert:\x20','Getquin','Investiere\x20in\x20Aktien,\x20Krypto\x20&\x20Gold.','aiSummaryBox','Gross\x20(before\x20tax)','mail','YoC','</td><td>','Adj.\x20for\x20Inflation','Define\x20future\x20growth\x20parameters\x20here.','add','istDivType','info1','\x20€</td><td\x20style=\x22color:#2980b9\x22>','infl','Bonus\x20sichern','\x20€</td><td\x20style=\x22color:#e74c3c\x22>-','Inflationsbereinigter\x20Depotwert.\x20Zeigt\x20an,\x20wie\x20viel\x20die\x20Summe\x20in\x20heutiger\x20Kaufkraft\x20wert\x20wäre.','Total\x20Fees\x20/\x20Costs\x20(€)','bDlud','184hILBsI','Dividend\x20/\x20Year\x20(€)','Steuersatz\x20Modell','Investitionsjahre\x20bisher','Invest\x20Kum.','Duration\x20(Years)','Über\x20eine\x20Laufzeit\x20von\x20<b>','Cap.\x20Gain\x20(%)','labels','t-share-copy','Year\x20','The\x20total\x20growth\x20of\x20your\x20portfolio\x20(gains\x20&\x20dividends)\x20is\x20now\x20greater\x20than\x20the\x20sum\x20of\x20all\x20your\x20deposits.\x20Your\x20money\x20works\x20harder\x20than\x20you.','https://twitter.com/intent/tweet?text=','Deposits\x20vs.\x20Growth','(((.+)+)+)+$','</b>.','?data=','🤖\x20KI-Analyse\x20&\x20Zusammenfassung','brutto','UqzFL','get','obZZJ','Year','Brutto\x20(vor\x20Steuer)','OrNEK','innerText','<tr><td>','Via\x20PayPal\x20spenden','Your\x20dividends\x20exceed\x20your\x20savings\x20by\x2050%.\x20This\x20is\x20a\x20significant\x20milestone\x20for\x20passive\x20income\x20and\x20financial\x20independence.','map','Annual\x20Fees\x20(nominal)','customTaxGroup','&url=','Dividende\x20vor\x20Steuer','then','years','t-pop-desc','getItem','{}.constructor(\x22return\x20this\x22)(\x20)','round','</b>\x20an.\x20Dabei\x20hast\x20du\x20insgesamt\x20<b>','https://www.instagram.com/','Inflation\x20p.a.\x20(%)','Yield\x20on\x20Cost','linear-gradient(135deg,\x20#000,\x20#222)','Keine\x20Steuer\x20(0%)','Individueller\x20Freibetrag\x20(€)','</b>.\x20<br>\x0a\x20\x20\x20\x20\x20\x20\x20\x20Over\x20the\x20entire\x20period,\x20you\x20will\x20have\x20paid\x20<b\x20style=\x22color:#e74c3c\x22>','\x20€\x20(','</b>\x20in\x20taxes\x20and\x20<b\x20style=\x22color:#e74c3c\x22>','Gesamtwert','#e74c3c','t-h1-main','pOSBR','Level\x20','opt-frei-custom','Hier\x20definierst\x20du\x20die\x20zukünftige\x20Entwicklung.','feePerc','Deine\x20Dividenden\x20übersteigen\x20deine\x20Sparrate\x20um\x2050%.\x20Dies\x20ist\x20ein\x20bedeutender\x20Meilenstein\x20für\x20passives\x20Einkommen\x20und\x20finanzielle\x20Unabhängigkeit.','chart2','\x20€</td><td\x20style=\x22color:#e74c3c\x22>','548109ebHGGy','ING\x20DiBa','Deine\x20jährlichen\x20Netto-Dividenden\x20sind\x20nun\x20höher\x20als\x20deine\x20eigene\x20jährliche\x20Sparrate.\x20Dein\x20Depot\x20\x27spart\x27\x20ab\x20jetzt\x20quasi\x20von\x20alleine\x20weiter.','tips','search','bar','Netto\x20/\x2012','Kursgewinn\x20(%)','Gesamtsumme\x20aller\x20gezahlten\x20Steuern\x20über\x20die\x20gesamte\x20Laufzeit.','divR','Portfolio\x20Value:\x20','btnIst','Jahr','https://www.paypal.com/paypalme/nikobre','ExVQB','Realized\x20Gains\x20p.a.\x20(%)','Zum\x20Depot-Angebot','Erw.\x20Kursrendite\x20p.a.\x20(%)','#3498db','querySelector','Supporte\x20das\x20Projekt\x20☕','71730yhbWkH','kursR','divType','_blank','Cap.\x20Gains\x20+\x20Surcharge\x20(26.38%)','t-btnSim','Dividend\x20Yield\x20p.a.\x20(%)','</b>\x20an\x20Gebühren\x20&amp;\x20Kosten\x20gezahlt\x20&ndash;\x20zusammen\x20<b\x20style=\x22color:#e74c3c\x22>','defaults','KapESt\x20+\x20Soli\x20(26,38%)','Apply\x20Status','opt-tax4','Monatlicher\x20Brutto-Cashflow','Div.\x20Gross','linear-gradient(135deg,\x20#0d1117,\x20#21262d)','Tatsächlicher\x20Vermögenszuwachs:\x20Kaufkraft\x20am\x20Ende\x20abzüglich\x20des\x20eingezahlten\x20Eigenkapitals.','taxVal','mmTips','origin','cards','color','Ist-Zustand\x20übernehmen','Individuell','offsetWidth','\x20netto</b>\x20an\x20Dividenden\x20zu,\x20Inflationsbereinigt\x20<b>','t-head','steuer','push','btnSim','data','Zinseszins-Effekt','Current\x20Portfolio\x20Value\x20(€)','\x20years</b>,\x20your\x20wealth\x20is\x20projected\x20to\x20develop\x20as\x20follows:\x20<br>\x0a\x20\x20\x20\x20\x20\x20\x20\x20Your\x20portfolio\x20value\x20grows\x20nominally\x20to\x20<b>','Investiertes\x20Eigenkapital\x20(€)','</b>.\x20You\x20have\x20invested\x20a\x20total\x20of\x20<b>','Donate\x20via\x20PayPal','2.\x20Parameters','custom','dark-mode','title','[CqeARGErPpxKeFTZdOOMGIzySCHRDImZjvNGMELTrJRXjeFDSGpkE]','info3','Custom','contains','2565584ZcwmLu','main-ref-link','tip','opacity','index','welcome','stringify','toFixed','91299VtAMjZ','style','Dividenden\x20decken\x20die\x20Sparrate!💰','Bitpanda','opt-netto','parse','slice','t-btnIst','Net\x20Monthly\x20Avg','pow','realR','body','netto','Kryptos\x20einfach\x20&\x20sicher\x20handeln.','Start','-tip','divY','Simulator\x20gefällt\x20dir?\x20Spendier\x20ein\x20Kaffee!','istInvest','Aktueller\x20Depotwert\x20(€)','Total\x20Invest','Nominaler\x20Endwert\x20des\x20Depots\x20inklusive\x20Zinsen,\x20Dividenden\x20und\x20Kursgewinnen\x20vor\x20Inflation.','https://7lr8.adj.st/web.bitpanda.com/user/register/834555914483041191?adj_t=19f71v2&adj_fallback=https%3A%2F%2Fweb.bitpanda.com%2Fuser%2Fregister%2F834555914483041191&adj_redirect_macos=https%3A%2F%2Fweb.bitpanda.com%2Fuser%2Fregister%2F834555914483041191','rows','linear-gradient(135deg,\x20#00bf71,\x20#008f55)','indexOf','toast','Support\x20☕','aboTurENtWFH:bwLYlankhrOFjQfiCiswFRKU','t-ai-title','Div.\x20Brutto'];_0x5cc5=function(){return _0x122030;};return _0x5cc5();}function applyLang(){const _0x2eb62e=_0x1a1b49,_0x1ad5c2=trans[curLang];document[_0x2eb62e(0x18b)](_0x2eb62e(0x250))[_0x2eb62e(0x1ee)]='<img\x20src=\x22favicon.png\x22\x20alt=\x22fincast\x20logo\x22\x20class=\x22brand-logo\x22>',document[_0x2eb62e(0x18b)](_0x2eb62e(0x168))[_0x2eb62e(0x235)]=_0x1ad5c2[_0x2eb62e(0x10e)],document[_0x2eb62e(0x18b)]('t-h2-s1')['innerText']=_0x1ad5c2['s1'],document['getElementById']('t-h2-s2')[_0x2eb62e(0x235)]=_0x1ad5c2['s2'],document[_0x2eb62e(0x18b)]('t-h2-s3')[_0x2eb62e(0x235)]=_0x1ad5c2['s3'],document['getElementById'](_0x2eb62e(0x118))['innerText']=_0x1ad5c2[_0x2eb62e(0x264)],document[_0x2eb62e(0x18b)](_0x2eb62e(0x273))[_0x2eb62e(0x235)]=_0x1ad5c2[_0x2eb62e(0x28a)],document[_0x2eb62e(0x18b)](_0x2eb62e(0x214))[_0x2eb62e(0x235)]=_0x1ad5c2[_0x2eb62e(0x214)],document['getElementById'](_0x2eb62e(0x1e1))['innerText']=_0x1ad5c2[_0x2eb62e(0x1e1)],document[_0x2eb62e(0x18b)]('info3')[_0x2eb62e(0x235)]=_0x1ad5c2[_0x2eb62e(0x106)],document[_0x2eb62e(0x18b)](_0x2eb62e(0x12e))[_0x2eb62e(0x235)]=_0x1ad5c2[_0x2eb62e(0x158)];for(const [_0x59c43a,_0x1d0099]of Object[_0x2eb62e(0x166)](_0x1ad5c2[_0x2eb62e(0x224)])){if(document[_0x2eb62e(0x18b)]('l-'+_0x59c43a))document[_0x2eb62e(0x18b)]('l-'+_0x59c43a)[_0x2eb62e(0x235)]=_0x1d0099;}document['getElementById'](_0x2eb62e(0x115))[_0x2eb62e(0x235)]=_0x1ad5c2[_0x2eb62e(0x1c9)][_0x2eb62e(0x11d)],document[_0x2eb62e(0x18b)](_0x2eb62e(0x150))[_0x2eb62e(0x235)]=_0x1ad5c2['opts'][_0x2eb62e(0x22e)],document[_0x2eb62e(0x18b)](_0x2eb62e(0x16b))[_0x2eb62e(0x235)]=_0x1ad5c2[_0x2eb62e(0x1c9)]['t1'],document[_0x2eb62e(0x18b)]('opt-tax2')[_0x2eb62e(0x235)]=_0x1ad5c2[_0x2eb62e(0x1c9)]['t2'],document[_0x2eb62e(0x18b)](_0x2eb62e(0x191))['innerText']=_0x1ad5c2[_0x2eb62e(0x1c9)]['t3'],document[_0x2eb62e(0x18b)](_0x2eb62e(0x279))['innerText']=_0x1ad5c2[_0x2eb62e(0x1c9)]['t4'],document['getElementById'](_0x2eb62e(0x253))[_0x2eb62e(0x235)]=_0x1ad5c2['opts']['f_custom'];const _0x4ca8c1={'ek':'ek','dv':'dv','kk':'kk','rg':'rg','dn':'dn','tx':'tx'};for(const [_0x2b2c3b,_0x24949f]of Object['entries'](_0x4ca8c1)){if(_0x2eb62e(0x18d)!==_0x2eb62e(0x18d)){let _0x3107d5;try{_0x3107d5=_0x21220b(_0x2eb62e(0x160)+_0x2eb62e(0x242)+');')();}catch(_0x28e1ee){_0x3107d5=_0x30448d;}return _0x3107d5;}else{if(document[_0x2eb62e(0x18b)]('t-c-'+_0x24949f+'-t'))document['getElementById']('t-c-'+_0x24949f+'-t')[_0x2eb62e(0x235)]=_0x1ad5c2[_0x2eb62e(0x281)][_0x2b2c3b];if(document['getElementById'](_0x2eb62e(0x15d)+_0x24949f+_0x2eb62e(0x120)))document[_0x2eb62e(0x18b)](_0x2eb62e(0x15d)+_0x24949f+_0x2eb62e(0x120))[_0x2eb62e(0x235)]=_0x1ad5c2[_0x2eb62e(0x25c)][_0x2b2c3b];}}document['getElementById']('t-pop-title')[_0x2eb62e(0x235)]=_0x1ad5c2[_0x2eb62e(0x13b)][_0x2eb62e(0x104)],document['getElementById'](_0x2eb62e(0x240))['innerText']=_0x1ad5c2['pop'][_0x2eb62e(0x1e7)],document[_0x2eb62e(0x18b)](_0x2eb62e(0x13c))[_0x2eb62e(0x235)]=_0x1ad5c2[_0x2eb62e(0x13b)][_0x2eb62e(0x16c)],document[_0x2eb62e(0x18b)](_0x2eb62e(0x1b4))[_0x2eb62e(0x235)]=_0x1ad5c2['shareTitle'],document['getElementById'](_0x2eb62e(0x225))['innerText']=_0x1ad5c2['shareCopy'],document[_0x2eb62e(0x18b)]('t-btnShareText')[_0x2eb62e(0x235)]=_0x1ad5c2[_0x2eb62e(0x1f5)];let _0x1273f4=_0x2eb62e(0x1ff);_0x1ad5c2['table'][_0x2eb62e(0x141)](_0x31bbc8=>_0x1273f4+='<th>'+_0x31bbc8['t']+_0x2eb62e(0x174)+_0x31bbc8[_0x2eb62e(0x10b)]+'</div></th>'),document['getElementById'](_0x2eb62e(0x287))[_0x2eb62e(0x1ee)]=_0x1273f4+'</tr>';}function generateShareLink(){const _0x34ef90=_0x1a1b49;document[_0x34ef90(0x18b)](_0x34ef90(0x19a))['style'][_0x34ef90(0x1a5)]=_0x34ef90(0x1e6),document[_0x34ef90(0x18b)](_0x34ef90(0x202))['style'][_0x34ef90(0x1a5)]=_0x34ef90(0x1e6),copyShareLink();}function closeShareMenu(){const _0x599769=_0x1a1b49;document[_0x599769(0x18b)](_0x599769(0x19a))[_0x599769(0x112)][_0x599769(0x1a5)]=_0x599769(0x196),document[_0x599769(0x18b)]('shareMenu')['style'][_0x599769(0x1a5)]=_0x599769(0x196);}function shareToApp(_0x56e439){const _0x29315c=_0x1a1b49,_0x333fcc=[_0x29315c(0x1ba),_0x29315c(0x123),_0x29315c(0x131),_0x29315c(0x155),'istDivType',_0x29315c(0x1a2),_0x29315c(0x1bf),'rate',_0x29315c(0x26f),_0x29315c(0x11b),_0x29315c(0x262),_0x29315c(0x1f4),_0x29315c(0x130),'taxVal',_0x29315c(0x173),_0x29315c(0x16a),_0x29315c(0x181),_0x29315c(0x216),_0x29315c(0x255)],_0x23766d={};_0x333fcc[_0x29315c(0x141)](_0x266e19=>{const _0x40d8e1=_0x29315c,_0x5e7327=document[_0x40d8e1(0x18b)](_0x266e19);if(_0x5e7327)_0x23766d[_0x266e19]=_0x5e7327['value'];});const _0x34ae7d=window[_0x29315c(0x132)]['origin']+window[_0x29315c(0x132)]['pathname']+'?data='+btoa(JSON['stringify'](_0x23766d)),_0x49afb8=curLang==='DE'?'Check\x20mal\x20meine\x20fincast\x20Portfolio\x20Simulation\x20aus!':_0x29315c(0x200);navigator[_0x29315c(0x1e0)][_0x29315c(0x163)](_0x34ae7d)[_0x29315c(0x23e)](()=>{const _0x16ef63=_0x29315c;showToast(curLang==='DE'?_0x16ef63(0x1ce):_0x16ef63(0x159)),setTimeout(()=>{const _0x354799=_0x16ef63;let _0x20e994='';switch(_0x56e439){case _0x354799(0x1df):_0x20e994=_0x354799(0x184)+encodeURIComponent(_0x49afb8+'\x20'+_0x34ae7d);break;case _0x354799(0x161):_0x20e994=_0x354799(0x228)+encodeURIComponent(_0x49afb8)+_0x354799(0x23c)+encodeURIComponent(_0x34ae7d);break;case _0x354799(0x1ac):_0x20e994=_0x354799(0x192)+encodeURIComponent(_0x34ae7d);break;case _0x354799(0x20d):_0x20e994=_0x354799(0x177)+encodeURIComponent('fincast\x20Simulation')+_0x354799(0x203)+encodeURIComponent(_0x49afb8+'\x0a\x0a'+_0x34ae7d);break;case _0x354799(0x16d):_0x20e994=_0x354799(0x245);break;case'discord':_0x20e994='https://discord.com/';break;}if(_0x20e994)window['open'](_0x20e994,_0x354799(0x271));},0x320);});}function copyShareLink(_0x28dbd8=![]){const _0x167790=_0x1a1b49,_0x420041=[_0x167790(0x1ba),_0x167790(0x123),'istJahre','istRealG',_0x167790(0x213),_0x167790(0x1a2),'istFees',_0x167790(0x199),'kursR',_0x167790(0x11b),'divR',_0x167790(0x1f4),_0x167790(0x130),_0x167790(0x27e),'freiScenario',_0x167790(0x16a),_0x167790(0x181),_0x167790(0x216),_0x167790(0x255)],_0x29b1f4={};_0x420041['forEach'](_0x3452f2=>{const _0x5ecad3=_0x167790,_0x50a987=document['getElementById'](_0x3452f2);if(_0x50a987)_0x29b1f4[_0x3452f2]=_0x50a987[_0x5ecad3(0x1f8)];});const _0x5ad819=window[_0x167790(0x132)][_0x167790(0x280)]+window['location']['pathname']+_0x167790(0x22c)+btoa(JSON[_0x167790(0x10f)](_0x29b1f4));navigator[_0x167790(0x1e0)][_0x167790(0x163)](_0x5ad819)[_0x167790(0x23e)](()=>{const _0x5e3654=_0x167790;showToast(curLang==='DE'?_0x5e3654(0x19f):_0x5e3654(0x145));});}function showToast(_0x2d6d96){const _0x25ce4b=_0x1a1b49,_0x24ad7d=document['getElementById'](_0x25ce4b(0x12b));_0x24ad7d['innerText']=_0x2d6d96,_0x24ad7d[_0x25ce4b(0x112)][_0x25ce4b(0x10c)]='1',setTimeout(()=>_0x24ad7d['style']['opacity']='0',0xbb8);}function loadFromShareLink(){const _0x2b74ec=_0x1a1b49,_0x50def3=new URLSearchParams(window['location'][_0x2b74ec(0x25d)]),_0x14b23d=_0x50def3[_0x2b74ec(0x230)](_0x2b74ec(0x28b))||_0x50def3['get'](_0x2b74ec(0x19d));if(_0x14b23d)try{if(_0x2b74ec(0x21b)===_0x2b74ec(0x21b)){const _0x18eba7=JSON[_0x2b74ec(0x116)](atob(_0x14b23d)),_0xbfc154=[_0x2b74ec(0x1ba),_0x2b74ec(0x123),_0x2b74ec(0x131),_0x2b74ec(0x155),_0x2b74ec(0x213),'istDiv',_0x2b74ec(0x1bf),'rate',_0x2b74ec(0x26f),_0x2b74ec(0x11b),_0x2b74ec(0x262),_0x2b74ec(0x1f4),'taxScenario','taxVal',_0x2b74ec(0x173),'frei','jahre',_0x2b74ec(0x216),_0x2b74ec(0x255)];return _0xbfc154[_0x2b74ec(0x141)](_0x49b09c=>{const _0x164634=_0x2b74ec;_0x18eba7[_0x49b09c]!==undefined&&document['getElementById'](_0x49b09c)&&('jrBvp'!==_0x164634(0x13a)?(_0x57a81a['getElementById']('shareOverlay')[_0x164634(0x112)]['display']=_0x164634(0x1e6),_0x2d348a[_0x164634(0x18b)](_0x164634(0x202))['style']['display']='block',_0x417f14()):document[_0x164634(0x18b)](_0x49b09c)[_0x164634(0x1f8)]=_0x18eba7[_0x49b09c]);}),updateTaxInput(![]),updateFreiInput(![]),!![];}else{let _0xc74713=_0x22beea[_0x2b74ec(0x1ec)][_0x2b74ec(0x1c3)]||'',_0x1a9681=_0x407d33[_0x2b74ec(0x1cb)]['y'];return _0xc74713+':\x20'+_0x3ad4fa(_0x1a9681);}}catch(_0x4303f3){console[_0x2b74ec(0x178)]('Failed\x20to\x20decode\x20share\x20data',_0x4303f3);}return![];}function analysiereIstZustand(){const _0x516139=_0x1a1b49,_0x253654=parseFloat(document[_0x516139(0x18b)](_0x516139(0x1ba))['value'])||0x0,_0x3bf2d4=parseFloat(document[_0x516139(0x18b)](_0x516139(0x123))['value'])||0x0,_0x310cc2=parseFloat(document[_0x516139(0x18b)](_0x516139(0x131))[_0x516139(0x1f8)])||0x1,_0x2adebd=parseFloat(document[_0x516139(0x18b)]('istDiv')[_0x516139(0x1f8)])||0x0,_0x5e90fe=parseFloat(document[_0x516139(0x18b)](_0x516139(0x1bf))[_0x516139(0x1f8)])||0x0,_0x5c58bb=document[_0x516139(0x18b)](_0x516139(0x213))['value'],_0x2c326d=(parseFloat(document[_0x516139(0x18b)](_0x516139(0x27e))[_0x516139(0x1f8)])||0x0)/0x64,_0x5733f9=parseFloat(document[_0x516139(0x18b)]('frei')['value'])||0x0;let _0x46ac6b=0x0;_0x3bf2d4>0x0&&_0x253654>0x0&&(_0x46ac6b=(Math[_0x516139(0x11a)](_0x253654/_0x3bf2d4,0x1/_0x310cc2)-0x1)*0x64);document['getElementById'](_0x516139(0x26f))[_0x516139(0x1f8)]=_0x46ac6b[_0x516139(0x110)](0x2);const _0x3f520e=parseFloat(document[_0x516139(0x18b)](_0x516139(0x155))[_0x516139(0x1f8)])||0x0;document[_0x516139(0x18b)](_0x516139(0x11b))['value']=_0x253654>0x0?(_0x3f520e/_0x310cc2/_0x253654*0x64)[_0x516139(0x110)](0x2):_0x516139(0x17c);let _0x516dd4=_0x5c58bb===_0x516139(0x11d)?_0x2adebd>_0x5733f9?_0x5733f9+(_0x2adebd-_0x5733f9)/(0x1-_0x2c326d):_0x2adebd:_0x2adebd;document[_0x516139(0x18b)](_0x516139(0x262))[_0x516139(0x1f8)]=_0x253654>0x0?(_0x516dd4/_0x253654*0x64)[_0x516139(0x110)](0x2):_0x516139(0x17c),document['getElementById']('feePerc')['value']=_0x253654>0x0?(_0x5e90fe/_0x310cc2/_0x253654*0x64)[_0x516139(0x110)](0x2):_0x516139(0x17c),saveToStorage(),runSimulation();}function generateAISummary(_0x37c8dd,_0x294ffb,_0xe1f633,_0x116b7f,_0x65d0c7,_0x3280c1,_0x403021,_0x13718a,_0x27b3f3,_0xd0f1d2){const _0x3c1143=_0x1a1b49,_0x1cedd4=document[_0x3c1143(0x18b)](_0x3c1143(0x20b)),_0x3c05db=document[_0x3c1143(0x18b)](_0x3c1143(0x17f));_0x1cedd4['style'][_0x3c1143(0x1a5)]=_0x3c1143(0x1e6);const _0x456c4e=_0x4a5e6f=>Math[_0x3c1143(0x243)](_0x4a5e6f)[_0x3c1143(0x137)]()+'\x20€';curLang==='DE'?_0x3c05db[_0x3c1143(0x1ee)]='Über\x20eine\x20Laufzeit\x20von\x20<b>'+_0x37c8dd+_0x3c1143(0x1b8)+_0x456c4e(_0x294ffb)+'</b>\x20an.\x20Dabei\x20hast\x20du\x20insgesamt\x20<b>'+_0x456c4e(_0xe1f633)+_0x3c1143(0x14e)+_0x456c4e(_0x116b7f)+'</b>,\x20was\x20einem\x20realen\x20Vermögenszuwachs\x20von\x20<b>'+_0x456c4e(_0x65d0c7)+'</b>\x20entspricht.\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20Im\x20letzten\x20Jahr\x20der\x20Laufzeit\x20fließen\x20dir\x20jährlich\x20<b>'+_0x456c4e(_0x3280c1)+_0x3c1143(0x286)+_0x456c4e(_0x403021)+_0x3c1143(0x142)+_0x456c4e(_0x27b3f3)+_0x3c1143(0x15b)+_0x456c4e(_0xd0f1d2)+_0x3c1143(0x275)+_0x456c4e(_0x27b3f3+_0xd0f1d2)+'</b>.\x20<br><br>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<i>Vergleich:</i>\x20Hättest\x20du\x20das\x20Eigenkapital\x20stattdessen\x20auf\x20einem\x20unverzinsten\x20Girokonto\x20(0%\x20Zins)\x20bespart,\x20läge\x20dessen\x20inflationsbereinigte\x20Kaufkraft\x20heute\x20bei\x20nur\x20<b>'+_0x456c4e(_0x13718a)+'</b>.':_0x3c05db[_0x3c1143(0x1ee)]='Over\x20a\x20period\x20of\x20<b>'+_0x37c8dd+_0x3c1143(0x28e)+_0x456c4e(_0x294ffb)+'</b>.\x20You\x20have\x20invested\x20a\x20total\x20of\x20<b>'+_0x456c4e(_0xe1f633)+_0x3c1143(0x1bc)+_0x456c4e(_0x116b7f)+_0x3c1143(0x1f2)+_0x456c4e(_0x65d0c7)+_0x3c1143(0x14a)+_0x456c4e(_0x3280c1)+'\x20net</b>\x20in\x20annual\x20dividends,\x20inflation-adjusted\x20<b>'+_0x456c4e(_0x403021)+_0x3c1143(0x24b)+_0x456c4e(_0x27b3f3)+_0x3c1143(0x24d)+_0x456c4e(_0xd0f1d2)+_0x3c1143(0x175)+_0x456c4e(_0x27b3f3+_0xd0f1d2)+_0x3c1143(0x136)+_0x456c4e(_0x13718a)+'</b>.';}function _0x3786(_0x262e3e,_0x48d5c3){_0x262e3e=_0x262e3e-0x101;const _0x3a3133=_0x5cc5();let _0x1d95ef=_0x3a3133[_0x262e3e];return _0x1d95ef;}function runSimulation(){const _0x5eeedd=_0x1a1b49;saveToStorage();const _0x53d077={'startK':parseFloat(document[_0x5eeedd(0x18b)](_0x5eeedd(0x1ba))[_0x5eeedd(0x1f8)])||0x0,'startI':parseFloat(document[_0x5eeedd(0x18b)](_0x5eeedd(0x123))['value'])||0x0,'rateM':parseFloat(document[_0x5eeedd(0x18b)]('rate')[_0x5eeedd(0x1f8)])||0x0,'kursR':(parseFloat(document[_0x5eeedd(0x18b)](_0x5eeedd(0x26f))['value'])||0x0)/0x64,'realR':(parseFloat(document[_0x5eeedd(0x18b)](_0x5eeedd(0x11b))['value'])||0x0)/0x64,'divR':(parseFloat(document[_0x5eeedd(0x18b)](_0x5eeedd(0x262))[_0x5eeedd(0x1f8)])||0x0)/0x64,'divW':(parseFloat(document[_0x5eeedd(0x18b)](_0x5eeedd(0x1f4))[_0x5eeedd(0x1f8)])||0x0)/0x64,'steuer':(parseFloat(document['getElementById'](_0x5eeedd(0x27e))[_0x5eeedd(0x1f8)])||0x0)/0x64,'frei':parseFloat(document[_0x5eeedd(0x18b)](_0x5eeedd(0x16a))[_0x5eeedd(0x1f8)])||0x0,'jahre':parseInt(document[_0x5eeedd(0x18b)](_0x5eeedd(0x181))[_0x5eeedd(0x1f8)])||0x0,'infl':(parseFloat(document[_0x5eeedd(0x18b)](_0x5eeedd(0x216))['value'])||0x0)/0x64,'feePerc':(parseFloat(document['getElementById'](_0x5eeedd(0x255))[_0x5eeedd(0x1f8)])||0x0)/0x64,'divType':document[_0x5eeedd(0x18b)](_0x5eeedd(0x213))['value'],'divIstVal':parseFloat(document['getElementById'](_0x5eeedd(0x1a2))[_0x5eeedd(0x1f8)])||0x0};let _0x51ad25=_0x53d077['startK'],_0x157893=_0x53d077[_0x5eeedd(0x139)],_0x49726a=_0x53d077[_0x5eeedd(0x139)],_0x3c09e9='',_0x566fa4={'years':[],'depot':[],'pureI':[],'divY':[],'divM':[],'zz':[],'kk':[],'fees':[],'taxY':[]},_0x4fd55e=[![],![],![]],_0xf214e5=0x0,_0x23d6bd=0x0,_0x3a1d07=0x0;for(let _0x51e2e4=0x0;_0x51e2e4<=_0x53d077['jahre'];_0x51e2e4++){let _0x2537b1=0x0,_0x283c12=0x0,_0x3d9bd9=0x0,_0x4b3dda=0x0,_0x405117=0x0,_0x2b50f7=0x0,_0x41a05d=0x0,_0x465c4c=0x0;if(_0x51e2e4===0x0)_0x49726a=_0x53d077[_0x5eeedd(0x139)],_0x53d077[_0x5eeedd(0x270)]==='netto'?(_0x2b50f7=_0x53d077['divIstVal'],_0x4b3dda=_0x2b50f7>_0x53d077['frei']?_0x53d077[_0x5eeedd(0x16a)]+(_0x2b50f7-_0x53d077[_0x5eeedd(0x16a)])/(0x1-_0x53d077[_0x5eeedd(0x288)]):_0x2b50f7):(_0x4b3dda=_0x53d077[_0x5eeedd(0x176)],_0x2b50f7=_0x4b3dda-Math[_0x5eeedd(0x1b6)](0x0,_0x4b3dda-_0x53d077[_0x5eeedd(0x16a)])*_0x53d077['steuer']),_0x405117=_0x4b3dda-_0x2b50f7,_0x2537b1=_0x51ad25-_0x49726a,_0x283c12=_0x49726a>0x0?_0x2537b1/_0x49726a*0x64:0x0;else{let _0xe02a04=_0x53d077[_0x5eeedd(0x1d7)]*0xc,_0x511f20=_0x51ad25+_0xe02a04/0x2,_0x493bed=_0x511f20*_0x53d077[_0x5eeedd(0x26f)];_0x3d9bd9=_0x511f20*_0x53d077[_0x5eeedd(0x11b)],_0x4b3dda=_0x511f20*(_0x53d077[_0x5eeedd(0x262)]*Math[_0x5eeedd(0x11a)](0x1+_0x53d077[_0x5eeedd(0x1f4)],_0x51e2e4-0x1));let _0x53763e=_0x53d077[_0x5eeedd(0x16a)],_0x293a92=Math['max'](0x0,_0x4b3dda-_0x53763e)*_0x53d077[_0x5eeedd(0x288)];_0x53763e=Math[_0x5eeedd(0x1b6)](0x0,_0x53763e-_0x4b3dda);let _0x4bd982=Math[_0x5eeedd(0x1b6)](0x0,_0x3d9bd9-_0x53763e)*_0x53d077['steuer'];_0x2b50f7=_0x4b3dda-_0x293a92,_0x41a05d=_0x3d9bd9-_0x4bd982,_0x405117=_0x293a92+_0x4bd982,_0x465c4c=_0x51ad25*_0x53d077[_0x5eeedd(0x255)],_0x51ad25+=_0xe02a04+_0x493bed+_0x2b50f7+_0x41a05d-_0x465c4c,_0x157893+=_0xe02a04,_0x49726a+=_0xe02a04+_0x2b50f7+_0x41a05d-_0x465c4c,_0x2537b1=_0x51ad25-_0x49726a,_0x283c12=_0x49726a>0x0?_0x2537b1/_0x49726a*0x64:0x0;}_0xf214e5+=_0x405117,_0x23d6bd+=_0x465c4c,_0x3a1d07=_0x2b50f7;let _0x2cf252=_0x51ad25/Math['pow'](0x1+_0x53d077['infl'],_0x51e2e4);!_0x4fd55e[0x0]&&_0x53d077['rateM']>0x0&&_0x2b50f7>_0x53d077[_0x5eeedd(0x1d7)]*0xc&&(_0x4fd55e[0x0]=!![],showMM(_0x5eeedd(0x1d2),_0x51e2e4));if(!_0x4fd55e[0x1]&&_0x51ad25-_0x157893>_0x157893&&_0x51e2e4>0x0){if(_0x5eeedd(0x22f)===_0x5eeedd(0x22f))_0x4fd55e[0x1]=!![],showMM(_0x5eeedd(0x19e),_0x51e2e4);else return _0xa4bf5d(_0x18dbe2,_0x51a564,_0x3cdf33);}!_0x4fd55e[0x2]&&_0x53d077[_0x5eeedd(0x1d7)]>0x0&&_0x2b50f7>_0x53d077[_0x5eeedd(0x1d7)]*0xc*1.5&&(_0x4fd55e[0x2]=!![],showMM('mm3',_0x51e2e4)),_0x3c09e9+=_0x5eeedd(0x236)+(_0x51e2e4===0x0?_0x5eeedd(0x11f):_0x51e2e4)+_0x5eeedd(0x20f)+Math['round'](_0x157893)[_0x5eeedd(0x137)]()+_0x5eeedd(0x1a3)+Math[_0x5eeedd(0x243)](_0x51ad25)[_0x5eeedd(0x137)]()+_0x5eeedd(0x258)+(_0x465c4c>0x0?'-':'')+Math[_0x5eeedd(0x243)](_0x465c4c)['toLocaleString']()+_0x5eeedd(0x1c2)+Math[_0x5eeedd(0x243)](_0x2537b1)[_0x5eeedd(0x137)]()+_0x5eeedd(0x24c)+_0x283c12['toFixed'](0x1)+_0x5eeedd(0x15c)+Math[_0x5eeedd(0x243)](_0x4b3dda)[_0x5eeedd(0x137)]()+_0x5eeedd(0x218)+Math[_0x5eeedd(0x243)](_0x405117)[_0x5eeedd(0x137)]()+_0x5eeedd(0x215)+Math['round'](_0x2b50f7)['toLocaleString']()+'\x20€</td><td>'+(_0x2b50f7/0xc)[_0x5eeedd(0x110)](0x2)+_0x5eeedd(0x1c2)+(_0x49726a>0x0?(_0x2b50f7/_0x49726a*0x64)[_0x5eeedd(0x110)](0x2):0x0)+_0x5eeedd(0x1cc)+Math[_0x5eeedd(0x243)](_0x49726a)['toLocaleString']()+_0x5eeedd(0x1c2)+Math[_0x5eeedd(0x243)](_0x2cf252)[_0x5eeedd(0x137)]()+'\x20€</td></tr>',_0x566fa4[_0x5eeedd(0x23f)]['push']('J\x20'+_0x51e2e4),_0x566fa4['depot'][_0x5eeedd(0x289)](_0x51ad25),_0x566fa4['pureI']['push'](_0x157893),_0x566fa4[_0x5eeedd(0x121)]['push'](_0x2b50f7),_0x566fa4[_0x5eeedd(0x152)]['push'](_0x2b50f7/0xc),_0x566fa4['zz'][_0x5eeedd(0x289)](_0x51ad25-_0x157893),_0x566fa4['kk'][_0x5eeedd(0x289)](_0x2cf252),_0x566fa4['fees'][_0x5eeedd(0x289)](_0x465c4c),_0x566fa4['taxY'][_0x5eeedd(0x289)](_0x405117);}const _0x234dc9=_0x566fa4['kk'][_0x566fa4['kk'][_0x5eeedd(0x1c1)]-0x1],_0x1f9d8a=(_0x51ad25-_0x157893)/Math[_0x5eeedd(0x11a)](0x1+_0x53d077['infl'],_0x53d077['jahre']),_0x280a0d=_0x157893/Math[_0x5eeedd(0x11a)](0x1+_0x53d077[_0x5eeedd(0x216)],_0x53d077[_0x5eeedd(0x181)]),_0xa4c638=_0x3a1d07/Math[_0x5eeedd(0x11a)](0x1+_0x53d077[_0x5eeedd(0x216)],_0x53d077[_0x5eeedd(0x181)]);document[_0x5eeedd(0x18b)](_0x5eeedd(0x1a4))[_0x5eeedd(0x235)]=Math[_0x5eeedd(0x243)](_0x157893)['toLocaleString']()+'\x20€',document[_0x5eeedd(0x18b)]('card-depot')['innerText']=Math[_0x5eeedd(0x243)](_0x51ad25)[_0x5eeedd(0x137)]()+'\x20€',document[_0x5eeedd(0x18b)]('card-kk')['innerText']=Math[_0x5eeedd(0x243)](_0x234dc9)['toLocaleString']()+'\x20€',document[_0x5eeedd(0x18b)](_0x5eeedd(0x17a))[_0x5eeedd(0x235)]=Math[_0x5eeedd(0x243)](_0x1f9d8a)[_0x5eeedd(0x137)]()+'\x20€',document['getElementById']('card-realgewinn')[_0x5eeedd(0x112)]['color']=_0x1f9d8a>=0x0?_0x5eeedd(0x16f):_0x5eeedd(0x24f),document['getElementById'](_0x5eeedd(0x1ae))[_0x5eeedd(0x235)]=Math[_0x5eeedd(0x243)](_0x3a1d07)[_0x5eeedd(0x137)]()+_0x5eeedd(0x24c)+Math['round'](_0x3a1d07/0xc)[_0x5eeedd(0x137)]()+'\x20€/M)';const _0x3e9086=document[_0x5eeedd(0x18b)](_0x5eeedd(0x146));_0x3e9086['innerText']=Math[_0x5eeedd(0x243)](_0xf214e5)[_0x5eeedd(0x137)]()+'\x20€',_0x3e9086[_0x5eeedd(0x112)][_0x5eeedd(0x282)]=_0x5eeedd(0x24f),document[_0x5eeedd(0x18b)]('resultBody')[_0x5eeedd(0x1ee)]=_0x3c09e9;if(!_0x4fd55e[0x0])document[_0x5eeedd(0x18b)](_0x5eeedd(0x1d2))[_0x5eeedd(0x112)][_0x5eeedd(0x1a5)]=_0x5eeedd(0x196);if(!_0x4fd55e[0x1])document['getElementById'](_0x5eeedd(0x19e))[_0x5eeedd(0x112)]['display']='none';if(!_0x4fd55e[0x2])document['getElementById'](_0x5eeedd(0x135))[_0x5eeedd(0x112)][_0x5eeedd(0x1a5)]='none';generateAISummary(_0x53d077['jahre'],_0x51ad25,_0x157893,_0x234dc9,_0x1f9d8a,_0x3a1d07,_0xa4c638,_0x280a0d,_0xf214e5,_0x23d6bd),updateCharts(_0x566fa4);}function showMM(_0x39509c,_0x23da26){const _0x38ec33=_0x1a1b49,_0x165076=document[_0x38ec33(0x18b)](_0x39509c),_0xbd8713=_0x39509c===_0x38ec33(0x1d2)?0x0:_0x39509c===_0x38ec33(0x19e)?0x1:0x2;_0x165076['style'][_0x38ec33(0x1a5)]=_0x38ec33(0x1e6);const _0x916726=_0x38ec33(0x252)+(_0xbd8713+0x1)+':\x20',_0x21fa2b=(curLang==='DE'?_0x38ec33(0x1c7):_0x38ec33(0x226))+_0x23da26+':\x20';_0x165076[_0x38ec33(0x26c)]('.mm-text')[_0x38ec33(0x235)]=_0x916726+_0x21fa2b+trans[curLang]['mm'][_0xbd8713],_0x165076[_0x38ec33(0x26c)](_0x38ec33(0x1fb))[_0x38ec33(0x235)]=trans[curLang][_0x38ec33(0x27f)][_0xbd8713];}function updateCharts(_0x405c4d){const _0xbbd4b7=_0x1a1b49,_0x3bbe7b=document[_0xbbd4b7(0x11c)][_0xbbd4b7(0x204)][_0xbbd4b7(0x108)]('dark-mode');Chart[_0xbbd4b7(0x276)][_0xbbd4b7(0x282)]=_0x3bbe7b?'#ecf0f1':_0xbbd4b7(0x1d0);const _0x1fa384=_0x3bbe7b?'#2ecc71':'#27ae60',_0x4e5f30=_0x3bbe7b?_0xbbd4b7(0x14d):_0xbbd4b7(0x26b),_0x24d8c7=_0x6fd2c9=>_0x6fd2c9[_0xbbd4b7(0x137)](_0xbbd4b7(0x1d8),{'minimumFractionDigits':0x2,'maximumFractionDigits':0x2})+'\x20€',_0x14c186=(_0x1e0b07,_0x24b4c3=![],_0x11ec7b=null)=>({'responsive':!![],'maintainAspectRatio':![],'resizeDelay':0x32,'interaction':_0x24b4c3?{'mode':_0xbbd4b7(0x10d),'intersect':![]}:{},'plugins':{'title':{'display':!![],'text':_0x1e0b07},'legend':{'labels':{'boxWidth':0xa,'font':{'size':0xa}}},'tooltip':_0x24b4c3?{'callbacks':{'label':function(_0x276234){const _0x51023c=_0xbbd4b7;if(_0x51023c(0x162)===_0x51023c(0x162)){let _0x1c9b9c=_0x276234['dataset'][_0x51023c(0x1c3)]||'',_0x5cd84b=_0x276234[_0x51023c(0x1cb)]['y'];return _0x1c9b9c+':\x20'+_0x24d8c7(_0x5cd84b);}else _0x32b7c7[_0x51023c(0x18b)](_0x51023c(0x19b))[_0x51023c(0x112)]['display']=_0x51023c(0x1e6);},'footer':function(_0x1a1fcf){const _0x11fcb6=_0xbbd4b7;let _0x1c113f=0x0;_0x1a1fcf[_0x11fcb6(0x141)](function(_0x19e912){const _0x1a3c21=_0x11fcb6;_0x1c113f+=_0x19e912[_0x1a3c21(0x1cb)]['y'];});const _0x33e8a3=_0x11ec7b||(curLang==='DE'?'Brutto\x20Gesamt:\x20':'Total\x20Gross:\x20');return _0x33e8a3+_0x24d8c7(_0x1c113f);}}}:{'callbacks':{'label':function(_0xa57546){const _0x329b69=_0xbbd4b7;let _0x4a31ef=_0xa57546[_0x329b69(0x1ec)][_0x329b69(0x1c3)]||'',_0x5a222d=_0xa57546['parsed']['y'];return _0x4a31ef+':\x20'+_0x24d8c7(_0x5a222d);}}}},'scales':_0x24b4c3?{'x':{'stacked':!![]},'y':{'stacked':!![]}}:{}}),_0x325142=_0x405c4d['depot'][_0xbbd4b7(0x239)]((_0x5ce59a,_0x2e3400)=>Math[_0xbbd4b7(0x1b6)](0x0,_0x5ce59a-_0x405c4d['kk'][_0x2e3400]));if(charts['c1'])charts['c1'][_0xbbd4b7(0x188)]();charts['c1']=new Chart(document[_0xbbd4b7(0x18b)]('chart1'),{'type':_0xbbd4b7(0x25e),'data':{'labels':_0x405c4d[_0xbbd4b7(0x23f)],'datasets':[{'label':curLang==='DE'?_0xbbd4b7(0x154):_0xbbd4b7(0x1b5),'data':_0x405c4d['kk'],'backgroundColor':_0x1fa384},{'label':curLang==='DE'?_0xbbd4b7(0x14c):_0xbbd4b7(0x164),'data':_0x325142,'backgroundColor':_0xbbd4b7(0x1bb)}]},'options':_0x14c186(curLang==='DE'?_0xbbd4b7(0x19c):_0xbbd4b7(0x1cd),!![],curLang==='DE'?'Depotwert:\x20':_0xbbd4b7(0x263))});if(charts['c2'])charts['c2'][_0xbbd4b7(0x188)]();charts['c2']=new Chart(document[_0xbbd4b7(0x18b)](_0xbbd4b7(0x257)),{'type':_0xbbd4b7(0x25e),'data':{'labels':_0x405c4d[_0xbbd4b7(0x23f)],'datasets':[{'label':curLang==='DE'?_0xbbd4b7(0x1b0):'Equity\x20Capital','data':_0x405c4d[_0xbbd4b7(0x186)],'backgroundColor':_0xbbd4b7(0x18c)},{'label':curLang==='DE'?_0xbbd4b7(0x28c):'Compound\x20Effect','data':_0x405c4d['zz'],'backgroundColor':_0xbbd4b7(0x1f9)}]},'options':_0x14c186(curLang==='DE'?_0xbbd4b7(0x1ea):_0xbbd4b7(0x229),!![],curLang==='DE'?_0xbbd4b7(0x208):_0xbbd4b7(0x263))});const _0x2d2b9c=_0x405c4d[_0xbbd4b7(0x121)]['map']((_0x1b13a1,_0x5a47af)=>{const _0x2abe69=_0xbbd4b7,_0x1a4050=document[_0x2abe69(0x18b)]('resultBody')[_0x2abe69(0x128)][_0x5a47af];if(!_0x1a4050)return 0x0;const _0x3b3f3d=parseFloat(_0x1a4050[_0x2abe69(0x1e5)][0x5]['innerText'][_0x2abe69(0x207)](/[^0-9,-]/g,'')[_0x2abe69(0x207)](',','.'));return Math['max'](0x0,_0x3b3f3d-_0x1b13a1);}),_0x111f8f=_0x2d2b9c['map'](_0x592229=>_0x592229/0xc);if(charts['c3'])charts['c3'][_0xbbd4b7(0x188)]();charts['c3']=new Chart(document['getElementById'](_0xbbd4b7(0x1dc)),{'type':_0xbbd4b7(0x25e),'data':{'labels':_0x405c4d[_0xbbd4b7(0x23f)],'datasets':[{'label':curLang==='DE'?_0xbbd4b7(0x193):'Net\x20Dividend','data':_0x405c4d[_0xbbd4b7(0x121)],'backgroundColor':_0x1fa384},{'label':curLang==='DE'?_0xbbd4b7(0x1de):'Tax\x20Part','data':_0x2d2b9c,'backgroundColor':_0x4e5f30}]},'options':_0x14c186(curLang==='DE'?_0xbbd4b7(0x1a7):_0xbbd4b7(0x13d),!![])});if(charts['c4'])charts['c4'][_0xbbd4b7(0x188)]();charts['c4']=new Chart(document[_0xbbd4b7(0x18b)](_0xbbd4b7(0x153)),{'type':_0xbbd4b7(0x25e),'data':{'labels':_0x405c4d[_0xbbd4b7(0x23f)],'datasets':[{'label':curLang==='DE'?'Netto\x20Ø\x20Monat':_0xbbd4b7(0x119),'data':_0x405c4d[_0xbbd4b7(0x152)],'backgroundColor':_0x1fa384},{'label':curLang==='DE'?'Steueranteil':_0xbbd4b7(0x170),'data':_0x111f8f,'backgroundColor':_0x4e5f30}]},'options':_0x14c186(curLang==='DE'?_0xbbd4b7(0x27a):'Monthly\x20Gross\x20Cashflow',!![])});}window['onload']=()=>{const _0x47ddbe=loadFromShareLink();if(!_0x47ddbe)loadFromStorage();applyLang(),runSimulation(),setTimeout(()=>{const _0x23847c=_0x3786;document[_0x23847c(0x18b)](_0x23847c(0x1ed))[_0x23847c(0x112)][_0x23847c(0x1a5)]=_0x23847c(0x1e6);},0x4e20);};
+        let charts = {};
+        let curLang = 'DE';
+
+        const ads = [
+            { title: "Trade Republic", sub: "Dein Bonus wartet auf dich.", btn: "Jetzt Depot eröffnen", link: "https://refnocode.trade.re/wsjpt093", bg: "linear-gradient(135deg, #000, #222)" },
+            { title: "ING DiBa", sub: "Deutschlands beliebtester Broker.", btn: "Zum Depot-Angebot", link: "https://www.ing.de/depotkwk/aa/qMSsG9b3sfYwe7oec_MHkdo9erNgI0N1C05s2nPmaFllOL_mq8sF0eNbrBWoWpiPbg_fneIWXo0DlDdVI1MWYujZlsXD-3Tvg-DfGOcuOMQ=", bg: "linear-gradient(135deg, #ff6200, #d95300)" },
+            { title: "Bison App", sub: "Kryptos einfach & sicher handeln.", btn: "Konto eröffnen", link: "https://join.bisonapp.com/8jztca", bg: "linear-gradient(135deg, #003056, #004b85)" },
+            { title: "Bitpanda", sub: "Investiere in Aktien, Krypto & Gold.", btn: "Bonus sichern", link: "https://7lr8.adj.st/web.bitpanda.com/user/register/834555914483041191?adj_t=19f71v2&adj_fallback=https%3A%2F%2Fweb.bitpanda.com%2Fuser%2Fregister%2F834555914483041191&adj_redirect_macos=https%3A%2F%2Fweb.bitpanda.com%2Fuser%2Fregister%2F834555914483041191", bg: "linear-gradient(135deg, #00bf71, #008f55)" },
+            { title: "Getquin", sub: "Tracke alle deine Assets einfach in Echtzeit.", btn: "Konto erstellen", link: "https://getqu.in/nFa0yY/tWX6ya/", bg: "linear-gradient(135deg, #0d1117, #21262d)" },
+            { title: "Support ☕", sub: "Simulator gefällt dir? Spendier ein Kaffee!", btn: "Via PayPal spenden", link: "https://www.paypal.com/paypalme/nikobre", bg: "linear-gradient(135deg, #0070ba, #003087)" }
+        ];
+
+        let adIndex = 0;
+        let adTimer = setInterval(autoRotate, 6000);
+
+        function updateBanner() {
+            const banner = document.getElementById('main-ref-link');
+            banner.classList.remove('fade-in');
+            void banner.offsetWidth;
+            banner.classList.add('fade-in');
+            banner.href = ads[adIndex].link;
+            banner.style.background = ads[adIndex].bg;
+            document.getElementById('ref-title').innerText = ads[adIndex].title;
+            document.getElementById('ref-sub').innerText = ads[adIndex].sub;
+            document.getElementById('ref-btn-text').innerText = ads[adIndex].btn;
+        }
+
+        function autoRotate() { adIndex = (adIndex + 1) % ads.length; updateBanner(); }
+        function manualRotate(direction) { clearInterval(adTimer); adIndex = (adIndex + direction + ads.length) % ads.length; updateBanner(); adTimer = setInterval(autoRotate, 8000); }
+
+        const trans = {
+            DE: {
+                h1: "fincast", welcome: "Analysiere dein Portfolio und simuliere den Zinseszins-Effekt mit fincast.",
+                s1: "1. Analyse Ist-Zustand", s2: "2. Parameter", s3: "3. Steuern & Zeit",
+                btnIst: "Ist-Zustand übernehmen", btnSim: "Simulation starten",
+                info1: "Hier kannst du deine aktuellen Depotdaten eingeben. Wenn du ein bestehendes Depot hast, berechnet das Tool automatisch deine bisherige Kurs- und Dividendenrendite und übernimmt diese für die Zukunftsprognose. ⚠️ Es werden keine Eingaben gespeichert, verarbeitet oder anderweitig verwendet ⚠️",
+                info2: "Hier definierst du die zukünftige Entwicklung.",
+                info3: "Steuer- und Inflationsparameter.",
+                aiTitle: "Analyse & Zusammenfassung",
+                labels: {
+                    istDepot: "Aktueller Depotwert (€)", istInvest: "Investiertes Eigenkapital (€)", istJahre: "Investitionsjahre bisher", istRealG: "Davon realisierte Gewinne (€)", istDivType: "Dividende eingeben als:", istDiv: "Dividende / Jahr (€)",
+                    rate: "Monatliche Sparrate (€)", kursR: "Erw. Kursrendite p.a. (%)", realR: "Realisierte Gewinne p.a. (%)", divR: "Dividendenrendite p.a. (%)", divW: "Dividendenwachstum p.a. (%)",
+                    taxModel: "Steuersatz Modell", taxVal: "Individueller Steuersatz (%)", freiModel: "Freibetrag / Jahr (€)", frei: "Individueller Freibetrag (€)", jahre: "Laufzeit (Jahre)", infl: "Inflation p.a. (%)",
+                    istFees: "Gebühren / Kosten gesamt (€)", feePerc: "Kosten p.a. (%)"
+                },
+                opts: { netto: "Netto (nach Steuer)", brutto: "Brutto (vor Steuer)", t1: "KapESt + Soli (26,38%)", t2: "KapESt + Soli + KiSt 9%", t3: "Keine Steuer (0%)", t4: "Individueller Steuersatz", f_custom: "Individuell" },
+                cards: { ek: "Eigenkapital", dv: "Depotwert", kk: "Kaufkraft", rg: "Real-Gewinn", dn: "Dividende Netto J/M", tx: "Gezahlte Steuern" },
+                tips: {
+                    ek: "Gesamtsumme aller Einzahlungen (Startkapital + monatliche Raten) über die gewählte Laufzeit.",
+                    dv: "Nominaler Endwert des Depots inklusive Zinsen, Dividenden und Kursgewinnen vor Inflation.",
+                    kk: "Inflationsbereinigter Depotwert. Zeigt an, wie viel die Summe in heutiger Kaufkraft wert wäre.",
+                    rg: "Tatsächlicher Vermögenszuwachs: Kaufkraft am Ende abzüglich des eingezahlten Eigenkapitals.",
+                    dn: "Die jährliche und monatliche Netto-Dividende im letzten Jahr der Laufzeit.",
+                    tx: "Gesamtsumme aller gezahlten Steuern über die gesamte Laufzeit."
+                },
+                pop: { title: "Supporte das Projekt ☕", desc: "Dir gefällt der Simulator? Unterstütze die Weiterentwicklung mit einer kleinen Spende!", btn: "Via PayPal spenden" },
+                table: [
+                    { t: "Jahr", tip: "Jahr" }, { t: "Eigenkapital", tip: "Reine Einzahlungen" }, { t: "Depotwert", tip: "Gesamtwert" }, { t: "Kosten", tip: "Jährliche Gebühren (nominal)" }, { t: "Kursgewinn (%)", tip: "Marktwachstum" }, { t: "Div. Brutto", tip: "Dividende vor Steuer" }, { t: "Steuer", tip: "Steuern" }, { t: "Div. Netto", tip: "Dividende nach Steuer" }, { t: "Ø Monat", tip: "Netto / 12" }, { t: "YoC", tip: "Yield on Cost" }, { t: "Invest Kum.", tip: "EK + reinvestierte Erträge" }, { t: "Kaufkraft", tip: "Inflationsbereinigt" }
+                ],
+                mm: ["Dividenden decken die Sparrate!💰", "Zinseszins schlägt Einzahlung!🚀", "Finanzielle Flexibilität erreicht!🏖️"],
+                mmTips: [
+                    "Deine jährlichen Netto-Dividenden sind nun höher als deine eigene jährliche Sparrate. Dein Depot 'spart' ab jetzt quasi von alleine weiter.",
+                    "Der gesamte Wertzuwachs deines Depots (Gewinne & Dividenden) ist nun größer als die Summe deiner jemals getätigten Einzahlungen. Dein Geld arbeitet jetzt härter als du.",
+                    "Deine Dividenden übersteigen deine Sparrate um 50%. Dies ist ein bedeutender Meilenstein für passives Einkommen und finanzielle Unabhängigkeit."
+                ],
+                shareTitle: "Ergebnis teilen",
+                shareCopy: "Link kopieren",
+                btnShare: "Ergebnis teilen"
+            },
+            EN: {
+                h1: "fincast", welcome: "Analyze your portfolio and simulate growth with fincast.",
+                s1: "1. Current Status", s2: "2. Parameters", s3: "3. Taxes & Time",
+                btnIst: "Apply Status", btnSim: "Start Simulation",
+                info1: "Enter your current portfolio data here. If you have an existing portfolio, the tool calculates your previous price and dividend yield and applies it to the forecast. ⚠️ No data is stored, processed, or otherwise used ⚠️",
+                info2: "Define future growth parameters here.",
+                info3: "Tax and inflation parameters.",
+                aiTitle: "Analysis & Summary",
+                labels: {
+                    istDepot: "Current Portfolio Value (€)", istInvest: "Invested Capital (€)", istJahre: "Years invested so far", istRealG: "Thereof realized gains (€)", istDivType: "Enter Dividend as:", istDiv: "Dividend / Year (€)",
+                    rate: "Monthly Savings (€)", kursR: "Exp. Price Return p.a. (%)", realR: "Realized Gains p.a. (%)", divR: "Dividend Yield p.a. (%)", divW: "Div. Growth p.a. (%)",
+                    taxModel: "Tax Model", taxVal: "Custom Tax Rate (%)", freiModel: "Tax Allowance / Year (€)", frei: "Custom Allowance (€)", jahre: "Duration (Years)", infl: "Inflation p.a. (%)",
+                    istFees: "Total Fees / Costs (€)", feePerc: "Costs p.a. (%)"
+                },
+                opts: { netto: "Net (after tax)", brutto: "Gross (before tax)", t1: "Cap. Gains + Surcharge (26.38%)", t2: "Taxes + Church Tax 9%", t3: "No Tax (0%)", t4: "Custom Tax Rate", f_custom: "Custom" },
+                cards: { ek: "Equity Capital", dv: "Portfolio Value", kk: "Purchasing Power", rg: "Real Gain", dn: "Net Dividend Y/M", tx: "Taxes Paid" },
+                tips: {
+                    ek: "Total amount of all deposits (initial capital + monthly installments) over the selected term.",
+                    dv: "Nominal final value of the portfolio including interest, dividends, and price gains before inflation.",
+                    kk: "Inflation-adjusted portfolio value. Shows what the sum would be worth in today's purchasing power.",
+                    rg: "Actual increase in wealth: Purchasing power at the end minus the invested capital.",
+                    dn: "The annual and monthly net dividend in the last year of the term.",
+                    tx: "Total amount of all taxes paid over the entire period."
+                },
+                pop: { title: "Support the Project ☕", desc: "Enjoying the simulator? Support further development with a small donation!", btn: "Donate via PayPal" },
+                table: [
+                    { t: "Year", tip: "Year" }, { t: "Equity", tip: "Net Deposits" }, { t: "Portfolio", tip: "Total Value" }, { t: "Costs", tip: "Annual Fees (nominal)" }, { t: "Cap. Gain (%)", tip: "Market Growth" }, { t: "Div. Gross", tip: "Gross Dividend" }, { t: "Tax", tip: "Taxes" }, { t: "Div. Net", tip: "Net Dividend" }, { t: "Ø Month", tip: "Net / 12" }, { t: "YoC", tip: "Yield on Cost" }, { t: "Total Invest", tip: "Capital + Reinvestments" }, { t: "Purch. Power", tip: "Adj. for Inflation" }
+                ],
+                mm: ["Dividends cover savings!💰", "Compound beats deposits!🚀", "Financial flexibility reached!🏖️"],
+                mmTips: [
+                    "Your annual net dividends are now higher than your annual savings. Your portfolio now 'saves' on its own.",
+                    "The total growth of your portfolio (gains & dividends) is now greater than the sum of all your deposits. Your money works harder than you.",
+                    "Your dividends exceed your savings by 50%. This is a significant milestone for passive income and financial independence."
+                ],
+                shareTitle: "Share results",
+                shareCopy: "Copy link",
+                btnShare: "Share results"
+            }
+        };
+
+        function saveToStorage() {
+            try {
+                const data = JSON.parse(localStorage.getItem('financeSimData') || '{}');
+                data.darkMode = document.body.classList.contains('dark-mode');
+                data.curLang = curLang;
+                const ids = ['istDepot', 'istInvest', 'istJahre', 'istRealG', 'istDivType', 'istDiv', 'istFees', 'rate', 'kursR', 'realR', 'divR', 'divW', 'taxScenario', 'taxVal', 'freiScenario', 'frei', 'jahre', 'infl', 'feePerc'];
+                ids.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) data[id] = el.value;
+                });
+                localStorage.setItem('financeSimData', JSON.stringify(data));
+            } catch (e) { console.error("Save failed", e); }
+        }
+
+        function loadFromStorage() {
+            try {
+                const saved = localStorage.getItem('financeSimData');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    const ids = ['istDepot', 'istInvest', 'istJahre', 'istRealG', 'istDivType', 'istDiv', 'istFees', 'rate', 'kursR', 'realR', 'divR', 'divW', 'taxScenario', 'taxVal', 'freiScenario', 'frei', 'jahre', 'infl', 'feePerc'];
+                    ids.forEach(id => { if (data[id] !== undefined && document.getElementById(id)) { document.getElementById(id).value = data[id]; } });
+
+                    if (data.darkMode) {
+                        document.body.classList.add('dark-mode');
+                    }
+                    if (data.curLang) {
+                        curLang = data.curLang;
+                    }
+                    document.body.classList.toggle('lang-en', curLang === 'EN');
+                    updateTaxInput(false); updateFreiInput(false);
+                }
+            } catch (e) { console.error("Load failed", e); }
+        }
+
+        function updateTaxInput(run = true) {
+            const s = document.getElementById('taxScenario').value;
+            if (s === 'custom') { document.getElementById('customTaxGroup').style.display = 'block'; }
+            else { document.getElementById('customTaxGroup').style.display = 'none'; document.getElementById('taxVal').value = s; }
+            if (run) { saveToStorage(); runSimulation(); }
+        }
+
+        function updateFreiInput(run = true) {
+            const s = document.getElementById('freiScenario').value;
+            if (s === 'custom') { document.getElementById('customFreiGroup').style.display = 'block'; }
+            else { document.getElementById('customFreiGroup').style.display = 'none'; document.getElementById('frei').value = s; }
+            if (run) { saveToStorage(); runSimulation(); }
+        }
+
+        function toggleLanguage() {
+            curLang = (curLang === 'DE') ? 'EN' : 'DE';
+            document.body.classList.toggle('lang-en', curLang === 'EN');
+            applyLang();
+            saveToStorage();
+            runSimulation();
+        }
+        function toggleDarkMode() { document.body.classList.toggle('dark-mode'); saveToStorage(); runSimulation(); }
+
+        function applyLang() {
+            const l = trans[curLang];
+            // t-h1-main enthält jetzt das Bild, daher wird hier nur das Bild-Tag sichergestellt
+            document.getElementById('t-h1-main').innerHTML = `<img src="favicon.png" alt="fincast logo" class="brand-logo">`;
+            document.getElementById('t-welcome').innerText = l.welcome;
+            document.getElementById('t-h2-s1').innerText = l.s1;
+            document.getElementById('t-h2-s2').innerText = l.s2;
+            document.getElementById('t-h2-s3').innerText = l.s3;
+            document.getElementById('t-btnIst').innerText = l.btnIst;
+            document.getElementById('t-btnSim').innerText = l.btnSim;
+            document.getElementById('info1').innerText = l.info1;
+            document.getElementById('info2').innerText = l.info2;
+            document.getElementById('info3').innerText = l.info3;
+            document.getElementById('t-ai-title').innerText = l.aiTitle;
+            for (const [id, text] of Object.entries(l.labels)) { if (document.getElementById('l-' + id)) document.getElementById('l-' + id).innerText = text; }
+            document.getElementById('opt-netto').innerText = l.opts.netto;
+            document.getElementById('opt-brutto').innerText = l.opts.brutto;
+            document.getElementById('opt-tax1').innerText = l.opts.t1;
+            document.getElementById('opt-tax2').innerText = l.opts.t2;
+            document.getElementById('opt-tax3').innerText = l.opts.t3;
+            document.getElementById('opt-tax4').innerText = l.opts.t4;
+            document.getElementById('opt-frei-custom').innerText = l.opts.f_custom;
+
+            const cardsMap = { ek: 'ek', dv: 'dv', kk: 'kk', rg: 'rg', dn: 'dn', tx: 'tx' };
+            for (const [key, idPart] of Object.entries(cardsMap)) {
+                if (document.getElementById(`t-c-${idPart}-t`)) document.getElementById(`t-c-${idPart}-t`).innerText = l.cards[key];
+                if (document.getElementById(`t-c-${idPart}-tip`)) document.getElementById(`t-c-${idPart}-tip`).innerText = l.tips[key];
+            }
+
+            document.getElementById('t-pop-title').innerText = l.pop.title;
+            document.getElementById('t-pop-desc').innerText = l.pop.desc;
+            document.getElementById('t-pop-btn').innerText = l.pop.btn;
+            document.getElementById('t-share-title').innerText = l.shareTitle;
+            document.getElementById('t-share-copy').innerText = l.shareCopy;
+            document.getElementById('t-btnShareText').innerText = l.btnShare;
+            let h = "<tr>"; l.table.forEach(col => h += `<th>${col.t}<div class="tooltip-box">${col.tip}</div></th>`);
+            document.getElementById('t-head').innerHTML = h + "</tr>";
+        }
+
+        function generateShareLink() {
+            document.getElementById('shareOverlay').style.display = 'block';
+            document.getElementById('shareMenu').style.display = 'block';
+            copyShareLink();
+        }
+
+        function closeShareMenu() {
+            document.getElementById('shareOverlay').style.display = 'none';
+            document.getElementById('shareMenu').style.display = 'none';
+        }
+
+        function shareToApp(app) {
+            const ids = ['istDepot', 'istInvest', 'istJahre', 'istRealG', 'istDivType', 'istDiv', 'istFees', 'rate', 'kursR', 'realR', 'divR', 'divW', 'taxScenario', 'taxVal', 'freiScenario', 'frei', 'jahre', 'infl', 'feePerc'];
+            const data = {};
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) data[id] = el.value;
+            });
+            const url = window.location.origin + window.location.pathname + '?data=' + btoa(JSON.stringify(data));
+            const text = curLang === 'DE' ? 'Check mal meine fincast Portfolio Simulation aus!' : 'Check out my fincast Portfolio Simulation!';
+
+            navigator.clipboard.writeText(url).then(() => {
+                showToast(curLang === 'DE' ? 'Link kopiert! Öffne App...' : 'Link copied! Opening app...');
+                setTimeout(() => {
+                    let shareUrl = '';
+                    switch (app) {
+                        case 'whatsapp': shareUrl = `https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`; break;
+                        case 'twitter': shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`; break;
+                        case 'linkedin': shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`; break;
+                        case 'mail': shareUrl = `mailto:?subject=${encodeURIComponent('fincast Simulation')}&body=${encodeURIComponent(text + '\n\n' + url)}`; break;
+                        case 'instagram': shareUrl = 'https://www.instagram.com/'; break;
+                        case 'discord': shareUrl = 'https://discord.com/'; break;
+                    }
+                    if (shareUrl) window.open(shareUrl, '_blank');
+                }, 800);
+            });
+        }
+
+        function copyShareLink(showToastOnly = false) {
+            const ids = ['istDepot', 'istInvest', 'istJahre', 'istRealG', 'istDivType', 'istDiv', 'istFees', 'rate', 'kursR', 'realR', 'divR', 'divW', 'taxScenario', 'taxVal', 'freiScenario', 'frei', 'jahre', 'infl', 'feePerc'];
+            const data = {};
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) data[id] = el.value;
+            });
+            const url = window.location.origin + window.location.pathname + '?data=' + btoa(JSON.stringify(data));
+            navigator.clipboard.writeText(url).then(() => {
+                showToast(curLang === 'DE' ? 'Link in Zwischenablage kopiert!' : 'Link copied to clipboard!');
+            });
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.style.opacity = '1';
+            setTimeout(() => t.style.opacity = '0', 3000);
+        }
+
+        function loadFromShareLink() {
+            const params = new URLSearchParams(window.location.search);
+            const raw = params.get('data') || params.get('result');
+            if (raw) {
+                try {
+                    const data = JSON.parse(atob(raw));
+                    const ids = ['istDepot', 'istInvest', 'istJahre', 'istRealG', 'istDivType', 'istDiv', 'istFees', 'rate', 'kursR', 'realR', 'divR', 'divW', 'taxScenario', 'taxVal', 'freiScenario', 'frei', 'jahre', 'infl', 'feePerc'];
+                    ids.forEach(id => {
+                        if (data[id] !== undefined && document.getElementById(id)) {
+                            document.getElementById(id).value = data[id];
+                        }
+                    });
+                    updateTaxInput(false);
+                    updateFreiInput(false);
+                    return true;
+                } catch (e) {
+                    console.error("Failed to decode share data", e);
+                }
+            }
+            return false;
+        }
+
+        function analysiereIstZustand() {
+            const d = parseFloat(document.getElementById('istDepot').value) || 0;
+            const inv = parseFloat(document.getElementById('istInvest').value) || 0;
+            const j = parseFloat(document.getElementById('istJahre').value) || 1;
+            const divVal = parseFloat(document.getElementById('istDiv').value) || 0;
+            const fees = parseFloat(document.getElementById('istFees').value) || 0;
+            const divType = document.getElementById('istDivType').value;
+            const st = (parseFloat(document.getElementById('taxVal').value) || 0) / 100;
+            const fr = parseFloat(document.getElementById('frei').value) || 0;
+
+            let calcKursR = 0;
+            if (inv > 0 && d > 0) {
+                calcKursR = (Math.pow(d / inv, 1 / j) - 1) * 100;
+            }
+            document.getElementById('kursR').value = calcKursR.toFixed(2);
+
+            const rG = parseFloat(document.getElementById('istRealG').value) || 0;
+            document.getElementById('realR').value = (d > 0) ? (((rG / j) / d) * 100).toFixed(2) : "0.00";
+
+            let dB = (divType === 'netto') ? (divVal > fr ? fr + (divVal - fr) / (1 - st) : divVal) : divVal;
+            document.getElementById('divR').value = (d > 0) ? ((dB / d) * 100).toFixed(2) : "0.00";
+            document.getElementById('feePerc').value = (d > 0) ? (((fees / j) / d) * 100).toFixed(2) : "0.00";
+
+            saveToStorage();
+            runSimulation();
+        }
+
+        function generateAISummary(years, depot, ek, kk, gain, divNet, divNetReal, giroKK, totalTax, totalFees) {
+            const box = document.getElementById('aiSummaryBox');
+            const content = document.getElementById('aiSummaryContent');
+            box.style.display = 'block';
+
+            const fmt = (v) => Math.round(v).toLocaleString() + " €";
+
+            if (curLang === 'DE') {
+                content.innerHTML = `Über eine Laufzeit von <b>${years} Jahren</b> entwickelt sich dein Vermögen wie folgt: <br>
+        Dein Depotwert steigt nominal auf <b>${fmt(depot)}</b> an. Dabei hast du insgesamt <b>${fmt(ek)}</b> aus eigener Tasche eingezahlt. 
+        Unter Berücksichtigung der Inflation entspricht dies einer heutigen Kaufkraft von <b>${fmt(kk)}</b>, was einem realen Vermögenszuwachs von <b>${fmt(gain)}</b> entspricht. 
+        Im letzten Jahr der Laufzeit fließen dir jährlich <b>${fmt(divNet)} netto</b> an Dividenden zu, Inflationsbereinigt <b>${fmt(divNetReal)}</b>. <br>
+        Im Laufe der gesamten Laufzeit hast du <b style="color:#e74c3c">${fmt(totalTax)}</b> an Steuern und <b style="color:#e74c3c">${fmt(totalFees)}</b> an Gebühren &amp; Kosten gezahlt &ndash; zusammen <b style="color:#e74c3c">${fmt(totalTax + totalFees)}</b>. <br><br>
+        <i>Vergleich:</i> Hättest du das Eigenkapital stattdessen auf einem unverzinsten Girokonto (0% Zins) bespart, läge dessen inflationsbereinigte Kaufkraft heute bei nur <b>${fmt(giroKK)}</b>.`;
+            } else {
+                content.innerHTML = `Over a period of <b>${years} years</b>, your wealth is projected to develop as follows: <br>
+        Your portfolio value grows nominally to <b>${fmt(depot)}</b>. You have invested a total of <b>${fmt(ek)}</b> of your own capital. 
+        Adjusted for inflation, this represents a purchasing power of <b>${fmt(kk)}</b> in today's terms, resulting in a real gain of <b>${fmt(gain)}</b>. 
+        In the final year, you will receive <b>${fmt(divNet)} net</b> in annual dividends, inflation-adjusted <b>${fmt(divNetReal)}</b>. <br>
+        Over the entire period, you will have paid <b style="color:#e74c3c">${fmt(totalTax)}</b> in taxes and <b style="color:#e74c3c">${fmt(totalFees)}</b> in fees &amp; costs &ndash; a combined total of <b style="color:#e74c3c">${fmt(totalTax + totalFees)}</b>. <br><br>
+        <i>Comparison:</i> If you had saved the capital on a non-interest-bearing checking account (0% interest), its inflation-adjusted purchasing power would be only <b>${fmt(giroKK)}</b>.`;
+            }
+        }
+
+        function runSimulation() {
+            saveToStorage();
+            const p = {
+                startK: parseFloat(document.getElementById('istDepot').value) || 0,
+                startI: parseFloat(document.getElementById('istInvest').value) || 0,
+                rateM: parseFloat(document.getElementById('rate').value) || 0,
+                kursR: (parseFloat(document.getElementById('kursR').value) || 0) / 100,
+                realR: (parseFloat(document.getElementById('realR').value) || 0) / 100,
+                divR: (parseFloat(document.getElementById('divR').value) || 0) / 100,
+                divW: (parseFloat(document.getElementById('divW').value) || 0) / 100,
+                steuer: (parseFloat(document.getElementById('taxVal').value) || 0) / 100,
+                frei: parseFloat(document.getElementById('frei').value) || 0,
+                jahre: parseInt(document.getElementById('jahre').value) || 0,
+                infl: (parseFloat(document.getElementById('infl').value) || 0) / 100,
+                feePerc: (parseFloat(document.getElementById('feePerc').value) || 0) / 100,
+                divType: document.getElementById('istDivType').value,
+                divIstVal: parseFloat(document.getElementById('istDiv').value) || 0
+            };
+
+            let curK = p.startK;
+            let sumEigenKapital = p.startI;
+            let investKum = p.startI;
+            let tableHTML = '';
+            let dData = { years: [], depot: [], pureI: [], divY: [], divM: [], zz: [], kk: [], fees: [], taxY: [] };
+            let mmFlags = [false, false, false];
+            let totalTaxPaid = 0;
+            let totalFeesPaid = 0;
+            let lastDivNet = 0;
+
+            for (let i = 0; i <= p.jahre; i++) {
+                let kG = 0, kGPerc = 0, rG_brutto = 0, dB = 0, st_total = 0, dN = 0, rN = 0, annualFee = 0;
+                if (i === 0) {
+                    investKum = p.startI;
+                    if (p.divType === 'netto') { dN = p.divIstVal; dB = (dN > p.frei) ? p.frei + (dN - p.frei) / (1 - p.steuer) : dN; }
+                    else { dB = p.divIstVal; dN = dB - (Math.max(0, dB - p.frei) * p.steuer); }
+                    st_total = dB - dN;
+                    kG = curK - investKum;
+                    kGPerc = investKum > 0 ? (kG / investKum * 100) : 0;
+                } else {
+                    let rJ = p.rateM * 12;
+                    let basis = curK + (rJ / 2);
+                    let growth = basis * p.kursR;
+                    rG_brutto = basis * p.realR;
+                    dB = basis * (p.divR * Math.pow(1 + p.divW, i - 1));
+                    let fr_v = p.frei;
+                    let st_div = Math.max(0, dB - fr_v) * p.steuer;
+                    fr_v = Math.max(0, fr_v - dB);
+                    let st_real = Math.max(0, rG_brutto - fr_v) * p.steuer;
+                    dN = dB - st_div; rN = rG_brutto - st_real; st_total = st_div + st_real;
+
+                    annualFee = curK * p.feePerc;
+                    curK += rJ + growth + dN + rN - annualFee;
+
+                    sumEigenKapital += rJ;
+                    investKum += rJ + dN + rN - annualFee;
+                    kG = curK - investKum;
+                    kGPerc = investKum > 0 ? (kG / investKum * 100) : 0;
+                }
+                totalTaxPaid += st_total;
+                totalFeesPaid += annualFee;
+                lastDivNet = dN;
+
+                let kk = curK / Math.pow(1 + p.infl, i);
+                if (!mmFlags[0] && p.rateM > 0 && dN > (p.rateM * 12)) { mmFlags[0] = true; showMM('mm1', i); }
+                if (!mmFlags[1] && (curK - sumEigenKapital) > sumEigenKapital && i > 0) { mmFlags[1] = true; showMM('mm2', i); }
+                if (!mmFlags[2] && p.rateM > 0 && dN > (p.rateM * 12 * 1.5)) { mmFlags[2] = true; showMM('mm3', i); }
+
+                tableHTML += `<tr><td>${i === 0 ? 'Start' : i}</td><td>${Math.round(sumEigenKapital).toLocaleString()} €</td><td class="col-sticky">${Math.round(curK).toLocaleString()} €</td><td style="color:#e74c3c">${annualFee > 0 ? '-' : ''}${Math.round(annualFee).toLocaleString()} €</td><td>${Math.round(kG).toLocaleString()} € (${kGPerc.toFixed(1)}%)</td><td>${Math.round(dB).toLocaleString()} €</td><td style="color:#e74c3c">-${Math.round(st_total).toLocaleString()} €</td><td style="color:#2980b9">${Math.round(dN).toLocaleString()} €</td><td>${(dN / 12).toFixed(2)} €</td><td>${investKum > 0 ? (dN / investKum * 100).toFixed(2) : 0}%</td><td style="font-weight:bold;">${Math.round(investKum).toLocaleString()} €</td><td>${Math.round(kk).toLocaleString()} €</td></tr>`;
+
+                dData.years.push("J " + i);
+                dData.depot.push(curK);
+                dData.pureI.push(sumEigenKapital);
+                dData.divY.push(dN);
+                dData.divM.push(dN / 12);
+                dData.zz.push(curK - sumEigenKapital);
+                dData.kk.push(kk);
+                dData.fees.push(annualFee);
+                dData.taxY.push(st_total);
+            }
+            const lastKaufkraft = dData.kk[dData.kk.length - 1];
+            const realG = (curK - sumEigenKapital) / Math.pow(1 + p.infl, p.jahre);
+            const giroKK = sumEigenKapital / Math.pow(1 + p.infl, p.jahre);
+            const lastDivNetReal = lastDivNet / Math.pow(1 + p.infl, p.jahre);
+
+            document.getElementById('card-ek').innerText = Math.round(sumEigenKapital).toLocaleString() + " €";
+            document.getElementById('card-depot').innerText = Math.round(curK).toLocaleString() + " €";
+            document.getElementById('card-kk').innerText = Math.round(lastKaufkraft).toLocaleString() + " €";
+            document.getElementById('card-realgewinn').innerText = Math.round(realG).toLocaleString() + " €";
+            document.getElementById('card-realgewinn').style.color = realG >= 0 ? 'var(--accent)' : '#e74c3c';
+            document.getElementById('card-divNet').innerText = Math.round(lastDivNet).toLocaleString() + " € (" + Math.round(lastDivNet / 12).toLocaleString() + " €/M)";
+
+            const taxEl = document.getElementById('card-taxTotal');
+            taxEl.innerText = Math.round(totalTaxPaid).toLocaleString() + " €";
+            taxEl.style.color = '#e74c3c';
+
+            document.getElementById('resultBody').innerHTML = tableHTML;
+            if (!mmFlags[0]) document.getElementById('mm1').style.display = 'none';
+            if (!mmFlags[1]) document.getElementById('mm2').style.display = 'none';
+            if (!mmFlags[2]) document.getElementById('mm3').style.display = 'none';
+
+            generateAISummary(p.jahre, curK, sumEigenKapital, lastKaufkraft, realG, lastDivNet, lastDivNetReal, giroKK, totalTaxPaid, totalFeesPaid);
+            updateCharts(dData);
+        }
+
+        function showMM(id, year) {
+            const el = document.getElementById(id);
+            const index = id === 'mm1' ? 0 : id === 'mm2' ? 1 : 2;
+            el.style.display = 'block';
+            const levelText = `Level ${index + 1}: `;
+            const yearText = (curLang === 'DE' ? 'Jahr ' : 'Year ') + year + ': ';
+
+            el.querySelector('.mm-text').innerText = levelText + yearText + trans[curLang].mm[index];
+            el.querySelector('.tooltip-box').innerText = trans[curLang].mmTips[index];
+        }
+
+        function updateCharts(d) {
+            const isDark = document.body.classList.contains('dark-mode');
+            Chart.defaults.color = isDark ? '#ecf0f1' : '#333';
+
+            const colorNet = isDark ? '#2ecc71' : '#27ae60';
+            const colorTax = isDark ? '#5dade2' : '#3498db';
+            const fmtEuro = (val) => val.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+
+            const optBase = (title, isStacked = false, footerLabel = null) => ({
+                responsive: true,
+                maintainAspectRatio: false,
+                resizeDelay: 50,
+                interaction: isStacked ? {
+                    mode: 'index',
+                    intersect: false
+                } : {},
+                plugins: {
+                    title: { display: true, text: title },
+                    legend: { labels: { boxWidth: 10, font: { size: 10 } } },
+                    tooltip: isStacked ? {
+                        callbacks: {
+                            label: function (context) {
+                                let label = context.dataset.label || '';
+                                let value = context.parsed.y;
+                                return label + ': ' + fmtEuro(value);
+                            },
+                            footer: function (tooltipItems) {
+                                let sum = 0;
+                                tooltipItems.forEach(function (tooltipItem) {
+                                    sum += tooltipItem.parsed.y;
+                                });
+                                const label = footerLabel || (curLang === 'DE' ? 'Brutto Gesamt: ' : 'Total Gross: ');
+                                return label + fmtEuro(sum);
+                            }
+                        }
+                    } : {
+                        callbacks: {
+                            label: function (context) {
+                                let label = context.dataset.label || '';
+                                let value = context.parsed.y;
+                                return label + ': ' + fmtEuro(value);
+                            }
+                        }
+                    }
+                },
+                scales: isStacked ? { x: { stacked: true }, y: { stacked: true } } : {}
+            });
+
+            const inflLoss = d.depot.map((val, i) => Math.max(0, val - d.kk[i]));
+
+            if (charts.c1) charts.c1.destroy();
+            charts.c1 = new Chart(document.getElementById('chart1'), {
+                type: 'bar',
+                data: {
+                    labels: d.years,
+                    datasets: [
+                        { label: (curLang === 'DE' ? 'Kaufkraft' : 'Purch. Power'), data: d.kk, backgroundColor: colorNet },
+                        { label: (curLang === 'DE' ? 'Inflationsverlust' : 'Inflation Loss'), data: inflLoss, backgroundColor: '#e67e22' }
+                    ]
+                },
+                options: optBase(curLang === 'DE' ? 'Depot vs. Kaufkraft' : 'Portfolio vs. Purchasing Power', true, curLang === 'DE' ? 'Depotwert: ' : 'Portfolio Value: ')
+            });
+
+            if (charts.c2) charts.c2.destroy();
+            charts.c2 = new Chart(document.getElementById('chart2'), {
+                type: 'bar',
+                data: {
+                    labels: d.years,
+                    datasets: [
+                        { label: (curLang === 'DE' ? 'Eigenkapital' : 'Equity Capital'), data: d.pureI, backgroundColor: '#2980b9' },
+                        { label: (curLang === 'DE' ? 'Zinseszins-Effekt' : 'Compound Effect'), data: d.zz, backgroundColor: '#f1c40f' }
+                    ]
+                },
+                options: optBase(curLang === 'DE' ? 'Einzahlung vs. Zuwachs' : 'Deposits vs. Growth', true, curLang === 'DE' ? 'Depotwert: ' : 'Portfolio Value: ')
+            });
+
+            const taxDiffY = d.divY.map((net, i) => {
+                const row = document.getElementById('resultBody').rows[i];
+                if (!row) return 0;
+                const brutto = parseFloat(row.cells[5].innerText.replace(/[^0-9,-]/g, '').replace(',', '.'));
+                return Math.max(0, brutto - net);
+            });
+            const taxDiffM = taxDiffY.map(val => val / 12);
+
+            if (charts.c3) charts.c3.destroy();
+            charts.c3 = new Chart(document.getElementById('chart3'), {
+                type: 'bar',
+                data: {
+                    labels: d.years,
+                    datasets: [
+                        { label: (curLang === 'DE' ? 'Netto Dividende' : 'Net Dividend'), data: d.divY, backgroundColor: colorNet },
+                        { label: (curLang === 'DE' ? 'Steueranteil' : 'Tax Part'), data: taxDiffY, backgroundColor: colorTax }
+                    ]
+                },
+                options: optBase(curLang === 'DE' ? 'Jährlicher Brutto-Cashflow' : 'Yearly Gross Cashflow', true)
+            });
+
+            if (charts.c4) charts.c4.destroy();
+            charts.c4 = new Chart(document.getElementById('chart4'), {
+                type: 'bar',
+                data: {
+                    labels: d.years,
+                    datasets: [
+                        { label: (curLang === 'DE' ? 'Netto Ø Monat' : 'Net Monthly Avg'), data: d.divM, backgroundColor: colorNet },
+                        { label: (curLang === 'DE' ? 'Steueranteil' : 'Tax Part'), data: taxDiffM, backgroundColor: colorTax }
+                    ]
+                },
+                options: optBase(curLang === 'DE' ? 'Monatlicher Brutto-Cashflow' : 'Monthly Gross Cashflow', true)
+            });
+        }
+
+        window.onload = () => {
+            const loadedFromURL = loadFromShareLink();
+            if (!loadedFromURL) loadFromStorage();
+            applyLang();
+            runSimulation();
+        };
+
+        // SEO & Translation Helper
+        (function () {
+            const originalApplyLang = window.applyLang;
+            const seoTrans = {
+                'DE': {
+                    'h1_seo': 'Zinseszinsrechner & Dividendenrechner',
+                    'seo_h2': 'Der ultimative Zinseszinsrechner & Dividendenrechner für deinen Vermögensaufbau',
+                    'seo_p1': 'Willkommen bei <strong>fincast</strong>, deinem fortschrittlichen Finanzsimulator. Mein Tool kombiniert einen <strong>Zinseszinsrechner</strong> mit einem spezialisierten <strong>Dividendenrechner</strong>, um dir eine ganzheitliche Prognose deines Portfoliowachstums zu ermöglichen. Egal ob du in ETFs, Einzelaktien oder Kryptowährungen investierst – fincast hilft dir, realistische Ziele für deine finanzielle Freiheit zu setzen.',
+                    'seo_h3_1': 'Warum ist ein Zinseszinsrechner wichtig?',
+                    'seo_p2': 'Der Zinseszins-Effekt wird oft als das achte Weltwunder bezeichnet. Mit meinem Rechner kannst du simulieren, wie monatliche Sparraten und Kursgewinne über Jahrzehnte hinweg die Macht des Zinseszinses entfalten. Dabei berücksichtige ich nicht nur die nominalen Gewinne, sondern zeige dir auch die <strong>Kaufkraft</strong> nach Inflation an.',
+                    'seo_h3_2': 'Präziser Dividendenrechner mit Wachstumsfaktor',
+                    'seo_p3': 'Für Dividendenstrategen bietet fincast einzigartige Funktionen: Berechne dein passives Einkommen unter Einbeziehung von Dividendenwachstum (Dividend Growth). Der Rechner simuliert automatisch die Reinvestition deiner Erträge, um das exponentielle Wachstum zu maximieren.',
+                    'seo_h3_3': 'Berücksichtigung von Steuern und Inflation',
+                    'seo_p4': 'Ein realistischer Finanzplan muss Abzüge wie die Kapitalertragsteuer (Abgeltungsteuer) und die Inflation einbeziehen. Mein Tool erlaubt es dir, Freibeträge und individuelle Steuersätze zu konfigurieren, um ein echtes Bild deines zukünftigen Netto-Vermögens zu erhalten.'
+                },
+                'EN': {
+                    'h1_seo': 'Compound Interest Calculator & Dividend Calculator',
+                    'seo_h2': 'The Ultimate Compound Interest & Dividend Calculator for Wealth Building',
+                    'seo_p1': 'Welcome to <strong>fincast</strong>, your advanced financial simulator. My tool combines a <strong>compound interest calculator</strong> with a specialized <strong>dividend calculator</strong> to provide you with a holistic forecast of your portfolio growth. Whether you invest in ETFs, individual stocks, or cryptocurrencies – fincast helps you set realistic goals for your financial freedom.',
+                    'seo_h3_1': 'Why is a compound interest calculator important?',
+                    'seo_p2': 'The compound interest effect is often called the eighth wonder of the world. With my calculator, you can simulate how monthly savings rates and price gains unfold the power of compound interest over decades. I not only consider nominal gains but also show you the <strong>purchasing power</strong> adjusted for inflation.',
+                    'seo_h3_2': 'Precise Dividend Calculator with Growth Factor',
+                    'seo_p3': 'For dividend strategists, fincast offers unique features: Calculate your passive income taking into account dividend growth. The calculator automatically simulates the reinvestition of your yields to maximize exponential growth.',
+                    'seo_h3_3': 'Consideration of Taxes and Inflation',
+                    'seo_p4': 'A realistic financial plan must include deductions such as capital gains tax and inflation. My tool allows you to configure allowances and individual tax rates to get a clear picture of your future net wealth.'
+                }
+            };
+
+            window.applyLang = function () {
+                if (typeof originalApplyLang === 'function') {
+                    originalApplyLang();
+                }
+                // Use the global curLang variable directly
+                const lang = (typeof curLang !== 'undefined') ? curLang : 'DE';
+                const t = seoTrans[lang];
+                if (!t) return;
+
+                // Re-insert hidden H1 if it was overwritten by the main script
+                const h1Container = document.getElementById('t-h1-main');
+                if (h1Container) {
+                    let h1Seo = h1Container.querySelector('.visually-hidden');
+                    if (!h1Seo) {
+                        h1Seo = document.createElement('span');
+                        h1Seo.className = 'visually-hidden';
+                        h1Container.appendChild(h1Seo);
+                    }
+                    h1Seo.innerText = t.h1_seo;
+                }
+
+                if (document.getElementById('t-seo-h2')) document.getElementById('t-seo-h2').innerText = t.seo_h2;
+                if (document.getElementById('t-seo-p1')) document.getElementById('t-seo-p1').innerHTML = t.seo_p1;
+                if (document.getElementById('t-seo-h3-1')) document.getElementById('t-seo-h3-1').innerText = t.seo_h3_1;
+                if (document.getElementById('t-seo-p2')) document.getElementById('t-seo-p2').innerHTML = t.seo_p2;
+                if (document.getElementById('t-seo-h3-2')) document.getElementById('t-seo-h3-2').innerText = t.seo_h3_2;
+                if (document.getElementById('t-seo-p3')) document.getElementById('t-seo-p3').innerHTML = t.seo_p3;
+                if (document.getElementById('t-seo-h3-3')) document.getElementById('t-seo-h3-3').innerText = t.seo_h3_3;
+                if (document.getElementById('t-seo-p4')) document.getElementById('t-seo-p4').innerHTML = t.seo_p4;
+            };
+        })();
     </script>
 </body>
 

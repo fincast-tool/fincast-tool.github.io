@@ -1,104 +1,311 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Impressum | Nikolai Bretthauer</title>
+    <title>Impressum | fincast - Zinseszins & Dividendenrechner</title>
+    <meta name="description"
+        content="Impressum und Datenschutzerklärung von fincast. Informationen zum Anbieter, Haftungsausschluss und Datenschutz für den Zinseszinsrechner & Dividendenrechner.">
+    <meta name="keywords"
+        content="Impressum, Datenschutz, fincast, Zinseszinsrechner, Dividendenrechner, Nikolai Bretthauer">
+    <meta name="author" content="Nikolai Bretthauer">
+    <link rel="canonical" href="https://fincast-tool.github.io/Impressum.html" />
+
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon2.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon2.png">
+    <link rel="shortcut icon" href="favicon2.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="favicon2.png">
+    <link rel="manifest" href="manifest.json">
+
+    <meta name="image" content="https://fincast-tool.github.io/favicon2.png">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://fincast-tool.github.io/Impressum.html">
+    <meta property="og:title" content="Impressum | fincast Finanzsimulator">
+    <meta property="og:description" content="Anbieterkennzeichnung und rechtliche Hinweise zum fincast Projekt.">
+    <meta property="og:image" content="https://fincast-tool.github.io/favicon2.png">
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Impressum | fincast Finanzsimulator">
+    <meta name="twitter:description" content="Rechtliche Informationen zum fincast Zinseszinsrechner.">
+    <meta name="twitter:image" content="https://fincast-tool.github.io/favicon2.png">
     <style>
-        body { font-family: -apple-system, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 40px auto; padding: 20px; background: #f8f9fa; }
-        .card { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        h1 { color: #2c3e50; border-bottom: 2px solid #27ae60; padding-bottom: 10px; }
-        h2 { color: #2980b9; margin-top: 30px; font-size: 1.2rem; }
-        .back-link { display: inline-block; margin-bottom: 20px; color: #27ae60; text-decoration: none; font-weight: bold; }
+        :root {
+            --primary: #2c3e50;
+            --accent: #27ae60;
+            --bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --text: #333;
+            --text-muted: #7f8c8d;
+            --border: #dcdde1;
+        }
+
+        .dark-mode {
+            --primary: #ecf0f1;
+            --accent: #2ecc71;
+            --bg: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text: #f0f0f0;
+            --text-muted: #bdc3c7;
+            --border: #444;
+        }
+
+        body {
+            font-family: -apple-system, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: var(--bg);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .top-btns {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        h1 {
+            color: var(--primary);
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: var(--accent);
+            margin-top: 30px;
+            font-size: 1.2rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Toggle Button Styles from index.html */
+        .toggle-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .toggle-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .toggle-btn img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Zustand im Dark Mode */
+        body.dark-mode #theme-toggle {
+            box-shadow: 0 0 20px rgba(136, 244, 248, 0.2);
+            border-color: #88f4f8;
+        }
+
+        body.dark-mode #theme-toggle img {
+            transform: rotate(180deg);
+            filter: drop-shadow(0 0 5px #88f4f8);
+        }
+
+        body.dark-mode #lang-toggle {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(46, 204, 113, 0.1);
+        }
+
+        body.lang-en #lang-toggle img {
+            transform: rotate(180deg);
+        }
     </style>
 </head>
+
 <body>
 
-<a href="index.html" class="back-link">← Zurück zum Simulator</a>
+    <div class="top-nav">
+        <a href="index.html" class="back-link" id="t-back">← Zurück zum Simulator</a>
+        <div class="top-btns">
+            <div class="toggle-btn" onclick="toggleLanguage()" id="lang-toggle">
+                <img src="theme-toggle-language.png" alt="Language Toggle">
+            </div>
+            <div class="toggle-btn" onclick="toggleDarkMode()" id="theme-toggle">
+                <img src="theme-toggle-icon.png" alt="Theme Toggle">
+            </div>
+        </div>
+    </div>
 
-<div class="card">
-    <h1>Impressum</h1>
+    <div class="card" id="legal-content">
+        <!-- Content will be injected via JS -->
+    </div>
 
-    <h2>Angaben gemäß § 5 DDG</h2>
-    <p>
-        Nikolai Bretthauer<br>
-        Goethestr. 21d<br>
-        59423 Unna
-    </p>
+    <script>
+        let curLang = 'DE';
 
-    <h2>Kontakt</h2>
-    <p>
-        Telefon: +49 (0) -/- <br>
-        E-Mail: niko.bretthauer@gmail.com<br>
-        Webseite: -/-
-    </p>
+        const trans = {
+            DE: {
+                title: "Impressum | fincast - Zinseszins & Dividendenrechner",
+                back: "← Zurück zum Simulator",
+                content: `
+                    <h1>Impressum</h1>
+                    <h2>Angaben gemäß § 5 DDG</h2>
+                    <p>Nikolai Bretthauer<br>Goethestr. 21d<br>59423 Unna</p>
 
-    <h2>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h2>
-    <p>
-        Nikolai Bretthauer<br>
-        Goethestr. 21d<br>
-        59423 Unna
-    </p>
+                    <h2>Kontakt</h2>
+                    <p>Telefon: +49 (0) -/- <br>E-Mail: niko.bretthauer@gmail.com<br>Webseite: -/-</p>
 
-    <h2>Haftungsausschluss (Disclaimer)</h2>
-    <strong>Haftung für Inhalte</strong>
-    <p>Als Diensteanbieter bin ich gemäß § 7 Abs. 1 DDG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 DDG bin ich jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen.</p>
+                    <h2>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h2>
+                    <p>Nikolai Bretthauer<br>Goethestr. 21d<br>59423 Unna</p>
 
-    <strong>Haftung für Links</strong>
-    <p>Mein Angebot enthält Links zu externen Webseiten Dritter, auf deren Inhalte ich keinen Einfluss haben. Deshalb kann ich für diese fremden Inhalte keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich.</p>
+                    <h2>Haftungsausschluss (Disclaimer)</h2>
+                    <strong>Haftung für Inhalte</strong>
+                    <p>Als Diensteanbieter bin ich gemäß § 7 Abs. 1 DDG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 DDG bin ich jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen.</p>
 
-    <strong>Anlagehinweis</strong>
-    <p>Die bereitgestellten Berechnungen dienen ausschließlich der Information und stellen keine Anlageberatung dar. Für Verluste, die durch die Nutzung dieses Tools entstehen könnten, wird keine Haftung übernommen.</p>
+                    <strong>Haftung für Links</strong>
+                    <p>Mein Angebot enthält Links zu externen Webseiten Dritter, auf deren Inhalte ich keinen Einfluss haben. Deshalb kann ich für diese fremden Inhalte keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich.</p>
 
-    <h2>Urheberrecht</h2>
-    <p>Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.</p>
+                    <strong>Anlagehinweis</strong>
+                    <p>Die bereitgestellten Berechnungen dienen ausschließlich der Information und stellen keine Anlageberatung dar. Für Verluste, die durch die Nutzung dieses Tools entstehen könnten, wird keine Haftung übernommen.</p>
 
-    <h2>Datenschutzerklärung</h2>
+                    <h2>Urheberrecht</h2>
+                    <p>Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.</p>
 
-    <p><strong>1. Verantwortlicher</strong><br>
-    Verantwortlich für die Verarbeitung personenbezogener Daten auf dieser Webseite ist:<br>
-    <br>
-    Nikolai Bretthauer<br>
-    Goethestr. 21d<br>
-    59423 Unna<br>
-    E-Mail: niko.bretthauer@gmail.com</p>
+                    <h2>Datenschutzerklärung</h2>
+                    <p><strong>1. Verantwortlicher</strong><br>Nikolai Bretthauer, Goethestr. 21d, 59423 Unna, E-Mail: niko.bretthauer@gmail.com</p>
+                    <p><strong>2. Allgemeines</strong><br>Diese Webseite verarbeitet personenbezogene Daten ausschließlich im Rahmen der gesetzlichen Bestimmungen der DSGVO und des TTDSG.</p>
+                    <p><strong>3. Datenerhebung</strong><br>Beim Aufruf dieser Webseite werden keine personenbezogenen Daten (IPs, Logfiles, Tracking) erhoben.</p>
+                    <p><strong>4. Cookies</strong><br>Diese Webseite verwendet keine Cookies.</p>
+                `
+            },
+            EN: {
+                title: "Legal Notice | fincast - Compound Interest & Dividend Calculator",
+                back: "← Back to Simulator",
+                content: `
+                    <h1>Legal Notice (Impressum)</h1>
+                    <h2>Details according to § 5 DDG</h2>
+                    <p>Nikolai Bretthauer<br>Goethestr. 21d<br>59423 Unna, Germany</p>
 
-    <p><strong>2. Allgemeine Hinweise zur Datenverarbeitung</strong><br>
-    Der Schutz Ihrer persönlichen Daten ist mir wichtig. Diese Webseite verarbeitet personenbezogene Daten ausschließlich im Rahmen der gesetzlichen Bestimmungen der DSGVO und des TTDSG.</p>
+                    <h2>Contact</h2>
+                    <p>Phone: +49 (0) -/- <br>Email: niko.bretthauer@gmail.com<br>Website: -/-</p>
 
-    <p><strong>3. Erhebung von personenbezogenen Daten beim Besuch dieser Webseite</strong><br>
-    Beim Aufruf dieser Webseite werden keine personenbezogenen Daten erhoben, gespeichert oder verarbeitet. Insbesondere werden:<br>
-    – keine IP-Adressen gespeichert,<br>
-    – keine Server-Logfiles erstellt,<br>
-    – keine Analyse- oder Tracking-Tools eingesetzt.</p>
+                    <h2>Responsible for content according to § 55 Abs. 2 RStV</h2>
+                    <p>Nikolai Bretthauer<br>Goethestr. 21d<br>59423 Unna, Germany</p>
 
-    <p><strong>4. Cookies</strong><br>
-    Diese Webseite verwendet keine Cookies. Es werden weder technisch notwendige noch technisch nicht notwendige Cookies gesetzt.</p>
+                    <h2>Disclaimer</h2>
+                    <strong>Liability for Content</strong>
+                    <p>As a service provider, I am responsible for my own content on these pages in accordance with § 7 Para. 1 DDG and general laws. However, according to §§ 8 to 10 DDG, I am not obliged to monitor transmitted or stored third-party information.</p>
 
-    <p><strong>5. Eingebundene Inhalte und externe Dienste</strong><br>
-    Auf dieser Webseite werden keine externen Inhalte, Skripte oder Dienste eingebunden, die personenbezogene Daten übertragen könnten (z. B. Google Fonts, YouTube, Social-Media-Plugins).<br>
-    <br>
-    Sofern ein externer Link angeboten wird, erfolgt eine mögliche Datenverarbeitung erst beim Besuch der entsprechenden Webseite. Auf diese Verarbeitung habe ich keinen Einfluss.</p>
+                    <strong>Liability for Links</strong>
+                    <p>My offer contains links to external websites of third parties, over whose content I have no influence. Therefore, I cannot assume any liability for this external content. The respective provider or operator of the pages is always responsible for the content of the linked pages.</p>
 
-    <p><strong>6. Kontaktaufnahme</strong><br>
-    Über diese Webseite besteht keine Möglichkeit zur direkten Kontaktaufnahme. Es werden daher keine personenbezogenen Daten im Rahmen einer Kontaktanfrage verarbeitet.</p>
+                    <strong>Investment Note</strong>
+                    <p>The calculations provided are for informational purposes only and do not constitute investment advice. No liability is assumed for losses that could arise from using this tool.</p>
 
-    <p><strong>7. Ihre Rechte</strong><br>
-    Auch wenn auf dieser Webseite keine Daten verarbeitet werden, haben Sie grundsätzlich folgende Rechte gemäß DSGVO:<br>
-    – Recht auf Auskunft,<br>
-    – Recht auf Berichtigung,<br>
-    – Recht auf Löschung,<br>
-    – Recht auf Einschränkung der Verarbeitung,<br>
-    – Recht auf Widerspruch,<br>
-    – Recht auf Datenübertragbarkeit,<br>
-    – Recht auf Beschwerde bei einer Aufsichtsbehörde.<br>
-    <br>
-    Diese Rechte bestehen unabhängig davon, ob tatsächlich Daten verarbeitet werden.</p>
+                    <h2>Copyright</h2>
+                    <p>The content and works created by the site operator on these pages are subject to German copyright law. Duplication, editing, distribution, and any kind of exploitation outside the limits of copyright law require the written consent of the respective author or creator.</p>
 
-    <p><strong>8. Änderungen dieser Datenschutzerklärung</strong><br>
-    Diese Datenschutzerklärung wird bei Bedarf angepasst, um sie an rechtliche Anforderungen oder Änderungen der Webseite anzupassen.</p>
+                    <h2>Privacy Policy</h2>
+                    <p><strong>1. Controller</strong><br>Nikolai Bretthauer, Goethestr. 21d, 59423 Unna, Germany, Email: niko.bretthauer@gmail.com</p>
+                    <p><strong>2. General Information</strong><br>This website processes personal data exclusively within the framework of the legal provisions of the GDPR and the TTDSG.</p>
+                    <p><strong>3. Data Collection</strong><br>No personal data (IPs, log files, tracking) is collected when you visit this website.</p>
+                    <p><strong>4. Cookies</strong><br>This website does not use cookies.</p>
+                `
+            }
+        };
 
-</div>
+        function saveToStorage() {
+            try {
+                const data = JSON.parse(localStorage.getItem('financeSimData') || '{}');
+                data.darkMode = document.body.classList.contains('dark-mode');
+                data.curLang = curLang;
+                localStorage.setItem('financeSimData', JSON.stringify(data));
+            } catch (e) { console.error("Save failed", e); }
+        }
 
+        function loadFromStorage() {
+            try {
+                const saved = localStorage.getItem('financeSimData');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    if (data.darkMode) document.body.classList.add('dark-mode');
+                    if (data.curLang) curLang = data.curLang;
+                }
+            } catch (e) { console.error("Load failed", e); }
+            document.body.classList.toggle('lang-en', curLang === 'EN');
+        }
+
+        function toggleLanguage() {
+            curLang = (curLang === 'DE') ? 'EN' : 'DE';
+            document.body.classList.toggle('lang-en', curLang === 'EN');
+            applyLang();
+            saveToStorage();
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            saveToStorage();
+        }
+
+        function applyLang() {
+            const l = trans[curLang];
+            if (!l) return;
+            document.documentElement.lang = curLang.toLowerCase();
+            document.title = l.title;
+
+            const metaDesc = document.querySelector('meta[name="description"]');
+            if (metaDesc) {
+                metaDesc.setAttribute("content", (curLang === 'DE') 
+                    ? "Impressum und Datenschutzerklärung von fincast. Informationen zum Anbieter, Haftungsausschluss und Datenschutz." 
+                    : "Legal notice and privacy policy of fincast. Information about the provider, disclaimer and data protection.");
+            }
+
+            const b = document.getElementById('t-back');
+            if (b) b.innerText = l.back;
+            const c = document.getElementById('legal-content');
+            if (c) c.innerHTML = l.content;
+        }
+
+        window.onload = () => {
+            loadFromStorage();
+            applyLang();
+        };
+    </script>
 </body>
+
 </html>

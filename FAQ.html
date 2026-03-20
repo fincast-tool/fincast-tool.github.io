@@ -1,13 +1,38 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FAQ | Finance-Simulator Help & Documentation</title>
-    <meta name="description" content="Häufig gestellte Fragen zum Finanz-Simulator. Hilfe zu Zinseszins, Steuern und Inflation. Frequently asked questions about the finance simulator.">
-    
-    <link rel="alternate" hreflang="de" href="faq.html" />
-    <link rel="alternate" hreflang="en" href="faq.html" />
+    <title>FAQ | fincast - Zinseszins, Dividenden & Finanz-Simulator Hilfe</title>
+    <meta name="description"
+        content="Häufig gestellte Fragen zum fincast Finanz-Simulator. Hilfe zu Zinseszins, Dividendenwachstum, Steuern und Inflation präzise erklärt. FAQ for compound interest and finance simulation.">
+    <meta name="keywords"
+        content="FAQ, Hilfe, Zinseszinsrechner FAQ, Dividendenrechner Hilfe, Finanz-Simulator Dokumentation, fincast Support">
+    <meta name="author" content="Nikolai Bretthauer">
+    <link rel="canonical" href="https://fincast-tool.github.io/FAQ.html" />
+
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon2.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon2.png">
+    <link rel="shortcut icon" href="favicon2.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="favicon2.png">
+    <link rel="manifest" href="manifest.json">
+
+    <link rel="alternate" hreflang="de" href="https://fincast-tool.github.io/FAQ.html" />
+    <link rel="alternate" hreflang="en" href="https://fincast-tool.github.io/FAQ.html" />
+
+    <meta name="image" content="https://fincast-tool.github.io/favicon2.png">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://fincast-tool.github.io/FAQ.html">
+    <meta property="og:title" content="FAQ | fincast Finanzsimulator">
+    <meta property="og:description"
+        content="Alle Antworten zu fincast. Zinseszins, Dividenden, Steuern und Simulation im Detail erklärt.">
+    <meta property="og:image" content="https://fincast-tool.github.io/favicon2.png">
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="FAQ | fincast Finanzsimulator">
+    <meta name="twitter:description" content="Hilfe und Dokumentation zum fincast Zinseszinsrechner.">
+    <meta name="twitter:image" content="https://fincast-tool.github.io/favicon2.png">
 
     <script type="application/ld+json">
     {
@@ -45,6 +70,16 @@
             --border: #dcdde1;
         }
 
+        .dark-mode {
+            --primary: #ecf0f1;
+            --accent: #2ecc71;
+            --bg: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text: #f0f0f0;
+            --text-muted: #bdc3c7;
+            --border: #444;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg);
@@ -52,6 +87,7 @@
             line-height: 1.6;
             margin: 0;
             padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         .container {
@@ -60,7 +96,8 @@
             background: var(--card-bg);
             padding: 40px;
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: background-color 0.3s, box-shadow 0.3s;
         }
 
         .top-nav {
@@ -68,6 +105,12 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
+        }
+
+        .top-btns {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
         .btn-back {
@@ -84,20 +127,60 @@
             text-decoration: underline;
         }
 
-        .lang-btn {
-            background: var(--border);
-            border: none;
-            padding: 8px 15px;
-            border-radius: 6px;
+        /* Toggle Button Styles from index.html */
+        .toggle-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
-            font-weight: bold;
-            font-size: 0.8rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .toggle-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .toggle-btn img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Zustand im Dark Mode */
+        body.dark-mode #theme-toggle {
+            box-shadow: 0 0 20px rgba(136, 244, 248, 0.2);
+            border-color: #88f4f8;
+        }
+
+        body.dark-mode #theme-toggle img {
+            transform: rotate(180deg);
+            filter: drop-shadow(0 0 5px #88f4f8);
+        }
+
+        body.dark-mode #lang-toggle {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(46, 204, 113, 0.1);
+        }
+
+        body.lang-en #lang-toggle img {
+            transform: rotate(180deg);
         }
 
         h1 {
             color: var(--primary);
             font-size: 1.8rem;
-            margin-bottom: 30px;
+            margin-bottom: 10px;
             border-bottom: 2px solid var(--accent);
             padding-bottom: 10px;
         }
@@ -128,10 +211,14 @@
         .disclaimer {
             margin-top: 50px;
             padding: 20px;
-            background: #f9f9f9;
+            background: rgba(0, 0, 0, 0.03);
             border-left: 4px solid var(--text-muted);
             font-size: 0.85rem;
             color: var(--text-muted);
+        }
+
+        body.dark-mode .disclaimer {
+            background: rgba(255, 255, 255, 0.03);
         }
 
         .disclaimer strong {
@@ -139,89 +226,196 @@
         }
 
         @media (max-width: 600px) {
-            .container { padding: 20px; }
-            h1 { font-size: 1.4rem; }
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.4rem;
+            }
         }
     </style>
 </head>
+
 <body>
 
-<div class="container">
-    <div class="top-nav">
-        <a href="index.html" class="btn-back" id="t-back">← Zurück zum Simulator</a>
-        <button class="lang-btn" onclick="toggleLanguage()" id="langBtn">EN</button>
-    </div>
-
-    <h1 id="t-title">Häufig gestellte Fragen (FAQ)</h1>
-
-    <div id="faq-content">
+    <div class="container">
+        <div class="top-nav">
+            <a href="index.html" class="btn-back" id="t-back">← Zurück zum Simulator</a>
+            <div class="top-btns">
+                <div class="toggle-btn" onclick="toggleLanguage()" id="lang-toggle">
+                    <img src="theme-toggle-language.png" alt="Language Toggle">
+                </div>
+                <div class="toggle-btn" onclick="toggleDarkMode()" id="theme-toggle">
+                    <img src="theme-toggle-icon.png" alt="Theme Toggle">
+                </div>
+            </div>
         </div>
 
-    <div class="disclaimer">
-        <strong id="t-disc-title">Wichtiger Hinweis: Keine Anlageberatung</strong>
-        <p id="t-disc-text">Die hier berechneten Werte basieren auf mathematischen Simulationen und stellen keine Anlageberatung dar. Finanzmärkte sind volatil, und vergangene Erfolge garantieren keine zukünftigen Erträge. Bitte konsultieren Sie einen zertifizierten Berater vor finanziellen Entscheidungen.</p>
-    </div>
-</div>
+        <h1 id="t-title">Häufig gestellte Fragen (FAQ)</h1>
 
-<script>
-    let curLang = 'DE';
+        <div id="faq-main-content">
+            <h1 id="t-formulas-title">Berechnungsgrundlagen</h1>
+            <div id="formulas-content" class="faq-item">
+                <!-- Will be filled by JS -->
+            </div>
 
-    const content = {
-        DE: {
-            title: "Häufig gestellte Fragen (FAQ)",
-            back: "← Zurück zum Simulator",
-            discTitle: "Wichtiger Hinweis: Keine Anlageberatung",
-            discText: "Die hier berechneten Werte basieren auf mathematischen Simulationen und stellen keine Anlageberatung dar. Finanzmärkte sind volatil, und vergangene Erfolge garantieren keine zukünftigen Erträge. Bitte konsultieren Sie einen zertifizierten Berater vor finanziellen Entscheidungen.",
-            faqs: [
-                { q: "Werden meine Daten gespeichert?", a: "Nein. Alle Berechnungen finden lokal in deinem Browser statt. Es werden keine Daten an einen Server übertragen." },
-                { q: "Wie genau ist die Berechnung?", a: "Der Simulator nutzt mathematische Standardformeln für Zinseszins und Inflation. Steuern werden jährlich auf realisierte Gewinne und Dividenden unter Berücksichtigung des Freibetrags berechnet." },
-                { q: "Was bedeutet 'Kaufkraft'?", a: "Die Kaufkraft zeigt an, was dein zukünftiges Vermögen nach Abzug der Inflation in heutigen Euro wert wäre. Das hilft dir zu verstehen, wie viel du dir später wirklich davon leisten kannst." },
-                { q: "Wie werden reinvestierte Gewinne behandelt?", a: "Das Script folgt einer Rebalancing-Logik: Realisierte Gewinne und Netto-Dividenden werden sofort dem Depotwert gutgeschrieben. Im Folgejahr erwirtschaftet dieses Kapital automatisch wieder die volle Kurs- und Dividendenrendite." },
-                { q: "Was ist der Unterschied zwischen Dividendenrendite und -wachstum?", a: "Die Rendite bezieht sich auf den aktuellen Depotwert. Das Wachstum (p.a.) erhöht diesen prozentualen Auszahlungsbetrag jedes Jahr zusätzlich, um steigende Unternehmensgewinne zu simulieren." },
-                { q: "Wie wird die Steuer berechnet?", a: "Jedes Jahr prüft das System: (Dividenden + realisierte Gewinne) - Freibetrag. Ist das Ergebnis positiv, wird auf diesen Teil der gewählte Steuersatz angewendet." }
-            ]
-        },
-        EN: {
-            title: "Frequently Asked Questions (FAQ)",
-            back: "← Back to Simulator",
-            discTitle: "Important Notice: No Investment Advice",
-            discText: "The values calculated here are based on mathematical simulations and do not constitute investment advice. Financial markets are volatile, and past performance does not guarantee future results. Please consult a certified advisor before making financial decisions.",
-            faqs: [
-                { q: "Is my data being saved?", a: "No. All calculations take place locally in your browser. No data is transmitted to a server." },
-                { q: "How accurate is the calculation?", a: "The simulator uses standard formulas for compound interest and inflation. Taxes are calculated annually on realized gains and dividends." },
-                { q: "What does 'Purchasing Power' mean?", a: "Purchasing power shows what your future wealth is worth in today's terms. Inflation reduces the real value of your capital over time." },
-                { q: "How are reinvested gains handled?", a: "The script follows a rebalancing logic: Realized gains and net dividends are immediately credited to the portfolio value. In the next year, this capital earns the full yields again." },
-                { q: "What is the difference between dividend yield and growth?", a: "The yield refers to the current portfolio value. The growth increases this payout percentage every year, simulating dividend hikes." },
-                { q: "How is tax calculated?", a: "Each year, the system calculates: (Dividends + realized gains) - allowance. If positive, the selected tax rate is applied." }
-            ]
-        }
-    };
+            <!-- New separate container for the FAQs list -->
+            <div id="faq-list">
+                <!-- Will be filled by JS -->
+            </div>
 
-    function toggleLanguage() {
-        curLang = (curLang === 'DE') ? 'EN' : 'DE';
-        document.getElementById('langBtn').innerText = (curLang === 'DE') ? 'EN' : 'DE';
-        applyLang();
-    }
+            <div class="disclaimer">
+                <strong id="t-disc-title">Wichtiger Hinweis: Keine Anlageberatung</strong>
+                <p id="t-disc-text">Die hier berechneten Werte basieren auf mathematischen Simulationen und stellen
+                    keine Anlageberatung dar. Finanzmärkte sind volatil, und vergangene Erfolge garantieren keine
+                    zukünftigen Erträge. Bitte konsultieren Sie einen zertifizierten Berater vor finanziellen
+                    Entscheidungen.</p>
+            </div>
+        </div>
 
-    function applyLang() {
-        const l = content[curLang];
-        document.getElementById('t-title').innerText = l.title;
-        document.getElementById('t-back').innerText = l.back;
-        document.getElementById('t-disc-title').innerText = l.discTitle;
-        document.getElementById('t-disc-text').innerText = l.discText;
+        <script>
+            let curLang = 'DE';
 
-        let html = '';
-        l.faqs.forEach(item => {
-            html += `<div class="faq-item">
-                <span class="question">${item.q}</span>
-                <div class="answer">${item.a}</div>
-            </div>`;
-        });
-        document.getElementById('faq-content').innerHTML = html;
-    }
+            const trans = {
+                DE: {
+                    title: "Häufig gestellte Fragen (FAQ)",
+                    back: "← Zurück zum Simulator",
+                    formulasTitle: "Berechnungsgrundlagen & Formeln",
+                    formulas: `
+                <div class="answer">
+                    <p>Hier erfährst du, wie der fincast Simulator deine Zukunft berechnet:</p>
+                    <ul>
+                        <li><strong>Berechnungsbasis:</strong> Da Sparraten meist monatlich fließen, wird für die jährliche Verzinsung der Depotwert zum Jahresanfang plus die halbe Jahressparrate herangezogen.</li>
+                        <li><strong>Kursgewinn:</strong> <code>Basis × Kursrendite (%)</code></li>
+                        <li><strong>Dividende (Brutto):</strong> Die Dividende wird auf die Basis berechnet und wächst jährlich um das angegebene Dividendenwachstum: <code>Basis × (Dividendenrendite × (1 + Dividendenwachstum)<sup>Jahr</sup>)</code></li>
+                        <li><strong>Steuern:</strong> Das Tool nutzt das Zuflussprinzip. Steuern fallen jährlich an auf: <code>(Dividenden + Realisierte Gewinne - Freibetrag) × Steuersatz</code>.</li>
+                        <li><strong>Reinvestition:</strong> Netto-Dividenden und realisierte Gewinne nach Steuern werden sofort wieder dem Depotwert gutgeschrieben (Thesaurierung).</li>
+                        <li><strong>Inflation (Kaufkraft):</strong> Um den Wert in heutiger Kaufkraft zu ermitteln, wird der Endwert abgezinst: <code>Depotwert / (1 + Inflationsrate)<sup>Jahr</sup></code></li>
+                    </ul>
+                </div>
+            `,
+                    discTitle: "Wichtiger Hinweis: Keine Anlageberatung",
+                    discText: "Die hier berechneten Werte basieren auf mathematischen Simulationen und stellen keine Anlageberatung dar. Finanzmärkte sind volatil, und vergangene Erfolge garantieren keine zukünftigen Erträge. Bitte konsultieren Sie einen zertifizierten Berater vor finanziellen Entscheidungen.",
+                    faqs: [
+                        { q: "Werden meine Daten gespeichert?", a: "Nein. Alle Berechnungen finden lokal in deinem Browser statt. Es werden keine Daten an einen Server übertragen." },
+                        { q: "Wie genau ist die Berechnung?", a: "Der Simulator nutzt mathematische Standardformeln für Zinseszins und Inflation. Steuern werden jährlich auf realisierte Gewinne und Dividenden unter Berücksichtigung des Freibetrags berechnet." },
+                        { q: "Was bedeutet 'Kaufkraft'?", a: "Die Kaufkraft zeigt an, was dein zukünftiges Vermögen nach Abzug der Inflation in heutigen Euro wert wäre. Das hilft dir zu verstehen, wie viel du dir später wirklich davon leisten kannst." },
+                        { q: "Wie werden reinvestierte Gewinne behandelt?", a: "Das Script folgt einer Rebalancing-Logik: Realisierte Gewinne und Netto-Dividenden werden sofort dem Depotwert gutgeschrieben. Im Folgejahr erwirtschaftet dieses Kapital automatisch wieder die volle Kurs- und Dividendenrendite." },
+                        { q: "Was ist der Unterschied zwischen Dividendenrendite und -wachstum?", a: "Die Rendite bezieht sich auf den aktuellen Depotwert. Das Wachstum (p.a.) erhöht diesen prozentualen Auszahlungsbetrag jedes Jahr zusätzlich, um steigende Unternehmensgewinne zu simulieren." },
+                        { q: "Wie wird die Steuer berechnet?", a: "Jedes Jahr prüft das System: (Dividenden + realisierte Gewinne) - Freibetrag. Ist das Ergebnis positiv, wird auf diesen Teil der gewählte Steuersatz angewendet." }
+                    ]
+                },
+                EN: {
+                    title: "Frequently Asked Questions (FAQ)",
+                    back: "← Back to Simulator",
+                    formulasTitle: "Calculation Basics & Formulas",
+                    formulas: `
+                <div class="answer">
+                    <p>This is how the fincast simulator calculates your financial future:</p>
+                    <ul>
+                        <li><strong>Calculation Basis:</strong> Since savings are usually monthly, we use the portfolio value at the beginning of the year plus half of the annual savings for interest calculations.</li>
+                        <li><strong>Price Gain:</strong> <code>Basis × Price Return (%)</code></li>
+                        <li><strong>Dividends (Gross):</strong> Dividends are calculated on the basis and grow annually by the specified dividend growth: <code>Basis × (Dividend Yield × (1 + Dividend Growth)<sup>Year</sup>)</code></li>
+                        <li><strong>Taxes:</strong> The tool applies taxes annually on: <code>(Dividends + Realized Gains - Allowance) × Tax Rate</code>.</li>
+                        <li><strong>Reinvestment:</strong> Net dividends and realized gains after tax are immediately credited back to the portfolio value (accumulation).</li>
+                        <li><strong>Inflation (Purchasing Power):</strong> To determine the value in today's terms, the final value is discounted: <code>Portfolio Value / (1 + Inflation Rate)<sup>Year</sup></code></li>
+                    </ul>
+                </div>
+            `,
+                    discTitle: "Important Notice: No Investment Advice",
+                    discText: "The values calculated here are based on mathematical simulations and do not constitute investment advice. Financial markets are volatile, and past performance does not guarantee future results. Please consult a certified advisor before making financial decisions.",
+                    faqs: [
+                        { q: "Is my data being saved?", a: "No. All calculations take place locally in your browser. No data is transmitted to a server." },
+                        { q: "How accurate is the calculation?", a: "The simulator uses standard formulas for compound interest and inflation. Taxes are calculated annually on realized gains and dividends." },
+                        { q: "What does 'Purchasing Power' mean?", a: "Purchasing power shows what your future wealth is worth in today's terms. Inflation reduces the real value of your capital over time." },
+                        { q: "How are reinvested gains handled?", a: "The script follows a rebalancing logic: Realized gains and net dividends are immediately credited to the portfolio value. In the next year, this capital earns the full yields again." },
+                        { q: "What is the difference between dividend yield and growth?", a: "The yield refers to the current portfolio value. The growth increases this payout percentage every year, simulating dividend hikes." },
+                        { q: "How is tax calculated?", a: "Each year, the system calculates: (Dividends + realized gains) - allowance. If positive, the selected tax rate is applied." }
+                    ]
+                }
+            };
 
-    window.onload = applyLang;
-</script>
+            function saveToStorage() {
+                try {
+                    const data = JSON.parse(localStorage.getItem('financeSimData') || '{}');
+                    data.darkMode = document.body.classList.contains('dark-mode');
+                    data.curLang = curLang;
+                    localStorage.setItem('financeSimData', JSON.stringify(data));
+                } catch (e) { console.error("Save failed", e); }
+            }
+
+            function loadFromStorage() {
+                try {
+                    const saved = localStorage.getItem('financeSimData');
+                    if (saved) {
+                        const data = JSON.parse(saved);
+                        if (data.darkMode) document.body.classList.add('dark-mode');
+                        if (data.curLang) curLang = data.curLang;
+                    }
+                } catch (e) { console.error("Load failed", e); }
+                document.body.classList.toggle('lang-en', curLang === 'EN');
+            }
+
+            function toggleLanguage() {
+                curLang = (curLang === 'DE') ? 'EN' : 'DE';
+                document.body.classList.toggle('lang-en', curLang === 'EN');
+                applyLang();
+                saveToStorage();
+            }
+
+            function toggleDarkMode() {
+                document.body.classList.toggle('dark-mode');
+                saveToStorage();
+            }
+
+            function applyLang() {
+                const l = trans[curLang];
+                if (!l) return;
+
+                document.documentElement.lang = curLang.toLowerCase();
+                document.title = (curLang === 'DE') ? "FAQ | fincast - Zinseszins, Dividenden & Finanz-Simulator Hilfe" : "FAQ | fincast - Compound Interest, Dividends & Finance Simulator Help";
+
+                const metaDesc = document.querySelector('meta[name="description"]');
+                if (metaDesc) {
+                    metaDesc.setAttribute("content", (curLang === 'DE')
+                        ? "Häufig gestellte Fragen zum fincast Finanz-Simulator. Hilfe zu Zinseszins, Dividendenwachstum, Steuern und Inflation präzise erklärt."
+                        : "Frequently asked questions about the fincast finance simulator. Help with compound interest, dividend growth, taxes and inflation explained precisely.");
+                }
+
+                const sets = {
+                    't-title': l.title,
+                    't-back': l.back,
+                    't-formulas-title': l.formulasTitle,
+                    't-disc-title': l.discTitle,
+                    't-disc-text': l.discText
+                };
+
+                for (const [id, val] of Object.entries(sets)) {
+                    const el = document.getElementById(id);
+                    if (el) el.innerText = val;
+                }
+
+                const fCont = document.getElementById('formulas-content');
+                if (fCont) fCont.innerHTML = l.formulas;
+
+                let faqHtml = '';
+                l.faqs.forEach(item => {
+                    faqHtml += `<div class="faq-item">
+                        <span class="question">${item.q}</span>
+                        <div class="answer">${item.a}</div>
+                    </div>`;
+                });
+                const fList = document.getElementById('faq-list');
+                if (fList) fList.innerHTML = faqHtml;
+            }
+
+            window.onload = () => {
+                loadFromStorage();
+                applyLang();
+            };
+        </script>
 
 </body>
+
 </html>
