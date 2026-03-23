@@ -1198,15 +1198,26 @@
         let charts = {};
         let curLang = 'DE';
 
-        const ads = [
-            { title: "Interactive Brokers", sub: "Weltweiter Handel zu unschlagbaren Konditionen.", btn: "Jetzt anmelden", link: "https://ibkr.com/referral/nikolai299", bg: "linear-gradient(135deg, #333, #b91c1c)" },
-            { title: "Trade Republic", sub: "Dein Bonus wartet auf dich.", btn: "Jetzt Depot eröffnen", link: "https://refnocode.trade.re/wsjpt093", bg: "linear-gradient(135deg, #000, #222)" },
-            { title: "ING DiBa", sub: "Deutschlands beliebtester Broker.", btn: "Zum Depot-Angebot", link: "https://www.ing.de/depotkwk/aa/qMSsG9b3sfYwe7oec_MHkdo9erNgI0N1C05s2nPmaFllOL_mq8sF0eNbrBWoWpiPbg_fneIWXo0DlDdVI1MWYujZlsXD-3Tvg-DfGOcuOMQ=", bg: "linear-gradient(135deg, #ff6200, #d95300)" },
-            { title: "Bison App", sub: "Kryptos einfach & sicher handeln.", btn: "Konto eröffnen", link: "https://join.bisonapp.com/8jztca", bg: "linear-gradient(135deg, #003056, #004b85)" },
-            { title: "Bitpanda", sub: "Investiere in Aktien, Krypto & Gold.", btn: "Bonus sichern", link: "https://7lr8.adj.st/web.bitpanda.com/user/register/834555914483041191?adj_t=19f71v2&adj_fallback=https%3A%2F%2Fweb.bitpanda.com%2Fuser%2Fregister%2F834555914483041191&adj_redirect_macos=https%3A%2F%2Fweb.bitpanda.com%2Fuser%2Fregister%2F834555914483041191", bg: "linear-gradient(135deg, #00bf71, #008f55)" },
-            { title: "Getquin", sub: "Tracke alle deine Assets einfach in Echtzeit.", btn: "Konto erstellen", link: "https://getqu.in/nFa0yY/tWX6ya/", bg: "linear-gradient(135deg, #0d1117, #21262d)" },
-            { title: "Support ☕", sub: "Simulator gefällt dir? Spendier ein Kaffee!", btn: "Via PayPal spenden", link: "https://www.paypal.com/paypalme/nikobre", bg: "linear-gradient(135deg, #0070ba, #003087)" }
-        ];
+        const ads = {
+            DE: [
+                { title: "Interactive Brokers", sub: "Weltweiter Handel zu unschlagbaren Konditionen.", btn: "Jetzt anmelden", link: "https://ibkr.com/referral/nikolai299", bg: "linear-gradient(135deg, #333, #b91c1c)" },
+                { title: "Trade Republic", sub: "Dein Bonus wartet auf dich.", btn: "Jetzt Depot eröffnen", link: "https://refnocode.trade.re/wsjpt093", bg: "linear-gradient(135deg, #000, #222)" },
+                { title: "ING DiBa", sub: "Deutschlands beliebtester Broker.", btn: "Zum Depot-Angebot", link: "https://www.ing.de/depotkwk/aa/qMSsG9b3sfYwe7oec_MHkdo9erNgI0N1C05s2nPmaFllOL_mq8sF0eNbrBWoWpiPbg_fneIWXo0DlDdVI1MWYujZlsXD-3Tvg-DfGOcuOMQ=", bg: "linear-gradient(135deg, #ff6200, #d95300)" },
+                { title: "Bison App", sub: "Kryptos einfach & sicher handeln.", btn: "Konto eröffnen", link: "https://join.bisonapp.com/8jztca", bg: "linear-gradient(135deg, #003056, #004b85)" },
+                { title: "Bitpanda", sub: "Investiere in Aktien, Krypto & Gold.", btn: "Bonus sichern", link: "https://7lr8.adj.st/web.bitpanda.com/user/register/834555914483041191?adj_t=19f71v2&adj_fallback=https%3A%2F%2Fweb.bitpanda.com%2Fuser%2Fregister%2F834555914483041191&adj_redirect_macos=https%3A%2F%2Fweb.bitpanda.com%2Fuser%2Fregister%2F834555914483041191", bg: "linear-gradient(135deg, #00bf71, #008f55)" },
+                { title: "Getquin", sub: "Tracke alle deine Assets einfach in Echtzeit.", btn: "Konto erstellen", link: "https://getqu.in/nFa0yY/tWX6ya/", bg: "linear-gradient(135deg, #0d1117, #21262d)" },
+                { title: "Support ☕", sub: "Simulator gefällt dir? Spendier ein Kaffee!", btn: "Via PayPal spenden", link: "https://www.paypal.com/paypalme/nikobre", bg: "linear-gradient(135deg, #0070ba, #003087)" }
+            ],
+            EN: [
+                { title: "Interactive Brokers", sub: "Global trading with unbeatable conditions.", btn: "Sign up now", link: "https://ibkr.com/referral/nikolai299", bg: "linear-gradient(135deg, #333, #b91c1c)" },
+                { title: "Trade Republic", sub: "Your bonus is waiting for you.", btn: "Open account now", link: "https://refnocode.trade.re/wsjpt093", bg: "linear-gradient(135deg, #000, #222)" },
+                { title: "ING DiBa", sub: "Germany's most popular broker.", btn: "To the offer", link: "https://www.ing.de/depotkwk/aa/qMSsG9b3sfYwe7oec_MHkdo9erNgI0N1C05s2nPmaFllOL_mq8sF0eNbrBWoWpiPbg_fneIWXo0DlDdVI1MWYujZlsXD-3Tvg-DfGOcuOMQ=", bg: "linear-gradient(135deg, #ff6200, #d95300)" },
+                { title: "Bison App", sub: "Trade crypto simply & securely.", btn: "Open account", link: "https://join.bisonapp.com/8jztca", bg: "linear-gradient(135deg, #003056, #004b85)" },
+                { title: "Bitpanda", sub: "Invest in stocks, crypto & gold.", btn: "Claim bonus", link: "https://7lr8.adj.st/web.bitpanda.com/user/register/834555914483041191?adj_t=19f71v2&adj_fallback=https%3A%2F%2Fweb.bitpanda.com%2Fuser%2Fregister%2F834555914483041191&adj_redirect_macos=https%3A%2F%2Fweb.bitpanda.com%2Fuser%2Fregister%2F834555914483041191", bg: "linear-gradient(135deg, #00bf71, #008f55)" },
+                { title: "Getquin", sub: "Track all your assets easily in real-time.", btn: "Create account", link: "https://getqu.in/nFa0yY/tWX6ya/", bg: "linear-gradient(135deg, #0d1117, #21262d)" },
+                { title: "Support ☕", sub: "Like the simulator? Buy me a coffee!", btn: "Donate via PayPal", link: "https://www.paypal.com/paypalme/nikobre", bg: "linear-gradient(135deg, #0070ba, #003087)" }
+            ]
+        };
 
         let adIndex = 0;
         let adTimer = setInterval(autoRotate, 6000);
@@ -1216,15 +1227,17 @@
             banner.classList.remove('fade-in');
             void banner.offsetWidth;
             banner.classList.add('fade-in');
-            banner.href = ads[adIndex].link;
-            banner.style.background = ads[adIndex].bg;
-            document.getElementById('ref-title').innerText = ads[adIndex].title;
-            document.getElementById('ref-sub').innerText = ads[adIndex].sub;
-            document.getElementById('ref-btn-text').innerText = ads[adIndex].btn;
+            const currentAds = ads[curLang];
+            if (adIndex >= currentAds.length) adIndex = 0;
+            banner.href = currentAds[adIndex].link;
+            banner.style.background = currentAds[adIndex].bg;
+            document.getElementById('ref-title').innerText = currentAds[adIndex].title;
+            document.getElementById('ref-sub').innerText = currentAds[adIndex].sub;
+            document.getElementById('ref-btn-text').innerText = currentAds[adIndex].btn;
         }
 
-        function autoRotate() { adIndex = (adIndex + 1) % ads.length; updateBanner(); }
-        function manualRotate(direction) { clearInterval(adTimer); adIndex = (adIndex + direction + ads.length) % ads.length; updateBanner(); adTimer = setInterval(autoRotate, 8000); }
+        function autoRotate() { const currentAds = ads[curLang]; adIndex = (adIndex + 1) % currentAds.length; updateBanner(); }
+        function manualRotate(direction) { clearInterval(adTimer); const currentAds = ads[curLang]; adIndex = (adIndex + direction + currentAds.length) % currentAds.length; updateBanner(); adTimer = setInterval(autoRotate, 8000); }
 
         const trans = {
             DE: {
@@ -1399,6 +1412,7 @@
             document.getElementById('t-btnShareText').innerText = l.btnShare;
             let h = "<tr>"; l.table.forEach(col => h += `<th>${col.t}<div class="tooltip-box">${col.tip}</div></th>`);
             document.getElementById('t-head').innerHTML = h + "</tr>";
+            updateBanner();
         }
 
         function generateShareLink() {
