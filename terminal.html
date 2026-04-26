@@ -1163,7 +1163,7 @@
             setUIState('loading');
             try {
                 MODEL_ID = user.model || 'gemini-2.5-flash';
-                const rawContent = await fetchAnalysis(ticker);
+                const rawContent = await fetchAnalysis(ticker, user);
                 const parsedData = parseFrameworks(rawContent);
 
                 await apiCall('save_archive', { email: user.email, key: ticker, data: parsedData });
@@ -1178,7 +1178,7 @@
                 setUIState('welcome');
             }
         }
-        async function fetchAnalysis(ticker) {
+        async function fetchAnalysis(ticker, user) {
             const today = new Date().toLocaleDateString(USER_LANG, { day: '2-digit', month: 'long', year: 'numeric' });
             const langNames = { 'de-DE': 'DEUTSCH', 'en-US': 'ENGLISH', 'fr-FR': 'FRANÇAIS', 'es-ES': 'ESPAÑOL' };
             const currentLangName = langNames[USER_LANG] || 'DEUTSCH';
