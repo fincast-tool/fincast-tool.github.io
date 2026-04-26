@@ -959,11 +959,17 @@
             }
         }
 
-        async function getUsers() { return await apiCall('get_users') || []; }
+        async function getUsers() { 
+            const res = await apiCall('get_users');
+            if (res && res.error) throw new Error(res.error);
+            return Array.isArray(res) ? res : [];
+        }
+
         async function getCurrentUser() {
             const e = localStorage.getItem('terminal_session');
             if (!e) return null;
             const users = await getUsers();
+            if (!Array.isArray(users)) return null;
             return users.find(u => u.email === e) || null;
         }
 
@@ -974,7 +980,7 @@
             
             try {
                 const users = await getUsers();
-                if (!users) throw new Error('Verbindung zum Server fehlgeschlagen.');
+                if (!Array.isArray(users)) throw new Error('Datenbank-Format ungültig.');
                 
                 const user = users.find(u => u.email === email && u.password === md5(pass));
                 if (!user) return showAuthError('Ungültige Anmeldedaten.');
@@ -999,7 +1005,8 @@
             
             try {
                 const users = await getUsers();
-                if (!users) throw new Error('Verbindung zum Server fehlgeschlagen.');
+                if (!Array.isArray(users)) throw new Error('Datenbank-Fehler beim Laden der Benutzer.');
+                
                 if (users.find(u => u.email === email)) return showAuthError('Email bereits registriert.');
 
                 const newUser = { 
