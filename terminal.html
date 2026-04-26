@@ -1394,8 +1394,7 @@ Profil: [1 Satz Beschreibung]
         }
 
         function renderIdentity(text) {
-            const strip = document.getElementById('identityStrip');
-            strip.classList.remove('hidden');
+            // resultsState handles visibility
 
             const getValue = (key) => {
                 const match = text.match(new RegExp(`${key}:\\s*(.*)`, 'i'));
@@ -1410,7 +1409,7 @@ Profil: [1 Satz Beschreibung]
         }
 
         function renderWidgets(data) {
-            const grid = document.getElementById('resultsGrid');
+            const grid = document.getElementById('widgetsGrid');
             grid.innerHTML = '';
 
             CARDS.forEach(card => {
