@@ -1442,18 +1442,24 @@ Profil: [1 Satz Beschreibung]
             if (drawer.classList.contains('open')) renderArchiveList();
         }
 
-        function saveToArchive(ticker, data) {
-            const archive = JSON.parse(localStorage.getItem('terminal_archive') || '{}');
+        async function saveToArchive(ticker, data) {
+            const user = await getCurrentUser();
+            if (!user) return;
+            const key = `terminal_archive_${user.email}`;
+            const archive = JSON.parse(localStorage.getItem(key) || '{}');
             archive[ticker] = {
                 timestamp: new Date().toLocaleString('de-DE'),
                 data: data
             };
-            localStorage.setItem('terminal_archive', JSON.stringify(archive));
+            localStorage.setItem(key, JSON.stringify(archive));
         }
 
-        function renderArchiveList() {
+        async function renderArchiveList() {
             const list = document.getElementById('archiveList');
-            const archive = JSON.parse(localStorage.getItem('terminal_archive') || '{}');
+            const user = await getCurrentUser();
+            if (!user) return;
+            const key = `terminal_archive_${user.email}`;
+            const archive = JSON.parse(localStorage.getItem(key) || '{}');
             const tickers = Object.keys(archive).reverse();
 
             if (tickers.length === 0) {
@@ -1483,9 +1489,11 @@ Profil: [1 Satz Beschreibung]
             });
         }
 
-        function clearArchive() {
+        async function clearArchive() {
             if (confirm('Wirklich das gesamte Archiv löschen?')) {
-                localStorage.removeItem('terminal_archive');
+                const user = await getCurrentUser();
+                if (!user) return;
+                localStorage.removeItem(`terminal_archive_${user.email}`);
                 renderArchiveList();
             }
         }

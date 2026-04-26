@@ -30,8 +30,25 @@ export default async function handler(req, res) {
     try {
         switch (action) {
             case 'get_users':
-                const usersRaw = await redis.get('terminal_users');
-                const users = usersRaw ? JSON.parse(usersRaw) : [];
+                let usersRaw = await redis.get('terminal_users');
+                let users = usersRaw ? JSON.parse(usersRaw) : [];
+                
+                // SEEDING: Create admin if database is empty
+                if (users.length === 0) {
+                    const admin = {
+                        email: 'admin@terminal.io',
+                        password: '827ccb0eea8a706c4c34a16891f84e7b', // md5('admin123')
+                        firstName: 'System',
+                        lastName: 'Administrator',
+                        apiKey: '',
+                        model: 'gemini-2.5-flash',
+                        tier: 'premium',
+                        isAdmin: true,
+                        createdAt: new Date().toISOString()
+                    };
+                    users = [admin];
+                    await redis.set('terminal_users', JSON.stringify(users));
+                }
                 return res.status(200).json(users);
 
             case 'save_user':
@@ -43,6 +60,13 @@ export default async function handler(req, res) {
                 else allUsers.push(data);
                 
                 await redis.set('terminal_users', JSON.stringify(allUsers));
+                return res.status(200).json({ success: true });
+
+            case 'delete_user':
+                let delUsersRaw = await redis.get('terminal_users');
+                let delUsers = delUsersRaw ? JSON.parse(delUsersRaw) : [];
+                const newUsers = delUsers.filter(u => u.email !== email);
+                await redis.set('terminal_users', JSON.stringify(newUsers));
                 return res.status(200).json({ success: true });
 
             case 'get_queries':
