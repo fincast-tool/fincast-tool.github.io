@@ -1185,20 +1185,25 @@
             const results = document.getElementById('resultsState');
             const execBtn = document.getElementById('execBtn');
 
+            // Synchronize with the 'state-hidden' class used in HTML
+            const hideClass = 'state-hidden';
+
             // Reset all using the failsafe class
             [welcome, skeleton, results].forEach(el => {
-                if (el) el.classList.add('state-hidden');
+                if (el) el.classList.add(hideClass);
             });
 
             if (state === 'welcome' && welcome) {
-                welcome.classList.remove('state-hidden');
+                welcome.classList.remove(hideClass);
                 if (execBtn) execBtn.classList.remove('btn-loading');
-            } else if (state === 'loading' && skeleton) {
-                skeleton.classList.remove('state-hidden');
-                skeleton.style.display = 'flex'; // Ensure flex for centering
+            } else if (state === 'loading') {
+                if (skeleton) {
+                    skeleton.classList.remove(hideClass);
+                    skeleton.style.display = 'flex';
+                }
                 if (execBtn) execBtn.classList.add('btn-loading');
             } else if (state === 'results' && results) {
-                results.classList.remove('state-hidden');
+                results.classList.remove(hideClass);
                 results.style.display = 'block';
                 if (execBtn) execBtn.classList.remove('btn-loading');
             }
@@ -1502,28 +1507,7 @@ Profil: [1 Satz Beschreibung]
             });
         }
 
-        function setUIState(state) {
-            const overlay = document.getElementById('loadingOverlay');
-            const welcome = document.getElementById('welcomeState');
-            const skeleton = document.getElementById('skeletonState');
-            const results = document.getElementById('resultsGrid');
-            const identity = document.getElementById('identityStrip');
-
-            overlay.classList.add('hidden');
-            welcome.classList.add('hidden');
-            skeleton.classList.add('hidden');
-            results.classList.add('hidden');
-            if (state !== 'results') identity.classList.add('hidden');
-
-            if (state === 'loading') {
-                overlay.classList.remove('hidden');
-                skeleton.classList.remove('hidden');
-            } else if (state === 'results') {
-                results.classList.remove('hidden');
-            } else {
-                welcome.classList.remove('hidden');
-            }
-        }
+        // Legacy state manager removed
 
         function doLogout() {
             if (confirm('Möchtest du dich wirklich abmelden?')) {
@@ -1613,14 +1597,11 @@ Profil: [1 Satz Beschreibung]
 
         // Close dropdown on click outside
         document.addEventListener('click', (e) => {
-            if (!tickerInput.contains(e.target) && !resultsDiv.contains(e.target)) {
-                resultsDiv.classList.add('hidden');
             }
         });
 
         document.getElementById('tickerInput').addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
-                resultsDiv.classList.add('hidden');
                 startAnalysis();
             }
         });
