@@ -1,11 +1,11 @@
 {
-  "name": "Zinseszinsrechner & Dividendenrechner | fincast",
-  "short_name": "fincast",
-  "description": "Zinseszinsrechner & Dividendenrechner: Simuliere deinen Vermögensaufbau mit fincast. Berechne Zinseszins, Dividendenwachstum, Inflation und Steuern präzise online.",
+  "name": "Fincast | Strategic Intelligence Terminal",
+  "short_name": "Fincast Terminal",
+  "description": "Institutionelles Aktien-Analyse-Terminal mit KI-gestützten Frameworks von Goldman Sachs, Morgan Stanley und Citadel.",
   "start_url": "index.html",
   "display": "standalone",
-  "background_color": "#f4f7f6",
-  "theme_color": "#27ae60",
+  "background_color": "#050505",
+  "theme_color": "#c5a059",
   "icons": [
     {
       "src": "favicon_192.png",

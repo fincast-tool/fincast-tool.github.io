@@ -1,0 +1,115 @@
+================================================================================
+   STRATEGIC INTELLIGENCE TERMINAL — ZUGANGSDATEN & SYSTEMINFO
+================================================================================
+
+Version:        v3.0.0
+Stand:          26. April 2026
+Betriebsart:   localStorage-basiert (kein Backend erforderlich)
+
+
+────────────────────────────────────────────────────────────────────────────────
+   ADMIN-ZUGANG
+────────────────────────────────────────────────────────────────────────────────
+
+   Email:       admin@terminal.io
+   Passwort:    admin123
+
+   Hinweis:     Der Admin-Account wird automatisch beim ersten Start angelegt.
+                Das Passwort wird als MD5-Hash im localStorage gespeichert.
+
+
+────────────────────────────────────────────────────────────────────────────────
+   REGISTRIERUNG (Neue Benutzer)
+────────────────────────────────────────────────────────────────────────────────
+
+   Erforderliche Felder:
+   • Vorname
+   • Nachname
+   • E-Mail-Adresse (eindeutig, wird als Login verwendet)
+   • Passwort (min. 4 Zeichen, MD5-gehasht gespeichert)
+
+   Standard-Konfiguration nach Registrierung:
+   • Abo-Tier:        FREE (1 Anfrage pro Tag)
+   • Processing Engine: Gemini 2.5 Flash
+   • API-Key:         Keiner (muss vom Admin zugewiesen werden)
+
+
+────────────────────────────────────────────────────────────────────────────────
+   ABO-MODELL
+────────────────────────────────────────────────────────────────────────────────
+
+   ┌──────────────┬─────────────────────────┬──────────────────────────┐
+   │   Tier       │   Anfragen pro Tag      │   Zuweisung              │
+   ├──────────────┼─────────────────────────┼──────────────────────────┤
+   │   FREE       │   1                     │   Standard (automatisch) │
+   │   PREMIUM    │   20                    │   Nur durch Admin        │
+   └──────────────┴─────────────────────────┴──────────────────────────┘
+
+   • Der Query-Zähler wird täglich automatisch zurückgesetzt.
+   • Bei Erreichen des Limits erscheint eine Benachrichtigung.
+
+
+────────────────────────────────────────────────────────────────────────────────
+   ADMIN-PANEL — Funktionen
+────────────────────────────────────────────────────────────────────────────────
+
+   Zugriff:     Sidebar → Benutzer-Icon (nur für Admin sichtbar)
+
+   Verwaltbare Felder pro Benutzer:
+   • API Key         → Gemini API-Schlüssel zuweisen
+   • Processing Engine → Gemini 2.5 Flash oder Gemini 3.0 Flash
+   • Abo-Tier        → Free (1/Tag) oder Premium (20/Tag)
+
+   Weitere Aktionen:
+   • Benutzer löschen (nicht für Admin-Account möglich)
+   • Einsicht in tägliche Query-Nutzung pro Benutzer
+
+
+────────────────────────────────────────────────────────────────────────────────
+   VERFÜGBARE PROCESSING ENGINES
+────────────────────────────────────────────────────────────────────────────────
+
+   ┌──────────────────────┬──────────────────────────────────────────┐
+   │   Modell-ID          │   Beschreibung                           │
+   ├──────────────────────┼──────────────────────────────────────────┤
+   │   gemini-2.5-flash   │   ⚡ Stabil, schnell, zuverlässig        │
+   │   gemini-3-flash     │   🚀 Neueste Generation, Ultra-Qualität  │
+   └──────────────────────┴──────────────────────────────────────────┘
+
+   Hinweis: Nur Gemini-Modelle unterstützen Google Search Grounding,
+   welches für die Multi-Agent-Analyse zwingend erforderlich ist.
+
+
+────────────────────────────────────────────────────────────────────────────────
+   DATENSPEICHERUNG (localStorage)
+────────────────────────────────────────────────────────────────────────────────
+
+   Schlüssel                  Inhalt
+   ─────────────────────────  ──────────────────────────────────────
+   terminal_users             Array aller registrierten Benutzer
+   terminal_session           Email des aktuell eingeloggten Users
+   terminal_queries           Query-Zähler pro User pro Tag
+   terminal_archive           Gespeicherte Analyse-Ergebnisse
+   gemini_user_lang           Bevorzugte Sprache des Nutzers
+
+
+────────────────────────────────────────────────────────────────────────────────
+   SICHERHEITSHINWEISE
+────────────────────────────────────────────────────────────────────────────────
+
+   ⚠  Dieses System nutzt localStorage ohne Backend-Server.
+      Die Daten sind nur lokal auf dem Gerät gespeichert.
+
+   ⚠  MD5 ist KEIN sicherer Hash-Algorithmus für Produktionsumgebungen.
+      Für eine Produktionsversion sollte bcrypt oder Argon2 verwendet werden.
+
+   ⚠  API-Keys werden im Klartext im localStorage gespeichert.
+      Für Produktionseinsatz: Keys serverseitig verwalten.
+
+   ⚠  Admin-Passwort nach erstem Login unbedingt ändern
+      (derzeit nur über localStorage-Manipulation möglich).
+
+
+================================================================================
+   © 2026 Strategic Research Terminal — Institutional Edition
+================================================================================
