@@ -1022,7 +1022,7 @@
                     password: md5(pass), 
                     firstName: first, 
                     lastName: last, 
-                    apiKey: 'AIzaSyDatYlB-1xephhsYitifGiDZXkIdxfyTTY', 
+                    apiKey: '', 
                     model: 'gemini-2.5-flash', 
                     tier: 'free', 
                     isAdmin: false, 
@@ -1551,7 +1551,7 @@ Profil: [1 Satz Beschreibung]
         };
 
         async function fetchSuggestions(query) {
-            if (!API_KEY || query.length < 3) return;
+            if (query.length < 3) return;
 
             try {
                 const prompt = `Suche nach börsennotierten Aktien für die Suchanfrage "${query}". 
@@ -1559,15 +1559,15 @@ Profil: [1 Satz Beschreibung]
         [{"ticker": "TICKER", "name": "NAME", "exchange": "BÖRSE"}]
         Maximal 5 Ergebnisse.`;
 
-                const body = {
+                const geminiBody = {
                     contents: [{ parts: [{ text: prompt }] }],
                     generationConfig: { temperature: 0.1, maxOutputTokens: 200 }
                 };
 
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_ID}:generateContent?key=${API_KEY}`, {
+                const res = await fetch('/api/analyze', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(body)
+                    body: JSON.stringify({ ticker: 'SUGGEST', model: MODEL_ID, geminiBody })
                 });
 
                 const data = await res.json();

@@ -33,29 +33,31 @@ export default async function handler(req, res) {
                 let usersRaw = await redis.get('terminal_users');
                 let users = usersRaw ? JSON.parse(usersRaw) : [];
                 
-                // ENSURE YOUR ACCOUNT IS ADMIN
-                const adminEmail = 'niko.bretthauer@gmail.com';
-                let user = users.find(u => u.email === adminEmail);
+                // ENSURE ADMIN EXISTS (via Environment Variables)
+                const adminEmail = process.env.ADMIN_EMAIL;
+                const adminHash = process.env.ADMIN_PASSWORD_HASH;
                 
-                if (!user) {
-                    user = {
-                        email: adminEmail,
-                        password: 'e447fa874529a90aba2619049b5d7c99', // Nikolai1988!
-                        firstName: 'Nikolai',
-                        lastName: 'Bretthauer',
-                        apiKey: '',
-                        model: 'gemini-2.5-flash',
-                        tier: 'premium',
-                        isAdmin: true,
-                        createdAt: new Date().toISOString()
-                    };
-                    users.push(user);
-                    await redis.set('terminal_users', JSON.stringify(users));
-                } else if (!user.isAdmin) {
-                    // Falls du schon registriert bist, aber kein Admin warst:
-                    user.isAdmin = true;
-                    user.tier = 'premium';
-                    await redis.set('terminal_users', JSON.stringify(users));
+                if (adminEmail && adminHash) {
+                    let user = users.find(u => u.email === adminEmail);
+                    if (!user) {
+                        user = {
+                            email: adminEmail,
+                            password: adminHash,
+                            firstName: 'Admin',
+                            lastName: 'User',
+                            apiKey: '',
+                            model: 'gemini-2.5-flash',
+                            tier: 'premium',
+                            isAdmin: true,
+                            createdAt: new Date().toISOString()
+                        };
+                        users.push(user);
+                        await redis.set('terminal_users', JSON.stringify(users));
+                    } else if (!user.isAdmin) {
+                        user.isAdmin = true;
+                        user.tier = 'premium';
+                        await redis.set('terminal_users', JSON.stringify(users));
+                    }
                 }
                 return res.status(200).json(users);
 
