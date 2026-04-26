@@ -1181,23 +1181,17 @@
             const skeleton = document.getElementById('skeletonState');
             const results = document.getElementById('resultsState');
 
-            // Force hide all first
-            [welcome, skeleton, results].forEach(el => {
-                if (el) {
-                    el.classList.add('hidden');
-                    el.style.display = 'none';
-                }
-            });
+            // Hide all via style (avoids Tailwind !important conflicts)
+            if (welcome) welcome.style.display = 'none';
+            if (skeleton) skeleton.style.display = 'none';
+            if (results) results.style.display = 'none';
 
             // Show target
             if (state === 'welcome' && welcome) {
-                welcome.classList.remove('hidden');
                 welcome.style.display = 'flex';
             } else if (state === 'loading' && skeleton) {
-                skeleton.classList.remove('hidden');
                 skeleton.style.display = 'block';
             } else if (state === 'results' && results) {
-                results.classList.remove('hidden');
                 results.style.display = 'block';
             }
         }
