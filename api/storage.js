@@ -109,6 +109,10 @@ export default async function handler(req, res) {
                 }
                 return res.status(200).json(archive);
 
+            case 'delete_archive':
+                await redis.del(`archive:${email}`);
+                return res.status(200).json({ success: true });
+
             default:
                 return res.status(400).json({ error: 'Unknown action: ' + action });
         }

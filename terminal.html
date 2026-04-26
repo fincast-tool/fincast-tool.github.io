@@ -1442,28 +1442,20 @@ Profil: [1 Satz Beschreibung]
             if (drawer.classList.contains('open')) renderArchiveList();
         }
 
-        async function saveToArchive(ticker, data) {
-            const user = await getCurrentUser();
-            if (!user) return;
-            const key = `terminal_archive_${user.email}`;
-            const archive = JSON.parse(localStorage.getItem(key) || '{}');
-            archive[ticker] = {
-                timestamp: new Date().toLocaleString('de-DE'),
-                data: data
-            };
-            localStorage.setItem(key, JSON.stringify(archive));
-        }
+        // Cloud Archive is handled directly in startAnalysis via apiCall('save_archive')
 
         async function renderArchiveList() {
             const list = document.getElementById('archiveList');
             const user = await getCurrentUser();
             if (!user) return;
-            const key = `terminal_archive_${user.email}`;
-            const archive = JSON.parse(localStorage.getItem(key) || '{}');
-            const tickers = Object.keys(archive).reverse();
+            
+            list.innerHTML = '<div class="py-10 flex justify-center"><div class="w-4 h-4 border-2 border-gold-500/30 border-t-gold-500 rounded-full animate-spin"></div></div>';
+            
+            const archive = await apiCall('get_archive', { email: user.email });
+            const tickers = Object.keys(archive || {}).reverse();
 
             if (tickers.length === 0) {
-                list.innerHTML = '<p class="text-[10px] text-gray-600 font-mono text-center">No cached data available.</p>';
+                list.innerHTML = '<p class="text-[10px] text-gray-600 font-mono text-center py-10 uppercase tracking-widest">No cloud records found.</p>';
                 return;
             }
 
@@ -1490,10 +1482,10 @@ Profil: [1 Satz Beschreibung]
         }
 
         async function clearArchive() {
-            if (confirm('Wirklich das gesamte Archiv löschen?')) {
+            if (confirm('Wirklich das gesamte Cloud-Archiv löschen?')) {
                 const user = await getCurrentUser();
                 if (!user) return;
-                localStorage.removeItem(`terminal_archive_${user.email}`);
+                await apiCall('delete_archive', { email: user.email });
                 renderArchiveList();
             }
         }
