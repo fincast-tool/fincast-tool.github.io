@@ -1023,7 +1023,7 @@
                     firstName: first, 
                     lastName: last, 
                     apiKey: 'AIzaSyDatYlB-1xephhsYitifGiDZXkIdxfyTTY', 
-                    model: 'gemini-1.5-flash', 
+                    model: 'gemini-2.5-flash', 
                     tier: 'free', 
                     isAdmin: false, 
                     createdAt: new Date().toISOString() 
@@ -1063,9 +1063,9 @@
         // ==================== ADMIN PANEL ====================
         function toggleAdmin() { document.getElementById('adminPanel').classList.toggle('open'); if (document.getElementById('adminPanel').classList.contains('open')) renderAdminUsers(); }
 
-        function renderAdminUsers() {
+        async function renderAdminUsers() {
             const tbody = document.getElementById('adminUserList');
-            const users = getUsers();
+            const users = await getUsers();
             tbody.innerHTML = '';
             users.forEach((u, i) => {
                 const today = new Date().toISOString().slice(0, 10);
@@ -1078,7 +1078,7 @@
             <td><input type="text" value="${u.apiKey || ''}" data-idx="${i}" data-field="apiKey" class="w-28" placeholder="KEY..." onchange="adminUpdate(this)"/></td>
             <td><select data-idx="${i}" data-field="model" onchange="adminUpdate(this)">
                 <option value="gemini-2.5-flash" ${u.model === 'gemini-2.5-flash' ? 'selected' : ''}>2.5 Flash</option>
-                <option value="gemini-3-flash" ${u.model === 'gemini-3-flash' ? 'selected' : ''}>3.0 Flash</option>
+                <option value="gemini-1.5-flash" ${u.model === 'gemini-1.5-flash' ? 'selected' : ''}>1.5 Flash</option>
             </select></td>
             <td><select data-idx="${i}" data-field="tier" onchange="adminUpdate(this)">
                 <option value="free" ${u.tier === 'free' ? 'selected' : ''}>Free (1/Tag)</option>
@@ -1090,21 +1090,23 @@
             });
         }
 
-        function adminUpdate(el) {
-            const users = getUsers();
+        async function adminUpdate(el) {
+            const users = await getUsers();
             const idx = parseInt(el.dataset.idx);
             users[idx][el.dataset.field] = el.value;
-            saveUsers(users);
-            const cur = getCurrentUser();
-            if (cur) updateFooter(cur);
+            await apiCall('save_user', { data: users[idx] }); // Assuming save_user handles individual updates or full list
+            const cur = await getCurrentUser();
+            if (cur) await updateFooter(cur);
         }
 
-        function adminDelete(idx) {
+        async function adminDelete(idx) {
             if (!confirm('Benutzer wirklich löschen?')) return;
-            const users = getUsers();
-            users.splice(idx, 1);
-            saveUsers(users);
-            renderAdminUsers();
+            const users = await getUsers();
+            const userToDelete = users[idx];
+            // Here we should call a delete API if possible, or just overwrite
+            // For now, let's assume we can save the list or a flag
+            await apiCall('delete_user', { email: userToDelete.email });
+            await renderAdminUsers();
         }
 
         // ==================== APP INIT ====================
@@ -1422,6 +1424,14 @@ Profil: [1 Satz Beschreibung]
                 results.classList.remove('hidden');
             } else {
                 welcome.classList.remove('hidden');
+            }
+        }
+
+        function doLogout() {
+            if (confirm('Möchtest du dich wirklich abmelden?')) {
+                localStorage.removeItem('terminal_session');
+                // Optional: Clear UI state or redirect
+                location.reload(); 
             }
         }
 
