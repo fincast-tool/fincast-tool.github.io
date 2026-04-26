@@ -861,9 +861,26 @@
                         </div>
 
                         <!-- Analysis Grid -->
-                        <div id="resultsGrid" class="hidden grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-12">
-                            <!-- Content -->
-                        </div>
+                        <div id="widgetsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Widgets will be injected here -->
+            </div>
+
+            <!-- Legal Disclaimer -->
+            <div class="mt-12 p-6 glass-card rounded-xl border border-red-500/10 bg-red-500/5">
+                <div class="flex gap-4 items-start">
+                    <span class="text-red-500 text-lg">⚖️</span>
+                    <div>
+                        <h4 class="text-[10px] font-bold text-red-500 uppercase tracking-widest mb-2">Legal Disclaimer & Risk Notice</h4>
+                        <p class="text-[9px] text-gray-500 leading-relaxed font-mono uppercase">
+                            Diese Analyse wurde von einer künstlichen Intelligenz erstellt. KI-Modelle können fehlerhafte Informationen generieren oder Fakten "halluzinieren". 
+                            Sämtliche Inhalte dienen ausschließlich der Information und stellen <span class="text-gray-300 font-bold underline">keine Anlageberatung, Kaufempfehlung oder Aufforderung zum Handel</span> von Wertpapieren dar. 
+                            Vergangene Wertentwicklungen sind kein Indikator für zukünftige Ergebnisse. Investitionen in Wertpapiere sind mit Risiken bis hin zum Totalverlust verbunden. 
+                            Fincast übernimmt keine Haftung für die Richtigkeit der Daten oder für finanzielle Verluste, die auf Basis dieser Analyse entstehen.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
                     </div>
                 </main>
 
@@ -1203,7 +1220,7 @@ REGELN:
 
 <goldman_sachs>
 Senior Equity Analyst at Goldman Sachs (20y Experience):
-I need a complete stock screening framework for ${ticker}. 
+I need a complete stock screening framework for ${query}. 
 Analyze and provide:
 • Top 10 stocks matching criteria with ticker symbols
 • P/E ratio analysis compared to sector averages
@@ -1220,7 +1237,7 @@ Format as a professional equity research screening report with summary table.
 
 <morgan_stanley>
 VP-Level Investment Banker at Morgan Stanley (M&A Analyst):
-I need a full discounted cash flow (DCF) analysis for ${ticker}. 
+I need a full discounted cash flow (DCF) analysis for ${query}. 
 Build out:
 • 5-year revenue projection with growth assumptions
 • Operating margin estimates based on historical trends
@@ -1237,7 +1254,7 @@ Format as an investment banking valuation memo with tables and clear math.
 
 <jpmorgan>
 Senior Equity Research Analyst at JPMorgan Chase (Earnings Specialist):
-I need a complete earnings analysis for ${ticker} before the next report.
+I need a complete earnings analysis for ${query} before the next report.
 Deliver:
 • Last 4 quarters earnings vs estimates (beat/miss history)
 • Revenue and EPS consensus estimates for the upcoming quarter
@@ -1255,7 +1272,7 @@ Format as a pre-earnings research brief with a decision summary at the top.
 
 <citadel>
 Senior Quantitative Trader at Citadel (Market Microstructure Expert):
-I need a full technical analysis breakdown for ${ticker}. 
+I need a full technical analysis breakdown for ${query}. 
 Analyze:
 • Current trend direction on daily, weekly, and monthly timeframes
 • Key support and resistance levels with exact price points
@@ -1273,7 +1290,7 @@ Format as a technical analysis report card with a clear trade plan summary.
 
 <renaissance>
 Quantitative Researcher at Renaissance Technologies (Statistical Arbitrage Expert):
-I need you to identify hidden patterns and anomalies in the behavior of ${ticker}. 
+I need you to identify hidden patterns and anomalies in the behavior of ${query}. 
 Research:
 • Seasonal patterns: Best and worst months historically
 • Day-of-week performance patterns (if applicable)
@@ -1311,7 +1328,7 @@ Profil: [1 Satz Beschreibung]
             const res = await fetch('/api/analyze', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ticker, model: MODEL_ID, geminiBody, email: user.email })
+                body: JSON.stringify({ ticker: query, model: MODEL_ID, geminiBody, email: user.email })
             });
 
             if (!res.ok) {
