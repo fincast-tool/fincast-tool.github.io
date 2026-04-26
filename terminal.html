@@ -817,10 +817,16 @@
                         </div>
 
                         <!-- Skeleton -->
-                        <div id="skeletonState" class="hidden grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                            <div class="widget-card h-80 shimmer rounded-xl"></div>
-                            <div class="widget-card h-80 shimmer rounded-xl"></div>
-                            <div class="widget-card h-80 shimmer rounded-xl"></div>
+                        <div id="skeletonState" class="hidden">
+                            <div class="flex flex-col items-center justify-center py-12 mb-8">
+                                <div class="w-12 h-12 border-4 border-gold-500/20 border-t-gold-500 rounded-full animate-spin mb-4"></div>
+                                <div class="text-gold-500 font-mono text-xs tracking-[0.3em] uppercase animate-pulse">Analysing Market Data...</div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                <div class="widget-card h-80 shimmer rounded-xl border border-white/5"></div>
+                                <div class="widget-card h-80 shimmer rounded-xl border border-white/5"></div>
+                                <div class="widget-card h-80 shimmer rounded-xl border border-white/5"></div>
+                            </div>
                         </div>
 
                         <!-- Results State -->
@@ -1185,7 +1191,7 @@
                 welcome.classList.remove('hidden');
             } else if (state === 'loading') {
                 skeleton.classList.remove('hidden');
-                skeleton.style.display = 'grid'; 
+                skeleton.style.display = 'block'; 
             } else if (state === 'results') {
                 results.classList.remove('hidden');
             }
