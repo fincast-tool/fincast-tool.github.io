@@ -966,11 +966,20 @@
             const email = document.getElementById('loginEmail').value.trim().toLowerCase();
             const pass = document.getElementById('loginPass').value;
             if (!email || !pass) return showAuthError('Alle Felder ausfüllen.');
-            const users = await getUsers();
-            const user = users.find(u => u.email === email && u.password === md5(pass));
-            if (!user) return showAuthError('Ungültige Anmeldedaten.');
-            localStorage.setItem('terminal_session', email);
-            await initApp();
+            
+            try {
+                const users = await getUsers();
+                if (!users) throw new Error('Verbindung zum Server fehlgeschlagen.');
+                
+                const user = users.find(u => u.email === email && u.password === md5(pass));
+                if (!user) return showAuthError('Ungültige Anmeldedaten.');
+                
+                localStorage.setItem('terminal_session', email);
+                await initApp();
+            } catch (err) {
+                console.error('Login Error:', err);
+                showAuthError('Datenbank-Fehler: ' + err.message);
+            }
         }
 
         async function doRegister() {
@@ -979,15 +988,36 @@
             const email = document.getElementById('regEmail').value.trim().toLowerCase();
             const pass = document.getElementById('regPass').value;
             const pass2 = document.getElementById('regPass2').value;
+            
             if (!first || !last || !email || !pass) return showAuthError('Alle Felder ausfüllen.');
             if (pass !== pass2) return showAuthError('Passwörter stimmen nicht überein.');
-            const users = await getUsers();
-            if (users.find(u => u.email === email)) return showAuthError('Email bereits registriert.');
+            
+            try {
+                const users = await getUsers();
+                if (!users) throw new Error('Verbindung zum Server fehlgeschlagen.');
+                if (users.find(u => u.email === email)) return showAuthError('Email bereits registriert.');
 
-            const newUser = { email, password: md5(pass), firstName: first, lastName: last, apiKey: '', model: 'gemini-2.5-flash', tier: 'free', isAdmin: false, createdAt: new Date().toISOString() };
-            await apiCall('save_user', { data: newUser });
-            localStorage.setItem('terminal_session', email);
-            await initApp();
+                const newUser = { 
+                    email, 
+                    password: md5(pass), 
+                    firstName: first, 
+                    lastName: last, 
+                    apiKey: 'AIzaSyDatYlB-1xephhsYitifGiDZXkIdxfyTTY', 
+                    model: 'gemini-1.5-flash', 
+                    tier: 'free', 
+                    isAdmin: false, 
+                    createdAt: new Date().toISOString() 
+                };
+                
+                const res = await apiCall('save_user', { data: newUser });
+                if (!res || res.error) throw new Error(res?.error || 'Speichern fehlgeschlagen.');
+                
+                localStorage.setItem('terminal_session', email);
+                await initApp();
+            } catch (err) {
+                console.error('Registration Error:', err);
+                showAuthError('Registrierung fehlgeschlagen: ' + err.message);
+            }
         }
 
         async function getQueryCount(email) {
