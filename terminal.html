@@ -974,7 +974,7 @@
         // ==================== CLOUD STORAGE WRAPPER ====================
         async function apiCall(action, params = {}) {
             try {
-                const res = await fetch('./api/storage', {
+                const res = await fetch('/api/storage', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action, ...params })
@@ -1256,8 +1256,12 @@
                 const parsedData = parseFrameworks(rawContent);
                 const resolvedTicker = parsedData.company_identity?.match(/Name:\s*(.*)/)?.[1]?.trim() || query;
 
-                // Non-blocking save
-                apiCall('save_archive', { email: user.email, key: resolvedTicker, data: parsedData }).catch(e => console.warn('Archive save failed:', e));
+                // Robust Cloud Save
+                const archiveEntry = {
+                    timestamp: new Date().toLocaleString(USER_LANG),
+                    data: parsedData
+                };
+                await apiCall('save_archive', { email: user.email, key: resolvedTicker, data: archiveEntry }).catch(e => console.warn('Archive save failed:', e));
 
                 // Defensive rendering
                 try { renderIdentity(parsedData.company_identity); } catch(e) { console.warn('Identity render failed:', e); }
@@ -1286,13 +1290,15 @@ LANGUAGE: Respond EXCLUSIVELY in ${currentLangName}.
 
 TASK: Deep-Dive Analyse für "${query}". 
 SCHRITT 1: Identifiziere das Wertpapier präzise via Google Search (Name, Ticker, Branche).
-SCHRITT 2: Generiere 6 hochspezialisierte Analysen basierend auf den untenstehenden Agenten-Frameworks.
+SCHRITT 2: Generiere 6 hochspezialisierte Analysen basierend auf den untenstehenden Agenten-Frameworks PLUS die Company Identity.
 
 WICHTIG: 
+- Du MUSST alle 7 Tags generieren: <goldman_sachs>, <morgan_stanley>, <jpmorgan>, <citadel>, <renaissance>, <executive_summary>, <company_identity>.
 - JEDE Sektion muss EXAKT mit dem entsprechenden Tag (<agent_id> ... </agent_id>) umschlossen sein.
 - KEINE Einleitung, KEINE Markdown-Formatierung außerhalb der Tags.
 - QUALITÄT: Wir erwarten institutionelles Niveau. Vermeide allgemeine Floskeln. Nutze harte Daten, Kennzahlen und konkrete Prognosen.
 - GROUNDING: Nutze Google Search für Echtzeit-Daten (Kurse, News, Berichte), aber transformiere diese in eine eigene, kritische Analyse.
+- PATTERN FINDER: Der Renaissance-Block ist entscheidend. Suche nach anomalen Mustern, Saisonalität und institutionellen Bewegungen.
 
 <goldman_sachs>
 Senior Equity Analyst (20y Experience): Focus on Fundamental & Strategic Value.
@@ -1359,21 +1365,13 @@ Format as a technical analysis report card with a clear trade plan summary.
 </citadel>
 
 <renaissance>
-Quantitative Researcher at Renaissance Technologies (Statistical Arbitrage Expert):
-I need you to identify hidden patterns and anomalies in the behavior of ${query}. 
-Research:
-• Seasonal patterns: Best and worst months historically
-• Day-of-week performance patterns (if applicable)
-• Correlation with major market events (Fed meetings, CPI reports)
-• Insider buying and selling patterns from recent filings
-• Institutional ownership trend: Are big funds buying or selling?
-• Short interest analysis and squeeze potential
-• Unusual options activity signals worth watching
-• Price behavior around earnings (pre-run, post-gap patterns)
-• Sector rotation signals that affect this stock
-• Statistical edge summary: What gives this stock a quantifiable advantage?
-• SOURCES: List specific URLs or financial data providers used.
-Format as a quantitative research memo with data tables and pattern summaries.
+Renaissance Technologies (Quant Researcher): Statistical Arbitrage & Patterns.
+- Seasonal Patterns: Historische Monats- & Wochen-Performance.
+- Institutional Flux: Bewegungen großer Fonds & Insider (13F Filings).
+- Volatility & Short Interest: Squeeze-Potential & Marktdynamik.
+- Correlations: Abhängigkeiten von Makro-Events (Fed, VIX).
+- Quantitative Edge: Was macht dieses Papier statistisch interessant?
+Format as a quantitative research memo.
 </renaissance>
 
 <executive_summary>
@@ -1407,7 +1405,10 @@ Profil: [1 Satz Beschreibung]
             }
 
             const data = await res.json();
-            return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            const parts = data.candidates?.[0]?.content?.parts || [];
+            const fullText = parts.map(p => p.text || '').join('');
+            console.log('Analysis Received, Length:', fullText.length);
+            return fullText;
         }
 
         function parseFrameworks(text) {
