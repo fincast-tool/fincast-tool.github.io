@@ -1,0 +1,8 @@
+{
+  "name": "fincast-strategic-terminal",
+  "version": "3.0.0",
+  "private": true,
+  "dependencies": {
+    "@vercel/kv": "^1.0.1"
+  }
+}
