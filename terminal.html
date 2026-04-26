@@ -1181,19 +1181,24 @@
             const skeleton = document.getElementById('skeletonState');
             const results = document.getElementById('resultsState');
 
-            // Reset all
-            welcome.classList.add('hidden');
-            skeleton.classList.add('hidden');
-            skeleton.style.display = 'none';
-            results.classList.add('hidden');
+            // Force hide all first
+            [welcome, skeleton, results].forEach(el => {
+                if (el) {
+                    el.classList.add('hidden');
+                    el.style.display = 'none';
+                }
+            });
 
-            if (state === 'welcome') {
+            // Show target
+            if (state === 'welcome' && welcome) {
                 welcome.classList.remove('hidden');
-            } else if (state === 'loading') {
+                welcome.style.display = 'flex';
+            } else if (state === 'loading' && skeleton) {
                 skeleton.classList.remove('hidden');
-                skeleton.style.display = 'block'; 
-            } else if (state === 'results') {
+                skeleton.style.display = 'block';
+            } else if (state === 'results' && results) {
                 results.classList.remove('hidden');
+                results.style.display = 'block';
             }
         }
 
@@ -1404,7 +1409,7 @@ Profil: [1 Satz Beschreibung]
         }
 
         function renderIdentity(text) {
-            // resultsState handles visibility
+            if (!text) return;
 
             const getValue = (key) => {
                 const match = text.match(new RegExp(`${key}:\\s*(.*)`, 'i'));
@@ -1420,6 +1425,7 @@ Profil: [1 Satz Beschreibung]
 
         function renderWidgets(data) {
             const grid = document.getElementById('widgetsGrid');
+            if (!grid) return;
             grid.innerHTML = '';
 
             CARDS.forEach(card => {
