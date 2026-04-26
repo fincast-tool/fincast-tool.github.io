@@ -1520,12 +1520,12 @@ Profil: [1 Satz Beschreibung]
             clearTimeout(searchTimeout);
             const query = e.target.value.trim();
 
-            if (query.length < 2) {
+            if (query.length < 4) {
                 resultsDiv.classList.add('hidden');
                 return;
             }
 
-            searchTimeout = setTimeout(() => fetchSuggestions(query), 300);
+            searchTimeout = setTimeout(() => fetchSuggestions(query), 600);
         });
 
         // Initialize Google Suggest Callback
@@ -1543,7 +1543,7 @@ Profil: [1 Satz Beschreibung]
         };
 
         async function fetchSuggestions(query) {
-            if (query.length < 3) return;
+            if (query.length < 4) return;
 
             try {
                 const prompt = `Suche nach börsennotierten Aktien für die Suchanfrage "${query}". 
