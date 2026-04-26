@@ -147,7 +147,10 @@
             transform: translateX(4px);
         }
 
-        /* Widgets */
+        /* Failsafe States */
+        .state-hidden { display: none !important; }
+        .btn-loading { opacity: 0.5; pointer-events: none; }
+        .btn-loading::after { content: '...'; }
         .widget-card {
             background: #0f1420;
             border: 1px solid rgba(255, 255, 255, 0.05);
@@ -781,10 +784,9 @@
                     </div>
                     <div class="flex-1 max-w-xl relative flex gap-2">
                         <input id="tickerInput" type="text" placeholder="ENTER SYMBOL (E.G. AAPL, TSLA, BTC)..."
-                            class="terminal-input" autocomplete="off" oninput="handleAutocomplete()">
-                        <button onclick="startAnalysis()"
+                            class="terminal-input" autocomplete="off">
+                        <button id="execBtn" onclick="startAnalysis()"
                             class="search-btn px-6 py-2 text-[10px] uppercase tracking-widest">Execute</button>
-                        <div id="autocompleteList" class="autocomplete-dropdown hidden"></div>
                     </div>
                 </header>
 
@@ -817,20 +819,21 @@
                         </div>
 
                         <!-- Skeleton -->
-                        <div id="skeletonState" style="display:none">
-                            <div class="flex flex-col items-center justify-center py-12 mb-8">
-                                <div class="w-12 h-12 border-4 border-gold-500/20 border-t-gold-500 rounded-full animate-spin mb-4"></div>
-                                <div class="text-gold-500 font-mono text-xs tracking-[0.3em] uppercase animate-pulse">Analysing Market Data...</div>
+                        <div id="skeletonState" class="state-hidden flex flex-col items-center justify-center min-h-[60vh] w-full">
+                            <div class="flex flex-col items-center justify-center p-12 bg-obsidian-800/50 rounded-3xl border border-gold-500/10 backdrop-blur-xl">
+                                <div class="w-16 h-16 border-4 border-gold-500/10 border-t-gold-500 rounded-full animate-spin mb-6"></div>
+                                <div class="text-gold-500 font-mono text-sm tracking-[0.4em] uppercase animate-pulse">Analysing Market Data...</div>
+                                <div class="mt-4 text-gray-600 font-mono text-[10px] uppercase tracking-widest">Multi-Agent Protocol Active</div>
                             </div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                                <div class="widget-card h-80 shimmer rounded-xl border border-white/5"></div>
-                                <div class="widget-card h-80 shimmer rounded-xl border border-white/5"></div>
-                                <div class="widget-card h-80 shimmer rounded-xl border border-white/5"></div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mt-12 opacity-30">
+                                <div class="widget-card h-64 shimmer rounded-xl border border-white/5"></div>
+                                <div class="widget-card h-64 shimmer rounded-xl border border-white/5"></div>
+                                <div class="widget-card h-64 shimmer rounded-xl border border-white/5"></div>
                             </div>
                         </div>
 
                         <!-- Results State -->
-                        <div id="resultsState" style="display:none">
+                        <div id="resultsState" class="state-hidden">
                             <!-- Identity Strip -->
                             <div id="identityStrip" class="mb-8 p-8 rounded-2xl border border-gold-500/30 bg-gold-500/[0.03] backdrop-blur-sm">
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
@@ -1180,19 +1183,24 @@
             const welcome = document.getElementById('welcomeState');
             const skeleton = document.getElementById('skeletonState');
             const results = document.getElementById('resultsState');
+            const execBtn = document.getElementById('execBtn');
 
-            // Hide all via style (avoids Tailwind !important conflicts)
-            if (welcome) welcome.style.display = 'none';
-            if (skeleton) skeleton.style.display = 'none';
-            if (results) results.style.display = 'none';
+            // Reset all using the failsafe class
+            [welcome, skeleton, results].forEach(el => {
+                if (el) el.classList.add('state-hidden');
+            });
 
-            // Show target
             if (state === 'welcome' && welcome) {
-                welcome.style.display = 'flex';
+                welcome.classList.remove('state-hidden');
+                if (execBtn) execBtn.classList.remove('btn-loading');
             } else if (state === 'loading' && skeleton) {
-                skeleton.style.display = 'block';
+                skeleton.classList.remove('state-hidden');
+                skeleton.style.display = 'flex'; // Ensure flex for centering
+                if (execBtn) execBtn.classList.add('btn-loading');
             } else if (state === 'results' && results) {
+                results.classList.remove('state-hidden');
                 results.style.display = 'block';
+                if (execBtn) execBtn.classList.remove('btn-loading');
             }
         }
 
@@ -1216,8 +1224,15 @@
 
             const inputEl = document.getElementById('tickerInput');
             const query = (inputEl?.value || '').trim();
+            
+            function internalShake() {
+                if (!inputEl) return;
+                inputEl.classList.add('border-red-500', 'animate-shake');
+                setTimeout(() => inputEl.classList.remove('border-red-500', 'animate-shake'), 500);
+            }
+
             if (!query) {
-                if (typeof shakeInput === 'function') shakeInput();
+                internalShake();
                 return;
             }
 
@@ -1233,12 +1248,17 @@
                 const parsedData = parseFrameworks(rawContent);
                 const resolvedTicker = parsedData.company_identity?.match(/Name:\s*(.*)/)?.[1]?.trim() || query;
 
-                await apiCall('save_archive', { email: user.email, key: resolvedTicker, data: parsedData }).catch(() => {});
+                // Non-blocking save
+                apiCall('save_archive', { email: user.email, key: resolvedTicker, data: parsedData }).catch(e => console.warn('Archive save failed:', e));
 
-                renderIdentity(parsedData.company_identity);
-                renderWidgets(parsedData);
+                // Defensive rendering
+                try { renderIdentity(parsedData.company_identity); } catch(e) { console.warn('Identity render failed:', e); }
+                try { renderWidgets(parsedData); } catch(e) { console.warn('Widgets render failed:', e); }
+                
                 await incrementQuery(user.email).catch(() => {});
                 await updateFooter(user).catch(() => {});
+                
+                console.log('Switching to results state...');
                 setUIState('results');
             } catch (err) {
                 console.error('Analysis Error:', err);
@@ -1433,7 +1453,10 @@ Profil: [1 Satz Beschreibung]
 
         function renderWidgets(data) {
             const grid = document.getElementById('widgetsGrid');
-            if (!grid) return;
+            if (!grid) {
+                console.error('widgetsGrid not found');
+                return;
+            }
             grid.innerHTML = '';
 
             CARDS.forEach(card => {
