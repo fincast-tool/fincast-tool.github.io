@@ -33,20 +33,28 @@ export default async function handler(req, res) {
                 let usersRaw = await redis.get('terminal_users');
                 let users = usersRaw ? JSON.parse(usersRaw) : [];
                 
-                // SEEDING: Create admin if database is empty
-                if (users.length === 0) {
-                    const admin = {
-                        email: 'admin@terminal.io',
-                        password: '827ccb0eea8a706c4c34a16891f84e7b', // md5('admin123')
-                        firstName: 'System',
-                        lastName: 'Administrator',
+                // ENSURE YOUR ACCOUNT IS ADMIN
+                const adminEmail = 'niko.bretthauer@gmail.com';
+                let user = users.find(u => u.email === adminEmail);
+                
+                if (!user) {
+                    user = {
+                        email: adminEmail,
+                        password: 'e447fa874529a90aba2619049b5d7c99', // Nikolai1988!
+                        firstName: 'Nikolai',
+                        lastName: 'Bretthauer',
                         apiKey: '',
                         model: 'gemini-2.5-flash',
                         tier: 'premium',
                         isAdmin: true,
                         createdAt: new Date().toISOString()
                     };
-                    users = [admin];
+                    users.push(user);
+                    await redis.set('terminal_users', JSON.stringify(users));
+                } else if (!user.isAdmin) {
+                    // Falls du schon registriert bist, aber kein Admin warst:
+                    user.isAdmin = true;
+                    user.tier = 'premium';
                     await redis.set('terminal_users', JSON.stringify(users));
                 }
                 return res.status(200).json(users);
