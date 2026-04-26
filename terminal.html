@@ -817,7 +817,7 @@
                         </div>
 
                         <!-- Skeleton -->
-                        <div id="skeletonState" class="hidden">
+                        <div id="skeletonState" style="display:none">
                             <div class="flex flex-col items-center justify-center py-12 mb-8">
                                 <div class="w-12 h-12 border-4 border-gold-500/20 border-t-gold-500 rounded-full animate-spin mb-4"></div>
                                 <div class="text-gold-500 font-mono text-xs tracking-[0.3em] uppercase animate-pulse">Analysing Market Data...</div>
@@ -830,7 +830,7 @@
                         </div>
 
                         <!-- Results State -->
-                        <div id="resultsState" class="hidden">
+                        <div id="resultsState" style="display:none">
                             <!-- Identity Strip -->
                             <div id="identityStrip" class="mb-8 p-8 rounded-2xl border border-gold-500/30 bg-gold-500/[0.03] backdrop-blur-sm">
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
@@ -1198,37 +1198,51 @@
 
         // ==================== CORE LOGIC ====================
         async function startAnalysis() {
-            const user = await getCurrentUser();
-            if (!user) return;
+            let user;
+            try {
+                user = await getCurrentUser();
+            } catch(e) {
+                alert('Fehler beim Laden des Benutzers: ' + e.message);
+                return;
+            }
+            if (!user) { setUIState('welcome'); return; }
 
             const limit = user.tier === 'premium' ? 20 : 1;
-            const used = await getQueryCount(user.email);
+            const used = await getQueryCount(user.email).catch(() => 0);
             if (used >= limit) {
                 alert(`Tageslimit erreicht (${limit} Anfrage${limit > 1 ? 'n' : ''}/Tag). ${user.tier === 'free' ? 'Upgrade auf Premium für 20 Anfragen/Tag.' : 'Morgen stehen wieder 20 Anfragen zur Verfügung.'}`);
                 return;
             }
 
             const inputEl = document.getElementById('tickerInput');
-            const query = inputEl.value.trim();
-            if (!query) return shakeInput();
+            const query = (inputEl?.value || '').trim();
+            if (!query) {
+                if (typeof shakeInput === 'function') shakeInput();
+                return;
+            }
 
             setUIState('loading');
             try {
                 MODEL_ID = user.model || 'gemini-2.5-flash';
                 const rawContent = await fetchAnalysis(query, user);
+
+                if (!rawContent || rawContent.trim() === '') {
+                    throw new Error('Leere Antwort von der API erhalten.');
+                }
+
                 const parsedData = parseFrameworks(rawContent);
+                const resolvedTicker = parsedData.company_identity?.match(/Name:\s*(.*)/)?.[1]?.trim() || query;
 
-                const resolvedTicker = parsedData.company_identity.match(/Name:\s*(.*)/)?.[1] || query;
-
-                await apiCall('save_archive', { email: user.email, key: resolvedTicker, data: parsedData });
+                await apiCall('save_archive', { email: user.email, key: resolvedTicker, data: parsedData }).catch(() => {});
 
                 renderIdentity(parsedData.company_identity);
                 renderWidgets(parsedData);
-                await incrementQuery(user.email);
-                await updateFooter(user);
+                await incrementQuery(user.email).catch(() => {});
+                await updateFooter(user).catch(() => {});
                 setUIState('results');
             } catch (err) {
-                alert('Fehler: ' + err.message);
+                console.error('Analysis Error:', err);
+                alert('Analyse-Fehler: ' + err.message);
                 setUIState('welcome');
             }
         }
