@@ -343,19 +343,14 @@
 
         /* Animations */
         .shimmer {
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.03), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
             background-size: 200% 100%;
-            animation: shimmer 2s infinite;
+            animation: shimmer 1.5s infinite;
         }
 
         @keyframes shimmer {
-            0% {
-                background-position: -200% 0;
-            }
-
-            100% {
-                background-position: 200% 0;
-            }
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
         }
 
         .fade-up {
@@ -1176,14 +1171,17 @@
             const skeleton = document.getElementById('skeletonState');
             const results = document.getElementById('resultsState');
 
+            // Reset all
             welcome.classList.add('hidden');
             skeleton.classList.add('hidden');
+            skeleton.style.display = 'none';
             results.classList.add('hidden');
 
             if (state === 'welcome') {
                 welcome.classList.remove('hidden');
             } else if (state === 'loading') {
                 skeleton.classList.remove('hidden');
+                skeleton.style.display = 'grid'; 
             } else if (state === 'results') {
                 results.classList.remove('hidden');
             }
