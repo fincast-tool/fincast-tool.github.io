@@ -1300,7 +1300,7 @@ Profil: [1 Satz Beschreibung]
             const res = await fetch('/api/analyze', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ticker, model: MODEL_ID, geminiBody })
+                body: JSON.stringify({ ticker, model: MODEL_ID, geminiBody, email: user.email })
             });
 
             if (!res.ok) {
@@ -1556,10 +1556,11 @@ Profil: [1 Satz Beschreibung]
                     generationConfig: { temperature: 0.1, maxOutputTokens: 200 }
                 };
 
+                const email = localStorage.getItem('terminal_session');
                 const res = await fetch('/api/analyze', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ticker: 'SUGGEST', model: MODEL_ID, geminiBody })
+                    body: JSON.stringify({ ticker: 'SUGGEST', model: MODEL_ID, geminiBody, email })
                 });
 
                 const data = await res.json();
