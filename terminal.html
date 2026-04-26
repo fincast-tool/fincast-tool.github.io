@@ -945,7 +945,7 @@
         // ==================== CLOUD STORAGE WRAPPER ====================
         async function apiCall(action, params = {}) {
             try {
-                const res = await fetch('/api/storage', {
+                const res = await fetch('./api/storage', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action, ...params })
