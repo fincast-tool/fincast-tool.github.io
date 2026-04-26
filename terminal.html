@@ -1285,9 +1285,9 @@ TASK: Identifiziere zuerst das Wertpapier für die Suchanfrage "${query}" (kann 
 WICHTIG: Du musst für JEDEN der folgenden 6 Agenten-Tags (<goldman_sachs>, <morgan_stanley>, <jpmorgan>, <citadel>, <renaissance>, <executive_summary>) sowie für <company_identity> einen vollständigen Block generieren. 
 
 REGELN:
-1. KEIN Markdown (keine Backticks \`\`\`), KEIN Text außerhalb der Tags.
+1. KEIN Markdown (keine Backticks), KEIN Text außerhalb der Tags.
 2. Jede Sektion muss EXAKT mit dem entsprechenden Tag beginnen und enden.
-3. Sei extrem datendicht und professionell.
+3. Sei extrem datendicht und professionell. Fülle JEDE Sektion vollständig aus.
 4. QUELLEN: Nenne am Ende JEDER Sektion die verwendeten Quellen (Links oder Plattformen wie Yahoo Finance, Bloomberg, SEC Filings etc.).
 
 <goldman_sachs>
@@ -1415,25 +1415,24 @@ Profil: [1 Satz Beschreibung]
         function parseFrameworks(text) {
             const data = {};
             const allIds = [...CARDS.map(c => c.id), 'company_identity'];
-
-            // Bereinige den Text von Markdown-Code-Blöcken falls vorhanden
-            const cleanText = text.replace(/```[a-z]*\n?/gi, '').replace(/```/g, '');
+            
+            // Aggressive cleaning
+            const cleanText = text.replace(/```[a-z]*\n?/gi, '').replace(/```/g, '').trim();
 
             allIds.forEach(id => {
-                const startTag = `<${id}>`;
-                const endTag = `</${id}>`;
-                const startIdx = cleanText.indexOf(startTag);
-                let content = '';
+                const startRegex = new RegExp(`<${id}>`, 'i');
+                const endRegex = new RegExp(`</${id}>`, 'i');
 
-                if (startIdx !== -1) {
-                    const endIdx = cleanText.indexOf(endTag, startIdx);
-                    if (endIdx !== -1) {
-                        content = cleanText.substring(startIdx + startTag.length, endIdx).trim();
-                    } else {
-                        // Falls End-Tag fehlt, nimm bis zum nächsten Start-Tag oder Ende
-                        const nextStartIdx = cleanText.indexOf('<', startIdx + 1);
-                        content = cleanText.substring(startIdx + startTag.length, nextStartIdx !== -1 ? nextStartIdx : undefined).trim();
-                    }
+                const startMatch = cleanText.match(startRegex);
+                const endMatch = cleanText.match(endRegex);
+
+                let content = '';
+                if (startMatch && endMatch) {
+                    content = cleanText.substring(startMatch.index + startMatch[0].length, endMatch.index).trim();
+                } else if (startMatch) {
+                    const startIdx = startMatch.index + startMatch[0].length;
+                    const nextTagIdx = cleanText.indexOf('<', startIdx);
+                    content = cleanText.substring(startIdx, nextTagIdx !== -1 ? nextTagIdx : undefined).trim();
                 }
 
                 data[id] = content || 'Analysis segment not provided by model.';
