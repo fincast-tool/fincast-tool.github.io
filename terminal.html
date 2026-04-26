@@ -916,46 +916,7 @@
 
     </div><!-- /mainApp -->
 
-    <!-- Confirmation Modal -->
-    <div id="confirmModal" class="hidden fixed inset-0 z-[120] flex items-center justify-center p-4 modal-backdrop">
-        <div class="widget-card w-full max-w-md rounded-xl p-8 shadow-2xl border border-gold-500/30">
-            <div class="text-center mb-6">
-                <div
-                    class="w-16 h-16 bg-gold-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-gold-500/20">
-                    <span class="text-2xl">🏢</span>
-                </div>
-                <h3 class="text-sm font-bold font-mono text-gold-500 tracking-widest uppercase">Entity Identified</h3>
-                <p class="text-[10px] text-gray-500 font-mono uppercase mt-1">Verification Required</p>
-            </div>
-
-            <div class="space-y-4 mb-8 bg-black/20 p-4 rounded-lg border border-white/5">
-                <div class="flex justify-between items-center border-b border-white/5 pb-2">
-                    <span class="data-label">Name</span>
-                    <span id="confirm_name" class="text-xs text-white font-bold">--</span>
-                </div>
-                <div class="flex justify-between items-center border-b border-white/5 pb-2">
-                    <span class="data-label">Ticker</span>
-                    <span id="confirm_ticker" class="text-xs text-gold-500 font-mono">--</span>
-                </div>
-                <div class="flex justify-between items-center border-b border-white/5 pb-2">
-                    <span class="data-label">ISIN</span>
-                    <span id="confirm_isin" class="text-xs text-gray-300 font-mono">--</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="data-label">WKN</span>
-                    <span id="confirm_wkn" class="text-xs text-gray-300 font-mono">--</span>
-                </div>
-            </div>
-
-            <div class="flex gap-3">
-                <button onclick="cancelAnalysis()"
-                    class="flex-1 py-3 border border-white/10 text-gray-500 text-[10px] uppercase tracking-widest rounded-lg hover:bg-white/5">Abort</button>
-                <button onclick="confirmAndExecute()"
-                    class="flex-1 py-3 bg-gold-500 text-obsidian-950 text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-gold-400 shadow-lg shadow-gold-500/20">Analyze
-                    Now</button>
-            </div>
-        </div>
-    </div>
+    </div><!-- /mainApp -->
 
     <script>
         // ==================== AUTH UI LOGIC ====================
@@ -1186,8 +1147,6 @@
         initApp();
 
         // ==================== CORE LOGIC ====================
-        let pendingEntity = null;
-
         async function startAnalysis() {
             const user = await getCurrentUser();
             if (!user) return;
@@ -1206,54 +1165,12 @@
             setUIState('loading');
             try {
                 MODEL_ID = user.model || 'gemini-2.5-flash';
-
-                // STEP 1: RESOLVE ENTITY
-                const identityRaw = await fetchIdentity(query, user);
-                const identityData = parseIdentity(identityRaw);
-
-                if (!identityData.Name || identityData.Name === '--') {
-                    throw new Error("Unternehmen konnte nicht eindeutig identifiziert werden. Bitte spezifischer suchen.");
-                }
-
-                pendingEntity = { query, identityData, user };
-                showConfirmModal(identityData);
-                setUIState('welcome'); // Hide loader while waiting for confirmation
-            } catch (err) {
-                alert(err.message);
-                setUIState('welcome');
-            }
-        }
-
-        function showConfirmModal(data) {
-            document.getElementById('confirm_name').textContent = data.Name;
-            document.getElementById('confirm_ticker').textContent = data.Ticker || '--';
-            document.getElementById('confirm_isin').textContent = data.ISIN || '--';
-            document.getElementById('confirm_wkn').textContent = data.WKN || '--';
-            document.getElementById('confirmModal').classList.remove('hidden');
-        }
-
-        function cancelAnalysis() {
-            document.getElementById('confirmModal').classList.add('hidden');
-            pendingEntity = null;
-        }
-
-        async function confirmAndExecute() {
-            if (!pendingEntity) return;
-            const { identityData, user } = pendingEntity;
-            const resolvedTicker = identityData.Ticker || identityData.Name;
-
-            document.getElementById('confirmModal').classList.add('hidden');
-            setUIState('loading');
-
-            try {
-                // STEP 2: EXECUTE FULL ANALYSIS
-                const rawContent = await fetchFullAnalysis(resolvedTicker, user);
+                const rawContent = await fetchAnalysis(query, user);
                 const parsedData = parseFrameworks(rawContent);
 
-                // Mix in the identity we already have
-                parsedData.company_identity = `Name: ${identityData.Name}\nISIN: ${identityData.ISIN}\nWKN: ${identityData.WKN}\nSektor: ${identityData.Sektor}\nHQ: ${identityData.HQ}\nProfil: ${identityData.Profil}`;
+                const resolvedTicker = parsedData.company_identity.match(/Name:\s*(.*)/)?.[1] || query;
 
-                await apiCall('save_archive', { email: user.email, key: identityData.Name, data: parsedData });
+                await apiCall('save_archive', { email: user.email, key: resolvedTicker, data: parsedData });
 
                 renderIdentity(parsedData.company_identity);
                 renderWidgets(parsedData);
@@ -1261,57 +1178,12 @@
                 await updateFooter(user);
                 setUIState('results');
             } catch (err) {
-                alert('Analyse-Fehler: ' + err.message);
+                alert('Fehler: ' + err.message);
                 setUIState('welcome');
             }
-            pendingEntity = null;
         }
 
-        async function fetchIdentity(query, user) {
-            const prompt = `Identifiziere das börsennotierte Unternehmen für die Suchanfrage: "${query}".
-            Nutze Google Search um die exakten Daten zu finden.
-            Antworte NUR mit diesem Format:
-            Name: [Name]
-            Ticker: [Ticker]
-            ISIN: [ISIN]
-            WKN: [WKN]
-            Sektor: [Sektor]
-            HQ: [Stadt, Land]
-            Profil: [1 Satz]`;
-
-            const geminiBody = {
-                contents: [{ parts: [{ text: prompt }] }],
-                tools: [{ google_search: {} }],
-                generationConfig: { temperature: 0.1, maxOutputTokens: 500 }
-            };
-
-            const res = await fetch('/api/analyze', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ticker: 'IDENTITY_CHECK', model: MODEL_ID, geminiBody, email: user.email })
-            });
-
-            const data = await res.json();
-            return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-        }
-
-        function parseIdentity(text) {
-            const getValue = (key) => {
-                const match = text.match(new RegExp(`${key}:\\s*(.*)`, 'i'));
-                return match ? match[1].trim() : '--';
-            };
-            return {
-                Name: getValue('Name'),
-                Ticker: getValue('Ticker'),
-                ISIN: getValue('ISIN'),
-                WKN: getValue('WKN'),
-                Sektor: getValue('Sektor'),
-                HQ: getValue('HQ'),
-                Profil: getValue('Profil')
-            };
-        }
-
-        async function fetchFullAnalysis(ticker, user) {
+        async function fetchAnalysis(query, user) {
             const today = new Date().toLocaleDateString(USER_LANG, { day: '2-digit', month: 'long', year: 'numeric' });
             const langNames = { 'de-DE': 'DEUTSCH', 'en-US': 'ENGLISH', 'fr-FR': 'FRANÇAIS', 'es-ES': 'ESPAÑOL' };
             const currentLangName = langNames[USER_LANG] || 'DEUTSCH';
@@ -1320,14 +1192,14 @@
 ROLE: Head of Research at an Elite Investment Terminal.
 LANGUAGE: Respond EXCLUSIVELY in ${currentLangName}.
 
-TASK: Erstelle eine tiefgreifende Multi-Agenten-Analyse für das Unternehmen ${ticker}.
-WICHTIG: Du musst für JEDEN der folgenden 6 Agenten-Tags (<goldman_sachs>, <morgan_stanley>, <jpmorgan>, <citadel>, <renaissance>, <executive_summary>) einen vollständigen Block generieren. 
-KEINE <company_identity> mehr nötig, diese liegt bereits vor.
+TASK: Identifiziere zuerst das Wertpapier für die Suchanfrage "${query}" (kann Name, ISIN, WKN oder Ticker sein). Nutze Google Search um sicherzustellen, dass du das richtige Unternehmen findest. Erstelle anschließend eine tiefgreifende Multi-Agenten-Analyse.
+WICHTIG: Du musst für JEDEN der folgenden 6 Agenten-Tags (<goldman_sachs>, <morgan_stanley>, <jpmorgan>, <citadel>, <renaissance>, <executive_summary>) sowie für <company_identity> einen vollständigen Block generieren. 
 
 REGELN:
 1. KEIN Markdown (keine Backticks \`\`\`), KEIN Text außerhalb der Tags.
 2. Jede Sektion muss EXAKT mit dem entsprechenden Tag beginnen und enden.
 3. Sei extrem datendicht und professionell.
+4. QUELLEN: Nenne am Ende JEDER Sektion die verwendeten Quellen (Links oder Plattformen wie Yahoo Finance, Bloomberg, SEC Filings etc.).
 
 <goldman_sachs>
 Senior Equity Analyst at Goldman Sachs (20y Experience):
@@ -1342,6 +1214,7 @@ Analyze and provide:
 • Bull case and bear case price targets for 12 months
 • Risk rating on a scale of 1-10 with clear reasoning
 • Entry price zones and stop-loss suggestions
+• SOURCES: List specific URLs or financial data providers used.
 Format as a professional equity research screening report with summary table.
 </goldman_sachs>
 
@@ -1358,6 +1231,7 @@ Build out:
 • Comparison of DCF value vs current market price
 • Clear verdict: Undervalued, Fairly Valued, or Overvalued
 • Key assumptions that could break the model
+• SOURCES: List specific URLs or financial data providers used.
 Format as an investment banking valuation memo with tables and clear math.
 </morgan_stanley>
 
@@ -1375,6 +1249,7 @@ Deliver:
 • Bull case scenario and price impact estimate
 • Bear case scenario and downside risk estimate
 • My recommended play: Buy Before, Sell Before, or Wait
+• SOURCES: List specific URLs or financial data providers used.
 Format as a pre-earnings research brief with a decision summary at the top.
 </jpmorgan>
 
@@ -1392,6 +1267,7 @@ Analyze:
 • Ideal entry price, stop-loss level, and profit target
 • Risk-to-reward ratio for the current setup
 • Confidence rating: Strong Buy, Buy, Neutral, Sell, Strong Sell
+• SOURCES: List specific URLs or financial data providers used.
 Format as a technical analysis report card with a clear trade plan summary.
 </citadel>
 
@@ -1409,6 +1285,7 @@ Research:
 • Price behavior around earnings (pre-run, post-gap patterns)
 • Sector rotation signals that affect this stock
 • Statistical edge summary: What gives this stock a quantifiable advantage?
+• SOURCES: List specific URLs or financial data providers used.
 Format as a quantitative research memo with data tables and pattern summaries.
 </renaissance>
 
