@@ -1098,8 +1098,11 @@
             <td class="text-gray-400 text-[10px] font-mono">${u.email}</td>
             <td><input type="text" value="${u.apiKey || ''}" data-idx="${i}" data-field="apiKey" class="w-28" placeholder="KEY..." onchange="adminUpdate(this)"/></td>
             <td><select data-idx="${i}" data-field="model" onchange="adminUpdate(this)">
-                <option value="gemini-2.5-flash" ${u.model === 'gemini-2.5-flash' ? 'selected' : ''}>2.5 Flash</option>
                 <option value="gemini-1.5-flash" ${u.model === 'gemini-1.5-flash' ? 'selected' : ''}>1.5 Flash</option>
+                <option value="gemini-1.5-pro" ${u.model === 'gemini-1.5-pro' ? 'selected' : ''}>1.5 Pro</option>
+                <option value="gemini-2.0-flash" ${u.model === 'gemini-2.0-flash' ? 'selected' : ''}>2.0 Flash</option>
+                <option value="gemini-2.0-pro" ${u.model === 'gemini-2.0-pro' ? 'selected' : ''}>2.0 Pro</option>
+                <option value="gemini-3.0-flash" ${u.model === 'gemini-3.0-flash' ? 'selected' : ''}>3.0 Flash</option>
             </select></td>
             <td><select data-idx="${i}" data-field="tier" onchange="adminUpdate(this)">
                 <option value="free" ${u.tier === 'free' ? 'selected' : ''}>Free (1/Tag)</option>
@@ -1163,7 +1166,7 @@
         }
 
         // ==================== CONFIGURATION ====================
-        let MODEL_ID = 'gemini-2.5-flash';
+        let MODEL_ID = 'gemini-2.0-flash';
         let USER_LANG = localStorage.getItem('gemini_user_lang') || 'de-DE';
 
         const CARDS = [
@@ -1278,33 +1281,28 @@
             const currentLangName = langNames[USER_LANG] || 'DEUTSCH';
 
             const systemPrompt = `DATE: ${today}
-ROLE: Head of Research at an Elite Investment Terminal.
+ROLE: Senior Multi-Agent Investment Intelligence Engine at Fincast.
 LANGUAGE: Respond EXCLUSIVELY in ${currentLangName}.
 
-TASK: Identifiziere zuerst das Wertpapier für die Suchanfrage "${query}" (kann Name, ISIN, WKN oder Ticker sein). Nutze Google Search um sicherzustellen, dass du das richtige Unternehmen findest. Erstelle anschließend eine tiefgreifende Multi-Agenten-Analyse.
-WICHTIG: Du musst für JEDEN der folgenden 6 Agenten-Tags (<goldman_sachs>, <morgan_stanley>, <jpmorgan>, <citadel>, <renaissance>, <executive_summary>) sowie für <company_identity> einen vollständigen Block generieren. 
+TASK: Deep-Dive Analyse für "${query}". 
+SCHRITT 1: Identifiziere das Wertpapier präzise via Google Search (Name, Ticker, Branche).
+SCHRITT 2: Generiere 6 hochspezialisierte Analysen basierend auf den untenstehenden Agenten-Frameworks.
 
-REGELN:
-1. KEIN Markdown (keine Backticks), KEIN Text außerhalb der Tags.
-2. Jede Sektion muss EXAKT mit dem entsprechenden Tag beginnen und enden.
-3. Sei extrem datendicht und professionell. Fülle JEDE Sektion vollständig aus.
-4. QUELLEN: Nenne am Ende JEDER Sektion die verwendeten Quellen (Links oder Plattformen wie Yahoo Finance, Bloomberg, SEC Filings etc.).
+WICHTIG: 
+- JEDE Sektion muss EXAKT mit dem entsprechenden Tag (<agent_id> ... </agent_id>) umschlossen sein.
+- KEINE Einleitung, KEINE Markdown-Formatierung außerhalb der Tags.
+- QUALITÄT: Wir erwarten institutionelles Niveau. Vermeide allgemeine Floskeln. Nutze harte Daten, Kennzahlen und konkrete Prognosen.
+- GROUNDING: Nutze Google Search für Echtzeit-Daten (Kurse, News, Berichte), aber transformiere diese in eine eigene, kritische Analyse.
 
 <goldman_sachs>
-Senior Equity Analyst at Goldman Sachs (20y Experience):
-I need a complete stock screening framework for ${query}. 
-Analyze and provide:
-• Top 10 stocks matching criteria with ticker symbols
-• P/E ratio analysis compared to sector averages
-• Revenue growth trends over the last 5 years
-• Debt-to-equity health check
-• Dividend yield and payout sustainability score
-• Competitive moat rating (weak, moderate, strong)
-• Bull case and bear case price targets for 12 months
-• Risk rating on a scale of 1-10 with clear reasoning
-• Entry price zones and stop-loss suggestions
-• SOURCES: List specific URLs or financial data providers used.
-Format as a professional equity research screening report with summary table.
+Senior Equity Analyst (20y Experience): Focus on Fundamental & Strategic Value.
+- Executive Summary: Zentrale These & Investment-Case.
+- Financial Health: P/E (vs Sector), Revenue Growth (5y), Debt/Equity.
+- Dividend & Cashflow: Sustainability Score & Yield.
+- Competitive Moat: Strategische Analyse der Marktposition.
+- Price Targets: 12m Bull/Bear Case mit Begründung.
+- Verdict: Buy/Hold/Sell Zones + Stop-Loss.
+Format as a professional Deep-Dive Equity Report.
 </goldman_sachs>
 
 <morgan_stanley>
@@ -1416,26 +1414,39 @@ Profil: [1 Satz Beschreibung]
             const data = {};
             const allIds = [...CARDS.map(c => c.id), 'company_identity'];
             
-            // Aggressive cleaning
+            // Clean markdown if present
             const cleanText = text.replace(/```[a-z]*\n?/gi, '').replace(/```/g, '').trim();
 
             allIds.forEach(id => {
-                const startRegex = new RegExp(`<${id}>`, 'i');
-                const endRegex = new RegExp(`</${id}>`, 'i');
+                const startTag = `<${id}>`;
+                const endTag = `</${id}>`;
+                
+                const startIdx = cleanText.toLowerCase().indexOf(startTag.toLowerCase());
+                const endIdx = cleanText.toLowerCase().indexOf(endTag.toLowerCase());
 
-                const startMatch = cleanText.match(startRegex);
-                const endMatch = cleanText.match(endRegex);
-
-                let content = '';
-                if (startMatch && endMatch) {
-                    content = cleanText.substring(startMatch.index + startMatch[0].length, endMatch.index).trim();
-                } else if (startMatch) {
-                    const startIdx = startMatch.index + startMatch[0].length;
-                    const nextTagIdx = cleanText.indexOf('<', startIdx);
-                    content = cleanText.substring(startIdx, nextTagIdx !== -1 ? nextTagIdx : undefined).trim();
+                if (startIdx !== -1) {
+                    const contentStart = startIdx + startTag.length;
+                    let content = '';
+                    
+                    if (endIdx !== -1 && endIdx > startIdx) {
+                        content = cleanText.substring(contentStart, endIdx).trim();
+                    } else {
+                        // Fallback: look for the start of the next known agent tag
+                        let nextTagIdx = -1;
+                        allIds.forEach(nextId => {
+                            if (nextId === id) return;
+                            const nextTag = `<${nextId}>`;
+                            const idx = cleanText.toLowerCase().indexOf(nextTag.toLowerCase(), contentStart);
+                            if (idx !== -1 && (nextTagIdx === -1 || idx < nextTagIdx)) {
+                                nextTagIdx = idx;
+                            }
+                        });
+                        content = cleanText.substring(contentStart, nextTagIdx !== -1 ? nextTagIdx : undefined).trim();
+                    }
+                    data[id] = content || 'Analysis segment not provided by model.';
+                } else {
+                    data[id] = 'Analysis segment not provided by model.';
                 }
-
-                data[id] = content || 'Analysis segment not provided by model.';
             });
             return data;
         }
