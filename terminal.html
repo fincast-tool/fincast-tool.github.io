@@ -688,22 +688,6 @@
     <!-- ========== MAIN APP (hidden until login) ========== -->
     <div id="mainApp" class="hidden">
 
-        <div id="loadingOverlay"
-            class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-obsidian-950/90 backdrop-blur-md">
-            <div class="flex flex-col items-center">
-                <div class="relative w-16 h-16 mb-4">
-                    <div class="absolute inset-0 border-4 border-gold-500/20 rounded-full"></div>
-                    <div
-                        class="absolute inset-0 border-4 border-gold-500 border-t-transparent rounded-full animate-spin">
-                    </div>
-                </div>
-                <div id="loadingStatus" class="font-mono text-gold-500 text-[10px] tracking-widest uppercase animate-pulse">Running Agents...</div>
-                <div id="loadingProgress" class="w-48 h-1 bg-white/5 rounded-full mt-4 overflow-hidden">
-                    <div id="loadingProgressBar" class="h-full bg-gold-500 transition-all duration-500" style="width: 0%"></div>
-                </div>
-            </div>
-        </div>
-
         <div class="flex h-screen overflow-hidden">
 
             <!-- Sidebar -->
@@ -852,13 +836,16 @@
                         <div id="skeletonState"
                             class="state-hidden flex flex-col items-center justify-center min-h-[60vh] w-full">
                             <div
-                                class="flex flex-col items-center justify-center p-12 bg-obsidian-800/50 rounded-3xl border border-gold-500/10 backdrop-blur-xl">
+                                class="flex flex-col items-center justify-center p-12 bg-obsidian-800/50 rounded-3xl border border-gold-500/10 backdrop-blur-xl w-full max-w-xl">
                                 <div
                                     class="w-16 h-16 border-4 border-gold-500/10 border-t-gold-500 rounded-full animate-spin mb-6">
                                 </div>
-                                <div class="text-gold-500 font-mono text-sm tracking-[0.4em] uppercase animate-pulse">
+                                <div id="loadingStatus" class="text-gold-500 font-mono text-sm tracking-[0.4em] uppercase animate-pulse mb-2 text-center">
                                     Analysing Market Data...</div>
-                                <div class="mt-4 text-gray-600 font-mono text-[10px] uppercase tracking-widest">
+                                <div id="loadingProgress" class="w-full h-1 bg-white/5 rounded-full mt-4 overflow-hidden mb-4">
+                                    <div id="loadingProgressBar" class="h-full bg-gold-500 transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                                <div class="text-gray-600 font-mono text-[10px] uppercase tracking-widest text-center">
                                     Multi-Agent Protocol Active</div>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mt-12 opacity-30">
@@ -1260,7 +1247,6 @@
             const welcome = document.getElementById('welcomeState');
             const skeleton = document.getElementById('skeletonState');
             const results = document.getElementById('resultsState');
-            const overlay = document.getElementById('loadingOverlay');
             const execBtn = document.getElementById('execBtn');
 
             // Synchronize with the 'state-hidden' class used in HTML
@@ -1270,7 +1256,6 @@
             [welcome, skeleton, results].forEach(el => {
                 if (el) el.classList.add(hideClass);
             });
-            if (overlay) overlay.classList.add('hidden');
 
             if (state === 'welcome' && welcome) {
                 welcome.classList.remove(hideClass);
@@ -1280,7 +1265,6 @@
                     skeleton.classList.remove(hideClass);
                     skeleton.style.display = 'flex';
                 }
-                if (overlay) overlay.classList.remove('hidden');
                 if (execBtn) execBtn.classList.add('btn-loading');
             } else if (state === 'results' && results) {
                 results.classList.remove(hideClass);
