@@ -1318,8 +1318,8 @@
                 setUIState('loading');
                 updateLoadingStatus('Phase 1: Fundamental Intelligence...', 20);
 
-                // Batch 1: Identity & Goldman Sachs
-                const b1 = await fetchSingleBatch(query, user, getBatchPrompt(query, currentLangName, ['company_identity', 'goldman_sachs']));
+                // Batch 1: Identity, Goldman, Morgan
+                const b1 = await fetchSingleBatch(query, user, getBatchPrompt(query, currentLangName, ['company_identity', 'goldman_sachs', 'morgan_stanley']));
                 Object.assign(results, parseFrameworks(b1));
                 
                 // Switch to Results early and show first data + shimmers
@@ -1327,22 +1327,16 @@
                 if (results.company_identity) renderIdentity(results.company_identity);
                 renderWidgets(results);
 
-                // Batch 2: Morgan Stanley & JPMorgan
-                updateLoadingStatus('Phase 2: Valuation & Earnings...', 45);
-                const b2 = await fetchSingleBatch(query, user, getBatchPrompt(query, currentLangName, ['morgan_stanley', 'jpmorgan']));
+                // Batch 2: JPMorgan, Citadel, Renaissance
+                updateLoadingStatus('Phase 2: Market Dynamics & Technicals...', 60);
+                const b2 = await fetchSingleBatch(query, user, getBatchPrompt(query, currentLangName, ['jpmorgan', 'citadel', 'renaissance']));
                 Object.assign(results, parseFrameworks(b2));
                 renderWidgets(results);
 
-                // Batch 3: Citadel & Renaissance
-                updateLoadingStatus('Phase 3: Technical & Quant Patterns...', 70);
-                const b3 = await fetchSingleBatch(query, user, getBatchPrompt(query, currentLangName, ['citadel', 'renaissance']));
+                // Batch 3: Final Synthesis (Executive Summary)
+                updateLoadingStatus('Phase 3: Final Synthesis...', 90);
+                const b3 = await fetchSingleBatch(query, user, getSummaryPrompt(query, currentLangName, results));
                 Object.assign(results, parseFrameworks(b3));
-                renderWidgets(results);
-
-                // Batch 4: Final Synthesis (Executive Summary)
-                updateLoadingStatus('Phase 4: Final Synthesis...', 90);
-                const b4 = await fetchSingleBatch(query, user, getSummaryPrompt(query, currentLangName, results));
-                Object.assign(results, parseFrameworks(b4));
                 renderWidgets(results);
 
                 const resolvedTicker = results.company_identity?.match(/Name:\s*(.*)/)?.[1]?.trim() || query;
@@ -1468,7 +1462,7 @@ Format as a quantitative research memo.
             return `DATE: ${new Date().toLocaleDateString()}\nLANGUAGE: ${lang}.\nTASK: Create an Executive Summary for "${query}".\n\nCONTEXT FROM OTHER AGENTS:\n${context}\n\n<executive_summary>\nMunger Philosophy: Zusammenfassung aller Berichte. ZWINGEND eine Empfehlung pro Agenten: Nutze Badges wie [BUY], [STRONG BUY], [BUY BEFORE], [HOLD], [NEUTRAL], [SELL], [STRONG SELL], [UNDERVALUED], [OVERVALUED] oder [FAIR VALUED] für jeden Aspekt.\n</executive_summary>`;
         }
 
-        async function fetchSingleBatch(query, user, prompt) {
+        async function fetchSingleBatch(query, user, prompt, retryCount = 0) {
             const geminiBody = {
                 contents: [{ parts: [{ text: prompt }] }],
                 tools: [{ google_search: {} }],
@@ -1482,6 +1476,13 @@ Format as a quantitative research memo.
             });
 
             if (!res.ok) {
+                if (res.status === 429 && retryCount < 3) {
+                    const waitTime = Math.pow(2, retryCount) * 2000;
+                    console.warn(`Rate limit hit. Retrying in ${waitTime}ms...`);
+                    updateLoadingStatus(`Rate limit hit. Waiting...`, undefined);
+                    await new Promise(r => setTimeout(r, waitTime));
+                    return fetchSingleBatch(query, user, prompt, retryCount + 1);
+                }
                 const errData = await res.json().catch(() => ({}));
                 throw new Error(errData?.error || `API_ERROR: ${res.status}`);
             }
