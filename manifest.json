@@ -1,7 +1,7 @@
 {
-  "name": "Fincast | Strategic Intelligence Terminal",
-  "short_name": "Fincast Terminal",
-  "description": "Institutionelles Aktien-Analyse-Terminal mit KI-gestützten Frameworks von Goldman Sachs, Morgan Stanley und Citadel.",
+  "name": "Fincast | Strategic Intelligence Hub",
+  "short_name": "fincast Hub",
+  "description": "Moderne Tools für Finanz-Analysen.",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#050505",
