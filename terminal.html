@@ -688,22 +688,6 @@
     <!-- ========== MAIN APP (hidden until login) ========== -->
     <div id="mainApp" class="hidden">
 
-        <div id="loadingOverlay"
-            class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-obsidian-950/90 backdrop-blur-md">
-            <div class="flex flex-col items-center">
-                <div class="relative w-16 h-16 mb-4">
-                    <div class="absolute inset-0 border-4 border-gold-500/20 rounded-full"></div>
-                    <div
-                        class="absolute inset-0 border-4 border-gold-500 border-t-transparent rounded-full animate-spin">
-                    </div>
-                </div>
-                <div id="loadingStatus" class="font-mono text-gold-500 text-[10px] tracking-widest uppercase animate-pulse">Running Agents...</div>
-                <div id="loadingProgress" class="w-48 h-1 bg-white/5 rounded-full mt-4 overflow-hidden">
-                    <div id="loadingProgressBar" class="h-full bg-gold-500 transition-all duration-500" style="width: 0%"></div>
-                </div>
-            </div>
-        </div>
-
         <div class="flex h-screen overflow-hidden">
 
             <!-- Sidebar -->
@@ -1263,7 +1247,6 @@
             const welcome = document.getElementById('welcomeState');
             const skeleton = document.getElementById('skeletonState');
             const results = document.getElementById('resultsState');
-            const overlay = document.getElementById('loadingOverlay');
             const execBtn = document.getElementById('execBtn');
 
             // Synchronize with the 'state-hidden' class used in HTML
@@ -1273,7 +1256,6 @@
             [welcome, skeleton, results].forEach(el => {
                 if (el) el.classList.add(hideClass);
             });
-            if (overlay) overlay.classList.add('hidden');
 
             if (state === 'welcome' && welcome) {
                 welcome.classList.remove(hideClass);
@@ -1283,7 +1265,6 @@
                     skeleton.classList.remove(hideClass);
                     skeleton.style.display = 'flex';
                 }
-                if (overlay) overlay.classList.remove('hidden');
                 if (execBtn) execBtn.classList.add('btn-loading');
             } else if (state === 'results' && results) {
                 results.classList.remove(hideClass);
@@ -1452,7 +1433,7 @@ MANDATORY: You MUST assign EXACTLY ONE of these badges to the final rating: [BUY
 </executive_summary>`;
         }
 
-        async function fetchSingleBatch(query, user, prompt, retryCount = 0) {
+        async function fetchSingleBatch(query, user, prompt) {
             const geminiBody = {
                 contents: [{ parts: [{ text: prompt }] }],
                 tools: [{ google_search: {} }],
@@ -1478,16 +1459,8 @@ MANDATORY: You MUST assign EXACTLY ONE of these badges to the final rating: [BUY
                                   errMsg.toLowerCase().includes('rate limit') ||
                                   errMsg.toLowerCase().includes('limit exceeded');
 
-                if (isRateLimit && retryCount < 5) {
-                    // Extract wait time from Google's error message (e.g., "retry in 57.2s")
-                    const match = errMsg.match(/retry in ([\d\.]+)s/i);
-                    const waitSeconds = match ? parseFloat(match[1]) + 2 : Math.pow(2, retryCount) * 10;
-                    
-                    console.warn(`Rate limit hit (Status ${res.status}). Waiting ${Math.ceil(waitSeconds)}s before retry ${retryCount + 1}...`);
-                    updateLoadingStatus(`Quota hit. Waiting ${Math.ceil(waitSeconds)}s...`, undefined);
-                    
-                    await new Promise(r => setTimeout(r, waitSeconds * 1000));
-                    return fetchSingleBatch(query, user, prompt, retryCount + 1);
+                if (isRateLimit) {
+                    throw new Error("Quota exceeded (Rate Limit). Please wait a minute and try again.");
                 }
                 
                 throw new Error(errMsg || `API_ERROR: ${res.status}`);
