@@ -1322,7 +1322,7 @@
             }
 
             setUIState('loading');
-            updateLoadingStatus('Initializing Agents...', 5);
+            updateLoadingStatus('Phase 1: Multi-Agent Analysis...', 15);
             
             try {
                 MODEL_ID = user.model || 'gemini-2.5-flash';
@@ -1331,28 +1331,25 @@
 
                 const results = {};
                 
-                // Batch 1: Identity & Fundamentals
-                updateLoadingStatus('Batch 1: Strategic Intelligence...', 20);
-                const batch1Prompt = getBatchPrompt(query, currentLangName, ['company_identity', 'goldman_sachs', 'morgan_stanley']);
-                const r1 = await fetchSingleBatch(query, user, batch1Prompt);
-                Object.assign(results, parseFrameworks(r1));
+                // Phase 1: Full Analysis (All 5 Agents + Identity)
+                const analysisAgents = ['company_identity', 'goldman_sachs', 'morgan_stanley', 'jpmorgan', 'citadel', 'renaissance'];
+                const analysisPrompt = getBatchPrompt(query, currentLangName, analysisAgents);
+                const r1 = await fetchSingleBatch(query, user, analysisPrompt);
+                const p1 = parseFrameworks(r1);
+                Object.assign(results, p1);
                 
-                // Update identity early if available
+                // Render Phase 1 immediately
                 if (results.company_identity) renderIdentity(results.company_identity);
+                renderWidgets(results);
+                updateLoadingStatus('Phase 1 Complete. Synthesizing...', 60);
 
-                // Batch 2: Technicals & Earnings
-                updateLoadingStatus('Batch 2: Market Dynamics...', 50);
-                const batch2Prompt = getBatchPrompt(query, currentLangName, ['jpmorgan', 'citadel', 'renaissance']);
-                const r2 = await fetchSingleBatch(query, user, batch2Prompt);
-                Object.assign(results, parseFrameworks(r2));
-
-                // Batch 3: Final Verdict (Synthesis)
-                updateLoadingStatus('Finalizing: Executive Verdict...', 80);
+                // Phase 2: Executive Summary (Synthesis)
                 const summaryPrompt = getSummaryPrompt(query, currentLangName, results);
-                const r3 = await fetchSingleBatch(query, user, summaryPrompt);
-                Object.assign(results, parseFrameworks(r3));
+                const r2 = await fetchSingleBatch(query, user, summaryPrompt);
+                const p2 = parseFrameworks(r2);
+                Object.assign(results, p2);
 
-                updateLoadingStatus('Rendering Results...', 95);
+                updateLoadingStatus('Finalizing Report...', 90);
 
                 const resolvedTicker = results.company_identity?.match(/Name:\s*(.*)/)?.[1]?.trim() || query;
 
@@ -1382,8 +1379,10 @@
             const today = new Date().toLocaleDateString();
             let prompt = `DATE: ${today}\nROLE: Senior Multi-Agent Investment Intelligence Engine at Fincast.\nLANGUAGE: Respond EXCLUSIVELY in ${lang}.\nTASK: Deep-Dive Analyse für "${query}".\n\n`;
             
+            prompt += `WICHTIG: Generiere JEDE der folgenden Sektionen umschlossen von den entsprechenden Tags. Antworte auf institutionellem Niveau.\n\n`;
+
             if (agentIds.includes('company_identity')) {
-                prompt += `STEP 0: Identifiziere das Wertpapier präzise via Google Search (Name, Ticker, Branche).\n<company_identity>\nName: [Vollständiger Name]\nISIN: [Nummer]\nWKN: [Nummer]\nSektor: [Sektor]\nHQ: [Stadt, Land]\nProfil: [1 Satz Beschreibung]\n</company_identity>\n\n`;
+                prompt += `STEP 0: Identifiziere das Wertpapier präzise via Google Search.\n<company_identity>\nName: [Vollständiger Name]\nISIN: [Nummer]\nWKN: [Nummer]\nSektor: [Sektor]\nHQ: [Stadt, Land]\nProfil: [1 Satz Beschreibung]\n</company_identity>\n\n`;
             }
 
             if (agentIds.includes('goldman_sachs')) {
@@ -1467,7 +1466,7 @@ Format as a quantitative research memo.
 </renaissance>\n\n`;
             }
 
-            prompt += `WICHTIG: Jede Sektion MUSS exakt mit den entsprechenden Tags umschlossen sein. Nutze Google Search für Echtzeitdaten. Vermeide Markdown-Formatierung außerhalb der Tags.`;
+            prompt += `HINWEIS: Nutze Google Search für aktuelle Daten zu "${query}". Antworte präzise, kritisch und transformiere Daten in eigene Analysen. Vermeide Markdown außerhalb der Tags.`;
             return prompt;
         }
 
