@@ -1307,7 +1307,7 @@
 
             updateLoadingStatus('Initializing Multi-Agent Protocol...', 5);
             
-            updateLoadingStatus('Launching Multi-Agent Protocol...', 5);
+            updateLoadingStatus('Initializing Multi-Agent Protocol...', 5);
             
             try {
                 MODEL_ID = user.model || 'gemini-2.5-flash';
@@ -1316,59 +1316,52 @@
 
                 const results = {};
                 
-                // Show skeleton and switch to results immediately to show shimmers
+                // Show shimmers
                 setUIState('results');
                 renderWidgets(results);
-                updateLoadingStatus('Consulting institutional agents...', 10);
 
-                // Phase 1: Parallel Execution of all Analysis Agents
-                const agentIds = ['company_identity', 'goldman_sachs', 'morgan_stanley', 'jpmorgan', 'citadel', 'renaissance'];
+                // Step 1: Precise Identity Search
+                updateLoadingStatus('Step 1: Identifying Security...', 15);
+                const rId = await fetchSingleBatch(query, user, getBatchPrompt(query, currentLangName, ['company_identity']));
+                Object.assign(results, parseFrameworks(rId));
                 
-                const agentTasks = agentIds.map(async (id) => {
-                    try {
-                        const prompt = getBatchPrompt(query, currentLangName, [id]);
-                        const response = await fetchSingleBatch(query, user, prompt);
-                        const parsed = parseFrameworks(response);
-                        Object.assign(results, parsed);
-                        
-                        // Immediate individual render
-                        if (id === 'company_identity' && results.company_identity) renderIdentity(results.company_identity);
-                        renderWidgets(results);
-                        
-                        const completedCount = Object.keys(results).filter(k => k !== 'executive_summary').length;
-                        const progress = 10 + Math.floor((completedCount / agentIds.length) * 70);
-                        updateLoadingStatus(`Received: ${id.replace('_', ' ').toUpperCase()}...`, progress);
-                    } catch (e) {
-                        console.error(`Agent ${id} failed:`, e);
-                        results[id] = `Error: Agent timed out or failed to respond.`;
-                        renderWidgets(results);
-                    }
-                });
+                if (results.company_identity) renderIdentity(results.company_identity);
+                renderWidgets(results);
 
-                await Promise.all(agentTasks);
+                // Use the resolved name for better context in subsequent searches
+                const resolvedName = results.company_identity?.match(/Name:\s*(.*)/)?.[1]?.trim() || query;
+                const searchContext = `${resolvedName} (${query})`;
 
-                // Phase 2: Final Synthesis (Executive Summary)
-                updateLoadingStatus('Finalizing Synthesis (Munger Verdict)...', 85);
-                try {
-                    const bSummary = await fetchSingleBatch(query, user, getSummaryPrompt(query, currentLangName, results));
-                    Object.assign(results, parseFrameworks(bSummary));
-                    renderWidgets(results);
-                } catch (e) {
-                    console.error('Summary failed:', e);
-                    results['executive_summary'] = 'Error: Summary synthesis failed.';
-                    renderWidgets(results);
-                }
+                // Step 2: Fundamentals (Goldman & Morgan)
+                updateLoadingStatus('Step 2: Fundamental & Valuation Deep-Dive...', 40);
+                const rB1 = await fetchSingleBatch(searchContext, user, getBatchPrompt(searchContext, currentLangName, ['goldman_sachs', 'morgan_stanley']));
+                Object.assign(results, parseFrameworks(rB1));
+                renderWidgets(results);
+
+                // Step 3: Market & Technicals (JPMorgan & Citadel)
+                updateLoadingStatus('Step 3: Earnings & Technical Analysis...', 70);
+                const rB2 = await fetchSingleBatch(searchContext, user, getBatchPrompt(searchContext, currentLangName, ['jpmorgan', 'citadel']));
+                Object.assign(results, parseFrameworks(rB2));
+                renderWidgets(results);
+
+                // Step 4: Quant & Synthesis (Renaissance & Summary)
+                updateLoadingStatus('Step 4: Statistical Patterns & Final Synthesis...', 90);
+                const rB3 = await fetchSingleBatch(searchContext, user, getBatchPrompt(searchContext, currentLangName, ['renaissance']));
+                Object.assign(results, parseFrameworks(rB3));
+                
+                // Summary gets all results
+                const rSum = await fetchSingleBatch(searchContext, user, getSummaryPrompt(searchContext, currentLangName, results));
+                Object.assign(results, parseFrameworks(rSum));
+                renderWidgets(results);
 
                 updateLoadingStatus('Report Complete.', 100);
-
-                const resolvedTicker = results.company_identity?.match(/Name:\s*(.*)/)?.[1]?.trim() || query;
 
                 // Robust Cloud Save
                 const archiveEntry = {
                     timestamp: new Date().toLocaleString(USER_LANG),
                     data: results
                 };
-                await apiCall('save_archive', { email: user.email, key: resolvedTicker, data: archiveEntry }).catch(e => console.warn('Archive save failed:', e));
+                await apiCall('save_archive', { email: user.email, key: resolvedName, data: archiveEntry }).catch(e => console.warn('Archive save failed:', e));
 
                 await incrementQuery(user.email).catch(() => { });
                 await updateFooter(user).catch(() => { });
