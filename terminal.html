@@ -688,6 +688,22 @@
     <!-- ========== MAIN APP (hidden until login) ========== -->
     <div id="mainApp" class="hidden">
 
+        <div id="loadingOverlay"
+            class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-obsidian-950/90 backdrop-blur-md">
+            <div class="flex flex-col items-center">
+                <div class="relative w-16 h-16 mb-4">
+                    <div class="absolute inset-0 border-4 border-gold-500/20 rounded-full"></div>
+                    <div
+                        class="absolute inset-0 border-4 border-gold-500 border-t-transparent rounded-full animate-spin">
+                    </div>
+                </div>
+                <div id="loadingStatus" class="font-mono text-gold-500 text-[10px] tracking-widest uppercase animate-pulse">Running Agents...</div>
+                <div id="loadingProgress" class="w-48 h-1 bg-white/5 rounded-full mt-4 overflow-hidden">
+                    <div id="loadingProgressBar" class="h-full bg-gold-500 transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
         <div class="flex h-screen overflow-hidden">
 
             <!-- Sidebar -->
@@ -1247,6 +1263,7 @@
             const welcome = document.getElementById('welcomeState');
             const skeleton = document.getElementById('skeletonState');
             const results = document.getElementById('resultsState');
+            const overlay = document.getElementById('loadingOverlay');
             const execBtn = document.getElementById('execBtn');
 
             // Synchronize with the 'state-hidden' class used in HTML
@@ -1256,6 +1273,7 @@
             [welcome, skeleton, results].forEach(el => {
                 if (el) el.classList.add(hideClass);
             });
+            if (overlay) overlay.classList.add('hidden');
 
             if (state === 'welcome' && welcome) {
                 welcome.classList.remove(hideClass);
@@ -1265,6 +1283,7 @@
                     skeleton.classList.remove(hideClass);
                     skeleton.style.display = 'flex';
                 }
+                if (overlay) overlay.classList.remove('hidden');
                 if (execBtn) execBtn.classList.add('btn-loading');
             } else if (state === 'results' && results) {
                 results.classList.remove(hideClass);
@@ -1314,37 +1333,17 @@
 
                 const results = {};
                 
-                // Show shimmers
-                setUIState('results');
-                renderWidgets(results);
+                // Set to loading to show the golden ring overlay
+                setUIState('loading');
+                updateLoadingStatus('Consulting institutional agents...', 30);
 
-                // Step 1: Identity
-                updateLoadingStatus('Step 1: Identifying Security...', 15);
-                const rId = await fetchSingleBatch(query, user, getBatchPrompt(query, currentLangName, ['company_identity']));
-                Object.assign(results, parseFrameworks(rId));
-                if (results.company_identity) renderIdentity(results.company_identity);
-                renderWidgets(results);
-
-                const resolvedName = results.company_identity?.match(/Name:\s*(.*)/)?.[1]?.trim() || query;
-                const searchContext = `${resolvedName} (${query})`;
-
-                // Step 2: Fundamental & Financials (GS, MS, JPM)
-                updateLoadingStatus('Step 2: Fundamental & Earnings Analysis...', 50);
-                const rB1 = await fetchSingleBatch(searchContext, user, getBatchPrompt(searchContext, currentLangName, ['goldman_sachs', 'morgan_stanley', 'jpmorgan']));
-                Object.assign(results, parseFrameworks(rB1));
-                renderWidgets(results);
-
-                // Step 3: Technical, Quant & Synthesis (Citadel, Renaissance, Summary)
-                updateLoadingStatus('Step 3: Market Patterns & Final Synthesis...', 85);
-                const rB2 = await fetchSingleBatch(searchContext, user, getBatchPrompt(searchContext, currentLangName, ['citadel', 'renaissance']));
-                Object.assign(results, parseFrameworks(rB2));
-                
-                // Summary gets all results
-                const rSum = await fetchSingleBatch(searchContext, user, getSummaryPrompt(searchContext, currentLangName, results));
-                Object.assign(results, parseFrameworks(rSum));
-                renderWidgets(results);
+                // ONE Single Call for everything with strict brevity constraints
+                const rFull = await fetchSingleBatch(query, user, getBatchPrompt(query, currentLangName));
+                Object.assign(results, parseFrameworks(rFull));
 
                 updateLoadingStatus('Report Complete.', 100);
+
+                const resolvedName = results.company_identity?.match(/Name:\s*(.*)/)?.[1]?.trim() || query;
 
                 // Robust Cloud Save
                 const archiveEntry = {
@@ -1352,6 +1351,12 @@
                     data: results
                 };
                 await apiCall('save_archive', { email: user.email, key: resolvedName, data: archiveEntry }).catch(e => console.warn('Archive save failed:', e));
+
+                // Render everything at once
+                if (results.company_identity) renderIdentity(results.company_identity);
+                renderWidgets(results);
+                
+                setUIState('results');
 
                 await incrementQuery(user.email).catch(() => { });
                 await updateFooter(user).catch(() => { });
@@ -1363,115 +1368,99 @@
             }
         }
 
-        function getBatchPrompt(query, lang, agentIds) {
+        function getBatchPrompt(query, lang) {
             const today = new Date().toLocaleDateString();
-            let prompt = `DATE: ${today}\nROLE: Senior Multi-Agent Investment Intelligence Engine at Fincast.\nLANGUAGE: Respond EXCLUSIVELY in ${lang}.\nTASK: Deep-Dive Analyse für "${query}".\n\n`;
-            
-            prompt += `WICHTIG: Generiere JEDE der folgenden Sektionen umschlossen von den entsprechenden Tags. Antworte auf institutionellem Niveau.\n\n`;
+            return `DATE: ${today}
+LANGUAGE: Respond EXCLUSIVELY in ${lang}.
+TASK: Deep-Dive Analysis for "${query}". Use Google Search for current data.
 
-            if (agentIds.includes('company_identity')) {
-                prompt += `STEP 0: Identifiziere das Wertpapier präzise via Google Search.\n<company_identity>\nName: [Vollständiger Name]\nISIN: [Nummer]\nWKN: [Nummer]\nSektor: [Sektor]\nHQ: [Stadt, Land]\nProfil: [1 Satz Beschreibung]\n</company_identity>\n\n`;
-            }
+STRICT INSTRUCTIONS (NO NOVELS, NO FLUFF):
+- You are a team of SCIENTISTS, not writers.
+- Provide ONLY hard facts, numbers, and logical deductions.
+- ABSOLUTELY NO prose, NO introductions, NO conclusions.
+- Output MUST be strictly formatted as short bullet points.
+- Maximum 1 line per data point.
+- Be extremely concise. Efficiency is key.
 
-            if (agentIds.includes('goldman_sachs')) {
-                prompt += `<goldman_sachs>
-Senior Equity Analyst (20y Experience): Focus on Fundamental & Strategic Value.
-- Executive Summary: Zentrale These & Investment-Case.
-- Financial Health: P/E (vs Sector), Revenue Growth (5y), Debt/Equity.
-- Dividend & Cashflow: Sustainability Score & Yield.
-- Competitive Moat: Strategische Analyse der Marktposition.
-- Price Targets: 12m Bull/Bear Case mit Begründung.
-- Verdict: Buy/Hold/Sell Zones + Stop-Loss.
-Format as a professional Deep-Dive Equity Report.
-</goldman_sachs>\n\n`;
-            }
-            
-            if (agentIds.includes('morgan_stanley')) {
-                prompt += `<morgan_stanley>
-VP-Level Investment Banker at Morgan Stanley (M&A Analyst):
-I need a full discounted cash flow (DCF) analysis for ${query}. 
-Build out:
-• 5-year revenue projection with growth assumptions
-• Operating margin estimates based on historical trends
-• Free cash flow (FCF) calculations year by year
-• Weighted average cost of capital (WACC) estimate
-• Terminal value using both exit multiple and perpetuity growth methods
-• Sensitivity table showing fair value at different discount rates
-• Comparison of DCF value vs current market price
-• Clear verdict: Undervalued, Fairly Valued, or Overvalued
-• Key assumptions that could break the model
-Format as an investment banking valuation memo with tables and clear math.
-</morgan_stanley>\n\n`;
-            }
+Generate the following sections with EXACT tags. Output ONLY the data inside the tags.
 
-            if (agentIds.includes('jpmorgan')) {
-                prompt += `<jpmorgan>
-Senior Equity Research Analyst at JPMorgan Chase (Earnings Specialist):
-I need a complete earnings analysis for ${query} before the next report.
-Deliver:
-• Last 4 quarters earnings vs estimates (beat/miss history)
-• Revenue and EPS consensus estimates for the upcoming quarter
-• Key metrics Wall Street is watching for this specific company
-• Segment-by-segment revenue breakdown and trends
-• Management guidance from last earnings call summarized
-• Options market implied move for earnings day
-• Historical stock price reaction after last 4 earnings reports
-• Bull case scenario and price impact estimate
-• Bear case scenario and downside risk estimate
-• My recommended play: Buy Before, Sell Before, or Wait
-Format as a pre-earnings research brief with a decision summary at the top.
-</jpmorgan>\n\n`;
-            }
+<company_identity>
+Name: [Name]
+ISIN: [ISIN]
+WKN: [WKN]
+Sector: [Sector]
+HQ: [City, Country]
+Profile: [Max 10 words]
+</company_identity>
 
-            if (agentIds.includes('citadel')) {
-                prompt += `<citadel>
-Senior Quantitative Trader at Citadel (Market Microstructure Expert):
-I need a full technical analysis breakdown for ${query}. 
-Analyze:
-• Current trend direction on daily, weekly, and monthly timeframes
-• Key support and resistance levels with exact price points
-• Moving average analysis (50-day, 100-day, 200-day) and crossover signals
-• RSI, MACD, and Bollinger Band readings with plain-English interpretation
-• Volume trend analysis (Buyer vs. Seller strength)
-• Chart pattern identification (Head and Shoulders, Cup and Handle, etc.)
-• Fibonacci retracement levels for potential bounce zones
-• Ideal entry price, stop-loss level, and profit target
-• Risk-to-reward ratio for the current setup
-• Confidence rating: Strong Buy, Buy, Neutral, Sell, Strong Sell
-Format as a technical analysis report card with a clear trade plan summary.
-</citadel>\n\n`;
-            }
+<goldman_sachs>
+ROLE: Senior Equity Analyst (Fundamental Value)
+- Thesis: [1 sentence investment case]
+- P/E & Fwd P/E: [Data vs Sector]
+- Revenue & EPS Growth: [Data]
+- Debt/Equity & FCF Yield: [Data]
+- Competitive Moat: [1 sentence strategic edge]
+- 12m Price Target: [Bull vs Bear Data]
+- Verdict: [Buy/Hold/Sell]
+</goldman_sachs>
 
-            if (agentIds.includes('renaissance')) {
-                prompt += `<renaissance>
-Renaissance Technologies (Quant Researcher): Statistical Arbitrage & Patterns.
-- Seasonal Patterns: Historische Monats- & Wochen-Performance.
-- Institutional Flux: Bewegungen großer Fonds & Insider (13F Filings).
-- Volatility & Short Interest: Squeeze-Potential & Marktdynamik.
-- Correlations: Abhängigkeiten von Makro-Events (Fed, VIX).
-- Quantitative Edge: Was macht dieses Papier statistisch interessant?
-Format as a quantitative research memo.
-</renaissance>\n\n`;
-            }
+<morgan_stanley>
+ROLE: VP-Level Investment Banker (DCF Valuation)
+- 5y Revenue CAGR: [Data assumption]
+- Operating Margin: [Data trend]
+- WACC Estimate: [Data]
+- Terminal Value: [Exit Multiple/Growth Data]
+- DCF Fair Value: [Exact Price Data]
+- Market Premium/Discount: [% Data]
+- Verdict: [Undervalued/Fairly Valued/Overvalued]
+</morgan_stanley>
 
-            prompt += `HINWEIS: Nutze Google Search für aktuelle Daten zu "${query}". Antworte präzise, kritisch und transformiere Daten in eigene Analysen. Vermeide Markdown außerhalb der Tags.`;
-            return prompt;
-        }
+<jpmorgan>
+ROLE: Senior Equity Research Analyst (Earnings Specialist)
+- Last 4 Quarters: [Beat/Miss History]
+- Upcoming Consensus: [Rev/EPS Estimates]
+- Segment Focus: [Key growth driver data]
+- Options Implied Move: [+/- % Data]
+- Historical Post-Earnings Move: [% Data]
+- Management Guidance: [1 sentence summary]
+- Play: [Buy Before/Sell Before/Wait]
+</jpmorgan>
 
-        function getSummaryPrompt(query, lang, previousResults) {
-            const context = Object.entries(previousResults)
-                .filter(([id]) => id !== 'executive_summary')
-                .map(([id, text]) => `AGENT ${id.toUpperCase()}:\n${text}`)
-                .join('\n\n');
+<citadel>
+ROLE: Senior Quantitative Trader (Market Microstructure)
+- Trend (D/W/M): [Data]
+- Moving Averages (50/100/200): [Crossover signals]
+- Key Support/Resistance: [Exact Price Levels]
+- RSI & MACD: [Momentum Data]
+- Volume Flow: [Buyer vs Seller strength]
+- Chart Pattern: [Identified Setup]
+- Trade Plan: [Entry, Stop-Loss, Target Price]
+</citadel>
 
-            return `DATE: ${new Date().toLocaleDateString()}\nLANGUAGE: ${lang}.\nTASK: Create an Executive Summary for "${query}".\n\nCONTEXT FROM OTHER AGENTS:\n${context}\n\n<executive_summary>\nMunger Philosophy: Zusammenfassung aller Berichte. ZWINGEND eine Empfehlung pro Agenten: Nutze Badges wie [BUY], [STRONG BUY], [BUY BEFORE], [HOLD], [NEUTRAL], [SELL], [STRONG SELL], [UNDERVALUED], [OVERVALUED] oder [FAIR VALUED] für jeden Aspekt.\n</executive_summary>`;
+<renaissance>
+ROLE: Quant Researcher (Statistical Arbitrage)
+- Seasonality: [Historical Monthly/Weekly edge]
+- 13F Institutional Flux: [Major Fund Movements]
+- Short Interest: [Squeeze Potential Data]
+- Macro Correlations: [Rates/VIX/Sector Data]
+- Quant Edge: [1 sentence statistical anomaly]
+</renaissance>
+
+<executive_summary>
+- Munger Verdict: [Hard-fact synthesis of all above points. Max 3 sentences].
+MANDATORY: You MUST assign EXACTLY ONE of these badges to the final rating: [BUY], [STRONG BUY], [HOLD], [NEUTRAL], [SELL], [STRONG SELL], [UNDERVALUED], [OVERVALUED], [FAIRLY VALUED], [WAIT].
+</executive_summary>`;
         }
 
         async function fetchSingleBatch(query, user, prompt, retryCount = 0) {
             const geminiBody = {
                 contents: [{ parts: [{ text: prompt }] }],
                 tools: [{ google_search: {} }],
-                generationConfig: { temperature: 0.2, maxOutputTokens: 4096 }
+                generationConfig: { 
+                    temperature: 0.1, 
+                    maxOutputTokens: 8192,
+                    topP: 0.95
+                }
             };
 
             const res = await fetch('/api/analyze', {
@@ -1480,17 +1469,22 @@ Format as a quantitative research memo.
                 body: JSON.stringify({ ticker: query, model: MODEL_ID, geminiBody, email: user.email })
             });
 
-            if (!res.ok) {
-                const errData = await res.json().catch(() => ({}));
-                const errMsg = errData.error || '';
+            const errData = await res.json().catch(() => ({}));
+            const errMsg = errData.error || '';
 
-                if (res.status === 429 && retryCount < 5) {
-                    // Extract wait time from Google's error message (e.g., "retry in 38.008s")
+            if (!res.ok) {
+                const isRateLimit = res.status === 429 || 
+                                  errMsg.toLowerCase().includes('quota') || 
+                                  errMsg.toLowerCase().includes('rate limit') ||
+                                  errMsg.toLowerCase().includes('limit exceeded');
+
+                if (isRateLimit && retryCount < 5) {
+                    // Extract wait time from Google's error message (e.g., "retry in 57.2s")
                     const match = errMsg.match(/retry in ([\d\.]+)s/i);
-                    const waitSeconds = match ? parseFloat(match[1]) + 2 : Math.pow(2, retryCount) * 5;
+                    const waitSeconds = match ? parseFloat(match[1]) + 2 : Math.pow(2, retryCount) * 10;
                     
-                    console.warn(`Rate limit hit. Waiting ${Math.ceil(waitSeconds)}s before retry ${retryCount + 1}...`);
-                    updateLoadingStatus(`Rate limit hit. Waiting ${Math.ceil(waitSeconds)}s...`, undefined);
+                    console.warn(`Rate limit hit (Status ${res.status}). Waiting ${Math.ceil(waitSeconds)}s before retry ${retryCount + 1}...`);
+                    updateLoadingStatus(`Quota hit. Waiting ${Math.ceil(waitSeconds)}s...`, undefined);
                     
                     await new Promise(r => setTimeout(r, waitSeconds * 1000));
                     return fetchSingleBatch(query, user, prompt, retryCount + 1);
@@ -1499,8 +1493,7 @@ Format as a quantitative research memo.
                 throw new Error(errMsg || `API_ERROR: ${res.status}`);
             }
 
-            const data = await res.json();
-            return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            return errData.candidates?.[0]?.content?.parts?.[0]?.text || '';
         }
 
         function parseFrameworks(text) {
