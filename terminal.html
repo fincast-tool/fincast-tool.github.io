@@ -1351,11 +1351,12 @@
 
         function getBatchPrompt(query, lang) {
             const today = new Date().toLocaleDateString();
-            return `DATE: ${today}
+            return `CURRENT DATE: ${today}
 LANGUAGE: Respond EXCLUSIVELY in ${lang}.
-TASK: Deep-Dive Analysis for "${query}". Use Google Search for current data.
+TASK: Deep-Dive Analysis for "${query}". 
 
 STRICT INSTRUCTIONS (NO NOVELS, NO FLUFF):
+- CRITICAL: You MUST use the google_search tool to fetch REAL-TIME data for today (${today}). Do not guess or use outdated data.
 - You are a team of SCIENTISTS, not writers.
 - Provide ONLY hard facts, numbers, and logical deductions.
 - ABSOLUTELY NO prose, NO introductions, NO conclusions.
@@ -1369,9 +1370,9 @@ Generate the following sections with EXACT tags. Output ONLY the data inside the
 Name: [Name]
 ISIN: [ISIN]
 WKN: [WKN]
-Sector: [Sector]
+Sektor: [Sector]
 HQ: [City, Country]
-Profile: [Max 10 words]
+Profil: [Max 10 words]
 </company_identity>
 
 <goldman_sachs>
@@ -1428,8 +1429,14 @@ ROLE: Quant Researcher (Statistical Arbitrage)
 </renaissance>
 
 <executive_summary>
-- Munger Verdict: [Hard-fact synthesis of all above points. Max 3 sentences].
-MANDATORY: You MUST assign EXACTLY ONE of these badges to the final rating: [BUY], [STRONG BUY], [HOLD], [NEUTRAL], [SELL], [STRONG SELL], [UNDERVALUED], [OVERVALUED], [FAIRLY VALUED], [WAIT].
+- Goldman Sachs: [1 sentence synthesis] [BADGE]
+- Morgan Stanley: [1 sentence synthesis] [BADGE]
+- JPMorgan: [1 sentence synthesis] [BADGE]
+- Citadel: [1 sentence synthesis] [BADGE]
+- Renaissance: [1 sentence synthesis] [BADGE]
+- Strategic DNA: [1 sentence synthesis about Sector and Profile]
+- Final Munger Verdict: [1 sentence conclusion] [BADGE]
+MANDATORY: Use EXACTLY ONE of these badges per agent/verdict: [BUY], [STRONG BUY], [HOLD], [NEUTRAL], [SELL], [STRONG SELL], [UNDERVALUED], [OVERVALUED], [FAIRLY VALUED], [WAIT].
 </executive_summary>`;
         }
 
@@ -1561,26 +1568,24 @@ MANDATORY: You MUST assign EXACTLY ONE of these badges to the final rating: [BUY
                         .replace(/\*\*(.*?)\*\*/g, '<strong class="text-gold-500">$1</strong>')
                         .replace(/\n/g, '<br>');
 
-                    // Special handling for Executive Summary Badges
-                    if (card.id === 'executive_summary') {
-                        htmlContent = htmlContent
-                            .replace(/\[BUY\]/gi, '<span class="badge badge-buy">BUY</span>')
-                            .replace(/\[STRONG\s?BUY\]/gi, '<span class="badge badge-buy">STRONG BUY</span>')
-                            .replace(/\[BUY\s?BEFORE\]/gi, '<span class="badge badge-buy">BUY BEFORE</span>')
-                            .replace(/\[HOLD\]/gi, '<span class="badge badge-hold">HOLD</span>')
-                            .replace(/\[NEUTRAL\]/gi, '<span class="badge badge-wait">NEUTRAL</span>')
-                            .replace(/\[SELL\]/gi, '<span class="badge badge-sell">SELL</span>')
-                            .replace(/\[STRONG\s?SELL\]/gi, '<span class="badge badge-sell">STRONG SELL</span>')
-                            .replace(/\[SELL\s?BEFORE\]/gi, '<span class="badge badge-sell">SELL BEFORE</span>')
-                            .replace(/\[WAIT\]/gi, '<span class="badge badge-wait">WAIT</span>')
-                            .replace(/\[UNDERVALUED\]/gi, '<span class="badge badge-buy">UNDERVALUED</span>')
-                            .replace(/\[OVERVALUED\]/gi, '<span class="badge badge-sell">OVERVALUED</span>')
-                            .replace(/\[FAIRLY\s?VALUED\]/gi, '<span class="badge badge-hold">FAIR VALUED</span>')
-                            .replace(/\[ACCUMULATE\]/gi, '<span class="badge badge-buy">ACCUMULATE</span>')
-                            .replace(/\[REDUCE\]/gi, '<span class="badge badge-sell">REDUCE</span>')
-                            .replace(/\[WATCHLIST\]/gi, '<span class="badge badge-wait">WATCHLIST</span>')
-                            .replace(/\[RISK\]/gi, '<span class="badge badge-sell">RISK</span>');
-                    }
+                    // Universal handling for Executive Summary Badges across ALL widgets
+                    htmlContent = htmlContent
+                        .replace(/\[BUY\]/gi, '<span class="badge badge-buy">BUY</span>')
+                        .replace(/\[STRONG\s?BUY\]/gi, '<span class="badge badge-buy">STRONG BUY</span>')
+                        .replace(/\[BUY\s?BEFORE\]/gi, '<span class="badge badge-buy">BUY BEFORE</span>')
+                        .replace(/\[HOLD\]/gi, '<span class="badge badge-hold">HOLD</span>')
+                        .replace(/\[NEUTRAL\]/gi, '<span class="badge badge-wait">NEUTRAL</span>')
+                        .replace(/\[SELL\]/gi, '<span class="badge badge-sell">SELL</span>')
+                        .replace(/\[STRONG\s?SELL\]/gi, '<span class="badge badge-sell">STRONG SELL</span>')
+                        .replace(/\[SELL\s?BEFORE\]/gi, '<span class="badge badge-sell">SELL BEFORE</span>')
+                        .replace(/\[WAIT\]/gi, '<span class="badge badge-wait">WAIT</span>')
+                        .replace(/\[UNDERVALUED\]/gi, '<span class="badge badge-buy">UNDERVALUED</span>')
+                        .replace(/\[OVERVALUED\]/gi, '<span class="badge badge-sell">OVERVALUED</span>')
+                        .replace(/\[FAIRLY\s?VALUED\]/gi, '<span class="badge badge-hold">FAIR VALUED</span>')
+                        .replace(/\[ACCUMULATE\]/gi, '<span class="badge badge-buy">ACCUMULATE</span>')
+                        .replace(/\[REDUCE\]/gi, '<span class="badge badge-sell">REDUCE</span>')
+                        .replace(/\[WATCHLIST\]/gi, '<span class="badge badge-wait">WATCHLIST</span>')
+                        .replace(/\[RISK\]/gi, '<span class="badge badge-sell">RISK</span>');
 
                     widget.innerHTML = `
                         <div class="widget-header flex items-center justify-between">
