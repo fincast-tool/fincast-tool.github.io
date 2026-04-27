@@ -1307,8 +1307,6 @@
 
             updateLoadingStatus('Initializing Multi-Agent Protocol...', 5);
             
-            updateLoadingStatus('Initializing Multi-Agent Protocol...', 5);
-            
             try {
                 MODEL_ID = user.model || 'gemini-2.5-flash';
                 const langNames = { 'de-DE': 'DEUTSCH', 'en-US': 'ENGLISH', 'fr-FR': 'FRANÇAIS', 'es-ES': 'ESPAÑOL' };
@@ -1320,34 +1318,26 @@
                 setUIState('results');
                 renderWidgets(results);
 
-                // Step 1: Precise Identity Search
+                // Step 1: Identity
                 updateLoadingStatus('Step 1: Identifying Security...', 15);
                 const rId = await fetchSingleBatch(query, user, getBatchPrompt(query, currentLangName, ['company_identity']));
                 Object.assign(results, parseFrameworks(rId));
-                
                 if (results.company_identity) renderIdentity(results.company_identity);
                 renderWidgets(results);
 
-                // Use the resolved name for better context in subsequent searches
                 const resolvedName = results.company_identity?.match(/Name:\s*(.*)/)?.[1]?.trim() || query;
                 const searchContext = `${resolvedName} (${query})`;
 
-                // Step 2: Fundamentals (Goldman & Morgan)
-                updateLoadingStatus('Step 2: Fundamental & Valuation Deep-Dive...', 40);
-                const rB1 = await fetchSingleBatch(searchContext, user, getBatchPrompt(searchContext, currentLangName, ['goldman_sachs', 'morgan_stanley']));
+                // Step 2: Fundamental & Financials (GS, MS, JPM)
+                updateLoadingStatus('Step 2: Fundamental & Earnings Analysis...', 50);
+                const rB1 = await fetchSingleBatch(searchContext, user, getBatchPrompt(searchContext, currentLangName, ['goldman_sachs', 'morgan_stanley', 'jpmorgan']));
                 Object.assign(results, parseFrameworks(rB1));
                 renderWidgets(results);
 
-                // Step 3: Market & Technicals (JPMorgan & Citadel)
-                updateLoadingStatus('Step 3: Earnings & Technical Analysis...', 70);
-                const rB2 = await fetchSingleBatch(searchContext, user, getBatchPrompt(searchContext, currentLangName, ['jpmorgan', 'citadel']));
+                // Step 3: Technical, Quant & Synthesis (Citadel, Renaissance, Summary)
+                updateLoadingStatus('Step 3: Market Patterns & Final Synthesis...', 85);
+                const rB2 = await fetchSingleBatch(searchContext, user, getBatchPrompt(searchContext, currentLangName, ['citadel', 'renaissance']));
                 Object.assign(results, parseFrameworks(rB2));
-                renderWidgets(results);
-
-                // Step 4: Quant & Synthesis (Renaissance & Summary)
-                updateLoadingStatus('Step 4: Statistical Patterns & Final Synthesis...', 90);
-                const rB3 = await fetchSingleBatch(searchContext, user, getBatchPrompt(searchContext, currentLangName, ['renaissance']));
-                Object.assign(results, parseFrameworks(rB3));
                 
                 // Summary gets all results
                 const rSum = await fetchSingleBatch(searchContext, user, getSummaryPrompt(searchContext, currentLangName, results));
@@ -1491,15 +1481,22 @@ Format as a quantitative research memo.
             });
 
             if (!res.ok) {
-                if (res.status === 429 && retryCount < 3) {
-                    const waitTime = Math.pow(2, retryCount) * 2000;
-                    console.warn(`Rate limit hit. Retrying in ${waitTime}ms...`);
-                    updateLoadingStatus(`Rate limit hit. Waiting...`, undefined);
-                    await new Promise(r => setTimeout(r, waitTime));
+                const errData = await res.json().catch(() => ({}));
+                const errMsg = errData.error || '';
+
+                if (res.status === 429 && retryCount < 5) {
+                    // Extract wait time from Google's error message (e.g., "retry in 38.008s")
+                    const match = errMsg.match(/retry in ([\d\.]+)s/i);
+                    const waitSeconds = match ? parseFloat(match[1]) + 2 : Math.pow(2, retryCount) * 5;
+                    
+                    console.warn(`Rate limit hit. Waiting ${Math.ceil(waitSeconds)}s before retry ${retryCount + 1}...`);
+                    updateLoadingStatus(`Rate limit hit. Waiting ${Math.ceil(waitSeconds)}s...`, undefined);
+                    
+                    await new Promise(r => setTimeout(r, waitSeconds * 1000));
                     return fetchSingleBatch(query, user, prompt, retryCount + 1);
                 }
-                const errData = await res.json().catch(() => ({}));
-                throw new Error(errData?.error || `API_ERROR: ${res.status}`);
+                
+                throw new Error(errMsg || `API_ERROR: ${res.status}`);
             }
 
             const data = await res.json();
