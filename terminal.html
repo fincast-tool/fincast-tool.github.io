@@ -1108,9 +1108,9 @@
             <td><input type="text" value="${u.apiKey || ''}" data-idx="${i}" data-field="apiKey" class="w-28" placeholder="KEY..." onchange="adminUpdate(this)"/></td>
             <td><select data-idx="${i}" data-field="model" onchange="adminUpdate(this)">
                 <option value="gemini-2.5-flash" ${u.model === 'gemini-2.5-flash' || !u.model ? 'selected' : ''}>2.5 Flash</option>
-                <option value="gemini-2.0-flash" ${u.model === 'gemini-2.0-flash' ? 'selected' : ''}>2.0 Flash</option>
-                <option value="gemini-2.0-pro" ${u.model === 'gemini-2.0-pro' ? 'selected' : ''}>2.0 Pro</option>
                 <option value="gemini-3.0-flash" ${u.model === 'gemini-3.0-flash' ? 'selected' : ''}>3.0 Flash</option>
+                <option value="gemini-3.0-flash-preview" ${u.model === 'gemini-3.0-flash-preview' ? 'selected' : ''}>3.0 Flash Preview</option>
+                <option value="gemini-3.1-flash-preview" ${u.model === 'gemini-3.1-flash-preview' ? 'selected' : ''}>3.1 Flash Preview</option>
             </select></td>
             <td><select data-idx="${i}" data-field="tier" onchange="adminUpdate(this)">
                 <option value="free" ${u.tier === 'free' ? 'selected' : ''}>Free (1/Tag)</option>
