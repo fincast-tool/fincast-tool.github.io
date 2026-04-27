@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fincast | Strategic Intelligence Terminal</title>
+    <title>fincast | Strategic Intelligence Terminal</title>
     <meta name="description" content="Institutionelles Aktien-Analyse-Terminal mit KI-gestützten Frameworks.">
     <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -148,9 +148,19 @@
         }
 
         /* Failsafe States */
-        .state-hidden { display: none !important; }
-        .btn-loading { opacity: 0.5; pointer-events: none; }
-        .btn-loading::after { content: '...'; }
+        .state-hidden {
+            display: none !important;
+        }
+
+        .btn-loading {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .btn-loading::after {
+            content: '...';
+        }
+
         .widget-card {
             background: #0f1420;
             border: 1px solid rgba(255, 255, 255, 0.05);
@@ -352,8 +362,13 @@
         }
 
         @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
+            0% {
+                background-position: -200% 0;
+            }
+
+            100% {
+                background-position: 200% 0;
+            }
         }
 
         .fade-up {
@@ -642,7 +657,8 @@
             <div class="flex items-center justify-between mb-8">
                 <div>
                     <h2 class="text-sm font-bold font-mono text-gold-500 tracking-widest uppercase">Admin Panel</h2>
-                    <p class="text-[10px] text-gray-500 font-mono mt-1">Benutzerverwaltung • API-Schlüssel • Abo-Modelle • <span class="text-gold-500/50">Reset: 09:00 DE-Zeit</span>
+                    <p class="text-[10px] text-gray-500 font-mono mt-1">Benutzerverwaltung • API-Schlüssel • Abo-Modelle
+                        • <span class="text-gold-500/50">Reset: 09:00 DE-Zeit</span>
                     </p>
                 </div>
                 <button onclick="toggleAdmin()" class="text-gray-500 hover:text-white text-2xl">&times;</button>
@@ -831,11 +847,17 @@
                         </div>
 
                         <!-- Skeleton -->
-                        <div id="skeletonState" class="state-hidden flex flex-col items-center justify-center min-h-[60vh] w-full">
-                            <div class="flex flex-col items-center justify-center p-12 bg-obsidian-800/50 rounded-3xl border border-gold-500/10 backdrop-blur-xl">
-                                <div class="w-16 h-16 border-4 border-gold-500/10 border-t-gold-500 rounded-full animate-spin mb-6"></div>
-                                <div class="text-gold-500 font-mono text-sm tracking-[0.4em] uppercase animate-pulse">Analysing Market Data...</div>
-                                <div class="mt-4 text-gray-600 font-mono text-[10px] uppercase tracking-widest">Multi-Agent Protocol Active</div>
+                        <div id="skeletonState"
+                            class="state-hidden flex flex-col items-center justify-center min-h-[60vh] w-full">
+                            <div
+                                class="flex flex-col items-center justify-center p-12 bg-obsidian-800/50 rounded-3xl border border-gold-500/10 backdrop-blur-xl">
+                                <div
+                                    class="w-16 h-16 border-4 border-gold-500/10 border-t-gold-500 rounded-full animate-spin mb-6">
+                                </div>
+                                <div class="text-gold-500 font-mono text-sm tracking-[0.4em] uppercase animate-pulse">
+                                    Analysing Market Data...</div>
+                                <div class="mt-4 text-gray-600 font-mono text-[10px] uppercase tracking-widest">
+                                    Multi-Agent Protocol Active</div>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mt-12 opacity-30">
                                 <div class="widget-card h-64 shimmer rounded-xl border border-white/5"></div>
@@ -847,13 +869,18 @@
                         <!-- Results State -->
                         <div id="resultsState" class="state-hidden">
                             <!-- Identity Strip -->
-                            <div id="identityStrip" class="mb-8 p-8 rounded-2xl border border-gold-500/30 bg-gold-500/[0.03] backdrop-blur-sm">
+                            <div id="identityStrip"
+                                class="mb-8 p-8 rounded-2xl border border-gold-500/30 bg-gold-500/[0.03] backdrop-blur-sm">
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
                                     <div class="flex items-center gap-4 md:gap-5">
-                                        <div class="w-11 h-11 md:w-12 md:h-12 rounded-xl bg-gold-500 flex items-center justify-center text-obsidian-950 text-xl md:text-2xl shadow-lg shadow-gold-500/20">🏢</div>
+                                        <div
+                                            class="w-11 h-11 md:w-12 md:h-12 rounded-xl bg-gold-500 flex items-center justify-center text-obsidian-950 text-xl md:text-2xl shadow-lg shadow-gold-500/20">
+                                            🏢</div>
                                         <div class="overflow-hidden">
                                             <div class="data-label mb-1">Company Entity</div>
-                                            <div id="id_name" class="text-sm md:text-base font-bold text-white uppercase truncate tracking-tight">--</div>
+                                            <div id="id_name"
+                                                class="text-sm md:text-base font-bold text-white uppercase truncate tracking-tight">
+                                                --</div>
                                         </div>
                                     </div>
                                     <div class="identity-divider border-l border-white/5 pl-4 md:pl-8">
@@ -868,7 +895,8 @@
                                     </div>
                                     <div class="identity-divider border-l border-white/5 pl-4 md:pl-8">
                                         <div class="data-label mb-1">Strategic DNA</div>
-                                        <div id="id_desc" class="text-[11px] text-gray-400 leading-relaxed italic">--</div>
+                                        <div id="id_desc" class="text-[11px] text-gray-400 leading-relaxed italic">--
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -879,17 +907,24 @@
                             </div>
 
                             <!-- Legal Disclaimer -->
-                            <div id="legalDisclaimer" class="mt-12 p-6 glass-card rounded-xl border border-red-500/10 bg-red-500/5">
+                            <div id="legalDisclaimer"
+                                class="mt-12 p-6 glass-card rounded-xl border border-red-500/10 bg-red-500/5">
                                 <div class="flex gap-4 items-start">
                                     <span class="text-red-500 text-lg">⚖️</span>
                                     <div>
-                                        <h4 class="text-[10px] font-bold text-red-500 uppercase tracking-widest mb-2" data-de="Rechtlicher Disclaimer & Risikohinweis" data-en="Legal Disclaimer & Risk Notice" data-fr="Avertissement Légal & Risque" data-es="Aviso Legal y de Riesgo">Legal Disclaimer & Risk Notice</h4>
-                                        <p id="disclaimerText" class="text-[9px] text-gray-500 leading-relaxed font-mono uppercase"
+                                        <h4 class="text-[10px] font-bold text-red-500 uppercase tracking-widest mb-2"
+                                            data-de="Rechtlicher Disclaimer & Risikohinweis"
+                                            data-en="Legal Disclaimer & Risk Notice"
+                                            data-fr="Avertissement Légal & Risque" data-es="Aviso Legal y de Riesgo">
+                                            Legal Disclaimer & Risk Notice</h4>
+                                        <p id="disclaimerText"
+                                            class="text-[9px] text-gray-500 leading-relaxed font-mono uppercase"
                                             data-de="Diese Analyse wurde von einer künstlichen Intelligenz erstellt. KI-Modelle können fehlerhafte Informationen generieren oder Fakten 'halluzinieren'. Sämtliche Inhalte dienen ausschließlich der Information und stellen keine Anlageberatung, Kaufempfehlung oder Aufforderung zum Handel von Wertpapieren dar. Vergangene Wertentwicklungen sind kein Indikator für zukünftige Ergebnisse. Investitionen in Wertpapiere sind mit Risiken bis hin zum Totalverlust verbunden. Fincast übernimmt keine Haftung für die Richtigkeit der Daten oder für finanzielle Verluste, die auf Basis dieser Analyse entstehen."
                                             data-en="This analysis was generated by an artificial intelligence. AI models can generate incorrect information or 'hallucinate' facts. All content is for informational purposes only and does not constitute investment advice, a recommendation to buy, or a solicitation to trade securities. Past performance is not an indicator of future results. Investments in securities involve risks, including the possibility of total loss. Fincast assumes no liability for the accuracy of the data or for financial losses incurred based on this analysis."
                                             data-fr="Cette analyse a été générée par une intelligence artificielle. Les modèles d'IA peuvent générer des informations incorrectes ou 'halluciner' des faits. Tout le contenu est à titre informatif uniquement et ne constitue pas un conseil en investissement, une recommandation d'achat ou une sollicitation à négocier des titres. Les performances passées ne sont pas un indicateur des résultats futurs. Les investissements en titres comportent des risques, y compris la possibilité d'une perte totale. Fincast décline toute responsabilité quant à l'exactitude des données ou aux pertes financières subies sur la base de cette analyse."
                                             data-es="Este análisis fue generado por una inteligencia artificial. Los modelos de IA pueden generar información incorrecta o 'alucinar' hechos. Todo el contenido es solo para fines informativos y no constituye asesoramiento de inversión, una recomendación de compra o una solicitud para negociar valores. El rendimiento pasado no es un indicador de resultados futuros. Las inversiones en valores implican riesgos, incluida la posibilidad de pérdida total. Fincast no asume ninguna responsabilidad por la exactitud de los datos o por las pérdidas financieras sufridas en base a este análisis.">
-                                            Diese Analyse wurde von einer künstlichen Intelligenz erstellt. KI-Modelle können fehlerhafte Informationen generieren oder Fakten 'halluzinieren'...
+                                            Diese Analyse wurde von einer künstlichen Intelligenz erstellt. KI-Modelle
+                                            können fehlerhafte Informationen generieren oder Fakten 'halluzinieren'...
                                         </p>
                                     </div>
                                 </div>
@@ -902,8 +937,12 @@
                 <footer
                     class="flex h-10 bg-obsidian-900 border-t border-white/5 px-4 md:px-6 items-center justify-between text-[9px] md:text-[10px] font-mono text-gray-600 uppercase tracking-widest mb-16 md:mb-0">
                     <div class="flex gap-4 md:gap-6 items-center">
-                        <span class="hidden sm:inline">Model: <span id="activeModelLabel" class="text-gold-600 font-bold">--</span></span>
-                        <span class="query-counter" title="Reset täglich um 09:00 Uhr deutscher Zeit (Midnight PT)">Queries: <span id="queryCountLabel" class="count">0/1</span> <span class="hidden min-[400px]:inline text-[8px] opacity-50 ml-1">(Reset 09:00)</span></span>
+                        <span class="hidden sm:inline">Model: <span id="activeModelLabel"
+                                class="text-gold-600 font-bold">--</span></span>
+                        <span class="query-counter"
+                            title="Reset täglich um 09:00 Uhr deutscher Zeit (Midnight PT)">Queries: <span
+                                id="queryCountLabel" class="count">0/1</span> <span
+                                class="hidden min-[400px]:inline text-[8px] opacity-50 ml-1">(Reset 09:00)</span></span>
                         <span id="tierLabel" class="tier-free">FREE</span>
                     </div>
                     <div class="flex items-center gap-4 md:gap-6">
@@ -1097,7 +1136,7 @@
             const tbody = document.getElementById('adminUserList');
             const users = await getUsers();
             const allQueries = await apiCall('get_all_queries');
-            
+
             tbody.innerHTML = '';
             users.forEach((u, i) => {
                 const qCount = allQueries[u.email] ? allQueries[u.email].count : 0;
@@ -1107,8 +1146,8 @@
             <td class="text-gray-400 text-[10px] font-mono">${u.email}</td>
             <td><input type="text" value="${u.apiKey || ''}" data-idx="${i}" data-field="apiKey" class="w-28" placeholder="KEY..." onchange="adminUpdate(this)"/></td>
             <td><select data-idx="${i}" data-field="model" onchange="adminUpdate(this)">
-                <option value="gemini-2.5-flash" ${u.model === 'gemini-2.5-flash' || !u.model ? 'selected' : ''}>2.5 Flash</option>
-                <option value="gemini-3-flash" ${u.model === 'gemini-3-flash' ? 'selected' : ''}>3.0 Flash (Stable)</option>
+                <option value="gemini-2.5-flash" ${u.model === 'gemini-2.5-flash' || !u.model ? 'selected' : ''}>2.5 Flash (Stable)</option>
+                <option value="gemini-3-flash-preview" ${u.model === 'gemini-3-flash-preview' ? 'selected' : ''}>3.0 Flash Preview</option>
                 <option value="gemini-3.1-pro-preview" ${u.model === 'gemini-3.1-pro-preview' ? 'selected' : ''}>3.1 Pro Preview</option>
                 <option value="gemini-3.1-flash-lite-preview" ${u.model === 'gemini-3.1-flash-lite-preview' ? 'selected' : ''}>3.1 Flash-Lite Preview</option>
             </select></td>
@@ -1229,7 +1268,7 @@
             let user;
             try {
                 user = await getCurrentUser();
-            } catch(e) {
+            } catch (e) {
                 alert('Fehler beim Laden des Benutzers: ' + e.message);
                 return;
             }
@@ -1244,7 +1283,7 @@
 
             const inputEl = document.getElementById('tickerInput');
             const query = (inputEl?.value || '').trim();
-            
+
             function internalShake() {
                 if (!inputEl) return;
                 inputEl.classList.add('border-red-500', 'animate-shake');
@@ -1276,12 +1315,12 @@
                 await apiCall('save_archive', { email: user.email, key: resolvedTicker, data: archiveEntry }).catch(e => console.warn('Archive save failed:', e));
 
                 // Defensive rendering
-                try { renderIdentity(parsedData.company_identity); } catch(e) { console.warn('Identity render failed:', e); }
-                try { renderWidgets(parsedData); } catch(e) { console.warn('Widgets render failed:', e); }
-                
-                await incrementQuery(user.email).catch(() => {});
-                await updateFooter(user).catch(() => {});
-                
+                try { renderIdentity(parsedData.company_identity); } catch (e) { console.warn('Identity render failed:', e); }
+                try { renderWidgets(parsedData); } catch (e) { console.warn('Widgets render failed:', e); }
+
+                await incrementQuery(user.email).catch(() => { });
+                await updateFooter(user).catch(() => { });
+
                 console.log('Switching to results state...');
                 setUIState('results');
             } catch (err) {
@@ -1423,21 +1462,21 @@ Profil: [1 Satz Beschreibung]
         function parseFrameworks(text) {
             const data = {};
             const allIds = [...CARDS.map(c => c.id), 'company_identity'];
-            
+
             // Clean markdown if present
             const cleanText = text.replace(/```[a-z]*\n?/gi, '').replace(/```/g, '').trim();
 
             allIds.forEach(id => {
                 const startTag = `<${id}>`;
                 const endTag = `</${id}>`;
-                
+
                 const startIdx = cleanText.toLowerCase().indexOf(startTag.toLowerCase());
                 const endIdx = cleanText.toLowerCase().indexOf(endTag.toLowerCase());
 
                 if (startIdx !== -1) {
                     const contentStart = startIdx + startTag.length;
                     let content = '';
-                    
+
                     if (endIdx !== -1 && endIdx > startIdx) {
                         content = cleanText.substring(contentStart, endIdx).trim();
                     } else {
