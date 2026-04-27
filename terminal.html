@@ -697,7 +697,9 @@
                         class="absolute inset-0 border-4 border-gold-500 border-t-transparent rounded-full animate-spin">
                     </div>
                 </div>
-                <div class="font-mono text-gold-500 text-xs tracking-widest uppercase animate-pulse">Running Agents...
+                <div id="loadingStatus" class="font-mono text-gold-500 text-[10px] tracking-widest uppercase animate-pulse">Running Agents...</div>
+                <div id="loadingProgress" class="w-48 h-1 bg-white/5 rounded-full mt-4 overflow-hidden">
+                    <div id="loadingProgressBar" class="h-full bg-gold-500 transition-all duration-500" style="width: 0%"></div>
                 </div>
             </div>
         </div>
@@ -967,6 +969,20 @@
                 </div>
 
                 <div class="space-y-6">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="data-label mb-2 block">Vorname</label>
+                            <input id="userFirstName" type="text" class="w-full terminal-input" placeholder="VORNAME...">
+                        </div>
+                        <div>
+                            <label class="data-label mb-2 block">Nachname</label>
+                            <input id="userLastName" type="text" class="w-full terminal-input" placeholder="NACHNAME...">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="data-label mb-2 block">Email-Adresse</label>
+                        <input id="userEmail" type="email" class="w-full terminal-input" placeholder="EMAIL...">
+                    </div>
                     <div>
                         <label class="data-label mb-2 block">Terminal Language</label>
                         <select id="userLang" class="w-full terminal-input appearance-none">
@@ -976,8 +992,15 @@
                             <option value="es-ES">Español (ES)</option>
                         </select>
                     </div>
-                    <button onclick="saveSettings()"
-                        class="w-full search-btn py-3 text-xs uppercase tracking-widest">Update Configuration</button>
+                    <div class="pt-2">
+                        <button onclick="saveSettings()"
+                            class="w-full search-btn py-3 text-xs uppercase tracking-widest">Update Configuration</button>
+                    </div>
+                    
+                    <div class="pt-4 border-t border-white/5">
+                        <button onclick="deleteAccount()"
+                            class="w-full py-2 border border-red-500/30 text-[10px] text-red-500/50 hover:text-red-500 font-mono uppercase tracking-widest rounded transition-all">Account permanent löschen</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1263,7 +1286,13 @@
             }
         }
 
-        // ==================== CORE LOGIC ====================
+        function updateLoadingStatus(msg, progress) {
+            const status = document.getElementById('loadingStatus');
+            const bar = document.getElementById('loadingProgressBar');
+            if (status) status.textContent = msg;
+            if (bar && progress !== undefined) bar.style.width = progress + '%';
+        }
+
         async function startAnalysis() {
             let user;
             try {
@@ -1284,44 +1313,60 @@
             const inputEl = document.getElementById('tickerInput');
             const query = (inputEl?.value || '').trim();
 
-            function internalShake() {
-                if (!inputEl) return;
-                inputEl.classList.add('border-red-500', 'animate-shake');
-                setTimeout(() => inputEl.classList.remove('border-red-500', 'animate-shake'), 500);
-            }
-
             if (!query) {
-                internalShake();
+                shakeInput();
                 return;
             }
 
             setUIState('loading');
+            updateLoadingStatus('Initializing Agents...', 5);
+            
             try {
                 MODEL_ID = user.model || 'gemini-2.5-flash';
-                const rawContent = await fetchAnalysis(query, user);
+                const langNames = { 'de-DE': 'DEUTSCH', 'en-US': 'ENGLISH', 'fr-FR': 'FRANÇAIS', 'es-ES': 'ESPAÑOL' };
+                const currentLangName = langNames[USER_LANG] || 'DEUTSCH';
 
-                if (!rawContent || rawContent.trim() === '') {
-                    throw new Error('Leere Antwort von der API erhalten.');
-                }
+                const results = {};
+                
+                // Batch 1: Identity & Fundamentals
+                updateLoadingStatus('Batch 1: Strategic Intelligence...', 20);
+                const batch1Prompt = getBatchPrompt(query, currentLangName, ['company_identity', 'goldman_sachs', 'morgan_stanley']);
+                const r1 = await fetchSingleBatch(query, user, batch1Prompt);
+                Object.assign(results, parseFrameworks(r1));
+                
+                // Update identity early if available
+                if (results.company_identity) renderIdentity(results.company_identity);
 
-                const parsedData = parseFrameworks(rawContent);
-                const resolvedTicker = parsedData.company_identity?.match(/Name:\s*(.*)/)?.[1]?.trim() || query;
+                // Batch 2: Technicals & Earnings
+                updateLoadingStatus('Batch 2: Market Dynamics...', 50);
+                const batch2Prompt = getBatchPrompt(query, currentLangName, ['jpmorgan', 'citadel', 'renaissance']);
+                const r2 = await fetchSingleBatch(query, user, batch2Prompt);
+                Object.assign(results, parseFrameworks(r2));
+
+                // Batch 3: Final Verdict (Synthesis)
+                updateLoadingStatus('Finalizing: Executive Verdict...', 80);
+                const summaryPrompt = getSummaryPrompt(query, currentLangName, results);
+                const r3 = await fetchSingleBatch(query, user, summaryPrompt);
+                Object.assign(results, parseFrameworks(r3));
+
+                updateLoadingStatus('Rendering Results...', 95);
+
+                const resolvedTicker = results.company_identity?.match(/Name:\s*(.*)/)?.[1]?.trim() || query;
 
                 // Robust Cloud Save
                 const archiveEntry = {
                     timestamp: new Date().toLocaleString(USER_LANG),
-                    data: parsedData
+                    data: results
                 };
                 await apiCall('save_archive', { email: user.email, key: resolvedTicker, data: archiveEntry }).catch(e => console.warn('Archive save failed:', e));
 
-                // Defensive rendering
-                try { renderIdentity(parsedData.company_identity); } catch (e) { console.warn('Identity render failed:', e); }
-                try { renderWidgets(parsedData); } catch (e) { console.warn('Widgets render failed:', e); }
+                // Final rendering
+                renderIdentity(results.company_identity);
+                renderWidgets(results);
 
                 await incrementQuery(user.email).catch(() => { });
                 await updateFooter(user).catch(() => { });
 
-                console.log('Switching to results state...');
                 setUIState('results');
             } catch (err) {
                 console.error('Analysis Error:', err);
@@ -1330,115 +1375,52 @@
             }
         }
 
-        async function fetchAnalysis(query, user) {
-            const today = new Date().toLocaleDateString(USER_LANG, { day: '2-digit', month: 'long', year: 'numeric' });
-            const langNames = { 'de-DE': 'DEUTSCH', 'en-US': 'ENGLISH', 'fr-FR': 'FRANÇAIS', 'es-ES': 'ESPAÑOL' };
-            const currentLangName = langNames[USER_LANG] || 'DEUTSCH';
+        function getBatchPrompt(query, lang, agentIds) {
+            const today = new Date().toLocaleDateString();
+            let prompt = `DATE: ${today}\nROLE: Senior Multi-Agent Investment Intelligence Engine.\nLANGUAGE: ${lang}.\nTASK: Analyze "${query}".\n\n`;
+            
+            if (agentIds.includes('company_identity')) {
+                prompt += `STEP 0: Identify security precisely via Google Search.\n<company_identity>\nName: [Full Name]\nISIN: [Number]\nWKN: [Number]\nSektor: [Sector]\nHQ: [City, Country]\nProfil: [1 sentence description]\n</company_identity>\n\n`;
+            }
 
-            const systemPrompt = `DATE: ${today}
-ROLE: Senior Multi-Agent Investment Intelligence Engine at Fincast.
-LANGUAGE: Respond EXCLUSIVELY in ${currentLangName}.
+            if (agentIds.includes('goldman_sachs')) {
+                prompt += `<goldman_sachs>\nSenior Equity Analyst: Focus on Fundamental & Strategic Value.\n- Executive Summary, Financial Health (P/E, Growth, Debt), Dividend/Cashflow, Competitive Moat, Price Targets (12m Bull/Bear), Verdict (Buy/Hold/Sell).\n</goldman_sachs>\n\n`;
+            }
+            
+            if (agentIds.includes('morgan_stanley')) {
+                prompt += `<morgan_stanley>\nVP-Level M&A Analyst: Full DCF Analysis.\n- 5y revenue projection, Operating margins, FCF calculations, WACC, Terminal value, Sensitivity table, Verdict (Under/Fair/Over).\n</morgan_stanley>\n\n`;
+            }
 
-TASK: Deep-Dive Analyse für "${query}". 
-SCHRITT 1: Identifiziere das Wertpapier präzise via Google Search (Name, Ticker, Branche).
-SCHRITT 2: Generiere 6 hochspezialisierte Analysen basierend auf den untenstehenden Agenten-Frameworks PLUS die Company Identity.
+            if (agentIds.includes('jpmorgan')) {
+                prompt += `<jpmorgan>\nEarnings Specialist: Complete Earnings Analysis.\n- Last 4 quarters vs estimates, Upcoming quarter consensus, Segment breakdown, Management guidance, Options implied move, Post-earnings reaction history, Recommended play.\n</jpmorgan>\n\n`;
+            }
 
-WICHTIG: 
-- Du MUSST alle 7 Tags generieren: <goldman_sachs>, <morgan_stanley>, <jpmorgan>, <citadel>, <renaissance>, <executive_summary>, <company_identity>.
-- JEDE Sektion muss EXAKT mit dem entsprechenden Tag (<agent_id> ... </agent_id>) umschlossen sein.
-- KEINE Einleitung, KEINE Markdown-Formatierung außerhalb der Tags.
-- QUALITÄT: Wir erwarten institutionelles Niveau. Vermeide allgemeine Floskeln. Nutze harte Daten, Kennzahlen und konkrete Prognosen.
-- GROUNDING: Nutze Google Search für Echtzeit-Daten (Kurse, News, Berichte), aber transformiere diese in eine eigene, kritische Analyse.
-- PATTERN FINDER: Der Renaissance-Block ist entscheidend. Suche nach anomalen Mustern, Saisonalität und institutionellen Bewegungen.
+            if (agentIds.includes('citadel')) {
+                prompt += `<citadel>\nQuantitative Trader: Technical Analysis.\n- Trend direction, Support/Resistance, MAs (50/100/200), Indicators (RSI, MACD), Volume, Patterns, Fibonacci, Trade Plan (Entry, Stop, Target), Confidence rating.\n</citadel>\n\n`;
+            }
 
-<goldman_sachs>
-Senior Equity Analyst (20y Experience): Focus on Fundamental & Strategic Value.
-- Executive Summary: Zentrale These & Investment-Case.
-- Financial Health: P/E (vs Sector), Revenue Growth (5y), Debt/Equity.
-- Dividend & Cashflow: Sustainability Score & Yield.
-- Competitive Moat: Strategische Analyse der Marktposition.
-- Price Targets: 12m Bull/Bear Case mit Begründung.
-- Verdict: Buy/Hold/Sell Zones + Stop-Loss.
-Format as a professional Deep-Dive Equity Report.
-</goldman_sachs>
+            if (agentIds.includes('renaissance')) {
+                prompt += `<renaissance>\nQuant Researcher: Statistical Patterns.\n- Seasonal patterns, Institutional flux (13F), Volatility/Short Interest, Macro Correlations, Quantitative Edge.\n</renaissance>\n\n`;
+            }
 
-<morgan_stanley>
-VP-Level Investment Banker at Morgan Stanley (M&A Analyst):
-I need a full discounted cash flow (DCF) analysis for ${query}. 
-Build out:
-• 5-year revenue projection with growth assumptions
-• Operating margin estimates based on historical trends
-• Free cash flow (FCF) calculations year by year
-• Weighted average cost of capital (WACC) estimate
-• Terminal value using both exit multiple and perpetuity growth methods
-• Sensitivity table showing fair value at different discount rates
-• Comparison of DCF value vs current market price
-• Clear verdict: Undervalued, Fairly Valued, or Overvalued
-• Key assumptions that could break the model
-Format as an investment banking valuation memo with tables and clear math.
-</morgan_stanley>
+            prompt += `WICHTIG: Jede Sektion MUSS mit den entsprechenden Tags umschlossen sein. Nutze Google Search für Echtzeitdaten.`;
+            return prompt;
+        }
 
-<jpmorgan>
-Senior Equity Research Analyst at JPMorgan Chase (Earnings Specialist):
-I need a complete earnings analysis for ${query} before the next report.
-Deliver:
-• Last 4 quarters earnings vs estimates (beat/miss history)
-• Revenue and EPS consensus estimates for the upcoming quarter
-• Key metrics Wall Street is watching for this specific company
-• Segment-by-segment revenue breakdown and trends
-• Management guidance from last earnings call summarized
-• Options market implied move for earnings day
-• Historical stock price reaction after last 4 earnings reports
-• Bull case scenario and price impact estimate
-• Bear case scenario and downside risk estimate
-• My recommended play: Buy Before, Sell Before, or Wait
-Format as a pre-earnings research brief with a decision summary at the top.
-</jpmorgan>
+        function getSummaryPrompt(query, lang, previousResults) {
+            const context = Object.entries(previousResults)
+                .filter(([id]) => id !== 'executive_summary')
+                .map(([id, text]) => `AGENT ${id.toUpperCase()}:\n${text}`)
+                .join('\n\n');
 
-<citadel>
-Senior Quantitative Trader at Citadel (Market Microstructure Expert):
-I need a full technical analysis breakdown for ${query}. 
-Analyze:
-• Current trend direction on daily, weekly, and monthly timeframes
-• Key support and resistance levels with exact price points
-• Moving average analysis (50-day, 100-day, 200-day) and crossover signals
-• RSI, MACD, and Bollinger Band readings with plain-English interpretation
-• Volume trend analysis (Buyer vs. Seller strength)
-• Chart pattern identification (Head and Shoulders, Cup and Handle, etc.)
-• Fibonacci retracement levels for potential bounce zones
-• Ideal entry price, stop-loss level, and profit target
-• Risk-to-reward ratio for the current setup
-• Confidence rating: Strong Buy, Buy, Neutral, Sell, Strong Sell
-Format as a technical analysis report card with a clear trade plan summary.
-</citadel>
+            return `DATE: ${new Date().toLocaleDateString()}\nLANGUAGE: ${lang}.\nTASK: Create an Executive Summary for "${query}".\n\nCONTEXT FROM OTHER AGENTS:\n${context}\n\n<executive_summary>\nMunger Philosophy: Zusammenfassung aller Berichte. ZWINGEND eine Empfehlung pro Agenten: Nutze Badges wie [BUY], [STRONG BUY], [BUY BEFORE], [HOLD], [NEUTRAL], [SELL], [STRONG SELL], [UNDERVALUED], [OVERVALUED] oder [FAIR VALUED] für jeden Aspekt.\n</executive_summary>`;
+        }
 
-<renaissance>
-Renaissance Technologies (Quant Researcher): Statistical Arbitrage & Patterns.
-- Seasonal Patterns: Historische Monats- & Wochen-Performance.
-- Institutional Flux: Bewegungen großer Fonds & Insider (13F Filings).
-- Volatility & Short Interest: Squeeze-Potential & Marktdynamik.
-- Correlations: Abhängigkeiten von Makro-Events (Fed, VIX).
-- Quantitative Edge: Was macht dieses Papier statistisch interessant?
-Format as a quantitative research memo.
-</renaissance>
-
-<executive_summary>
-Munger Philosophy: Zusammenfassung aller Berichte. ZWINGEND eine Empfehlung pro Agenten: Nutze Badges wie [BUY], [STRONG BUY], [BUY BEFORE], [HOLD], [NEUTRAL], [SELL], [STRONG SELL], [UNDERVALUED], [OVERVALUED] oder [FAIR VALUED] für jeden Aspekt.
-</executive_summary>
-
-<company_identity>
-Name: [Vollständiger Name]
-ISIN: [Nummer]
-WKN: [Nummer]
-Sektor: [Sektor]
-HQ: [Stadt, Land]
-Profil: [1 Satz Beschreibung]
-</company_identity>`;
-
+        async function fetchSingleBatch(query, user, prompt) {
             const geminiBody = {
-                contents: [{ parts: [{ text: systemPrompt }] }],
+                contents: [{ parts: [{ text: prompt }] }],
                 tools: [{ google_search: {} }],
-                generationConfig: { temperature: 0.2, maxOutputTokens: 8192 }
+                generationConfig: { temperature: 0.2, maxOutputTokens: 4096 }
             };
 
             const res = await fetch('/api/analyze', {
@@ -1453,10 +1435,7 @@ Profil: [1 Satz Beschreibung]
             }
 
             const data = await res.json();
-            const parts = data.candidates?.[0]?.content?.parts || [];
-            const fullText = parts.map(p => p.text || '').join('');
-            console.log('Analysis Received, Length:', fullText.length);
-            return fullText;
+            return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
         }
 
         function parseFrameworks(text) {
@@ -1644,18 +1623,84 @@ Profil: [1 Satz Beschreibung]
         }
 
         // ==================== SETTINGS & UI HELPERS ====================
-        function toggleSettings() {
+        async function toggleSettings() {
             const modal = document.getElementById('settingsModal');
             modal.classList.toggle('hidden');
             if (!modal.classList.contains('hidden')) {
                 document.getElementById('userLang').value = USER_LANG;
+                
+                // Populate user data
+                const user = await getCurrentUser();
+                if (user) {
+                    document.getElementById('userFirstName').value = user.firstName || '';
+                    document.getElementById('userLastName').value = user.lastName || '';
+                    document.getElementById('userEmail').value = user.email || '';
+                }
             }
         }
 
-        function saveSettings() {
-            USER_LANG = document.getElementById('userLang').value;
+        async function saveSettings() {
+            const newLang = document.getElementById('userLang').value;
+            const newFirst = document.getElementById('userFirstName').value.trim();
+            const newLast = document.getElementById('userLastName').value.trim();
+            const newEmail = document.getElementById('userEmail').value.trim().toLowerCase();
+
+            if (!newFirst || !newLast || !newEmail) {
+                alert('Bitte alle Felder ausfüllen.');
+                return;
+            }
+
+            USER_LANG = newLang;
             localStorage.setItem('gemini_user_lang', USER_LANG);
-            toggleSettings();
+
+            try {
+                const user = await getCurrentUser();
+                if (!user) return;
+
+                const oldEmail = user.email;
+                const updatedUser = { ...user, firstName: newFirst, lastName: newLast, email: newEmail };
+
+                // Save updated user
+                const res = await apiCall('save_user', { data: updatedUser });
+                if (res.error) throw new Error(res.error);
+
+                // If email changed, delete old and update session
+                if (newEmail !== oldEmail) {
+                    await apiCall('delete_user', { email: oldEmail });
+                    localStorage.setItem('terminal_session', newEmail);
+                }
+
+                await initApp(); // Refresh UI
+                toggleSettings();
+                alert('Konfiguration erfolgreich aktualisiert.');
+            } catch (err) {
+                console.error('Save Settings Error:', err);
+                alert('Fehler beim Speichern: ' + err.message);
+            }
+        }
+
+        async function deleteAccount() {
+            const user = await getCurrentUser();
+            if (!user) return;
+
+            const confirm1 = confirm('Möchtest du deinen Account wirklich permanent löschen? Alle Daten und dein Archiv gehen verloren.');
+            if (!confirm1) return;
+
+            const confirm2 = confirm('Bist du absolut sicher? Dies kann nicht rückgängig gemacht werden.');
+            if (!confirm2) return;
+
+            try {
+                // Delete user and their archive
+                await apiCall('delete_user', { email: user.email });
+                await apiCall('delete_archive', { email: user.email });
+                
+                localStorage.removeItem('terminal_session');
+                alert('Dein Account wurde erfolgreich gelöscht.');
+                location.reload();
+            } catch (err) {
+                console.error('Delete Account Error:', err);
+                alert('Fehler beim Löschen des Accounts: ' + err.message);
+            }
         }
 
         function shakeInput() {
