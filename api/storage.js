@@ -20,6 +20,16 @@ try {
     console.error('Redis Initialization Error:', e);
 }
 
+// Hilfsfunktion für Datum in Pacific Time (PT) - Reset erfolgt um Mitternacht PT
+function getPTDate() {
+    return new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'America/Los_Angeles',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    }).format(new Date());
+}
+
 export default async function handler(req, res) {
     if (!redis) {
         return res.status(500).json({ error: 'Datenbank-Konfiguration fehlt (KV_REDIS_URL nicht gefunden).' });
@@ -81,11 +91,37 @@ export default async function handler(req, res) {
 
             case 'get_queries':
                 const qRaw = await redis.get(`queries:${email}`);
-                const queries = qRaw ? JSON.parse(qRaw) : { count: 0, date: '' };
+                let queries = qRaw ? JSON.parse(qRaw) : { count: 0, date: '' };
+                const todayPT = getPTDate();
+                if (queries.date !== todayPT) {
+                    queries = { count: 0, date: todayPT };
+                }
                 return res.status(200).json(queries);
 
+            case 'get_all_queries':
+                const allKeys = await redis.keys('queries:*');
+                const allQueries = {};
+                const currentPT = getPTDate();
+                if (allKeys.length > 0) {
+                    const values = await redis.mget(allKeys);
+                    allKeys.forEach((k, i) => {
+                        const userEmail = k.replace('queries:', '');
+                        try { 
+                            let qObj = JSON.parse(values[i]);
+                            if (qObj.date !== currentPT) {
+                                qObj = { count: 0, date: currentPT };
+                            }
+                            allQueries[userEmail] = qObj;
+                        } catch(e) { 
+                            allQueries[userEmail] = { count: 0, date: currentPT };
+                        }
+                    });
+                }
+                return res.status(200).json(allQueries);
+
+
             case 'increment_query':
-                const today = new Date().toISOString().slice(0, 10);
+                const today = getPTDate();
                 let qDataRaw = await redis.get(`queries:${email}`);
                 let q = qDataRaw ? JSON.parse(qDataRaw) : { count: 0, date: today };
                 
@@ -121,3 +157,4 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Datenbank-Verbindungsfehler: ' + error.message });
     }
 }
+

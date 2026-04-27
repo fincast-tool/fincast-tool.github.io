@@ -642,7 +642,7 @@
             <div class="flex items-center justify-between mb-8">
                 <div>
                     <h2 class="text-sm font-bold font-mono text-gold-500 tracking-widest uppercase">Admin Panel</h2>
-                    <p class="text-[10px] text-gray-500 font-mono mt-1">Benutzerverwaltung • API-Schlüssel • Abo-Modelle
+                    <p class="text-[10px] text-gray-500 font-mono mt-1">Benutzerverwaltung • API-Schlüssel • Abo-Modelle • <span class="text-gold-500/50">Reset: 09:00 DE-Zeit</span>
                     </p>
                 </div>
                 <button onclick="toggleAdmin()" class="text-gray-500 hover:text-white text-2xl">&times;</button>
@@ -763,12 +763,24 @@
                             d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                     </svg>
                 </div>
+                <div id="adminBtnMobile" class="hidden" onclick="toggleAdmin()">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                </div>
                 <div onclick="toggleSettings()">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                </div>
+                <div onclick="doLogout()">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                     </svg>
                 </div>
             </nav>
@@ -888,16 +900,14 @@
 
                 <!-- Footer -->
                 <footer
-                    class="hidden md:flex h-10 bg-obsidian-900 border-t border-white/5 px-6 items-center justify-between text-[10px] font-mono text-gray-600 uppercase tracking-widest">
-                    <div class="flex gap-6 items-center">
-                        <span>Model: <span id="activeModelLabel" class="text-gold-600 font-bold">--</span></span>
-                        <span class="query-counter">Queries: <span id="queryCountLabel" class="count">0/1</span></span>
+                    class="flex h-10 bg-obsidian-900 border-t border-white/5 px-4 md:px-6 items-center justify-between text-[9px] md:text-[10px] font-mono text-gray-600 uppercase tracking-widest mb-16 md:mb-0">
+                    <div class="flex gap-4 md:gap-6 items-center">
+                        <span class="hidden sm:inline">Model: <span id="activeModelLabel" class="text-gold-600 font-bold">--</span></span>
+                        <span class="query-counter" title="Reset täglich um 09:00 Uhr deutscher Zeit (Midnight PT)">Queries: <span id="queryCountLabel" class="count">0/1</span> <span class="hidden min-[400px]:inline text-[8px] opacity-50 ml-1">(Reset 09:00)</span></span>
                         <span id="tierLabel" class="tier-free">FREE</span>
-                        <span class="hidden lg:inline">User: <span id="footerUser"
-                                class="text-gray-400">--</span></span>
                     </div>
-                    <div class="flex items-center gap-6">
-                        <div class="flex gap-4 mr-6 border-r border-white/10 pr-6">
+                    <div class="flex items-center gap-4 md:gap-6">
+                        <div class="flex gap-4 md:mr-6 md:border-r border-white/10 md:pr-6">
                             <a href="FAQ.html" class="hover:text-gold-500 transition-colors">FAQ</a>
                             <a href="Impressum.html" class="hover:text-gold-500 transition-colors">Impressum</a>
                         </div>
@@ -1063,8 +1073,7 @@
 
         async function getQueryCount(email) {
             const q = await apiCall('get_queries', { email });
-            const today = new Date().toISOString().slice(0, 10);
-            return (q && q.date === today) ? q.count : 0;
+            return q ? q.count : 0;
         }
 
         async function incrementQuery(email) { await apiCall('increment_query', { email }); }
@@ -1087,11 +1096,11 @@
         async function renderAdminUsers() {
             const tbody = document.getElementById('adminUserList');
             const users = await getUsers();
+            const allQueries = await apiCall('get_all_queries');
+            
             tbody.innerHTML = '';
             users.forEach((u, i) => {
-                const today = new Date().toISOString().slice(0, 10);
-                const log = JSON.parse(localStorage.getItem('terminal_queries') || '{}');
-                const qCount = (log[u.email] && log[u.email].date === today) ? log[u.email].count : 0;
+                const qCount = allQueries[u.email] ? allQueries[u.email].count : 0;
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
             <td class="text-white text-xs">${u.firstName} ${u.lastName}${u.isAdmin ? ' <span class="text-gold-500">(Admin)</span>' : ''}</td>
@@ -1146,7 +1155,11 @@
 
             authScreen.style.display = 'none';
             mainApp.classList.remove('hidden');
-            if (user.isAdmin) document.getElementById('adminBtn').classList.remove('hidden');
+            if (user.isAdmin) {
+                document.getElementById('adminBtn').classList.remove('hidden');
+                const abm = document.getElementById('adminBtnMobile');
+                if (abm) abm.classList.remove('hidden');
+            }
             MODEL_ID = user.model || 'gemini-2.5-flash';
             await updateFooter(user);
             updateLanguageUI();
