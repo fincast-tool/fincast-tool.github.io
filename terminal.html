@@ -1307,6 +1307,8 @@
 
             updateLoadingStatus('Initializing Multi-Agent Protocol...', 5);
             
+            updateLoadingStatus('Launching Multi-Agent Protocol...', 5);
+            
             try {
                 MODEL_ID = user.model || 'gemini-2.5-flash';
                 const langNames = { 'de-DE': 'DEUTSCH', 'en-US': 'ENGLISH', 'fr-FR': 'FRANÇAIS', 'es-ES': 'ESPAÑOL' };
@@ -1314,30 +1316,50 @@
 
                 const results = {};
                 
-                // Show skeleton first
-                setUIState('loading');
-                updateLoadingStatus('Phase 1: Fundamental Intelligence...', 20);
-
-                // Batch 1: Identity, Goldman, Morgan
-                const b1 = await fetchSingleBatch(query, user, getBatchPrompt(query, currentLangName, ['company_identity', 'goldman_sachs', 'morgan_stanley']));
-                Object.assign(results, parseFrameworks(b1));
-                
-                // Switch to Results early and show first data + shimmers
+                // Show skeleton and switch to results immediately to show shimmers
                 setUIState('results');
-                if (results.company_identity) renderIdentity(results.company_identity);
                 renderWidgets(results);
+                updateLoadingStatus('Consulting institutional agents...', 10);
 
-                // Batch 2: JPMorgan, Citadel, Renaissance
-                updateLoadingStatus('Phase 2: Market Dynamics & Technicals...', 60);
-                const b2 = await fetchSingleBatch(query, user, getBatchPrompt(query, currentLangName, ['jpmorgan', 'citadel', 'renaissance']));
-                Object.assign(results, parseFrameworks(b2));
-                renderWidgets(results);
+                // Phase 1: Parallel Execution of all Analysis Agents
+                const agentIds = ['company_identity', 'goldman_sachs', 'morgan_stanley', 'jpmorgan', 'citadel', 'renaissance'];
+                
+                const agentTasks = agentIds.map(async (id) => {
+                    try {
+                        const prompt = getBatchPrompt(query, currentLangName, [id]);
+                        const response = await fetchSingleBatch(query, user, prompt);
+                        const parsed = parseFrameworks(response);
+                        Object.assign(results, parsed);
+                        
+                        // Immediate individual render
+                        if (id === 'company_identity' && results.company_identity) renderIdentity(results.company_identity);
+                        renderWidgets(results);
+                        
+                        const completedCount = Object.keys(results).filter(k => k !== 'executive_summary').length;
+                        const progress = 10 + Math.floor((completedCount / agentIds.length) * 70);
+                        updateLoadingStatus(`Received: ${id.replace('_', ' ').toUpperCase()}...`, progress);
+                    } catch (e) {
+                        console.error(`Agent ${id} failed:`, e);
+                        results[id] = `Error: Agent timed out or failed to respond.`;
+                        renderWidgets(results);
+                    }
+                });
 
-                // Batch 3: Final Synthesis (Executive Summary)
-                updateLoadingStatus('Phase 3: Final Synthesis...', 90);
-                const b3 = await fetchSingleBatch(query, user, getSummaryPrompt(query, currentLangName, results));
-                Object.assign(results, parseFrameworks(b3));
-                renderWidgets(results);
+                await Promise.all(agentTasks);
+
+                // Phase 2: Final Synthesis (Executive Summary)
+                updateLoadingStatus('Finalizing Synthesis (Munger Verdict)...', 85);
+                try {
+                    const bSummary = await fetchSingleBatch(query, user, getSummaryPrompt(query, currentLangName, results));
+                    Object.assign(results, parseFrameworks(bSummary));
+                    renderWidgets(results);
+                } catch (e) {
+                    console.error('Summary failed:', e);
+                    results['executive_summary'] = 'Error: Summary synthesis failed.';
+                    renderWidgets(results);
+                }
+
+                updateLoadingStatus('Report Complete.', 100);
 
                 const resolvedTicker = results.company_identity?.match(/Name:\s*(.*)/)?.[1]?.trim() || query;
 
