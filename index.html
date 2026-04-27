@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Fincast | Strategic Intelligence Hub</title>
-    
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fincast | Institutional AI Investment Terminal</title>
 
@@ -17,7 +18,9 @@
 
     <!-- Font & Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
 
     <style>
         :root {
@@ -59,14 +62,14 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
             background: white;
-            border: 1px solid rgba(0,0,0,0.1);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
         .toggle-btn:hover {
             transform: translateY(-2px);
             border-color: var(--accent);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
         }
 
         .toggle-btn img {
@@ -87,6 +90,7 @@
             text-align: center;
             margin-top: 4rem;
         }
+
         /* ... (rest of CSS remains same) */
         .hub-title {
             font-size: 3.5rem;
@@ -122,18 +126,19 @@
             flex-direction: column;
             justify-content: flex-end;
             padding: 3rem;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
         }
 
         .tool-card:hover {
             transform: translateY(-12px) scale(1.02);
-            box-shadow: 0 40px 80px rgba(0,0,0,0.2);
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.2);
         }
 
         .card-terminal {
             background-color: var(--terminal-bg);
             border: 1px solid rgba(212, 175, 55, 0.2);
         }
+
         .card-terminal::before {
             content: "";
             position: absolute;
@@ -141,15 +146,17 @@
             background: linear-gradient(180deg, transparent 0%, rgba(10, 13, 20, 0.95) 100%);
             z-index: 1;
         }
+
         .card-calculator {
             background-color: white;
-            border: 1px solid rgba(0,0,0,0.05);
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
+
         .card-calculator::before {
             content: "";
             position: absolute;
             inset: 0;
-            background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.9) 100%);
+            background: linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.9) 100%);
             z-index: 1;
         }
 
@@ -175,6 +182,7 @@
             background: rgba(212, 175, 55, 0.1);
             color: var(--terminal-gold);
         }
+
         .card-calculator .tool-tag {
             background: rgba(39, 174, 96, 0.1);
             color: var(--accent);
@@ -186,8 +194,14 @@
             line-height: 1.1;
             margin-bottom: 1rem;
         }
-        .card-terminal .tool-name { color: white; }
-        .card-calculator .tool-name { color: var(--primary); }
+
+        .card-terminal .tool-name {
+            color: white;
+        }
+
+        .card-calculator .tool-name {
+            color: var(--primary);
+        }
 
         .tool-desc {
             font-size: 1rem;
@@ -216,13 +230,27 @@
         }
 
         @media (max-width: 850px) {
-            .tool-grid { grid-template-columns: 1fr; }
-            .hub-title { font-size: 2.5rem; }
-            .tool-card { height: 350px; padding: 2rem; }
-            .top-nav { top: 1rem; right: 1rem; }
+            .tool-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hub-title {
+                font-size: 2.5rem;
+            }
+
+            .tool-card {
+                height: 350px;
+                padding: 2rem;
+            }
+
+            .top-nav {
+                top: 1rem;
+                right: 1rem;
+            }
         }
     </style>
 </head>
+
 <body>
 
     <nav class="top-nav">
@@ -241,8 +269,10 @@
                 <img src="theme-toggle-portfoliomanager.png" alt="Terminal Preview" class="tool-image-preview">
                 <div class="card-content">
                     <span class="tool-tag" id="t-term-tag">Multi-Agent AI Analysis</span>
-                    <h2 class="tool-name">Strategic<br><span style="color: var(--terminal-gold)">Intelligence</span> Terminal</h2>
-                    <p class="tool-desc" id="t-term-desc">Tiefgreifende Aktienanalysen basierend auf den Frameworks von Goldman Sachs, JPMorgan & Citadel.</p>
+                    <h2 class="tool-name">Strategic<br><span style="color: var(--terminal-gold)">Intelligence</span>
+                        Terminal</h2>
+                    <p class="tool-desc" id="t-term-desc">Tiefgreifende Aktienanalysen basierend auf den Frameworks von
+                        Goldman Sachs, JPMorgan & Citadel.</p>
                 </div>
             </a>
 
@@ -251,47 +281,62 @@
                 <img src="theme-toggle-portfoliomanager.png" alt="Calculator Preview" class="tool-image-preview">
                 <div class="card-content">
                     <span class="tool-tag" id="t-calc-tag">Wealth Simulation</span>
-                    <h2 class="tool-name">Zinseszins &<br><span style="color: var(--accent)">Dividenden</span> Simulator</h2>
-                    <p class="tool-desc" id="t-calc-desc">Präzise Berechnung deines Vermögensaufbaus unter Berücksichtigung von Steuern und Inflation.</p>
+                    <h2 class="tool-name">Zinseszins &<br><span style="color: var(--accent)">Dividenden</span> Simulator
+                    </h2>
+                    <p class="tool-desc" id="t-calc-desc">Präzise Berechnung deines Vermögensaufbaus unter
+                        Berücksichtigung von Steuern und Inflation.</p>
                 </div>
             </a>
         </div>
 
-        <div id="t-version" style="margin-top: 5rem; font-family: 'JetBrains Mono'; font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.2em;">
+        <div id="t-version"
+            style="margin-top: 5rem; font-family: 'JetBrains Mono'; font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.2em;">
             Institutional Grade Financial Software • v3.5
         </div>
 
         <!-- SEO Content Section -->
         <section class="mt-20 text-left max-w-4xl mx-auto border-t border-gray-200 pt-12">
-            <h2 class="text-2xl font-extrabold text-slate-800 mb-6" id="t-seo-title">Fincast | Deine Plattform für professionelle Finanzanalyse</h2>
+            <h2 class="text-2xl font-extrabold text-slate-800 mb-6" id="t-seo-title">Fincast | Meine Plattform für
+                professionelle Finanzanalyse</h2>
             <p class="text-slate-600 leading-relaxed mb-8" id="t-seo-intro">
-                Willkommen bei <strong>Fincast</strong>, dem fortschrittlichen Hub für moderne Anleger. Wir kombinieren hochkomplexe Datenanalyse mit intuitiver Bedienbarkeit, um dir Werkzeuge an die Hand zu geben, die sonst nur institutionellen Investoren vorbehalten sind. Ob du tiefgreifende Aktienrecherchen durchführen oder deinen langfristigen Vermögensaufbau simulieren möchtest – Fincast bietet dir die Präzision, die du für fundierte Entscheidungen brauchst.
+                Willkommen bei <strong>Fincast</strong>, dem fortschrittlichen Hub, den ich für moderne und
+                anspruchsvolle Anleger entwickelt habe. Mein Ziel war es, hochkomplexe Datenanalyse mit einer intuitiven
+                Bedienbarkeit zu vereinen, um dir Werkzeuge an die Hand zu geben, die sonst fast ausschließlich
+                institutionellen Investoren vorbehalten sind. Ob du tiefgreifende Aktienrecherchen auf Profi-Niveau
+                durchführen oder deinen langfristigen Vermögensaufbau mit höchster Präzision simulieren möchtest –
+                Fincast bietet dir die Tiefe, die du für wirklich fundierte Entscheidungen an den Märkten brauchst.
             </p>
 
             <div class="grid md:grid-cols-2 gap-12">
                 <div>
-                    <h3 class="text-lg font-bold text-slate-800 mb-3" id="t-seo-term-h">Strategic Intelligence Terminal</h3>
+                    <h3 class="text-lg font-bold text-slate-800 mb-3" id="t-seo-term-h">Strategic Intelligence Terminal
+                    </h3>
                     <p class="text-sm text-slate-500 leading-relaxed" id="t-seo-term-p">
-                        Unser Flaggschiff-Tool nutzt modernste KI-Modelle, um Aktien nach den Frameworks führender Investmentbanken wie <strong>Goldman Sachs, Morgan Stanley und Citadel</strong> zu analysieren. Erhalte Einblicke in Seasonal Patterns, Institutional Ownership und komplexe statistische Edges, die über herkömmliche Charts hinausgehen.
+                        Mein Flaggschiff-Tool nutzt modernste KI-Modelle und Multi-Agenten-Systeme, um Aktien nach den
+                        strengen Frameworks führender Investmentbanken wie <strong>Goldman Sachs, Morgan Stanley und
+                            Citadel</strong> zu analysieren. Dabei geht die Analyse weit über Standard-Kennzahlen
+                        hinaus: Erhalte exklusive Einblicke in Seasonal Patterns, Institutional Ownership und komplexe
+                        statistische Edges, die dir einen echten Informationsvorsprung verschaffen.
                     </p>
                 </div>
                 <div>
-                    <h3 class="text-lg font-bold text-slate-800 mb-3" id="t-seo-calc-h">Zinseszins & Dividenden Simulator</h3>
+                    <h3 class="text-lg font-bold text-slate-800 mb-3" id="t-seo-calc-h">Zinseszins & Dividenden
+                        Simulator</h3>
                     <p class="text-sm text-slate-500 leading-relaxed" id="t-seo-calc-p">
-                        Der Fincast Simulator ist mehr als ein einfacher Rechner. Er simuliert dein Portfolio-Wachstum unter Berücksichtigung von <strong>Dividenden-Wachstum (Dividend Growth), Inflation, Kapitalertragsteuern und Freibeträgen</strong>. Erkenne den exakten Zeitpunkt, an dem deine Dividenden deine Sparraten decken.
+                        Mein Simulator ist weit mehr als ein einfacher Zinsrechner. Ich habe ihn entwickelt, um dein
+                        Portfolio-Wachstum unter realistischen Bedingungen abzubilden. Er berücksichtigt
+                        <strong>Dividenden-Wachstum (Dividend Growth), Inflation, Kapitalertragsteuern und individuelle
+                            Freibeträge</strong>. So erkennst du auf den Monat genau den Zeitpunkt, an dem deine
+                        passiven Einkünfte deine Sparraten übersteigen oder deine Lebenshaltungskosten decken können.
                     </p>
                 </div>
             </div>
 
-            <div class="mt-12 p-6 bg-white rounded-2xl border border-gray-100 shadow-sm">
-                <h4 class="text-sm font-bold text-emerald-600 uppercase tracking-widest mb-2" id="t-seo-why-h">Warum Fincast?</h4>
-                <p class="text-sm text-slate-600" id="t-seo-why-p">
-                    Wir glauben an Daten-Souveränität. Alle Berechnungen im Simulator erfolgen lokal, während das Terminal dir Zugang zu globalen Research-Methoden verschafft. Fincast ist die Brücke zwischen privatem Investieren und institutioneller Analyse-Qualität.
-                </p>
-            </div>
+
         </section>
 
-        <div style="margin-top: 4rem; display: flex; justify-content: center; gap: 2rem; font-family: 'JetBrains Mono'; font-size: 0.65rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em;">
+        <div
+            style="margin-top: 4rem; display: flex; justify-content: center; gap: 2rem; font-family: 'JetBrains Mono'; font-size: 0.65rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em;">
             <a href="FAQ.html" class="hover:text-gold-500 transition-colors">FAQ</a>
             <a href="Impressum.html" class="hover:text-gold-500 transition-colors">Impressum</a>
         </div>
@@ -308,32 +353,28 @@
                 termDesc: "Tiefgreifende Aktienanalysen basierend auf den Frameworks von Goldman Sachs, JPMorgan & Citadel.",
                 calcTag: "Wealth Simulation",
                 calcDesc: "Präzise Berechnung deines Vermögensaufbaus unter Berücksichtigung von Steuern und Inflation.",
-                version: "Institutional Grade Financial Software • v3.5",
-                seoTitle: "Fincast | Deine Plattform für professionelle Finanzanalyse",
-                seoIntro: "Willkommen bei <strong>Fincast</strong>, dem fortschrittlichen Hub für moderne Anleger. Wir kombinieren hochkomplexe Datenanalyse mit intuitiver Bedienbarkeit, um dir Werkzeuge an die Hand zu geben, die sonst nur institutionellen Investoren vorbehalten sind.",
+                version: "Institutional Grade Financial Software",
+                seoTitle: "Fincast | Meine Plattform für professionelle Finanzanalyse",
+                seoIntro: "Willkommen bei <strong>Fincast</strong>, dem fortschrittlichen Hub, den ich für moderne Anleger entwickelt habe. Ich kombiniere hochkomplexe Datenanalyse mit intuitiver Bedienbarkeit, um dir Werkzeuge zu bieten, die sonst nur Profis vorbehalten sind.",
                 seoTermH: "Strategic Intelligence Terminal",
-                seoTermP: "Unser Flaggschiff-Tool nutzt modernste KI-Modelle, um Aktien nach den Frameworks führender Investmentbanken wie <strong>Goldman Sachs, Morgan Stanley und Citadel</strong> zu analysieren.",
+                seoTermP: "Mein Flaggschiff-Tool nutzt modernste KI-Modelle, um Aktien nach den Frameworks führender Investmentbanken wie <strong>Goldman Sachs, Morgan Stanley und Citadel</strong> zu analysieren.",
                 seoCalcH: "Zinseszins & Dividenden Simulator",
-                seoCalcP: "Der Fincast Simulator ist mehr als ein einfacher Rechner. Er simuliert dein Portfolio-Wachstum unter Berücksichtigung von <strong>Dividenden-Wachstum (Dividend Growth), Inflation, Kapitalertragsteuern und Freibeträgen</strong>.",
-                seoWhyH: "Warum Fincast?",
-                seoWhyP: "Wir glauben an Daten-Souveränität. Alle Berechnungen im Simulator erfolgen lokal, während das Terminal dir Zugang zu globalen Research-Methoden verschafft."
+                seoCalcP: "Mein Simulator ist weit mehr als ein einfacher Rechner. Er simuliert dein Portfolio-Wachstum unter Berücksichtigung von <strong>Dividenden-Wachstum, Inflation und Steuern</strong>."
             },
             EN: {
-                hubTitle: "Fincast Hub",
+                hubTitle: "fincast Hub",
                 hubSubtitle: "Smart tools for savvy investors",
                 termTag: "Multi-Agent AI Analysis",
                 termDesc: "In-depth stock analysis based on frameworks from Goldman Sachs, JPMorgan & Citadel.",
                 calcTag: "Wealth Simulation",
                 calcDesc: "Precise calculation of your wealth building considering taxes and inflation.",
-                version: "Institutional Grade Financial Software • v3.5",
-                seoTitle: "Fincast | Your platform for professional financial analysis",
-                seoIntro: "Welcome to <strong>Fincast</strong>, the advanced hub for modern investors. We combine highly complex data analysis with intuitive usability to provide you with tools otherwise reserved for institutional investors.",
+                version: "Institutional Grade Financial Software",
+                seoTitle: "Fincast | My platform for professional financial analysis",
+                seoIntro: "Welcome to <strong>Fincast</strong>, the advanced hub I designed for modern investors. I combine highly complex data analysis with intuitive usability to provide you with tools otherwise reserved for institutional investors.",
                 seoTermH: "Strategic Intelligence Terminal",
-                seoTermP: "Our flagship tool uses cutting-edge AI models to analyze stocks according to frameworks of leading investment banks like <strong>Goldman Sachs, Morgan Stanley, and Citadel</strong>.",
+                seoTermP: "My flagship tool uses cutting-edge AI models to analyze stocks according to frameworks of leading investment banks like <strong>Goldman Sachs, Morgan Stanley, and Citadel</strong>.",
                 seoCalcH: "Compound Interest & Dividend Simulator",
-                seoCalcP: "The Fincast Simulator is more than a simple calculator. It simulates your portfolio growth considering <strong>Dividend Growth, inflation, capital gains taxes, and allowances</strong>.",
-                seoWhyH: "Why Fincast?",
-                seoWhyP: "We believe in data sovereignty. All calculations in the simulator are performed locally, while the terminal provides access to global research methods."
+                seoCalcP: "My Simulator is more than a simple calculator. It simulates your portfolio growth considering <strong>Dividend Growth, inflation, capital gains taxes, and allowances</strong>."
             }
         };
 
@@ -356,11 +397,9 @@
             document.getElementById('t-seo-title').innerText = l.seoTitle;
             document.getElementById('t-seo-intro').innerHTML = l.seoIntro;
             document.getElementById('t-seo-term-h').innerText = l.seoTermH;
-            document.getElementById('t-seo-term-p').innerText = l.seoTermP;
+            document.getElementById('t-seo-term-p').innerHTML = l.seoTermP;
             document.getElementById('t-seo-calc-h').innerText = l.seoCalcH;
-            document.getElementById('t-seo-calc-p').innerText = l.seoCalcP;
-            document.getElementById('t-seo-why-h').innerText = l.seoWhyH;
-            document.getElementById('t-seo-why-p').innerText = l.seoWhyP;
+            document.getElementById('t-seo-calc-p').innerHTML = l.seoCalcP;
         }
 
         // Initialize from localStorage
@@ -374,8 +413,5 @@
         };
     </script>
 </body>
-</html>
-    </div>
 
-</body>
 </html>

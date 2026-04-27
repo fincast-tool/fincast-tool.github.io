@@ -298,12 +298,13 @@
                     discTitle: "Wichtiger Hinweis: Keine Anlageberatung",
                     discText: "Die hier berechneten Werte basieren auf mathematischen Simulationen und stellen keine Anlageberatung dar. Finanzmärkte sind volatil, und vergangene Erfolge garantieren keine zukünftigen Erträge. Bitte konsultieren Sie einen zertifizierten Berater vor finanziellen Entscheidungen.",
                     faqs: [
-                        { q: "Werden meine Daten gespeichert?", a: "Nein. Alle Berechnungen finden lokal in deinem Browser statt. Es werden keine Daten an einen Server übertragen." },
+                        { q: "Werden meine Daten gespeichert?", a: "Nein. Alle Berechnungen im Simulator finden lokal in deinem Browser statt. Es werden keine Daten an einen Server übertragen." },
                         { q: "Wie genau ist die Berechnung?", a: "Der Simulator nutzt mathematische Standardformeln für Zinseszins und Inflation. Steuern werden jährlich auf realisierte Gewinne und Dividenden unter Berücksichtigung des Freibetrags berechnet." },
                         { q: "Was bedeutet 'Kaufkraft'?", a: "Die Kaufkraft zeigt an, was dein zukünftiges Vermögen nach Abzug der Inflation in heutigen Euro wert wäre. Das hilft dir zu verstehen, wie viel du dir später wirklich davon leisten kannst." },
-                        { q: "Wie werden reinvestierte Gewinne behandelt?", a: "Das Script folgt einer Rebalancing-Logik: Realisierte Gewinne und Netto-Dividenden werden sofort dem Depotwert gutgeschrieben. Im Folgejahr erwirtschaftet dieses Kapital automatisch wieder die volle Kurs- und Dividendenrendite." },
-                        { q: "Was ist der Unterschied zwischen Dividendenrendite und -wachstum?", a: "Die Rendite bezieht sich auf den aktuellen Depotwert. Das Wachstum (p.a.) erhöht diesen prozentualen Auszahlungsbetrag jedes Jahr zusätzlich, um steigende Unternehmensgewinne zu simulieren." },
-                        { q: "Wie wird die Steuer berechnet?", a: "Jedes Jahr prüft das System: (Dividenden + realisierte Gewinne) - Freibetrag. Ist das Ergebnis positiv, wird auf diesen Teil der gewählte Steuersatz angewendet." }
+                        { q: "Was ist das Strategic Intelligence Terminal?", a: "Das Terminal ist ein KI-gestütztes Recherche-Tool, das komplexe Investment-Frameworks (z.B. von Goldman Sachs oder Citadel) nutzt, um Aktien tiefgreifend zu analysieren." },
+                        { q: "Welche Daten nutzt das Terminal?", a: "Die KI nutzt Echtzeit-Marktdaten, News und Geschäftsberichte via Google Search Grounding, um eine aktuelle und fundierte Analyse zu erstellen." },
+                        { q: "Wie funktioniert die Multi-Agenten-KI?", a: "Verschiedene KI-Agenten simulieren unterschiedliche Rollen (z.B. Quant-Trader, Fundamental-Analyst), um ein Wertpapier aus verschiedenen Blickwinkeln zu bewerten." },
+                        { q: "Ist die Analyse eine Anlageberatung?", a: "Nein. Die Analysen sind rein informativ und basieren auf KI-Modellen, die Fehler machen können. Sie dienen als Unterstützung für deine eigene Recherche." }
                     ]
                 },
                 EN: {
@@ -329,9 +330,10 @@
                         { q: "Is my data being saved?", a: "No. All calculations take place locally in your browser. No data is transmitted to a server." },
                         { q: "How accurate is the calculation?", a: "The simulator uses standard formulas for compound interest and inflation. Taxes are calculated annually on realized gains and dividends." },
                         { q: "What does 'Purchasing Power' mean?", a: "Purchasing power shows what your future wealth is worth in today's terms. Inflation reduces the real value of your capital over time." },
-                        { q: "How are reinvested gains handled?", a: "The script follows a rebalancing logic: Realized gains and net dividends are immediately credited to the portfolio value. In the next year, this capital earns the full yields again." },
-                        { q: "What is the difference between dividend yield and growth?", a: "The yield refers to the current portfolio value. The growth increases this payout percentage every year, simulating dividend hikes." },
-                        { q: "How is tax calculated?", a: "Each year, the system calculates: (Dividends + realized gains) - allowance. If positive, the selected tax rate is applied." }
+                        { q: "What is the Strategic Intelligence Terminal?", a: "The terminal is an AI-powered research tool that uses complex investment frameworks (e.g., from Goldman Sachs or Citadel) to provide in-depth stock analysis." },
+                        { q: "What data does the terminal use?", a: "The AI uses real-time market data, news, and financial reports via Google Search Grounding to create up-to-date and well-founded analyses." },
+                        { q: "How does the Multi-Agent AI work?", a: "Different AI agents simulate various roles (e.g., Quant Trader, Fundamental Analyst) to evaluate a security from multiple perspectives." },
+                        { q: "Is the analysis investment advice?", a: "No. The analyses are purely informative and based on AI models that can make mistakes. They serve as support for your own research." }
                     ]
                 }
             };

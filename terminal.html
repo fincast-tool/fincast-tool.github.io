@@ -1324,7 +1324,6 @@ Build out:
 • Comparison of DCF value vs current market price
 • Clear verdict: Undervalued, Fairly Valued, or Overvalued
 • Key assumptions that could break the model
-• SOURCES: List specific URLs or financial data providers used.
 Format as an investment banking valuation memo with tables and clear math.
 </morgan_stanley>
 
@@ -1342,7 +1341,6 @@ Deliver:
 • Bull case scenario and price impact estimate
 • Bear case scenario and downside risk estimate
 • My recommended play: Buy Before, Sell Before, or Wait
-• SOURCES: List specific URLs or financial data providers used.
 Format as a pre-earnings research brief with a decision summary at the top.
 </jpmorgan>
 
@@ -1360,7 +1358,6 @@ Analyze:
 • Ideal entry price, stop-loss level, and profit target
 • Risk-to-reward ratio for the current setup
 • Confidence rating: Strong Buy, Buy, Neutral, Sell, Strong Sell
-• SOURCES: List specific URLs or financial data providers used.
 Format as a technical analysis report card with a clear trade plan summary.
 </citadel>
 
@@ -1375,7 +1372,7 @@ Format as a quantitative research memo.
 </renaissance>
 
 <executive_summary>
-Munger Philosophy: Zusammenfassung aller Berichte. ZWINGEND eine Empfehlung pro Agenten: [BUY], [HOLD] oder [SELL] für jeden Aspekt.
+Munger Philosophy: Zusammenfassung aller Berichte. ZWINGEND eine Empfehlung pro Agenten: Nutze Badges wie [BUY], [STRONG BUY], [BUY BEFORE], [HOLD], [NEUTRAL], [SELL], [STRONG SELL], [UNDERVALUED], [OVERVALUED] oder [FAIR VALUED] für jeden Aspekt.
 </executive_summary>
 
 <company_identity>
@@ -1486,10 +1483,22 @@ Profil: [1 Satz Beschreibung]
                 // Special handling for Executive Summary Badges
                 if (card.id === 'executive_summary') {
                     htmlContent = htmlContent
-                        .replace(/\[BUY\]/g, '<span class="badge badge-buy">BUY</span>')
-                        .replace(/\[HOLD\]/g, '<span class="badge badge-hold">HOLD</span>')
-                        .replace(/\[SELL\]/g, '<span class="badge badge-sell">SELL</span>')
-                        .replace(/\[WAIT\]/g, '<span class="badge badge-wait">WAIT</span>');
+                        .replace(/\[BUY\]/gi, '<span class="badge badge-buy">BUY</span>')
+                        .replace(/\[STRONG\s?BUY\]/gi, '<span class="badge badge-buy">STRONG BUY</span>')
+                        .replace(/\[BUY\s?BEFORE\]/gi, '<span class="badge badge-buy">BUY BEFORE</span>')
+                        .replace(/\[HOLD\]/gi, '<span class="badge badge-hold">HOLD</span>')
+                        .replace(/\[NEUTRAL\]/gi, '<span class="badge badge-wait">NEUTRAL</span>')
+                        .replace(/\[SELL\]/gi, '<span class="badge badge-sell">SELL</span>')
+                        .replace(/\[STRONG\s?SELL\]/gi, '<span class="badge badge-sell">STRONG SELL</span>')
+                        .replace(/\[SELL\s?BEFORE\]/gi, '<span class="badge badge-sell">SELL BEFORE</span>')
+                        .replace(/\[WAIT\]/gi, '<span class="badge badge-wait">WAIT</span>')
+                        .replace(/\[UNDERVALUED\]/gi, '<span class="badge badge-buy">UNDERVALUED</span>')
+                        .replace(/\[OVERVALUED\]/gi, '<span class="badge badge-sell">OVERVALUED</span>')
+                        .replace(/\[FAIRLY\s?VALUED\]/gi, '<span class="badge badge-hold">FAIR VALUED</span>')
+                        .replace(/\[ACCUMULATE\]/gi, '<span class="badge badge-buy">ACCUMULATE</span>')
+                        .replace(/\[REDUCE\]/gi, '<span class="badge badge-sell">REDUCE</span>')
+                        .replace(/\[WATCHLIST\]/gi, '<span class="badge badge-wait">WATCHLIST</span>')
+                        .replace(/\[RISK\]/gi, '<span class="badge badge-sell">RISK</span>');
                 }
 
                 const widget = document.createElement('div');
