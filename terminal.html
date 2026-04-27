@@ -1305,8 +1305,7 @@
                 return;
             }
 
-            setUIState('loading');
-            updateLoadingStatus('Phase 1: Multi-Agent Analysis...', 15);
+            updateLoadingStatus('Initializing Multi-Agent Protocol...', 5);
             
             try {
                 MODEL_ID = user.model || 'gemini-2.5-flash';
@@ -1315,25 +1314,36 @@
 
                 const results = {};
                 
-                // Phase 1: Full Analysis (All 5 Agents + Identity)
-                const analysisAgents = ['company_identity', 'goldman_sachs', 'morgan_stanley', 'jpmorgan', 'citadel', 'renaissance'];
-                const analysisPrompt = getBatchPrompt(query, currentLangName, analysisAgents);
-                const r1 = await fetchSingleBatch(query, user, analysisPrompt);
-                const p1 = parseFrameworks(r1);
-                Object.assign(results, p1);
+                // Show skeleton first
+                setUIState('loading');
+                updateLoadingStatus('Phase 1: Fundamental Intelligence...', 20);
+
+                // Batch 1: Identity & Goldman Sachs
+                const b1 = await fetchSingleBatch(query, user, getBatchPrompt(query, currentLangName, ['company_identity', 'goldman_sachs']));
+                Object.assign(results, parseFrameworks(b1));
                 
-                // Render Phase 1 immediately
+                // Switch to Results early and show first data + shimmers
+                setUIState('results');
                 if (results.company_identity) renderIdentity(results.company_identity);
                 renderWidgets(results);
-                updateLoadingStatus('Phase 1 Complete. Synthesizing...', 60);
 
-                // Phase 2: Executive Summary (Synthesis)
-                const summaryPrompt = getSummaryPrompt(query, currentLangName, results);
-                const r2 = await fetchSingleBatch(query, user, summaryPrompt);
-                const p2 = parseFrameworks(r2);
-                Object.assign(results, p2);
+                // Batch 2: Morgan Stanley & JPMorgan
+                updateLoadingStatus('Phase 2: Valuation & Earnings...', 45);
+                const b2 = await fetchSingleBatch(query, user, getBatchPrompt(query, currentLangName, ['morgan_stanley', 'jpmorgan']));
+                Object.assign(results, parseFrameworks(b2));
+                renderWidgets(results);
 
-                updateLoadingStatus('Finalizing Report...', 90);
+                // Batch 3: Citadel & Renaissance
+                updateLoadingStatus('Phase 3: Technical & Quant Patterns...', 70);
+                const b3 = await fetchSingleBatch(query, user, getBatchPrompt(query, currentLangName, ['citadel', 'renaissance']));
+                Object.assign(results, parseFrameworks(b3));
+                renderWidgets(results);
+
+                // Batch 4: Final Synthesis (Executive Summary)
+                updateLoadingStatus('Phase 4: Final Synthesis...', 90);
+                const b4 = await fetchSingleBatch(query, user, getSummaryPrompt(query, currentLangName, results));
+                Object.assign(results, parseFrameworks(b4));
+                renderWidgets(results);
 
                 const resolvedTicker = results.company_identity?.match(/Name:\s*(.*)/)?.[1]?.trim() || query;
 
@@ -1344,14 +1354,9 @@
                 };
                 await apiCall('save_archive', { email: user.email, key: resolvedTicker, data: archiveEntry }).catch(e => console.warn('Archive save failed:', e));
 
-                // Final rendering
-                renderIdentity(results.company_identity);
-                renderWidgets(results);
-
                 await incrementQuery(user.email).catch(() => { });
                 await updateFooter(user).catch(() => { });
 
-                setUIState('results');
             } catch (err) {
                 console.error('Analysis Error:', err);
                 alert('Analyse-Fehler: ' + err.message);
@@ -1551,55 +1556,74 @@ Format as a quantitative research memo.
 
             CARDS.forEach(card => {
                 const content = data[card.id];
-                if (!content) return;
-
-                let htmlContent = content
-                    .replace(/\*\*(.*?)\*\*/g, '<strong class="text-gold-500">$1</strong>')
-                    .replace(/\n/g, '<br>');
-
-                // Special handling for Executive Summary Badges
-                if (card.id === 'executive_summary') {
-                    htmlContent = htmlContent
-                        .replace(/\[BUY\]/gi, '<span class="badge badge-buy">BUY</span>')
-                        .replace(/\[STRONG\s?BUY\]/gi, '<span class="badge badge-buy">STRONG BUY</span>')
-                        .replace(/\[BUY\s?BEFORE\]/gi, '<span class="badge badge-buy">BUY BEFORE</span>')
-                        .replace(/\[HOLD\]/gi, '<span class="badge badge-hold">HOLD</span>')
-                        .replace(/\[NEUTRAL\]/gi, '<span class="badge badge-wait">NEUTRAL</span>')
-                        .replace(/\[SELL\]/gi, '<span class="badge badge-sell">SELL</span>')
-                        .replace(/\[STRONG\s?SELL\]/gi, '<span class="badge badge-sell">STRONG SELL</span>')
-                        .replace(/\[SELL\s?BEFORE\]/gi, '<span class="badge badge-sell">SELL BEFORE</span>')
-                        .replace(/\[WAIT\]/gi, '<span class="badge badge-wait">WAIT</span>')
-                        .replace(/\[UNDERVALUED\]/gi, '<span class="badge badge-buy">UNDERVALUED</span>')
-                        .replace(/\[OVERVALUED\]/gi, '<span class="badge badge-sell">OVERVALUED</span>')
-                        .replace(/\[FAIRLY\s?VALUED\]/gi, '<span class="badge badge-hold">FAIR VALUED</span>')
-                        .replace(/\[ACCUMULATE\]/gi, '<span class="badge badge-buy">ACCUMULATE</span>')
-                        .replace(/\[REDUCE\]/gi, '<span class="badge badge-sell">REDUCE</span>')
-                        .replace(/\[WATCHLIST\]/gi, '<span class="badge badge-wait">WATCHLIST</span>')
-                        .replace(/\[RISK\]/gi, '<span class="badge badge-sell">RISK</span>');
-                }
-
                 const widget = document.createElement('div');
                 widget.className = `widget-card rounded-lg flex flex-col fade-up ${card.id === 'executive_summary' ? 'md:col-span-2 xl:col-span-3 border-gold-500/20' : ''}`;
-                widget.innerHTML = `
-            <div class="widget-header flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <span class="text-lg">${card.icon}</span>
-                    <div class="flex flex-col">
-                        <span class="data-label leading-none mb-1">${card.firm}</span>
-                        <span class="text-[11px] font-bold text-white uppercase tracking-tighter">${card.title}</span>
-                    </div>
-                </div>
-                <div class="w-2 h-2 rounded-full bg-gold-500/20 border border-gold-500/50"></div>
-            </div>
-            <div class="p-4 flex-1 overflow-y-auto max-h-[400px]">
-                <div class="text-[12px] leading-relaxed text-gray-400 font-mono">
-                    ${htmlContent}
-                </div>
-            </div>
-            <div class="px-4 py-2 bg-black/10 text-[9px] font-mono text-gray-600 border-t border-white/5">
-                AGENT_ID: ${card.id.toUpperCase()}_v4.2
-            </div>
-        `;
+
+                if (!content) {
+                    // Shimmer Placeholder
+                    widget.innerHTML = `
+                        <div class="widget-header flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <span class="text-lg opacity-40">${card.icon}</span>
+                                <div class="flex flex-col">
+                                    <span class="data-label leading-none mb-1 opacity-40">${card.firm}</span>
+                                    <span class="text-[11px] font-bold text-white/40 uppercase tracking-tighter">${card.title}</span>
+                                </div>
+                            </div>
+                            <div class="w-1 h-1 rounded-full bg-white/5"></div>
+                        </div>
+                        <div class="p-6 flex-1 flex flex-col gap-3 justify-center items-center">
+                            <div class="w-8 h-8 border-2 border-gold-500/10 border-t-gold-500 rounded-full animate-spin"></div>
+                            <div class="text-[9px] font-mono text-gold-500/30 uppercase tracking-[0.3em] animate-pulse">Consulting ${card.firm}...</div>
+                        </div>
+                    `;
+                } else {
+                    let htmlContent = content
+                        .replace(/\*\*(.*?)\*\*/g, '<strong class="text-gold-500">$1</strong>')
+                        .replace(/\n/g, '<br>');
+
+                    // Special handling for Executive Summary Badges
+                    if (card.id === 'executive_summary') {
+                        htmlContent = htmlContent
+                            .replace(/\[BUY\]/gi, '<span class="badge badge-buy">BUY</span>')
+                            .replace(/\[STRONG\s?BUY\]/gi, '<span class="badge badge-buy">STRONG BUY</span>')
+                            .replace(/\[BUY\s?BEFORE\]/gi, '<span class="badge badge-buy">BUY BEFORE</span>')
+                            .replace(/\[HOLD\]/gi, '<span class="badge badge-hold">HOLD</span>')
+                            .replace(/\[NEUTRAL\]/gi, '<span class="badge badge-wait">NEUTRAL</span>')
+                            .replace(/\[SELL\]/gi, '<span class="badge badge-sell">SELL</span>')
+                            .replace(/\[STRONG\s?SELL\]/gi, '<span class="badge badge-sell">STRONG SELL</span>')
+                            .replace(/\[SELL\s?BEFORE\]/gi, '<span class="badge badge-sell">SELL BEFORE</span>')
+                            .replace(/\[WAIT\]/gi, '<span class="badge badge-wait">WAIT</span>')
+                            .replace(/\[UNDERVALUED\]/gi, '<span class="badge badge-buy">UNDERVALUED</span>')
+                            .replace(/\[OVERVALUED\]/gi, '<span class="badge badge-sell">OVERVALUED</span>')
+                            .replace(/\[FAIRLY\s?VALUED\]/gi, '<span class="badge badge-hold">FAIR VALUED</span>')
+                            .replace(/\[ACCUMULATE\]/gi, '<span class="badge badge-buy">ACCUMULATE</span>')
+                            .replace(/\[REDUCE\]/gi, '<span class="badge badge-sell">REDUCE</span>')
+                            .replace(/\[WATCHLIST\]/gi, '<span class="badge badge-wait">WATCHLIST</span>')
+                            .replace(/\[RISK\]/gi, '<span class="badge badge-sell">RISK</span>');
+                    }
+
+                    widget.innerHTML = `
+                        <div class="widget-header flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <span class="text-lg">${card.icon}</span>
+                                <div class="flex flex-col">
+                                    <span class="data-label leading-none mb-1">${card.firm}</span>
+                                    <span class="text-[11px] font-bold text-white uppercase tracking-tighter">${card.title}</span>
+                                </div>
+                            </div>
+                            <div class="w-2 h-2 rounded-full bg-gold-500/20 border border-gold-500/50"></div>
+                        </div>
+                        <div class="p-4 flex-1 overflow-y-auto max-h-[400px]">
+                            <div class="text-[12px] leading-relaxed text-gray-400 font-mono">
+                                ${htmlContent}
+                            </div>
+                        </div>
+                        <div class="px-4 py-2 bg-black/10 text-[9px] font-mono text-gray-600 border-t border-white/5">
+                            AGENT_ID: ${card.id.toUpperCase()}_v4.2
+                        </div>
+                    `;
+                }
                 grid.appendChild(widget);
             });
         }
