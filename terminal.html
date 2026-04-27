@@ -1312,19 +1312,35 @@
                 const langNames = { 'de-DE': 'DEUTSCH', 'en-US': 'ENGLISH', 'fr-FR': 'FRANÇAIS', 'es-ES': 'ESPAÑOL' };
                 const currentLangName = langNames[USER_LANG] || 'DEUTSCH';
 
-                const results = {};
-                
-                // Set to loading to show the golden ring overlay
+                // Set to loading to show the skeleton
                 setUIState('loading');
-                updateLoadingStatus('Consulting institutional agents...', 30);
+                updateLoadingStatus('Consulting institutional agents...', 10);
 
-                // ONE Single Call for everything with strict brevity constraints
-                const rFull = await fetchSingleBatch(query, user, getBatchPrompt(query, currentLangName));
-                Object.assign(results, parseFrameworks(rFull));
-
-                updateLoadingStatus('Report Complete.', 100);
+                // Step 1: Precise Identity Search
+                updateLoadingStatus('Step 1: Identifying Security...', 15);
+                const rId = await fetchSingleBatch(query, user, getBatchPrompt(query, currentLangName, ['company_identity']));
+                Object.assign(results, parseFrameworks(rId));
+                if (results.company_identity) renderIdentity(results.company_identity);
+                renderWidgets(results);
 
                 const resolvedName = results.company_identity?.match(/Name:\s*(.*)/)?.[1]?.trim() || query;
+                const searchContext = `${resolvedName} (${query})`;
+
+                // Step 2: Fundamental & Financials (GS, MS, JPM)
+                updateLoadingStatus('Step 2: Fundamental & Earnings Analysis...', 40);
+                const rB1 = await fetchSingleBatch(searchContext, user, getBatchPrompt(searchContext, currentLangName, ['goldman_sachs', 'morgan_stanley', 'jpmorgan']));
+                Object.assign(results, parseFrameworks(rB1));
+                renderWidgets(results);
+
+                // Step 3: Technical, Quant & Synthesis (Citadel, Renaissance, Summary)
+                updateLoadingStatus('Step 3: Market Patterns & Final Synthesis...', 75);
+                const rB2 = await fetchSingleBatch(searchContext, user, getBatchPrompt(searchContext, currentLangName, ['citadel', 'renaissance', 'executive_summary']));
+                Object.assign(results, parseFrameworks(rB2));
+                renderWidgets(results);
+                
+                setUIState('results');
+
+                updateLoadingStatus('Report Complete.', 100);
 
                 // Robust Cloud Save
                 const archiveEntry = {
@@ -1332,12 +1348,6 @@
                     data: results
                 };
                 await apiCall('save_archive', { email: user.email, key: resolvedName, data: archiveEntry }).catch(e => console.warn('Archive save failed:', e));
-
-                // Render everything at once
-                if (results.company_identity) renderIdentity(results.company_identity);
-                renderWidgets(results);
-                
-                setUIState('results');
 
                 await incrementQuery(user.email).catch(() => { });
                 await updateFooter(user).catch(() => { });
@@ -1349,9 +1359,9 @@
             }
         }
 
-        function getBatchPrompt(query, lang) {
+        function getBatchPrompt(query, lang, agentIds) {
             const today = new Date().toLocaleDateString();
-            return `CURRENT DATE: ${today}
+            let prompt = `CURRENT DATE: ${today}
 LANGUAGE: Respond EXCLUSIVELY in ${lang}.
 TASK: Deep-Dive Analysis for "${query}". 
 
@@ -1364,18 +1374,21 @@ STRICT INSTRUCTIONS (NO NOVELS, NO FLUFF):
 - Maximum 1 line per data point.
 - Be extremely concise. Efficiency is key.
 
-Generate the following sections with EXACT tags. Output ONLY the data inside the tags.
+Generate the following sections with EXACT tags. Output ONLY the data inside the tags.\n\n`;
 
-<company_identity>
+            if (agentIds.includes('company_identity')) {
+                prompt += `<company_identity>
 Name: [Name]
 ISIN: [ISIN]
 WKN: [WKN]
 Sektor: [Sector]
 HQ: [City, Country]
 Profil: [Max 10 words]
-</company_identity>
+</company_identity>\n\n`;
+            }
 
-<goldman_sachs>
+            if (agentIds.includes('goldman_sachs')) {
+                prompt += `<goldman_sachs>
 ROLE: Senior Equity Analyst (Fundamental Value)
 - Thesis: [1 sentence investment case]
 - P/E & Fwd P/E: [Data vs Sector]
@@ -1384,9 +1397,11 @@ ROLE: Senior Equity Analyst (Fundamental Value)
 - Competitive Moat: [1 sentence strategic edge]
 - 12m Price Target: [Bull vs Bear Data]
 - Verdict: [Buy/Hold/Sell]
-</goldman_sachs>
+</goldman_sachs>\n\n`;
+            }
 
-<morgan_stanley>
+            if (agentIds.includes('morgan_stanley')) {
+                prompt += `<morgan_stanley>
 ROLE: VP-Level Investment Banker (DCF Valuation)
 - 5y Revenue CAGR: [Data assumption]
 - Operating Margin: [Data trend]
@@ -1395,9 +1410,11 @@ ROLE: VP-Level Investment Banker (DCF Valuation)
 - DCF Fair Value: [Exact Price Data]
 - Market Premium/Discount: [% Data]
 - Verdict: [Undervalued/Fairly Valued/Overvalued]
-</morgan_stanley>
+</morgan_stanley>\n\n`;
+            }
 
-<jpmorgan>
+            if (agentIds.includes('jpmorgan')) {
+                prompt += `<jpmorgan>
 ROLE: Senior Equity Research Analyst (Earnings Specialist)
 - Last 4 Quarters: [Beat/Miss History]
 - Upcoming Consensus: [Rev/EPS Estimates]
@@ -1406,9 +1423,11 @@ ROLE: Senior Equity Research Analyst (Earnings Specialist)
 - Historical Post-Earnings Move: [% Data]
 - Management Guidance: [1 sentence summary]
 - Play: [Buy Before/Sell Before/Wait]
-</jpmorgan>
+</jpmorgan>\n\n`;
+            }
 
-<citadel>
+            if (agentIds.includes('citadel')) {
+                prompt += `<citadel>
 ROLE: Senior Quantitative Trader (Market Microstructure)
 - Trend (D/W/M): [Data]
 - Moving Averages (50/100/200): [Crossover signals]
@@ -1417,18 +1436,22 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
 - Volume Flow: [Buyer vs Seller strength]
 - Chart Pattern: [Identified Setup]
 - Trade Plan: [Entry, Stop-Loss, Target Price]
-</citadel>
+</citadel>\n\n`;
+            }
 
-<renaissance>
+            if (agentIds.includes('renaissance')) {
+                prompt += `<renaissance>
 ROLE: Quant Researcher (Statistical Arbitrage)
 - Seasonality: [Historical Monthly/Weekly edge]
 - 13F Institutional Flux: [Major Fund Movements]
 - Short Interest: [Squeeze Potential Data]
 - Macro Correlations: [Rates/VIX/Sector Data]
 - Quant Edge: [1 sentence statistical anomaly]
-</renaissance>
+</renaissance>\n\n`;
+            }
 
-<executive_summary>
+            if (agentIds.includes('executive_summary')) {
+                prompt += `<executive_summary>
 - Goldman Sachs: [1 sentence synthesis] [BADGE]
 - Morgan Stanley: [1 sentence synthesis] [BADGE]
 - JPMorgan: [1 sentence synthesis] [BADGE]
@@ -1437,7 +1460,10 @@ ROLE: Quant Researcher (Statistical Arbitrage)
 - Strategic DNA: [1 sentence synthesis about Sector and Profile]
 - Final Munger Verdict: [1 sentence conclusion] [BADGE]
 MANDATORY: Use EXACTLY ONE of these badges per agent/verdict: [BUY], [STRONG BUY], [HOLD], [NEUTRAL], [SELL], [STRONG SELL], [UNDERVALUED], [OVERVALUED], [FAIRLY VALUED], [WAIT].
-</executive_summary>`;
+</executive_summary>\n\n`;
+            }
+
+            return prompt;
         }
 
         async function fetchSingleBatch(query, user, prompt) {
