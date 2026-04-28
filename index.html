@@ -15,6 +15,9 @@
     <meta name="keywords"
         content="Aktienanalyse, KI Investment, Finanzterminal, DCF Modell, Börsenanalyse, Fincast, Aktienbewertung, Investment Strategie">
     <link rel="canonical" href="https://fincast-tool.vercel.app/">
+    <link rel="icon" type="image/png" href="portfoliomanager%20-%20Symbol.png">
+    <link rel="shortcut icon" href="portfoliomanager%20-%20Symbol.png">
+    <link rel="apple-touch-icon" href="portfoliomanager%20-%20Symbol.png">
 
     <!-- Font & Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -287,6 +290,16 @@
                         Berücksichtigung von Steuern und Inflation.</p>
                 </div>
             </a>
+
+            <!-- Video Tool -->
+            <div onclick="openVideoModal()" class="tool-card card-calculator" style="cursor: pointer;">
+                <img src="theme-toggle-portfoliomanager.png" alt="Video Preview" class="tool-image-preview">
+                <div class="card-content">
+                    <span class="tool-tag" id="t-video-tag">Erklärvideo</span>
+                    <h2 class="tool-name">Erste Schritte<br><span style="color: var(--accent)">an der Börse</span></h2>
+                    <p class="tool-desc" id="t-video-desc">Ein umfassender Einstieg und Leitfaden für neue Investoren in die Welt der Aktien.</p>
+                </div>
+            </div>
         </div>
 
         <div id="t-version"
@@ -402,6 +415,52 @@
             document.getElementById('t-seo-calc-p').innerHTML = l.seoCalcP;
         }
 
+        function openVideoModal() {
+            const modal = document.getElementById('videoModal');
+            const modalContent = document.getElementById('videoModalContent');
+            const iframe = document.getElementById('videoIframe');
+            
+            // HIER DEINE VIDEO URL EINTRAGEN:
+            
+            // OPTION 1: GOOGLE DRIVE (Empfohlen für private Videos)
+            // 1. Video bei Drive hochladen & Rechtsklick -> Freigeben -> "Jeder mit Link kann ansehen"
+            // 2. Link kopieren (Bsp: https://drive.google.com/file/d/123XYZ/view?usp=sharing)
+            // 3. WICHTIG: Ersetze das "/view?usp=sharing" am Ende durch "/preview"
+            // Beispiel: const videoUrl = "https://drive.google.com/file/d/123XYZ/preview";
+            
+            // OPTION 2: YOUTUBE
+            // Beispiel: const videoUrl = "https://www.youtube.com/embed/DEIN_VIDEO_ID?autoplay=1";
+            
+            const videoUrl = "https://drive.google.com/file/d/193X6xhdz5Kj4ANxUPl4jISnNPpINewp4/preview"; 
+            iframe.src = videoUrl; 
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            // Trigger animations
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+                modalContent.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeVideoModal() {
+            const modal = document.getElementById('videoModal');
+            const modalContent = document.getElementById('videoModalContent');
+            const iframe = document.getElementById('videoIframe');
+            
+            modal.classList.add('opacity-0');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                iframe.src = ""; // Stoppt das Video, wenn das Modal geschlossen wird
+            }, 300);
+        }
+
         // Initialize from localStorage
         window.onload = () => {
             const savedLang = localStorage.getItem('fincast_lang');
@@ -412,6 +471,24 @@
             applyLang();
         };
     </script>
+
+    <!-- Video Modal -->
+    <div id="videoModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/90 backdrop-blur-sm p-2 sm:p-4 opacity-0 transition-opacity duration-300">
+        <div class="relative w-full max-w-5xl flex flex-col bg-[#1a1a1a] rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl border border-white/10 transform scale-95 transition-transform duration-300" id="videoModalContent" style="max-height: 90vh;">
+            <!-- Header -->
+            <div class="flex justify-between items-center p-3 sm:p-4 border-b border-white/10 shrink-0">
+                <h3 class="text-white font-bold text-sm sm:text-lg truncate pr-2">Erklärvideo: Erste Schritte an der Börse</h3>
+                <button onclick="closeVideoModal()" class="text-gray-400 hover:text-white transition-colors focus:outline-none p-1 shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <!-- Video Container -->
+            <div class="relative w-full bg-black shrink-0 flex items-center justify-center" style="aspect-ratio: 16/9; max-height: calc(90vh - 65px);">
+                <div class="absolute text-white/50 text-sm">Lade Video...</div>
+                <iframe id="videoIframe" class="absolute top-0 left-0 w-full h-full z-10" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

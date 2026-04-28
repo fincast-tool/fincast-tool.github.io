@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>fincast | Strategic Intelligence Terminal</title>
     <meta name="description" content="Institutionelles Aktien-Analyse-Terminal mit KI-gestützten Frameworks.">
+    <link rel="icon" type="image/png" href="portfoliomanager%20-%20Symbol.png">
+    <link rel="shortcut icon" href="portfoliomanager%20-%20Symbol.png">
+    <link rel="apple-touch-icon" href="portfoliomanager%20-%20Symbol.png">
     <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
     <link
@@ -860,7 +863,7 @@
                             <!-- Identity Strip -->
                             <div id="identityStrip"
                                 class="mb-8 p-8 rounded-2xl border border-gold-500/30 bg-gold-500/[0.03] backdrop-blur-sm">
-                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 md:gap-8">
                                     <div class="flex items-center gap-4 md:gap-5">
                                         <div
                                             class="w-11 h-11 md:w-12 md:h-12 rounded-xl bg-gold-500 flex items-center justify-center text-obsidian-950 text-xl md:text-2xl shadow-lg shadow-gold-500/20">
@@ -886,6 +889,10 @@
                                         <div class="data-label mb-1">Strategic DNA</div>
                                         <div id="id_desc" class="text-[11px] text-gray-400 leading-relaxed italic">--
                                         </div>
+                                    </div>
+                                    <div class="identity-divider border-l border-white/5 pl-4 md:pl-8">
+                                        <div class="data-label mb-1">Aktueller Kurs</div>
+                                        <div id="id_price" class="font-mono text-base font-bold text-green-400">--</div>
                                     </div>
                                 </div>
                             </div>
@@ -1236,7 +1243,7 @@
             { id: 'jpmorgan', title: 'Earnings Breakdown', firm: 'JPMorgan', icon: '🏦' },
             { id: 'citadel', title: 'Technical System', firm: 'Citadel', icon: '⚙️' },
             { id: 'renaissance', title: 'Pattern Finder', firm: 'Renaissance', icon: '🧬' },
-            { id: 'executive_summary', title: 'Munger Verdict', firm: 'Research Council', icon: '⚖️' }
+            { id: 'executive_summary', title: 'AI Verdict', firm: 'Research Council', icon: '⚖️' }
         ];
 
         // Boot
@@ -1335,7 +1342,11 @@
 
                 // Step 3: Technical, Quant & Synthesis (Citadel, Renaissance, Summary)
                 updateLoadingStatus('Step 3: Market Patterns & Final Synthesis...', 75);
-                const rB2 = await fetchSingleBatch(searchContext, user, getBatchPrompt(searchContext, currentLangName, ['citadel', 'renaissance', 'executive_summary']));
+                
+                // Provide previous agent outputs to Step 3 so the Executive Summary accurately reflects the agents' actual conclusions
+                const step3Context = `Goldman Sachs: ${results.goldman_sachs || 'N/A'}\nMorgan Stanley: ${results.morgan_stanley || 'N/A'}\nJPMorgan: ${results.jpmorgan || 'N/A'}`;
+                
+                const rB2 = await fetchSingleBatch(searchContext, user, getBatchPrompt(searchContext, currentLangName, ['citadel', 'renaissance', 'executive_summary'], step3Context));
                 Object.assign(results, parseFrameworks(rB2));
                 renderWidgets(results);
                 
@@ -1360,13 +1371,17 @@
             }
         }
 
-        function getBatchPrompt(query, lang, agentIds) {
+        function getBatchPrompt(query, lang, agentIds, previousResults = null) {
             const today = new Date().toLocaleDateString();
             let prompt = `CURRENT DATE: ${today}
 LANGUAGE: Respond EXCLUSIVELY in ${lang}.
-TASK: Deep-Dive Analysis for "${query}". 
+TASK: Deep-Dive Analysis for "${query}". \n\n`;
 
-STRICT INSTRUCTIONS (NO NOVELS, NO FLUFF):
+            if (previousResults) {
+                prompt += `PREVIOUS AGENT CONCLUSIONS (CRITICAL: You MUST use these exact findings to form your Executive Summary. Do not invent different verdicts or opinions):\n${previousResults}\n\n`;
+            }
+
+            prompt += `STRICT INSTRUCTIONS (NO NOVELS, NO FLUFF):
 - CRITICAL: You MUST use the google_search tool to fetch REAL-TIME data for today (${today}). Do not guess or use outdated data.
 - You are a team of SCIENTISTS, not writers.
 - Provide ONLY hard facts, numbers, and logical deductions.
@@ -1385,6 +1400,7 @@ WKN: [WKN]
 Sektor: [Sector]
 HQ: [City, Country]
 Profil: [Max 10 words]
+Aktueller Kurs: [Current Price with Currency]
 </company_identity>\n\n`;
             }
 
@@ -1393,6 +1409,9 @@ Profil: [Max 10 words]
 ROLE: Senior Equity Analyst (Fundamental Value)
 - Thesis: [1 sentence investment case]
 - P/E & Fwd P/E: [Data vs Sector]
+- Historical P/E 5y: [Data]
+- Historical P/E 10y: [Data]
+- Historical P/E 20y: [Data]
 - Revenue & EPS Growth: [Data]
 - Debt/Equity & FCF Yield: [Data]
 - Competitive Moat: [1 sentence strategic edge]
@@ -1459,7 +1478,7 @@ ROLE: Quant Researcher (Statistical Arbitrage)
 - Citadel: [1 sentence synthesis] [BADGE]
 - Renaissance: [1 sentence synthesis] [BADGE]
 - Strategic DNA: [1 sentence synthesis about Sector and Profile]
-- Final Munger Verdict: [1 sentence conclusion] [BADGE]
+- Final AI Verdict: [1 sentence conclusion] [BADGE]
 MANDATORY: Use EXACTLY ONE of these badges per agent/verdict: [BUY], [STRONG BUY], [HOLD], [NEUTRAL], [SELL], [STRONG SELL], [UNDERVALUED], [OVERVALUED], [FAIRLY VALUED], [WAIT].
 </executive_summary>\n\n`;
             }
@@ -1572,6 +1591,7 @@ MANDATORY: Use EXACTLY ONE of these badges per agent/verdict: [BUY], [STRONG BUY
             document.getElementById('id_sector').textContent = getValue('Sektor');
             document.getElementById('id_hq').textContent = getValue('HQ');
             document.getElementById('id_desc').textContent = getValue('Profil');
+            document.getElementById('id_price').textContent = getValue('Aktueller Kurs');
         }
 
         function renderWidgets(data) {
