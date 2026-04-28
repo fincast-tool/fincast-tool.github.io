@@ -1467,7 +1467,7 @@ MANDATORY: Use EXACTLY ONE of these badges per agent/verdict: [BUY], [STRONG BUY
             return prompt;
         }
 
-        async function fetchSingleBatch(query, user, prompt) {
+        async function fetchSingleBatch(query, user, prompt, retries = 3) {
             const geminiBody = {
                 contents: [{ parts: [{ text: prompt }] }],
                 tools: [{ google_search: {} }],
@@ -1478,29 +1478,44 @@ MANDATORY: Use EXACTLY ONE of these badges per agent/verdict: [BUY], [STRONG BUY
                 }
             };
 
-            const res = await fetch('/api/analyze', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ticker: query, model: MODEL_ID, geminiBody, email: user.email })
-            });
+            for (let i = 0; i <= retries; i++) {
+                try {
+                    const res = await fetch('/api/analyze', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ ticker: query, model: MODEL_ID, geminiBody, email: user.email })
+                    });
 
-            const errData = await res.json().catch(() => ({}));
-            const errMsg = errData.error || '';
+                    const errData = await res.json().catch(() => ({}));
+                    const errMsg = errData.error || '';
 
-            if (!res.ok) {
-                const isRateLimit = res.status === 429 || 
-                                  errMsg.toLowerCase().includes('quota') || 
-                                  errMsg.toLowerCase().includes('rate limit') ||
-                                  errMsg.toLowerCase().includes('limit exceeded');
+                    if (!res.ok) {
+                        const isHighDemand = res.status === 503 || errMsg.toLowerCase().includes('high demand') || errMsg.toLowerCase().includes('temporarily overloaded');
+                        const isRateLimit = res.status === 429 || 
+                                          errMsg.toLowerCase().includes('quota') || 
+                                          errMsg.toLowerCase().includes('rate limit') ||
+                                          errMsg.toLowerCase().includes('limit exceeded');
 
-                if (isRateLimit) {
-                    throw new Error("Quota exceeded (Rate Limit). Please wait a minute and try again.");
+                        if ((isHighDemand || isRateLimit) && i < retries) {
+                            console.warn(`Attempt ${i + 1} failed with high demand/rate limit. Retrying in ${2000 * (i + 1)}ms...`);
+                            await new Promise(r => setTimeout(r, 2000 * (i + 1)));
+                            continue;
+                        }
+
+                        if (isRateLimit) {
+                            throw new Error("Quota exceeded (Rate Limit). Please wait a minute and try again.");
+                        }
+                        
+                        throw new Error(errMsg || `API_ERROR: ${res.status}`);
+                    }
+
+                    return errData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                } catch (e) {
+                    if (i === retries) throw e;
+                    console.warn(`Attempt ${i + 1} failed: ${e.message}. Retrying...`);
+                    await new Promise(r => setTimeout(r, 2000 * (i + 1)));
                 }
-                
-                throw new Error(errMsg || `API_ERROR: ${res.status}`);
             }
-
-            return errData.candidates?.[0]?.content?.parts?.[0]?.text || '';
         }
 
         function parseFrameworks(text) {
