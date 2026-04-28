@@ -95,6 +95,15 @@
         }
 
         /* ... (rest of CSS remains same) */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
         .hub-title {
             font-size: 3.5rem;
             font-weight: 800;
@@ -297,8 +306,30 @@
                 <div class="card-content">
                     <span class="tool-tag" id="t-video-tag">Erklärvideo</span>
                     <h2 class="tool-name">Erste Schritte<br><span style="color: var(--accent)">an der Börse</span></h2>
-                    <p class="tool-desc" id="t-video-desc">Ein umfassender Einstieg und Leitfaden für neue Investoren in die Welt der Aktien.</p>
+                    <p class="tool-desc" id="t-video-desc">Ein umfassender Einstieg und Leitfaden für neue Investoren in
+                        die Welt der Aktien.</p>
                 </div>
+            </div>
+
+            <!-- Presentation Tool -->
+            <div onclick="openPresentationModal()" class="tool-card card-terminal" style="cursor: pointer;">
+                <img src="theme-toggle-portfoliomanager.png" alt="Presentation Preview" class="tool-image-preview">
+                <div class="card-content">
+                    <span class="tool-tag" id="t-pres-tag">Leitfaden</span>
+                    <h2 class="tool-name">Börsen-Grundlagen<br><span
+                            style="color: var(--terminal-gold)">Präsentation</span></h2>
+                    <p class="tool-desc" id="t-pres-desc">Wichtige Konzepte und Strategien visuell aufbereitet zum
+                        Durchklicken.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Partner / Offers Section -->
+        <div class="mt-20 w-full text-left" id="partner-section">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-6 px-4" id="t-ads-title">
+                Empfohlene Partner</h3>
+            <div class="flex overflow-x-auto gap-4 pb-8 px-4 hide-scrollbar" id="ads-container">
+                <!-- Ads injected via JS -->
             </div>
         </div>
 
@@ -372,7 +403,12 @@
                 seoTermH: "Strategic Intelligence Terminal",
                 seoTermP: "Mein Flaggschiff-Tool nutzt modernste KI-Modelle, um Aktien nach den Frameworks führender Investmentbanken wie <strong>Goldman Sachs, Morgan Stanley und Citadel</strong> zu analysieren.",
                 seoCalcH: "Zinseszins & Dividenden Simulator",
-                seoCalcP: "Mein Simulator ist weit mehr als ein einfacher Rechner. Er simuliert dein Portfolio-Wachstum unter Berücksichtigung von <strong>Dividenden-Wachstum, Inflation und Steuern</strong>."
+                seoCalcP: "Mein Simulator ist weit mehr als ein einfacher Rechner. Er simuliert dein Portfolio-Wachstum unter Berücksichtigung von <strong>Dividenden-Wachstum, Inflation und Steuern</strong>.",
+                videoTag: "Erklärvideo",
+                videoDesc: "Ein umfassender Einstieg und Leitfaden für neue Investoren in die Welt der Aktien.",
+                presTag: "Leitfaden",
+                presDesc: "Wichtige Konzepte und Strategien visuell aufbereitet zum Durchklicken.",
+                adsTitle: "Empfohlene Partner & Support"
             },
             EN: {
                 hubTitle: "fincast Hub",
@@ -387,9 +423,91 @@
                 seoTermH: "Strategic Intelligence Terminal",
                 seoTermP: "My flagship tool uses cutting-edge AI models to analyze stocks according to frameworks of leading investment banks like <strong>Goldman Sachs, Morgan Stanley, and Citadel</strong>.",
                 seoCalcH: "Compound Interest & Dividend Simulator",
-                seoCalcP: "My Simulator is more than a simple calculator. It simulates your portfolio growth considering <strong>Dividend Growth, inflation, capital gains taxes, and allowances</strong>."
+                seoCalcP: "My Simulator is more than a simple calculator. It simulates your portfolio growth considering <strong>Dividend Growth, inflation, capital gains taxes, and allowances</strong>.",
+                videoTag: "Explainer Video",
+                videoDesc: "A comprehensive introduction and guide for new investors into the world of stocks.",
+                presTag: "Guide",
+                presDesc: "Important concepts and strategies visually prepared for clicking through.",
+                adsTitle: "Recommended Partners & Support"
             }
         };
+
+        const ads = {
+            DE: [
+                { title: "Interactive Brokers", sub: "Weltweiter Handel zu unschlagbaren Konditionen.", btn: "Jetzt anmelden", link: "https://ibkr.com/referral/nikolai299", bg: "linear-gradient(135deg, #333, #b91c1c)" },
+                { title: "Trade Republic", sub: "Dein Bonus wartet auf dich.", btn: "Jetzt Depot eröffnen", link: "https://refnocode.trade.re/wsjpt093", bg: "linear-gradient(135deg, #000, #222)" },
+                { title: "ING DiBa", sub: "Deutschlands beliebtester Broker.", btn: "Zum Depot-Angebot", link: "https://www.ing.de/depotkwk/aa/qMSsG9b3sfYwe7oec_MHkdo9erNgI0N1C05s2nPmaFllOL_mq8sF0eNbrBWoWpiPbg_fneIWXo0DlDdVI1MWYujZlsXD-3Tvg-DfGOcuOMQ=", bg: "linear-gradient(135deg, #ff6200, #d95300)" },
+                { title: "Bison App", sub: "Kryptos einfach & sicher handeln.", btn: "Konto eröffnen", link: "https://join.bisonapp.com/8jztca", bg: "linear-gradient(135deg, #003056, #004b85)" },
+                { title: "Bitpanda", sub: "Investiere in Aktien, Krypto & Gold.", btn: "Bonus sichern", link: "https://7lr8.adj.st/web.bitpanda.com/user/register/834555914483041191?adj_t=19f71v2&adj_fallback=https%3A%2F%2Fweb.bitpanda.com%2Fuser%2Fregister%2F834555914483041191&adj_redirect_macos=https%3A%2F%2Fweb.bitpanda.com%2Fuser%2Fregister%2F834555914483041191", bg: "linear-gradient(135deg, #00bf71, #008f55)" },
+                { title: "Getquin", sub: "Tracke alle deine Assets einfach in Echtzeit.", btn: "Konto erstellen", link: "https://getqu.in/nFa0yY/tWX6ya/", bg: "linear-gradient(135deg, #0d1117, #21262d)" },
+                { title: "Support ☕", sub: "fincast Hub gefällt dir? Supporte mich mit einem Kaffee!", btn: "Via PayPal spenden", link: "https://www.paypal.com/paypalme/nikobre", bg: "linear-gradient(135deg, #0070ba, #003087)" }
+            ],
+            EN: [
+                { title: "Interactive Brokers", sub: "Global trading with unbeatable conditions.", btn: "Sign up now", link: "https://ibkr.com/referral/nikolai299", bg: "linear-gradient(135deg, #333, #b91c1c)" },
+                { title: "Trade Republic", sub: "Your bonus is waiting for you.", btn: "Open account now", link: "https://refnocode.trade.re/wsjpt093", bg: "linear-gradient(135deg, #000, #222)" },
+                { title: "ING DiBa", sub: "Germany's most popular broker.", btn: "To the offer", link: "https://www.ing.de/depotkwk/aa/qMSsG9b3sfYwe7oec_MHkdo9erNgI0N1C05s2nPmaFllOL_mq8sF0eNbrBWoWpiPbg_fneIWXo0DlDdVI1MWYujZlsXD-3Tvg-DfGOcuOMQ=", bg: "linear-gradient(135deg, #ff6200, #d95300)" },
+                { title: "Bison App", sub: "Trade crypto simply & securely.", btn: "Open account", link: "https://join.bisonapp.com/8jztca", bg: "linear-gradient(135deg, #003056, #004b85)" },
+                { title: "Bitpanda", sub: "Invest in stocks, crypto & gold.", btn: "Claim bonus", link: "https://7lr8.adj.st/web.bitpanda.com/user/register/834555914483041191?adj_t=19f71v2&adj_fallback=https%3A%2F%2Fweb.bitpanda.com%2Fuser%2Fregister%2F834555914483041191&adj_redirect_macos=https%3A%2F%2Fweb.bitpanda.com%2Fuser%2Fregister%2F834555914483041191", bg: "linear-gradient(135deg, #00bf71, #008f55)" },
+                { title: "Getquin", sub: "Track all your assets easily in real-time.", btn: "Create account", link: "https://getqu.in/nFa0yY/tWX6ya/", bg: "linear-gradient(135deg, #0d1117, #21262d)" },
+                { title: "Support ☕", sub: "Like the fincast Hub? Support me with a coffee!", btn: "Donate via PayPal", link: "https://www.paypal.com/paypalme/nikobre", bg: "linear-gradient(135deg, #0070ba, #003087)" }
+            ]
+        };
+
+        let isHovered = false;
+        let scrollPos = 0;
+        let marqueeAnimId = null;
+
+        function renderAds() {
+            const container = document.getElementById('ads-container');
+            container.innerHTML = '';
+
+            // Duplicate list for seamless infinite scroll
+            const renderList = [...ads[curLang], ...ads[curLang]];
+
+            renderList.forEach(ad => {
+                const card = document.createElement('a');
+                card.href = ad.link;
+                card.target = "_blank";
+                card.rel = "noopener noreferrer";
+                card.className = "flex-none w-[280px] sm:w-[320px] p-6 rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 relative group overflow-hidden flex flex-col justify-between h-[180px]";
+
+                card.innerHTML = `
+                    <div class="absolute inset-0 opacity-[0.03] group-hover:opacity-10 transition-opacity duration-500" style="background: ${ad.bg}"></div>
+                    <div class="relative z-10">
+                        <h4 class="text-slate-800 font-extrabold text-lg tracking-tight mb-1">${ad.title}</h4>
+                        <p class="text-slate-500 text-sm leading-snug">${ad.sub}</p>
+                    </div>
+                    <div class="relative z-10 inline-flex items-center font-semibold text-sm group-hover:translate-x-1 transition-transform mt-auto" style="color: var(--accent)">
+                        ${ad.btn}
+                        <svg class="w-4 h-4 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                `;
+
+                card.addEventListener('mouseenter', () => isHovered = true);
+                card.addEventListener('mouseleave', () => isHovered = false);
+
+                container.appendChild(card);
+            });
+
+            if (!marqueeAnimId) {
+                marqueeAnimId = requestAnimationFrame(animateMarquee);
+            }
+        }
+
+        function animateMarquee() {
+            const container = document.getElementById('ads-container');
+            if (container && !isHovered) {
+                scrollPos += 0.5; // Scroll speed
+                if (scrollPos >= container.scrollWidth / 2) {
+                    scrollPos = 0;
+                }
+                container.scrollLeft = scrollPos;
+            } else if (container && isHovered) {
+                // Sync scrollPos if user scrolls manually
+                scrollPos = container.scrollLeft;
+            }
+            marqueeAnimId = requestAnimationFrame(animateMarquee);
+        }
 
         function toggleLanguage() {
             curLang = (curLang === 'DE') ? 'EN' : 'DE';
@@ -413,30 +531,51 @@
             document.getElementById('t-seo-term-p').innerHTML = l.seoTermP;
             document.getElementById('t-seo-calc-h').innerText = l.seoCalcH;
             document.getElementById('t-seo-calc-p').innerHTML = l.seoCalcP;
+            document.getElementById('t-video-tag').innerText = l.videoTag;
+            document.getElementById('t-video-desc').innerText = l.videoDesc;
+            document.getElementById('t-pres-tag').innerText = l.presTag;
+            document.getElementById('t-pres-desc').innerText = l.presDesc;
+            document.getElementById('t-ads-title').innerText = l.adsTitle;
+            renderAds();
+        }
+
+        function shareVideo() {
+            const shareUrl = window.location.origin + window.location.pathname + "?video=1";
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Fincast | Erste Schritte an der Börse',
+                    text: 'Schau dir dieses Erklärvideo auf Fincast an!',
+                    url: shareUrl
+                }).catch(err => console.log('Error sharing:', err));
+            } else {
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    alert('Link zur Webseite (mit Video) in die Zwischenablage kopiert!');
+                });
+            }
         }
 
         function openVideoModal() {
             const modal = document.getElementById('videoModal');
             const modalContent = document.getElementById('videoModalContent');
             const iframe = document.getElementById('videoIframe');
-            
+
             // HIER DEINE VIDEO URL EINTRAGEN:
-            
+
             // OPTION 1: GOOGLE DRIVE (Empfohlen für private Videos)
             // 1. Video bei Drive hochladen & Rechtsklick -> Freigeben -> "Jeder mit Link kann ansehen"
             // 2. Link kopieren (Bsp: https://drive.google.com/file/d/123XYZ/view?usp=sharing)
             // 3. WICHTIG: Ersetze das "/view?usp=sharing" am Ende durch "/preview"
             // Beispiel: const videoUrl = "https://drive.google.com/file/d/123XYZ/preview";
-            
+
             // OPTION 2: YOUTUBE
             // Beispiel: const videoUrl = "https://www.youtube.com/embed/DEIN_VIDEO_ID?autoplay=1";
-            
-            const videoUrl = "https://drive.google.com/file/d/193X6xhdz5Kj4ANxUPl4jISnNPpINewp4/preview"; 
-            iframe.src = videoUrl; 
-            
+
+            const videoUrl = "https://drive.google.com/file/d/193X6xhdz5Kj4ANxUPl4jISnNPpINewp4/preview";
+            iframe.src = videoUrl;
+
             modal.classList.remove('hidden');
             modal.classList.add('flex');
-            
+
             // Trigger animations
             setTimeout(() => {
                 modal.classList.remove('opacity-0');
@@ -449,15 +588,49 @@
             const modal = document.getElementById('videoModal');
             const modalContent = document.getElementById('videoModalContent');
             const iframe = document.getElementById('videoIframe');
-            
+
             modal.classList.add('opacity-0');
             modalContent.classList.remove('scale-100');
             modalContent.classList.add('scale-95');
-            
+
             setTimeout(() => {
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
                 iframe.src = ""; // Stoppt das Video, wenn das Modal geschlossen wird
+            }, 300);
+        }
+
+        function openPresentationModal() {
+            const modal = document.getElementById('presentationModal');
+            const modalContent = document.getElementById('presentationModalContent');
+            const iframe = document.getElementById('presentationIframe');
+
+            // Google Slides Embed URL (ID: 1D3eIXKIyOtyceGammDI_60NpsD10uYEE)
+            iframe.src = "https://docs.google.com/presentation/d/1D3eIXKIyOtyceGammDI_60NpsD10uYEE/embed?start=false&loop=false&delayms=3000";
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+                modalContent.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closePresentationModal() {
+            const modal = document.getElementById('presentationModal');
+            const modalContent = document.getElementById('presentationModalContent');
+            const iframe = document.getElementById('presentationIframe');
+
+            modal.classList.add('opacity-0');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                iframe.src = "";
             }, 300);
         }
 
@@ -469,23 +642,78 @@
                 document.body.classList.toggle('lang-en', curLang === 'EN');
             }
             applyLang();
+
+            // Auto-open video if parameter ?video=1 is present
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('video') === '1') {
+                openVideoModal();
+            }
         };
     </script>
 
     <!-- Video Modal -->
-    <div id="videoModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/90 backdrop-blur-sm p-2 sm:p-4 opacity-0 transition-opacity duration-300">
-        <div class="relative w-full max-w-5xl flex flex-col bg-[#1a1a1a] rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl border border-white/10 transform scale-95 transition-transform duration-300" id="videoModalContent" style="max-height: 90vh;">
+    <div id="videoModal"
+        class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/90 backdrop-blur-sm p-2 sm:p-4 opacity-0 transition-opacity duration-300">
+        <div class="relative w-full max-w-5xl flex flex-col bg-[#1a1a1a] rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl border border-white/10 transform scale-95 transition-transform duration-300"
+            id="videoModalContent" style="max-height: 90vh;">
             <!-- Header -->
             <div class="flex justify-between items-center p-3 sm:p-4 border-b border-white/10 shrink-0">
-                <h3 class="text-white font-bold text-sm sm:text-lg truncate pr-2">Erklärvideo: Erste Schritte an der Börse</h3>
-                <button onclick="closeVideoModal()" class="text-gray-400 hover:text-white transition-colors focus:outline-none p-1 shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                </button>
+                <h3 class="text-white font-bold text-sm sm:text-lg truncate pr-2">Erklärvideo: Erste Schritte an der
+                    Börse</h3>
+                <div class="flex items-center gap-2">
+                    <button onclick="shareVideo()"
+                        class="text-gray-400 hover:text-white transition-colors focus:outline-none p-1 shrink-0 flex items-center gap-1 text-xs sm:text-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                            <polyline points="16 6 12 2 8 6"></polyline>
+                            <line x1="12" y1="2" x2="12" y2="15"></line>
+                        </svg>
+                        <span class="hidden sm:inline">Teilen</span>
+                    </button>
+                    <button onclick="closeVideoModal()"
+                        class="text-gray-400 hover:text-white transition-colors focus:outline-none p-1 shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
             </div>
             <!-- Video Container -->
-            <div class="relative w-full bg-black shrink-0 flex items-center justify-center" style="aspect-ratio: 16/9; max-height: calc(90vh - 65px);">
+            <div class="relative w-full bg-black shrink-0 flex items-center justify-center"
+                style="aspect-ratio: 16/9; max-height: calc(90vh - 65px);">
                 <div class="absolute text-white/50 text-sm">Lade Video...</div>
-                <iframe id="videoIframe" class="absolute top-0 left-0 w-full h-full z-10" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <iframe id="videoIframe" class="absolute top-0 left-0 w-full h-full z-10" src="" frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Presentation Modal -->
+    <div id="presentationModal"
+        class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/90 backdrop-blur-sm p-2 sm:p-4 opacity-0 transition-opacity duration-300">
+        <div class="relative w-full max-w-5xl flex flex-col bg-[#1a1a1a] rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl border border-white/10 transform scale-95 transition-transform duration-300"
+            id="presentationModalContent" style="max-height: 90vh;">
+            <!-- Header -->
+            <div class="flex justify-between items-center p-3 sm:p-4 border-b border-white/10 shrink-0">
+                <h3 class="text-white font-bold text-sm sm:text-lg truncate pr-2">Präsentation: Börsen-Grundlagen</h3>
+                <button onclick="closePresentationModal()"
+                    class="text-gray-400 hover:text-white transition-colors focus:outline-none p-1 shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <!-- Presentation Container -->
+            <div class="relative w-full bg-black shrink-0 flex items-center justify-center"
+                style="aspect-ratio: 16/9; max-height: calc(90vh - 65px);">
+                <iframe id="presentationIframe" class="absolute top-0 left-0 w-full h-full z-10" src="" frameborder="0"
+                    allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
             </div>
         </div>
     </div>
