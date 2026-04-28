@@ -1311,6 +1311,7 @@
                 MODEL_ID = user.model || 'gemini-2.5-flash';
                 const langNames = { 'de-DE': 'DEUTSCH', 'en-US': 'ENGLISH', 'fr-FR': 'FRANÇAIS', 'es-ES': 'ESPAÑOL' };
                 const currentLangName = langNames[USER_LANG] || 'DEUTSCH';
+                const results = {};
 
                 // Set to loading to show the skeleton
                 setUIState('loading');
