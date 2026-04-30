@@ -3,26 +3,13 @@ import Redis from 'ioredis';
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-    const { ticker, model, geminiBody, email } = req.body;
-    let apiKey = process.env.GEMINI_API_KEY;
-
-    // Versuche, den spezifischen Key des Nutzers aus Redis zu laden
-    try {
-        const redisUrl = process.env.KV_REDIS_URL || process.env.REDIS_URL;
-        if (redisUrl && email) {
-            const redis = new Redis(redisUrl);
-            const usersRaw = await redis.get('terminal_users');
-            const users = usersRaw ? JSON.parse(usersRaw) : [];
-            const user = users.find(u => u.email === email);
-            if (user && user.apiKey && user.apiKey.trim() !== '') {
-                apiKey = user.apiKey.trim();
-            }
-            await redis.quit(); // Verbindung schließen
-        }
-    } catch (e) {
-        console.error('Redis Key Lookup Error:', e);
-        // Fallback auf System-Key geht weiter...
-    }
+    const { ticker, model, geminiBody, email, apiKey: clientApiKey } = req.body;
+    
+    // Architektur-Update: Wir nutzen direkt den lokalen Key des Users (falls vorhanden), 
+    // um die langsame Vercel-Datenbank-Verbindung (Redis) vor der Generierung komplett zu umgehen.
+    const apiKey = (clientApiKey && clientApiKey.trim() !== '') 
+                   ? clientApiKey.trim() 
+                   : process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
         return res.status(500).json({ error: 'Kein API-Key gefunden. Bitte hinterlege einen Key im Admin-Bereich oder in Vercel.' });

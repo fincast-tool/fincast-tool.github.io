@@ -20,14 +20,12 @@ try {
     console.error('Redis Initialization Error:', e);
 }
 
-// Hilfsfunktion für Datum in Pacific Time (PT) - Reset erfolgt um Mitternacht PT
-function getPTDate() {
-    return new Intl.DateTimeFormat('en-CA', {
-        timeZone: 'America/Los_Angeles',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-    }).format(new Date());
+// Hilfsfunktion für Datum - Reset erfolgt um 08:00 UTC (09:00 Winterzeit / 10:00 Sommerzeit DE)
+function getResetDateString() {
+    const d = new Date();
+    // Verschiebe die Zeit um 8 Stunden zurück. Alles vor 08:00 UTC zählt zum vorherigen Tag.
+    d.setUTCHours(d.getUTCHours() - 8);
+    return d.toISOString().split('T')[0];
 }
 
 export default async function handler(req, res) {
@@ -69,15 +67,28 @@ export default async function handler(req, res) {
                         await redis.set('terminal_users', JSON.stringify(users));
                     }
                 }
+                // Sicherheitsschicht: Verhindere, dass der System-Key jemals an das Frontend gesendet wird
+                const sysKey = process.env.GEMINI_API_KEY;
+                if (sysKey && sysKey.trim() !== '') {
+                    users = users.map(u => {
+                        if (u.apiKey === sysKey) {
+                            return { ...u, apiKey: '' }; // Key im Frontend verstecken
+                        }
+                        return u;
+                    });
+                }
+
                 return res.status(200).json(users);
 
             case 'save_user':
                 let allUsersRaw = await redis.get('terminal_users');
                 let allUsers = allUsersRaw ? JSON.parse(allUsersRaw) : [];
                 
-                // Automatisches Zuweisen des System-Keys, falls kein eigener hinterlegt wurde
-                if (!data.apiKey || data.apiKey.trim() === '') {
-                    data.apiKey = process.env.GEMINI_API_KEY || '';
+                // Wir weisen den System-Key NICHT mehr dem User-Objekt zu, 
+                // um zu verhindern, dass er über get_users im Frontend sichtbar wird.
+                // Der Fallback erfolgt sicher in api/analyze.js.
+                if (!data.apiKey) {
+                    data.apiKey = '';
                 }
                 
                 const idx = allUsers.findIndex(u => u.email === data.email);
@@ -97,7 +108,7 @@ export default async function handler(req, res) {
             case 'get_queries':
                 const qRaw = await redis.get(`queries:${email}`);
                 let queries = qRaw ? JSON.parse(qRaw) : { count: 0, date: '' };
-                const todayPT = getPTDate();
+                const todayPT = getResetDateString();
                 if (queries.date !== todayPT) {
                     queries = { count: 0, date: todayPT };
                 }
@@ -106,7 +117,7 @@ export default async function handler(req, res) {
             case 'get_all_queries':
                 const allKeys = await redis.keys('queries:*');
                 const allQueries = {};
-                const currentPT = getPTDate();
+                const currentPT = getResetDateString();
                 if (allKeys.length > 0) {
                     const values = await redis.mget(allKeys);
                     allKeys.forEach((k, i) => {
@@ -126,7 +137,7 @@ export default async function handler(req, res) {
 
 
             case 'increment_query':
-                const today = getPTDate();
+                const today = getResetDateString();
                 let qDataRaw = await redis.get(`queries:${email}`);
                 let q = qDataRaw ? JSON.parse(qDataRaw) : { count: 0, date: today };
                 

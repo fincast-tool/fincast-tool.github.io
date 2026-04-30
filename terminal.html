@@ -662,6 +662,10 @@
                     <h2 class="text-sm font-bold font-mono text-gold-500 tracking-widest uppercase">Admin Panel</h2>
                     <p class="text-[10px] text-gray-500 font-mono mt-1">Benutzerverwaltung • API-Schlüssel • Abo-Modelle
                         • <span class="text-gold-500/50">Reset: <span id="resetTimeDisplay">10:00</span> DE-Zeit</span>
+                        <select id="seasonToggle" onchange="updateSeasonToggle()" class="ml-2 bg-transparent border border-white/10 text-gold-500 rounded px-1 py-0.5 outline-none cursor-pointer">
+                            <option value="summer" style="background:#0f1420;">Sommerzeit (10:00)</option>
+                            <option value="winter" style="background:#0f1420;">Winterzeit (09:00)</option>
+                        </select>
                     </p>
                 </div>
                 <button onclick="toggleAdmin()" class="text-gray-500 hover:text-white text-2xl">&times;</button>
@@ -1207,16 +1211,22 @@
             await renderAdminUsers();
         }
 
+        function updateSeasonToggle() {
+            const val = document.getElementById('seasonToggle').value;
+            localStorage.setItem('terminal_season', val);
+            updateResetTimeDisplay();
+        }
+
         function updateResetTimeDisplay() {
             try {
-                // The API reset happens at 08:00 UTC
-                const d = new Date();
-                d.setUTCHours(8, 0, 0, 0);
-                const timeStr = d.toLocaleTimeString('de-DE', { timeZone: 'Europe/Berlin', hour: '2-digit', minute: '2-digit' });
+                const val = localStorage.getItem('terminal_season') || 'summer';
                 const el = document.getElementById('resetTimeDisplay');
-                if (el) el.textContent = timeStr;
+                const toggle = document.getElementById('seasonToggle');
+                
+                if (el) el.textContent = val === 'summer' ? '10:00' : '09:00';
+                if (toggle) toggle.value = val;
             } catch (e) {
-                console.warn('Could not determine reset time dynamically', e);
+                console.warn('Error updating season display', e);
             }
         }
 
@@ -1568,7 +1578,7 @@ MANDATORY: Use EXACTLY ONE of these badges per agent/verdict: [BUY], [STRONG BUY
             return prompt;
         }
 
-        async function fetchSingleBatch(query, user, prompt, retries = 3) {
+        async function fetchSingleBatch(query, user, prompt, retries = 1) { // Retries reduziert, um 4-fachen RPD Verbrauch bei Timeouts zu verhindern
             const geminiBody = {
                 contents: [{ parts: [{ text: prompt }] }],
                 tools: [{ google_search: {} }],
@@ -1584,7 +1594,8 @@ MANDATORY: Use EXACTLY ONE of these badges per agent/verdict: [BUY], [STRONG BUY
                     const res = await fetch('/api/analyze', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ ticker: query, model: MODEL_ID, geminiBody, email: user.email })
+                        // apiKey wird direkt mitgesendet, um die langsame Redis-Abfrage im Backend zu überspringen!
+                        body: JSON.stringify({ ticker: query, model: MODEL_ID, geminiBody, email: user.email, apiKey: user.apiKey })
                     });
 
                     const errData = await res.json().catch(() => ({}));
@@ -1596,15 +1607,21 @@ MANDATORY: Use EXACTLY ONE of these badges per agent/verdict: [BUY], [STRONG BUY
                             errMsg.toLowerCase().includes('quota') ||
                             errMsg.toLowerCase().includes('rate limit') ||
                             errMsg.toLowerCase().includes('limit exceeded');
+                        const isTimeout = res.status === 504;
 
+                        // Nur bei echtem High Demand oder Rate Limit warten und nochmal versuchen
+                        // Wenn es ein Vercel Timeout (504) ist, nicht endlos neu triggern!
                         if ((isHighDemand || isRateLimit) && i < retries) {
-                            console.warn(`Attempt ${i + 1} failed with high demand/rate limit. Retrying in ${2000 * (i + 1)}ms...`);
-                            await new Promise(r => setTimeout(r, 2000 * (i + 1)));
+                            console.warn(`Attempt ${i + 1} failed with high demand/rate limit. Retrying in ${3000 * (i + 1)}ms...`);
+                            await new Promise(r => setTimeout(r, 3000 * (i + 1)));
                             continue;
                         }
 
                         if (isRateLimit) {
                             throw new Error("Quota exceeded (Rate Limit). Please wait a minute and try again.");
+                        }
+                        if (isTimeout) {
+                            throw new Error("Server Timeout (504). Die Vercel-Verbindung hat zu lange gedauert. Gemini arbeitet im Hintergrund eventuell weiter.");
                         }
 
                         throw new Error(errMsg || `API_ERROR: ${res.status}`);
@@ -1612,7 +1629,7 @@ MANDATORY: Use EXACTLY ONE of these badges per agent/verdict: [BUY], [STRONG BUY
 
                     return errData.candidates?.[0]?.content?.parts?.[0]?.text || '';
                 } catch (e) {
-                    if (i === retries) throw e;
+                    if (i === retries || e.message.includes('504')) throw e; // Bei 504 keinen blind retry machen!
                     console.warn(`Attempt ${i + 1} failed: ${e.message}. Retrying...`);
                     await new Promise(r => setTimeout(r, 2000 * (i + 1)));
                 }
