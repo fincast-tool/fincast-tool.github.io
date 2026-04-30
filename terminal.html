@@ -1618,10 +1618,10 @@ MANDATORY: Use EXACTLY ONE of these badges per agent/verdict: [BUY], [STRONG BUY
                         }
 
                         if (isRateLimit) {
-                            throw new Error("Quota exceeded (Rate Limit). Please wait a minute and try again.");
+                            throw new Error(`Quota exceeded (Rate Limit): ${errMsg || 'Please wait a minute and try again.'}`);
                         }
                         if (isTimeout) {
-                            throw new Error("Server Timeout (504). Die Vercel-Verbindung hat zu lange gedauert. Gemini arbeitet im Hintergrund eventuell weiter.");
+                            throw new Error(`Server Timeout (504): ${errMsg || 'Die Vercel-Verbindung hat zu lange gedauert.'}`);
                         }
 
                         throw new Error(errMsg || `API_ERROR: ${res.status}`);
