@@ -3,7 +3,7 @@ import Redis from 'ioredis';
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-    const { ticker, model, geminiBody, email, apiKey: clientApiKey } = req.body;
+    const { ticker, model, geminiBody, email, apiKey: clientApiKey, action } = req.body;
     
     // Architektur-Update: Wir nutzen direkt den lokalen Key des Users (falls vorhanden), 
     // um die langsame Vercel-Datenbank-Verbindung (Redis) vor der Generierung komplett zu umgehen.
@@ -16,6 +16,13 @@ export default async function handler(req, res) {
     }
 
     try {
+        if (action === 'list_models') {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
+            const response = await fetch(url);
+            const data = await response.json();
+            return res.status(200).json(data);
+        }
+
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
         
         const response = await fetch(url, {

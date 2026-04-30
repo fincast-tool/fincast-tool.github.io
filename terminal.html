@@ -668,8 +668,37 @@
                         </select>
                     </p>
                 </div>
-                <button onclick="toggleAdmin()" class="text-gray-500 hover:text-white text-2xl">&times;</button>
+                <div class="flex items-center gap-4">
+                    <button onclick="checkAvailableModels()" class="text-[9px] bg-gold-500/10 text-gold-500 border border-gold-500/30 px-3 py-1 rounded hover:bg-gold-500/20 transition-colors uppercase font-mono tracking-widest">Modelle prüfen</button>
+                    <button onclick="toggleAdmin()" class="text-gray-500 hover:text-white text-2xl">&times;</button>
+                </div>
             </div>
+
+            <script>
+                async function checkAvailableModels() {
+                    const user = await getCurrentUser();
+                    if (!user) return alert('Bitte zuerst einloggen.');
+                    
+                    try {
+                        const res = await fetch('/api/analyze', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ action: 'list_models', apiKey: user.apiKey })
+                        });
+                        const data = await res.json();
+                        
+                        if (data.models) {
+                            const names = data.models.map(m => m.name.replace('models/', '')).join('\n');
+                            alert('Verfügbare Modelle bei Google:\n\n' + names);
+                            console.log('Available Models:', data.models);
+                        } else {
+                            alert('Fehler beim Abrufen der Modelle: ' + JSON.stringify(data));
+                        }
+                    } catch(e) {
+                        alert('Fehler: ' + e.message);
+                    }
+                }
+            </script>
             <div class="widget-card rounded-xl overflow-hidden">
                 <div class="widget-header"><span class="data-label">Registrierte Benutzer</span></div>
                 <div class="overflow-x-auto">
