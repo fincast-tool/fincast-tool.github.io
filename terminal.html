@@ -1041,32 +1041,56 @@
 
     </div><!-- /mainApp -->
 
-    <!-- Admin Panel Modal -->
-    <div id="adminModal" class="hidden fixed inset-0 z-[120] flex items-center justify-center p-4 modal-backdrop">
-        <div class="widget-card w-full max-w-md rounded-xl p-8 shadow-2xl">
-            <div class="flex items-center justify-between mb-6 border-b border-gold-500/20 pb-4">
-                <h3 class="text-sm font-bold font-mono text-gold-500 tracking-widest uppercase">Admin Terminal Control</h3>
-                <button onclick="toggleAdmin()" class="text-gray-500 hover:text-white text-xl">&times;</button>
-            </div>
-            <div class="p-6 space-y-6">
+    <!-- Full Admin Overlay -->
+    <div id="adminOverlay" class="admin-overlay">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex justify-between items-center mb-8 border-b border-gold-500/20 pb-6">
                 <div>
-                    <label class="data-label mb-2 block">Usage Management</label>
-                    <p class="text-[10px] text-gray-500 mb-4 uppercase tracking-widest leading-relaxed">Reset daily query limits for your current session.</p>
-                    <button onclick="resetQueries()" id="resetQueriesBtn"
-                        class="w-full py-3 bg-red-500/10 border border-red-500/30 text-red-500 text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-lg shadow-red-500/5">
-                        Reset My Daily Queries
-                    </button>
+                    <h2 class="text-2xl font-black text-white tracking-tighter uppercase italic">Terminal <span
+                            class="text-gold-500">Master Control</span></h2>
+                    <p class="text-[10px] text-gray-500 font-mono uppercase tracking-[0.3em] mt-1">Authorized Access Only
+                        • Protocol v4.2</p>
                 </div>
-                <div class="pt-4 border-t border-white/5">
-                    <label class="data-label mb-2 block">System Status</label>
-                    <div class="space-y-2 text-[10px] font-mono text-gray-400 uppercase tracking-widest">
-                        <div class="flex justify-between"><span>Core Status:</span> <span class="text-green-500 font-bold">Operational</span></div>
-                        <div class="flex justify-between"><span>Session Tier:</span> <span id="adminTierLabel" class="text-gold-500 font-bold">--</span></div>
+                <button onclick="toggleAdmin()"
+                    class="bg-white/5 hover:bg-white/10 text-white p-3 rounded-xl transition-all border border-white/5">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 gap-8">
+                <div class="widget-card p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xs font-bold font-mono text-gold-500 tracking-widest uppercase">User Database
+                        </h3>
+                        <div class="flex gap-4">
+                            <button onclick="renderAdminUserList()"
+                                class="text-[10px] text-gold-500 hover:text-white font-mono uppercase tracking-widest">Refresh
+                                Data</button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>User / Email</th>
+                                    <th>Status / Tier</th>
+                                    <th>Engine / Model</th>
+                                    <th>Custom API Key</th>
+                                    <th>Usage (Today)</th>
+                                    <th class="text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminUserList">
+                                <tr>
+                                    <td colspan="6" class="text-center py-10 opacity-30">Initialising secure
+                                        connection...</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-            </div>
-            <div class="mt-6 text-[8px] font-mono text-gray-600 text-center uppercase tracking-[0.2em] opacity-50 italic">
-                Authorized Personnel Only
             </div>
         </div>
     </div>
@@ -2048,41 +2072,116 @@ CRITICAL: Add this exact sentence at the end: "DISCLAIMER: Diese Analyse ist ein
 
         // ==================== ADMIN LOGIC ====================
         function toggleAdmin() {
-            const modal = document.getElementById('adminModal');
-            modal.classList.toggle('hidden');
-            if (!modal.classList.contains('hidden')) {
-                getCurrentUser().then(user => {
-                    if (user) document.getElementById('adminTierLabel').textContent = user.tier || 'FREE';
+            const overlay = document.getElementById('adminOverlay');
+            overlay.classList.toggle('open');
+            if (overlay.classList.contains('open')) renderAdminUserList();
+        }
+
+        async function renderAdminUserList() {
+            const list = document.getElementById('adminUserList');
+            list.innerHTML = '<tr><td colspan="6" class="text-center py-10 opacity-30">Fetching encrypted records...</td></tr>';
+
+            try {
+                const [users, allQueries] = await Promise.all([
+                    apiCall('get_users'),
+                    apiCall('get_all_queries')
+                ]);
+
+                if (users.error) throw new Error(users.error);
+
+                list.innerHTML = '';
+                users.forEach(u => {
+                    const qData = allQueries[u.email] || { counts: {} };
+                    const totalQueries = Object.values(qData.counts).reduce((a, b) => a + b, 0);
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>
+                            <div class="flex flex-col">
+                                <span class="text-white font-bold">${u.firstName} ${u.lastName}</span>
+                                <span class="text-[9px] text-gray-500 font-mono">${u.email}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <select onchange="updateUserField('${u.email}', 'tier', this.value)" class="bg-transparent border-none text-[10px] uppercase font-bold ${u.tier === 'premium' ? 'text-gold-500' : 'text-gray-500'}">
+                                <option value="free" ${u.tier === 'free' ? 'selected' : ''}>FREE</option>
+                                <option value="premium" ${u.tier === 'premium' ? 'selected' : ''}>PREMIUM</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select onchange="updateUserField('${u.email}', 'model', this.value)" class="bg-transparent border-none text-[10px] font-mono">
+                                <option value="gemini-2.5-flash-lite" ${u.model === 'gemini-2.5-flash-lite' ? 'selected' : ''}>2.5 FLASH-LITE</option>
+                                <option value="gemini-2.5-flash" ${u.model === 'gemini-2.5-flash' ? 'selected' : ''}>2.5 FLASH</option>
+                                <option value="gemini-flash-latest" ${u.model === 'gemini-flash-latest' ? 'selected' : ''}>FLASH (LATEST)</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="text" value="${u.apiKey || ''}" placeholder="System Default" 
+                                onblur="updateUserField('${u.email}', 'apiKey', this.value)"
+                                class="w-full bg-white/5 border border-white/10 rounded px-2 py-1 text-[9px] font-mono">
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-3">
+                                <span class="text-gold-500 font-bold font-mono">${totalQueries}</span>
+                                <button onclick="resetUserQueries('${u.email}')" class="text-[8px] bg-red-500/10 text-red-500 border border-red-500/20 px-2 py-1 rounded hover:bg-red-500 hover:text-white transition-all uppercase">Reset</button>
+                            </div>
+                        </td>
+                        <td class="text-right">
+                            <button onclick="adminDeleteUser('${u.email}')" class="text-gray-600 hover:text-red-500 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </td>
+                    `;
+                    list.appendChild(tr);
                 });
+            } catch (err) {
+                list.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-red-500 font-mono text-[10px]">Failed to load registry: ${err.message}</td></tr>`;
             }
         }
 
-        async function resetQueries() {
-            const user = await getCurrentUser();
-            if (!user) return;
+        async function updateUserField(email, field, value) {
+            try {
+                const users = await apiCall('get_users');
+                const user = users.find(u => u.email === email);
+                if (user) {
+                    user[field] = value;
+                    await apiCall('save_user', { data: user });
+                    // Refresh if self updated
+                    const currentUser = await getCurrentUser();
+                    if (currentUser && currentUser.email === email) await initApp();
+                    else renderAdminUserList();
+                }
+            } catch (err) {
+                alert('Update Error: ' + err.message);
+            }
+        }
 
-            const btn = document.getElementById('resetQueriesBtn');
-            const originalText = btn.textContent;
-            btn.textContent = 'RESETTING...';
-            btn.disabled = true;
-
+        async function resetUserQueries(email) {
+            if (!confirm(`Queries für ${email} wirklich zurücksetzen?`)) return;
             try {
                 const res = await fetch('/api/reset-queries', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: user.email })
+                    body: JSON.stringify({ userId: email })
                 });
-
-                if (!res.ok) throw new Error('Reset failed');
-
-                alert('Queries erfolgreich zurückgesetzt! Du kannst jetzt wieder analysieren.');
-                await updateFooter(user);
-                toggleAdmin();
+                if (res.ok) {
+                    renderAdminUserList();
+                    const current = await getCurrentUser();
+                    if (current && current.email === email) updateFooter(current);
+                }
             } catch (err) {
-                alert('Fehler beim Reset: ' + err.message);
-            } finally {
-                btn.textContent = originalText;
-                btn.disabled = false;
+                alert('Reset Error: ' + err.message);
+            }
+        }
+
+        async function adminDeleteUser(email) {
+            if (!confirm(`Nutzer ${email} permanent löschen?`)) return;
+            try {
+                await apiCall('delete_user', { email });
+                await apiCall('delete_archive', { email });
+                renderAdminUserList();
+            } catch (err) {
+                alert('Delete Error: ' + err.message);
             }
         }
 
