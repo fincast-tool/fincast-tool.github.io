@@ -2076,51 +2076,42 @@ CRITICAL: Add this exact sentence at the end: "DISCLAIMER: Diese Analyse ist ein
         // ==================== ADMIN LOGIC ====================
         function toggleAdmin() {
             const overlay = document.getElementById('adminOverlay');
+            if (!overlay) return;
             overlay.classList.toggle('open');
             if (overlay.classList.contains('open')) renderAdminUserList();
         }
 
         async function renderAdminUserList() {
             const list = document.getElementById('adminUserList');
-            list.innerHTML = '<tr><td colspan="6" class="text-center py-10 opacity-30"><div class="flex flex-col items-center gap-2"><span>Fetching encrypted records...</span><span class="text-[8px] animate-pulse">Checking Redis: terminal_users</span></div></td></tr>';
+            if (!list) return;
+            list.innerHTML = '<tr><td colspan="6" class="text-center py-10 opacity-30 font-mono text-[10px]">VERBINDUNG ZUR DATENBANK WIRD HERGESTELLT...</td></tr>';
 
             try {
-                console.log('Admin: Fetching users and queries...');
-                const [users, allQueries] = await Promise.all([
-                    apiCall('get_users'),
-                    apiCall('get_all_queries')
-                ]);
+                // Holen der Rohdaten vom Server
+                const users = await apiCall('get_users');
+                const allQueries = await apiCall('get_all_queries');
 
                 if (users.error) {
-                    list.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-red-500 font-mono text-[10px]">API ERROR: ${users.error}</td></tr>`;
+                    list.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-red-500 font-mono text-[10px]">FEHLER: ${users.error}</td></tr>`;
                     return;
                 }
 
                 const usersArray = Array.isArray(users) ? users : [];
-                console.log('Admin: Users received:', usersArray.length);
-
                 if (usersArray.length === 0) {
-                    list.innerHTML = `<tr><td colspan="6" class="text-center py-10 opacity-30 font-mono text-[10px]">
-                        <div class="flex flex-col items-center gap-2">
-                            <span>No users found in "terminal_users" key.</span>
-                            <span class="text-gold-500/50">Ensure ADMIN_EMAIL environment variable is set.</span>
-                        </div>
-                    </td></tr>`;
+                    list.innerHTML = '<tr><td colspan="6" class="text-center py-10 opacity-30 font-mono text-[10px]">KEINE NUTZER REGISTRIERT.</td></tr>';
                     return;
                 }
 
                 list.innerHTML = '';
                 usersArray.forEach(u => {
-                    // Falls allQueries ein Fehlerobjekt ist, nutzen wir einen leeren Fallback
-                    const qStats = (allQueries && !allQueries.error) ? allQueries : {};
-                    const qData = qStats[u.email] || { counts: {} };
+                    const qData = (allQueries && !allQueries.error) ? (allQueries[u.email] || { counts: {} }) : { counts: {} };
                     const totalQueries = Object.values(qData.counts).reduce((a, b) => a + b, 0);
 
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td>
                             <div class="flex flex-col">
-                                <span class="text-white font-bold">${u.firstName} ${u.lastName}</span>
+                                <span class="text-white font-bold">${u.firstName || 'User'} ${u.lastName || ''}</span>
                                 <span class="text-[9px] text-gray-500 font-mono">${u.email}</span>
                             </div>
                         </td>
@@ -2138,18 +2129,18 @@ CRITICAL: Add this exact sentence at the end: "DISCLAIMER: Diese Analyse ist ein
                             </select>
                         </td>
                         <td>
-                            <input type="text" value="${u.apiKey || ''}" placeholder="System Default" 
+                            <input type="text" value="${u.apiKey || ''}" placeholder="System Key" 
                                 onblur="updateUserField('${u.email}', 'apiKey', this.value)"
-                                class="w-full bg-white/5 border border-white/10 rounded px-2 py-1 text-[9px] font-mono">
+                                class="w-full bg-white/5 border border-white/10 rounded px-2 py-1 text-[9px] font-mono text-gold-500/70">
                         </td>
                         <td>
                             <div class="flex items-center gap-3">
                                 <span class="text-gold-500 font-bold font-mono">${totalQueries}</span>
-                                <button onclick="resetUserQueries('${u.email}')" class="text-[8px] bg-red-500/10 text-red-500 border border-red-500/20 px-2 py-1 rounded hover:bg-red-500 hover:text-white transition-all uppercase">Reset</button>
+                                <button onclick="resetUserQueries('${u.email}')" class="text-[8px] bg-red-500/10 text-red-500 border border-red-500/20 px-2 py-1 rounded hover:bg-red-500 hover:text-white transition-all">RESET</button>
                             </div>
                         </td>
                         <td class="text-right">
-                            <button onclick="adminDeleteUser('${u.email}')" class="text-gray-600 hover:text-red-500 transition-colors">
+                            <button onclick="adminDeleteUser('${u.email}')" class="text-gray-600 hover:text-red-500">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                             </button>
                         </td>
@@ -2157,7 +2148,7 @@ CRITICAL: Add this exact sentence at the end: "DISCLAIMER: Diese Analyse ist ein
                     list.appendChild(tr);
                 });
             } catch (err) {
-                list.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-red-500 font-mono text-[10px]">Failed to load registry: ${err.message}</td></tr>`;
+                list.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-red-500 font-mono text-[10px]">CRITICAL_UI_ERROR: ${err.message}</td></tr>`;
             }
         }
 
@@ -2168,42 +2159,34 @@ CRITICAL: Add this exact sentence at the end: "DISCLAIMER: Diese Analyse ist ein
                 if (user) {
                     user[field] = value;
                     await apiCall('save_user', { data: user });
-                    // Refresh if self updated
-                    const currentUser = await getCurrentUser();
-                    if (currentUser && currentUser.email === email) await initApp();
-                    else renderAdminUserList();
+                    renderAdminUserList();
                 }
             } catch (err) {
-                alert('Update Error: ' + err.message);
+                alert('Update failed: ' + err.message);
             }
         }
 
         async function resetUserQueries(email) {
-            if (!confirm(`Queries für ${email} wirklich zurücksetzen?`)) return;
+            if (!confirm(`Reset Queries für ${email}?`)) return;
             try {
                 const res = await fetch('/api/reset-queries', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ userId: email })
                 });
-                if (res.ok) {
-                    renderAdminUserList();
-                    const current = await getCurrentUser();
-                    if (current && current.email === email) updateFooter(current);
-                }
+                if (res.ok) renderAdminUserList();
             } catch (err) {
-                alert('Reset Error: ' + err.message);
+                alert('Reset failed');
             }
         }
 
         async function adminDeleteUser(email) {
-            if (!confirm(`Nutzer ${email} permanent löschen?`)) return;
+            if (!confirm(`Account ${email} wirklich löschen?`)) return;
             try {
                 await apiCall('delete_user', { email });
-                await apiCall('delete_archive', { email });
                 renderAdminUserList();
             } catch (err) {
-                alert('Delete Error: ' + err.message);
+                alert('Delete failed');
             }
         }
 
