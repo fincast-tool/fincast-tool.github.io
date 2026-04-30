@@ -71,23 +71,33 @@ export default async function handler(req, res) {
                         let sumPE10 = 0, countPE10 = 0;
                         
                         metricsData.forEach((y, index) => {
+                            const pe = y.peRatio;
+                            const pb = y.pbRatio;
+                            const ps = y.priceToSalesRatio;
+                            const ev = y.enterpriseValueOverEBITDA;
+
                             if (index < 5) {
-                                if (y.peRatio) { sumPE += y.peRatio; countPE++; }
-                                if (y.pbRatio) { sumPB += y.pbRatio; countPB++; }
-                                if (y.priceToSalesRatio) { sumPS += y.priceToSalesRatio; countPS++; }
-                                if (y.enterpriseValueOverEBITDA) { sumEV += y.enterpriseValueOverEBITDA; countEV++; }
+                                if (pe !== null && pe !== undefined) { sumPE += pe; countPE++; }
+                                if (pb !== null && pb !== undefined) { sumPB += pb; countPB++; }
+                                if (ps !== null && ps !== undefined) { sumPS += ps; countPS++; }
+                                if (ev !== null && ev !== undefined) { sumEV += ev; countEV++; }
                             }
-                            if (y.peRatio) { sumPE10 += y.peRatio; countPE10++; }
+                            if (pe !== null && pe !== undefined) { sumPE10 += pe; countPE10++; }
                         });
 
                         // FCF Berechnung aus Cash Flow Statement
                         let sumFCF5 = 0, countFCF5 = 0, sumFCF10 = 0, countFCF10 = 0;
                         if (cfData && cfData.length > 0) {
                             cfData.forEach((y, index) => {
-                                if (index < 5) {
-                                    if (y.freeCashFlow) { sumFCF5 += y.freeCashFlow; countFCF5++; }
+                                const fcf = y.freeCashFlow;
+                                if (fcf !== null && fcf !== undefined) {
+                                    if (index < 5) {
+                                        sumFCF5 += fcf;
+                                        countFCF5++;
+                                    }
+                                    sumFCF10 += fcf;
+                                    countFCF10++;
                                 }
-                                if (y.freeCashFlow) { sumFCF10 += y.freeCashFlow; countFCF10++; }
                             });
                         }
                         
@@ -99,12 +109,15 @@ export default async function handler(req, res) {
 
                         const avgFCF5 = countFCF5 > 0 ? (sumFCF5 / countFCF5 / 1e6).toFixed(2) + ' M' : 'N/A';
                         const avgFCF10 = countFCF10 > 0 ? (sumFCF10 / countFCF10 / 1e6).toFixed(2) + ' M' : 'N/A';
-                        const currentFCF = (cfData && cfData[0] && cfData[0].freeCashFlow) ? (cfData[0].freeCashFlow / 1e6).toFixed(2) + ' M' : 'N/A';
+                        
+                        const firstCF = cfData[0] ? cfData[0].freeCashFlow : null;
+                        const currentFCF = (firstCF !== null && firstCF !== undefined) ? (firstCF / 1e6).toFixed(2) + ' M' : 'N/A';
 
-                        const currentPE = metricsData[0].peRatio ? metricsData[0].peRatio.toFixed(2) : 'N/A';
-                        const currentPB = metricsData[0].pbRatio ? metricsData[0].pbRatio.toFixed(2) : 'N/A';
-                        const currentPS = metricsData[0].priceToSalesRatio ? metricsData[0].priceToSalesRatio.toFixed(2) : 'N/A';
-                        const currentEV = metricsData[0].enterpriseValueOverEBITDA ? metricsData[0].enterpriseValueOverEBITDA.toFixed(2) : 'N/A';
+                        const firstMetric = metricsData[0] || {};
+                        const currentPE = (firstMetric.peRatio !== null && firstMetric.peRatio !== undefined) ? firstMetric.peRatio.toFixed(2) : 'N/A';
+                        const currentPB = (firstMetric.pbRatio !== null && firstMetric.pbRatio !== undefined) ? firstMetric.pbRatio.toFixed(2) : 'N/A';
+                        const currentPS = (firstMetric.priceToSalesRatio !== null && firstMetric.priceToSalesRatio !== undefined) ? firstMetric.priceToSalesRatio.toFixed(2) : 'N/A';
+                        const currentEV = (firstMetric.enterpriseValueOverEBITDA !== null && firstMetric.enterpriseValueOverEBITDA !== undefined) ? firstMetric.enterpriseValueOverEBITDA.toFixed(2) : 'N/A';
 
                         // Baue den ultimativen Single Source of Truth Block auf
                         const fmpContext = `
@@ -130,12 +143,12 @@ Avg Volume: ${quote.avgVolume || 'N/A'}
 MACD: ${macdData !== 'N/A' ? macdData.toFixed(2) : 'N/A'}
 
 --- MULTIPLES & VALUATION ---
-Aktuelles KGV (P/E): ${currentPE} | 5J-Avg KGV: ${avgPE} | 10J-Avg KGV: ${avgPE10}
-Aktuelles KBV (P/B): ${currentPB} | 5J-Avg KBV: ${avgPB}
-Aktuelles KUV (P/S): ${currentPS} | 5J-Avg KUV: ${avgPS}
-Aktuelles EV/EBITDA: ${currentEV} | 5J-Avg EV/EBITDA: ${avgEV}
-Aktueller Free Cash Flow (FCF): ${currentFCF}
-Avg FCF (5J): ${avgFCF5} | Avg FCF (10J): ${avgFCF10}
+Current P/E: ${currentPE} | 5Y Average P/E: ${avgPE} | 10Y Average P/E: ${avgPE10}
+Current P/B: ${currentPB} | 5Y Average P/B: ${avgPB}
+Current P/S: ${currentPS} | 5Y Average P/S: ${avgPS}
+Current EV/EBITDA: ${currentEV} | 5Y Average EV/EBITDA: ${avgEV}
+Current Free Cash Flow (FCF): ${currentFCF}
+Average FCF (5Y): ${avgFCF5} | Average FCF (10Y): ${avgFCF10}
 DCF Fair Value Estimate (FMP): $${profile.dcf ? profile.dcf.toFixed(2) : 'N/A'}
 Analyst Price Target (Consensus): ${pt.targetConsensus ? '$' + pt.targetConsensus : 'N/A'} (High: $${pt.targetHigh || 'N/A'} | Low: $${pt.targetLow || 'N/A'})
 
