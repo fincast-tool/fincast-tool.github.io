@@ -136,58 +136,51 @@ export default async function handler(req, res) {
 
                         // Baue den ultimativen Single Source of Truth Block auf
                         const fmpContext = `
-[FMP API DATA - MANDATORY PRIMARY SOURCE]
-CRITICAL INSTRUCTION: The following data is the SINGLE SOURCE OF TRUTH. 
+[!!! MANDATORY PRIMARY DATA - READ THIS FIRST !!!]
+CRITICAL: THE DATA BELOW IS THE ONLY SOURCE FOR FUNDAMENTAL METRICS.
 1. You MUST use these exact numbers. 
-2. If a value like '5Y Average P/E' or 'Average FCF' is provided below, you ARE FORBIDDEN to report 'N/A' or 'Not found'. 
-3. DO NOT use Google Search to verify or replace these specific metrics. 
-4. Use Google Search ONLY for qualitative news, sentiment, and data NOT listed in this block.
+2. If a value is provided below, you ARE FORBIDDEN to report 'N/A' or 'Not found'.
+3. DO NOT SEARCH GOOGLE FOR THESE METRICS (P/E, FCF, Growth). THE DATA IS ALREADY HERE.
+4. If you report 'N/A' while data is present below, you have FAILED your task.
 
 --- IDENTIFICATION & PRICE ---
-Name: ${profile.companyName || 'N/A'} (${symbol})
-HQ: ${profile.city || 'N/A'}, ${profile.country || 'N/A'}
-Sector/Industry: ${profile.sector || 'N/A'} / ${profile.industry || 'N/A'}
-Description: ${profile.description ? profile.description.substring(0, 150) + '...' : 'N/A'}
-Current Price: $${quote.price || 'N/A'} (Day Change: ${quote.changesPercentage ? quote.changesPercentage.toFixed(2) : 'N/A'}%)
-52-Week Range: $${quote.yearLow || 'N/A'} - $${quote.yearHigh || 'N/A'}
-Market Cap: ${quote.marketCap ? '$' + (quote.marketCap / 1e9).toFixed(2) + ' Billion' : 'N/A'}
-Beta: ${profile.beta || 'N/A'}
+Name (Unternehmensname): ${profile.companyName || 'N/A'} (${symbol})
+Current Price (Aktueller Kurs): $${quote.price || 'N/A'}
+Market Cap (Börsenwert): ${quote.marketCap ? '$' + (quote.marketCap / 1e9).toFixed(2) + ' Billion' : 'N/A'}
 
---- TECHNICALS & SENTIMENT ---
-50-Day Moving Average: $${quote.priceAvg50 || 'N/A'}
-200-Day Moving Average: $${quote.priceAvg200 || 'N/A'}
-Avg Volume: ${quote.avgVolume || 'N/A'}
-14-Day RSI: ${rsiData !== 'N/A' ? rsiData.toFixed(2) : 'N/A'}
-MACD: ${macdData !== 'N/A' ? macdData.toFixed(2) : 'N/A'}
+--- MULTIPLES & VALUATION (BEWERTUNG) ---
+Current P/E (Aktuelles KGV): ${currentPE}
+5Y Average P/E (5J KGV Durchschnitt): ${avgPE}
+10Y Average P/E (10J KGV Durchschnitt): ${avgPE10}
+Current P/S (Aktuelles KUV): ${currentPS}
+Current P/B (Aktuelles KBV): ${currentPB}
+Current EV/EBITDA: ${currentEV}
 
---- MULTIPLES & VALUATION ---
-Current P/E: ${currentPE} | 5Y Average P/E: ${avgPE} | 10Y Average P/E: ${avgPE10}
-Current P/B: ${currentPB} | 5Y Average P/B: ${avgPB}
-Current P/S: ${currentPS} | 5Y Average P/S: ${avgPS}
-Current EV/EBITDA: ${currentEV} | 5Y Average EV/EBITDA: ${avgEV}
-Current Free Cash Flow (FCF): ${currentFCF}
+--- CASH FLOW & MULTIPLES (FCF) ---
+Current Free Cash Flow (Aktueller FCF): ${currentFCF}
 Current P/FCF (FCF Multiple): ${ (quote.marketCap && currentFCFVal > 0) ? (quote.marketCap / currentFCFVal).toFixed(2) : 'N/A' }
-Average FCF (5Y): ${avgFCF5} | Average FCF (10Y): ${avgFCF10}
-DCF Fair Value Estimate (FMP): $${profile.dcf ? profile.dcf.toFixed(2) : 'N/A'}
-Analyst Price Target (Consensus): ${pt.targetConsensus ? '$' + pt.targetConsensus : 'N/A'} (High: $${pt.targetHigh || 'N/A'} | Low: $${pt.targetLow || 'N/A'})
+Average FCF 5Y (5J FCF Durchschnitt): ${avgFCF5}
+Average FCF 10Y (10J FCF Durchschnitt): ${avgFCF10}
 
---- GROWTH & MARGINS ---
-EPS (Trailing): $${quote.eps || 'N/A'}
+--- DCF & TARGETS ---
+DCF Fair Value Estimate (FMP): $${profile.dcf ? profile.dcf.toFixed(2) : 'N/A'}
+Analyst Price Target (Kursziel Consensus): ${pt.targetConsensus ? '$' + pt.targetConsensus : 'N/A'}
+
+--- GROWTH & MARGINS (WACHSTUM) ---
 1Y Revenue Growth: ${growth.revenueGrowth ? (growth.revenueGrowth * 100).toFixed(2) + '%' : 'N/A'}
 1Y EPS Growth: ${growth.epsgrowth ? (growth.epsgrowth * 100).toFixed(2) + '%' : 'N/A'}
-Operating Margin: ${ttm.operatingProfitMarginTTM ? (ttm.operatingProfitMarginTTM * 100).toFixed(2) + '%' : 'N/A'}
-Net Margin: ${ttm.netProfitMarginTTM ? (ttm.netProfitMarginTTM * 100).toFixed(2) + '%' : 'N/A'}
-ROE: ${ttm.roeTTM ? (ttm.roeTTM * 100).toFixed(2) + '%' : 'N/A'}
-ROIC: ${ttm.roicTTM ? (ttm.roicTTM * 100).toFixed(2) + '%' : 'N/A'}
+Operating Margin (Operative Marge): ${ttm.operatingProfitMarginTTM ? (ttm.operatingProfitMarginTTM * 100).toFixed(2) + '%' : 'N/A'}
+ROE (Eigenkapitalrendite): ${ttm.roeTTM ? (ttm.roeTTM * 100).toFixed(2) + '%' : 'N/A'}
 Debt to Equity: ${ttm.debtToEquityTTM ? ttm.debtToEquityTTM.toFixed(2) : 'N/A'}
-FCF Yield: ${ttm.freeCashFlowYieldTTM ? (ttm.freeCashFlowYieldTTM * 100).toFixed(2) + '%' : 'N/A'}
-Dividend Yield: ${ttm.dividendYieldPercentageTTM ? ttm.dividendYieldPercentageTTM.toFixed(2) + '%' : 'N/A'}
+FCF Yield (FCF Rendite): ${ttm.freeCashFlowYieldTTM ? (ttm.freeCashFlowYieldTTM * 100).toFixed(2) + '%' : 'N/A'}
 
 --- EARNINGS HISTORY ---
 Next Earnings Date: ${quote.earningsAnnouncement || 'N/A'}
 Last 4 Quarters EPS Surprise History:
 ${earnString}
-[/FMP API DATA]
+[/MANDATORY PRIMARY DATA]
+
+`;
 
 `;
                         // Fügt die harten FMP-Daten GANZ OBEN in den Gemini Prompt ein
