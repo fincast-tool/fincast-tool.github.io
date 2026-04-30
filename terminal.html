@@ -1509,13 +1509,13 @@ Generate the following sections with EXACT tags. Output ONLY the data inside the
 
             if (agentIds.includes('company_identity')) {
                 prompt += `<company_identity>
-Name: [Name]
+Name: [Use 'Name' from FMP API Block]
 ISIN: [ISIN]
 WKN: [WKN]
-Sektor: [Sector]
-HQ: [City, Country from API]
-Profil: [Short Summary from API]
-Aktueller Kurs: [Price from API]
+Sektor: [Use 'Sector/Industry' from FMP API Block]
+HQ: [Use 'HQ' from FMP API Block]
+Profil: [Use 'Description' from FMP API Block]
+Aktueller Kurs: [Use 'Current Price' from FMP API Block]
 </company_identity>\n\n`;
             }
 
@@ -1523,27 +1523,27 @@ Aktueller Kurs: [Price from API]
                 prompt += `<goldman_sachs>
 ROLE: Senior Equity Analyst (Fundamental Value)
 - Thesis: [1 sentence investment case]
-- P/E & Fwd P/E: [Data from API vs Sector]
-- Average Historical P/E 5y & 10y: [Data from API]
-- Revenue & EPS Growth: [1Y Growth Data from API]
-- Debt/Equity & FCF Yield: [Data from API]
+- Current P/E & Fwd P/E: [Use 'Current P/E' from FMP API Block]
+- Average Historical P/E 5y & 10y: [Use '5Y Average P/E' and '10Y Average P/E' from FMP API Block]
+- Revenue & EPS Growth: [Use '1Y Revenue Growth' and '1Y EPS Growth' from FMP API Block]
+- Debt/Equity & FCF Yield: [Use 'Debt to Equity' and 'FCF Yield' from FMP API Block]
 - Competitive Moat: [1 sentence strategic edge]
-- 12m Price Target: [Consensus Data from API]
-- AI Sentiment: [Positive/Neutral/Negative]
+- 12m Price Target: [Use 'Analyst Price Target' from FMP API Block]
+- AI Sentiment: [POSITIVE/NEUTRAL/NEGATIVE]
 </goldman_sachs>\n\n`;
             }
 
             if (agentIds.includes('morgan_stanley')) {
                 prompt += `<morgan_stanley>
 ROLE: VP-Level Investment Banker (DCF Valuation)
-- Operating Margin: [Current TTM Margin from API]
-- ROE & ROIC: [Return Data from API]
-- Free Cash Flow (FCF): [Current vs 5y/10y Avg from API]
+- Operating Margin: [Use 'Operating Margin' from FMP API Block]
+- ROE & ROIC: [Use 'ROE' and 'ROIC' from FMP API Block]
+- Free Cash Flow (FCF): [Use 'Current Free Cash Flow', 'Average FCF (5Y)' and 'Average FCF (10Y)' from FMP API Block]
 - WACC Estimate: [Data]
 - Terminal Value: [Exit Multiple/Growth Data]
-- DCF Fair Value (FMP): [Exact Fair Value from API]
+- DCF Fair Value (FMP): [Use 'DCF Fair Value Estimate' from FMP API Block]
 - Market Premium/Discount: [% difference between Price and DCF]
-- AI Outlook: [Undervalued/Fairly Valued/Overvalued]
+- AI Outlook: [UNDERVALUED/FAIRLY VALUED/OVERVALUED]
 </morgan_stanley>\n\n`;
             }
 
@@ -1556,7 +1556,7 @@ ROLE: Senior Equity Research Analyst (Earnings Specialist)
 - Segment Focus: [Key growth driver data]
 - Options Implied Move: [+/- % Data]
 - Management Guidance: [1 sentence summary]
-- Play: [Positive/Neutral/Wait]
+- Play: [POSITIVE/NEUTRAL/WAIT]
 </jpmorgan>\n\n`;
             }
 
@@ -1753,27 +1753,20 @@ CRITICAL: Add this exact sentence at the end: "DISCLAIMER: Diese Analyse ist ein
                         .replace(/\n/g, '<br>');
 
                     // Universal handling for Executive Summary Badges across ALL widgets
+                    // Upgrade: Also catches keywords without brackets if they are at the end of a line or after a colon
                     htmlContent = htmlContent
-                        .replace(/\[POSITIVE\]/gi, '<span class="badge badge-buy">POSITIVE</span>')
-                        .replace(/\[STRONG\s?POSITIVE\]/gi, '<span class="badge badge-buy">STRONG POSITIVE</span>')
-                        .replace(/\[NEGATIVE\]/gi, '<span class="badge badge-sell">NEGATIVE</span>')
-                        .replace(/\[STRONG\s?NEGATIVE\]/gi, '<span class="badge badge-sell">STRONG NEGATIVE</span>')
-                        .replace(/\[BUY\]/gi, '<span class="badge badge-buy">BUY</span>')
-                        .replace(/\[STRONG\s?BUY\]/gi, '<span class="badge badge-buy">STRONG BUY</span>')
-                        .replace(/\[BUY\s?BEFORE\]/gi, '<span class="badge badge-buy">BUY BEFORE</span>')
-                        .replace(/\[HOLD\]/gi, '<span class="badge badge-hold">HOLD</span>')
-                        .replace(/\[NEUTRAL\]/gi, '<span class="badge badge-wait">NEUTRAL</span>')
-                        .replace(/\[SELL\]/gi, '<span class="badge badge-sell">SELL</span>')
-                        .replace(/\[STRONG\s?SELL\]/gi, '<span class="badge badge-sell">STRONG SELL</span>')
-                        .replace(/\[SELL\s?BEFORE\]/gi, '<span class="badge badge-sell">SELL BEFORE</span>')
-                        .replace(/\[WAIT\]/gi, '<span class="badge badge-wait">WAIT</span>')
-                        .replace(/\[UNDERVALUED\]/gi, '<span class="badge badge-buy">UNDERVALUED</span>')
-                        .replace(/\[OVERVALUED\]/gi, '<span class="badge badge-sell">OVERVALUED</span>')
-                        .replace(/\[FAIRLY\s?VALUED\]/gi, '<span class="badge badge-hold">FAIR VALUED</span>')
-                        .replace(/\[ACCUMULATE\]/gi, '<span class="badge badge-buy">ACCUMULATE</span>')
-                        .replace(/\[REDUCE\]/gi, '<span class="badge badge-sell">REDUCE</span>')
-                        .replace(/\[WATCHLIST\]/gi, '<span class="badge badge-wait">WATCHLIST</span>')
-                        .replace(/\[RISK\]/gi, '<span class="badge badge-sell">RISK</span>');
+                        .replace(/\[?STRONG\s?POSITIVE\]?/gi, '<span class="badge badge-buy">STRONG POSITIVE</span>')
+                        .replace(/\[?STRONG\s?NEGATIVE\]?/gi, '<span class="badge badge-sell">STRONG NEGATIVE</span>')
+                        .replace(/\[?POSITIVE\]?/gi, '<span class="badge badge-buy">POSITIVE</span>')
+                        .replace(/\[?NEGATIVE\]?/gi, '<span class="badge badge-sell">NEGATIVE</span>')
+                        .replace(/\[?NEUTRAL\]?/gi, '<span class="badge badge-wait">NEUTRAL</span>')
+                        .replace(/\[?UNDERVALUED\]?/gi, '<span class="badge badge-buy">UNDERVALUED</span>')
+                        .replace(/\[?OVERVALUED\]?/gi, '<span class="badge badge-sell">OVERVALUED</span>')
+                        .replace(/\[?FAIRLY\s?VALUED\]?/gi, '<span class="badge badge-hold">FAIR VALUED</span>')
+                        .replace(/\[?BUY\]?/gi, '<span class="badge badge-buy">BUY</span>')
+                        .replace(/\[?SELL\]?/gi, '<span class="badge badge-sell">SELL</span>')
+                        .replace(/\[?HOLD\]?/gi, '<span class="badge badge-hold">HOLD</span>')
+                        .replace(/\[?WAIT\]?/gi, '<span class="badge badge-wait">WAIT</span>');
 
                     widget.innerHTML = `
                         <div class="widget-header flex items-center justify-between">

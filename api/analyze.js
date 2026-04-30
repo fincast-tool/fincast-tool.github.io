@@ -89,7 +89,14 @@ export default async function handler(req, res) {
                         let sumFCF5 = 0, countFCF5 = 0, sumFCF10 = 0, countFCF10 = 0;
                         if (cfData && cfData.length > 0) {
                             cfData.forEach((y, index) => {
-                                const fcf = y.freeCashFlow;
+                                // Fallback: Falls freeCashFlow null ist, berechne es selbst
+                                let fcf = y.freeCashFlow;
+                                if (fcf === null || fcf === undefined) {
+                                    const ocf = y.netCashProvidedByOperatingActivities || y.operatingCashFlow || 0;
+                                    const capex = Math.abs(y.capitalExpenditure || 0);
+                                    fcf = ocf - capex;
+                                }
+
                                 if (fcf !== null && fcf !== undefined) {
                                     if (index < 5) {
                                         sumFCF5 += fcf;
@@ -110,8 +117,16 @@ export default async function handler(req, res) {
                         const avgFCF5 = countFCF5 > 0 ? (sumFCF5 / countFCF5 / 1e6).toFixed(2) + ' M' : 'N/A';
                         const avgFCF10 = countFCF10 > 0 ? (sumFCF10 / countFCF10 / 1e6).toFixed(2) + ' M' : 'N/A';
                         
-                        const firstCF = cfData[0] ? cfData[0].freeCashFlow : null;
-                        const currentFCF = (firstCF !== null && firstCF !== undefined) ? (firstCF / 1e6).toFixed(2) + ' M' : 'N/A';
+                        // Aktueller FCF mit Fallback
+                        let currentFCFVal = cfData[0] ? cfData[0].freeCashFlow : null;
+                        if (currentFCFVal === null || currentFCFVal === undefined) {
+                           if (cfData[0]) {
+                               const ocf = cfData[0].netCashProvidedByOperatingActivities || cfData[0].operatingCashFlow || 0;
+                               const capex = Math.abs(cfData[0].capitalExpenditure || 0);
+                               currentFCFVal = ocf - capex;
+                           }
+                        }
+                        const currentFCF = (currentFCFVal !== null && currentFCFVal !== undefined) ? (currentFCFVal / 1e6).toFixed(2) + ' M' : 'N/A';
 
                         const firstMetric = metricsData[0] || {};
                         const currentPE = (firstMetric.peRatio !== null && firstMetric.peRatio !== undefined) ? firstMetric.peRatio.toFixed(2) : 'N/A';
@@ -121,9 +136,12 @@ export default async function handler(req, res) {
 
                         // Baue den ultimativen Single Source of Truth Block auf
                         const fmpContext = `
-[FMP API DATA - SINGLE SOURCE of TRUTH]
-CRITICAL INSTRUCTION: You MUST use these exact API numbers for your fundamental analysis, valuation, and technical signals. 
-Do NOT use Google Search for these metrics! Use Google Search ONLY for recent news, management guidance, macro sentiment, and short interest / 13F flux.
+[FMP API DATA - MANDATORY PRIMARY SOURCE]
+CRITICAL INSTRUCTION: The following data is the SINGLE SOURCE OF TRUTH. 
+1. You MUST use these exact numbers. 
+2. If a value like '5Y Average P/E' or 'Average FCF' is provided below, you ARE FORBIDDEN to report 'N/A' or 'Not found'. 
+3. DO NOT use Google Search to verify or replace these specific metrics. 
+4. Use Google Search ONLY for qualitative news, sentiment, and data NOT listed in this block.
 
 --- IDENTIFICATION & PRICE ---
 Name: ${profile.companyName || 'N/A'} (${symbol})
