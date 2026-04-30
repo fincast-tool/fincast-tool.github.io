@@ -1803,9 +1803,12 @@ CRITICAL: Add this exact sentence at the end: "DISCLAIMER: Diese Analyse ist ein
                         'WAIT': 'wait'
                     };
 
-                    const badgeRegex = new RegExp(`\\[?(${Object.keys(badgeMap).join('|')})\\]?`, 'gi');
-                    htmlContent = htmlContent.replace(badgeRegex, (match, p1) => {
-                        const key = p1.toUpperCase();
+                    // Use word boundaries \b to prevent matching inside other words (like HoldingsgeSELLschaft)
+                    // Matches either [KEYWORD] or standalone KEYWORD
+                    const badgeRegex = new RegExp(`\\[(${Object.keys(badgeMap).join('|')})\\]|\\b(${Object.keys(badgeMap).join('|')})\\b`, 'gi');
+                    
+                    htmlContent = htmlContent.replace(badgeRegex, (match, p1, p2) => {
+                        const key = (p1 || p2).toUpperCase();
                         const type = badgeMap[key] || 'wait';
                         return `<span class="badge badge-${type}">${key}</span>`;
                     });
