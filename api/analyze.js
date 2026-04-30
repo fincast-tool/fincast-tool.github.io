@@ -179,10 +179,8 @@ Next Earnings Date: ${quote.earningsAnnouncement || 'N/A'}
 Last 4 Quarters EPS Surprise History:
 ${earnString}
 [/MANDATORY PRIMARY DATA]
-
 `;
 
-`;
                         // Fügt die harten FMP-Daten GANZ OBEN in den Gemini Prompt ein
                         geminiBody.contents[0].parts[0].text = fmpContext + geminiBody.contents[0].parts[0].text;
                     }
