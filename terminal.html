@@ -1512,9 +1512,9 @@ Name: [Name]
 ISIN: [ISIN]
 WKN: [WKN]
 Sektor: [Sector]
-HQ: [City, Country]
-Profil: [Max 10 words]
-Aktueller Kurs: [Current Price with Currency]
+HQ: [City, Country from API]
+Profil: [Short Summary from API]
+Aktueller Kurs: [Price from API]
 </company_identity>\n\n`;
             }
 
@@ -1522,39 +1522,40 @@ Aktueller Kurs: [Current Price with Currency]
                 prompt += `<goldman_sachs>
 ROLE: Senior Equity Analyst (Fundamental Value)
 - Thesis: [1 sentence investment case]
-- P/E & Fwd P/E: [Data vs Sector]
-- Average Historical P/E 5y & 10y: [Data]
-- Revenue & EPS Growth: [Data]
-- Debt/Equity & FCF Yield: [Data]
+- P/E & Fwd P/E: [Data from API vs Sector]
+- Average Historical P/E 5y & 10y: [Data from API]
+- Revenue & EPS Growth: [1Y Growth Data from API]
+- Debt/Equity & FCF Yield: [Data from API]
 - Competitive Moat: [1 sentence strategic edge]
-- 12m Price Target: [Bull vs Bear Data]
-- Verdict: [Buy/Hold/Sell]
+- 12m Price Target: [Consensus Data from API]
+- AI Sentiment: [Positive/Neutral/Negative]
 </goldman_sachs>\n\n`;
             }
 
             if (agentIds.includes('morgan_stanley')) {
                 prompt += `<morgan_stanley>
 ROLE: VP-Level Investment Banker (DCF Valuation)
-- 5y Revenue CAGR: [Data assumption]
-- Operating Margin: [Data trend]
+- Operating Margin: [Current TTM Margin from API]
+- ROE & ROIC: [Return Data from API]
+- Free Cash Flow (FCF): [Current vs 5y/10y Avg from API]
 - WACC Estimate: [Data]
 - Terminal Value: [Exit Multiple/Growth Data]
-- DCF Fair Value: [Exact Price Data]
-- Market Premium/Discount: [% Data]
-- Verdict: [Undervalued/Fairly Valued/Overvalued]
+- DCF Fair Value (FMP): [Exact Fair Value from API]
+- Market Premium/Discount: [% difference between Price and DCF]
+- AI Outlook: [Undervalued/Fairly Valued/Overvalued]
 </morgan_stanley>\n\n`;
             }
 
             if (agentIds.includes('jpmorgan')) {
                 prompt += `<jpmorgan>
 ROLE: Senior Equity Research Analyst (Earnings Specialist)
-- Last 4 Quarters: [Beat/Miss History]
-- Upcoming Consensus: [Rev/EPS Estimates]
+- Next Earnings Date: [Date from API]
+- Last 4 Quarters: [EPS Surprise History from API]
+- Upcoming Consensus: [Rev/EPS Estimates from Google/Search]
 - Segment Focus: [Key growth driver data]
 - Options Implied Move: [+/- % Data]
-- Historical Post-Earnings Move: [% Data]
 - Management Guidance: [1 sentence summary]
-- Play: [Buy Before/Sell Before/Wait]
+- Play: [Positive/Neutral/Wait]
 </jpmorgan>\n\n`;
             }
 
@@ -1562,11 +1563,11 @@ ROLE: Senior Equity Research Analyst (Earnings Specialist)
                 prompt += `<citadel>
 ROLE: Senior Quantitative Trader (Market Microstructure)
 - Trend (D/W/M): [Data]
-- Moving Averages (50/100/200): [Crossover signals]
-- Key Support/Resistance: [Exact Price Levels]
-- RSI & MACD: [Momentum Data]
-- Volume Flow: [Buyer vs Seller strength]
-- Chart Pattern: [Identified Setup]
+- Moving Averages (50/200): [DMA Data from API]
+- RSI (14): [RSI Value from API]
+- MACD: [MACD Value from API]
+- Volume Flow: [Avg Volume from API vs Current]
+- Key Support/Resistance: [Price Levels]
 - Trade Plan: [Entry, Stop-Loss, Target Price]
 </citadel>\n\n`;
             }
@@ -1584,14 +1585,15 @@ ROLE: Quant Researcher (Statistical Arbitrage)
 
             if (agentIds.includes('executive_summary')) {
                 prompt += `<executive_summary>
-- Fundamental Value AI: [1 sentence synthesis] [BADGE]
-- Intrinsic Value AI: [1 sentence synthesis] [BADGE]
-- Earnings Momentum AI: [1 sentence synthesis] [BADGE]
-- Quantitative Technical AI: [1 sentence synthesis] [BADGE]
-- Statistical Arbitrage AI: [1 sentence synthesis] [BADGE]
+- Fundamental Value AI (Simulation): [1 sentence synthesis] [BADGE]
+- Intrinsic Value AI (Simulation): [1 sentence synthesis] [BADGE]
+- Earnings Momentum AI (Simulation): [1 sentence synthesis] [BADGE]
+- Quantitative Technical AI (Simulation): [1 sentence synthesis] [BADGE]
+- Statistical Arbitrage AI (Simulation): [1 sentence synthesis] [BADGE]
 - Strategic DNA: [1 sentence synthesis about Sector and Profile]
-- Final AI Verdict: [1 sentence conclusion] [BADGE]
-MANDATORY: Use EXACTLY ONE of these badges per agent/verdict: [BUY], [STRONG BUY], [HOLD], [NEUTRAL], [SELL], [STRONG SELL], [UNDERVALUED], [OVERVALUED], [FAIRLY VALUED], [WAIT].
+- Final AI Sentiment: [1 sentence conclusion] [BADGE]
+MANDATORY: Use EXACTLY ONE of these badges per agent/sentiment: [POSITIVE], [STRONG POSITIVE], [NEUTRAL], [NEGATIVE], [STRONG NEGATIVE], [UNDERVALUED], [OVERVALUED], [FAIRLY VALUED], [WAIT].
+CRITICAL: Add this exact sentence at the end: "DISCLAIMER: Diese Analyse ist eine KI-gestützte Simulation und stellt keine Anlageberatung dar."
 </executive_summary>\n\n`;
             }
 
@@ -1751,6 +1753,10 @@ MANDATORY: Use EXACTLY ONE of these badges per agent/verdict: [BUY], [STRONG BUY
 
                     // Universal handling for Executive Summary Badges across ALL widgets
                     htmlContent = htmlContent
+                        .replace(/\[POSITIVE\]/gi, '<span class="badge badge-buy">POSITIVE</span>')
+                        .replace(/\[STRONG\s?POSITIVE\]/gi, '<span class="badge badge-buy">STRONG POSITIVE</span>')
+                        .replace(/\[NEGATIVE\]/gi, '<span class="badge badge-sell">NEGATIVE</span>')
+                        .replace(/\[STRONG\s?NEGATIVE\]/gi, '<span class="badge badge-sell">STRONG NEGATIVE</span>')
                         .replace(/\[BUY\]/gi, '<span class="badge badge-buy">BUY</span>')
                         .replace(/\[STRONG\s?BUY\]/gi, '<span class="badge badge-buy">STRONG BUY</span>')
                         .replace(/\[BUY\s?BEFORE\]/gi, '<span class="badge badge-buy">BUY BEFORE</span>')
