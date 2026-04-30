@@ -2091,11 +2091,15 @@ CRITICAL: Add this exact sentence at the end: "DISCLAIMER: Diese Analyse ist ein
             list.innerHTML = '<tr><td colspan="6" class="text-center py-10 opacity-30 font-mono text-[10px]">VERBINDUNG ZUR DATENBANK WIRD HERGESTELLT...</td></tr>';
 
             try {
-                // Paralleler Abruf für maximale Geschwindigkeit und Stabilität
-                const [users, allQueries] = await Promise.all([
-                    apiCall('get_users'),
-                    apiCall('get_all_queries')
-                ]);
+                const users = await apiCall('get_users');
+                const allQueries = await apiCall('get_all_queries');
+
+                // DIAGNOSE-ALERTS
+                if (users.error) {
+                    alert('API-FEHLER (Users): ' + users.error);
+                } else {
+                    alert('Datenbank-Antwort: ' + (Array.isArray(users) ? users.length : 0) + ' Nutzer gefunden.');
+                }
 
                 if (users.error) {
                     list.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-red-500 font-mono text-[10px]">DATENBANK-FEHLER: ${users.error}</td></tr>`;
@@ -2104,7 +2108,7 @@ CRITICAL: Add this exact sentence at the end: "DISCLAIMER: Diese Analyse ist ein
 
                 const usersArray = Array.isArray(users) ? users : [];
                 if (usersArray.length === 0) {
-                    list.innerHTML = '<tr><td colspan="6" class="text-center py-10 opacity-30 font-mono text-[10px]">KEINE NUTZER REGISTRIERT.</td></tr>';
+                    list.innerHTML = '<tr><td colspan="6" class="text-center py-10 opacity-30 font-mono text-[10px]">KEINE NUTZER IN "terminal_users" GEFUNDEN.</td></tr>';
                     return;
                 }
 
