@@ -107,12 +107,18 @@ export default async function handler(req, res) {
 
             case 'get_queries':
                 const qRaw = await redis.get(`queries:${email}`);
-                let queries = qRaw ? JSON.parse(qRaw) : { count: 0, date: '' };
+                let queries = qRaw ? JSON.parse(qRaw) : { counts: {}, date: '' };
                 const todayPT = getResetDateString();
                 if (queries.date !== todayPT) {
-                    queries = { count: 0, date: todayPT };
+                    queries = { counts: {}, date: todayPT };
                 }
-                return res.status(200).json(queries);
+                // Migration alter Struktur
+                if (queries.count !== undefined) {
+                    queries.counts = { 'gemini-2.5-flash-lite': queries.count };
+                    delete queries.count;
+                }
+                const modelToGet = req.body.model || 'gemini-2.5-flash-lite';
+                return res.status(200).json({ count: queries.counts[modelToGet] || 0, date: queries.date });
 
             case 'get_all_queries':
                 const allKeys = await redis.keys('queries:*');
@@ -125,11 +131,15 @@ export default async function handler(req, res) {
                         try { 
                             let qObj = JSON.parse(values[i]);
                             if (qObj.date !== currentPT) {
-                                qObj = { count: 0, date: currentPT };
+                                qObj = { counts: {}, date: currentPT };
+                            }
+                            if (qObj.count !== undefined) {
+                                qObj.counts = { 'gemini-2.5-flash-lite': qObj.count };
+                                delete qObj.count;
                             }
                             allQueries[userEmail] = qObj;
                         } catch(e) { 
-                            allQueries[userEmail] = { count: 0, date: currentPT };
+                            allQueries[userEmail] = { counts: {}, date: currentPT };
                         }
                     });
                 }
@@ -139,13 +149,19 @@ export default async function handler(req, res) {
             case 'increment_query':
                 const today = getResetDateString();
                 let qDataRaw = await redis.get(`queries:${email}`);
-                let q = qDataRaw ? JSON.parse(qDataRaw) : { count: 0, date: today };
+                let q = qDataRaw ? JSON.parse(qDataRaw) : { counts: {}, date: today };
                 
-                if (q.date !== today) { q.count = 0; q.date = today; }
-                q.count++;
+                if (q.date !== today) { q.counts = {}; q.date = today; }
+                if (q.count !== undefined) {
+                    q.counts = { 'gemini-2.5-flash-lite': q.count };
+                    delete q.count;
+                }
+                
+                const modelToInc = req.body.model || 'gemini-2.5-flash-lite';
+                q.counts[modelToInc] = (q.counts[modelToInc] || 0) + 1;
                 
                 await redis.set(`queries:${email}`, JSON.stringify(q));
-                return res.status(200).json(q);
+                return res.status(200).json({ count: q.counts[modelToInc], date: q.date });
 
             case 'save_archive':
                 await redis.hset(`archive:${email}`, key, JSON.stringify(data));

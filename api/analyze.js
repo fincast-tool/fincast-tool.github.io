@@ -16,13 +16,6 @@ export default async function handler(req, res) {
     }
 
     try {
-        if (action === 'list_models') {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
-            const response = await fetch(url);
-            const data = await response.json();
-            return res.status(200).json(data);
-        }
-
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
         
         const response = await fetch(url, {
