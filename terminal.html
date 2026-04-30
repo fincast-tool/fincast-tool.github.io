@@ -866,6 +866,36 @@
                         </div>
 
                         <!-- Results State -->
+                        <!-- Guest Call to Action -->
+                        <div id="guestNotice" class="hidden mb-6 p-4 rounded-xl bg-gold-500/10 border border-gold-500/20 text-center">
+                            <p class="text-[11px] text-gold-500 font-bold uppercase tracking-widest mb-2">Gast-Modus: Du siehst eine geteilte Analyse</p>
+                            <button onclick="location.reload()" class="bg-gold-500 text-obsidian-950 text-[10px] font-bold px-6 py-2 rounded-lg hover:bg-gold-400 transition-all">
+                                JETZT EIGENE ANALYSEN ERSTELLEN
+                            </button>
+                        </div>
+
+                        <div id="welcomeState" class="fade-up">
+                            <div
+                                class="w-full max-w-3xl opacity-20 grayscale mix-blend-screen pointer-events-none mb-6 transform scale-100">
+                                <img src="theme-toggle-portfoliomanager.png" alt="Terminal UI Preview"
+                                    class="w-full rounded-xl">
+                            </div>
+                            <div class="max-w-2xl px-4">
+                                <h1
+                                    class="text-xl sm:text-3xl lg:text-5xl font-black text-white mb-3 tracking-tighter uppercase italic leading-none">
+                                    Strategic <span class="text-gold-500">Intelligence</span> Terminal
+                                </h1>
+                                <p
+                                    class="text-slate-500 font-mono text-[9px] sm:text-xs leading-relaxed uppercase tracking-[0.15em] mb-4">
+                                    Global Market Analysis Protocol • 5 Frameworks Active
+                                </p>
+                                <div
+                                    class="flex items-center justify-center gap-3 text-gold-500/30 text-[9px] font-mono uppercase tracking-[0.3em]">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-gold-500/20"></span> Ready for execution
+                                </div>
+                            </div>
+                        </div>
+
                         <div id="resultsState" class="state-hidden">
                             <!-- Identity Strip -->
                             <div id="identityStrip"
@@ -1260,31 +1290,41 @@
 
         async function shareAnalysisData(data) {
             try {
+                // Extrahiere Firmennamen für personalisierten Text
+                let compName = 'Unknown';
+                if (data.company_identity) {
+                    const match = data.company_identity.match(/Name:\s*(.*)/);
+                    if (match && match[1]) compName = match[1].trim();
+                }
+
                 // Generiere einen kurzen Link über das Backend
                 const res = await apiCall('save_shared_report', { data });
                 if (res.error) throw new Error(res.error);
                 
                 const shareUrl = window.location.origin + window.location.pathname + '?share=' + res.id;
                 
+                const shareTitle = `Fincast Analyse: ${compName}`;
+                const shareText = `Schau dir die neue Analyse zu ${compName} im Fincast Terminal an:`;
+
                 if (navigator.share) {
                     navigator.share({
-                        title: 'Fincast Terminal Analysis',
-                        text: 'Sieh dir diese Analyse im Fincast Terminal an:',
+                        title: shareTitle,
+                        text: shareText,
                         url: shareUrl
                     }).catch(e => {
-                        copyToClipboard(shareUrl);
+                        copyToClipboard(shareUrl, compName);
                     });
                 } else {
-                    copyToClipboard(shareUrl);
+                    copyToClipboard(shareUrl, compName);
                 }
             } catch(e) {
                 alert('Fehler beim Generieren des Links: ' + e.message);
             }
         }
 
-        function copyToClipboard(text) {
+        function copyToClipboard(text, compName = '') {
             navigator.clipboard.writeText(text).then(() => {
-                alert('Share-Link in die Zwischenablage kopiert!');
+                alert(`Analyse zu ${compName || 'Unternehmen'} wurde kopiert!\n\nDu kannst den Link jetzt teilen.`);
             }).catch(() => {
                 prompt('Bitte diesen Link kopieren:', text);
             });
@@ -1295,31 +1335,14 @@
             const user = await getCurrentUser();
             const authScreen = document.getElementById('authScreen');
             const mainApp = document.getElementById('mainApp');
-
-            if (!user) {
-                authScreen.style.display = 'flex';
-                mainApp.classList.add('hidden');
-                return;
-            }
-
-            authScreen.style.display = 'none';
-            mainApp.classList.remove('hidden');
-            if (user.isAdmin) {
-                document.getElementById('adminBtn').classList.remove('hidden');
-                const abm = document.getElementById('adminBtnMobile');
-                if (abm) abm.classList.remove('hidden');
-            }
-            MODEL_ID = user.model || 'gemini-2.5-flash';
-            await updateFooter(user);
-            updateLanguageUI();
-            updateResetTimeDisplay();
-
-            // Handle Share Link
             const urlParams = new URLSearchParams(window.location.search);
             const shareId = urlParams.get('share');
+
+            // Handle Share Link (ALLOW GUESTS)
             if (shareId) {
+                authScreen.style.display = 'none';
+                mainApp.classList.remove('hidden');
                 try {
-                    // Fallback for old base64 links (very long)
                     if (shareId.length > 50) {
                         const decoded = JSON.parse(decodeURIComponent(escape(atob(shareId))));
                         if (decoded) {
@@ -1329,24 +1352,45 @@
                             setUIState('results');
                         }
                     } else {
-                        // Load new short ID from backend
                         const res = await apiCall('get_shared_report', { id: shareId });
                         if (!res.error) {
                             CURRENT_ANALYSIS_DATA = res;
                             if (res.company_identity) renderIdentity(res.company_identity);
                             renderWidgets(res);
                             setUIState('results');
-                        } else {
-                            alert('Der geteilte Report wurde nicht gefunden oder ist abgelaufen.');
                         }
                     }
-                    // Clean up URL without reloading
-                    window.history.replaceState({}, document.title, window.location.pathname);
                 } catch(e) {
                     console.error('Failed to parse shared data', e);
-                    alert('Fehler beim Laden des geteilten Reports.');
                 }
             }
+
+            if (!user) {
+                if (!shareId) {
+                    authScreen.style.display = 'flex';
+                    mainApp.classList.add('hidden');
+                } else {
+                    // Guest viewing a shared report
+                    document.getElementById('guestNotice').classList.remove('hidden');
+                    document.getElementById('footerModelSelect').disabled = true;
+                    document.getElementById('queryCountLabel').innerHTML = '<button onclick="location.reload()" class="text-gold-500 font-bold hover:underline">JETZT REGISTRIEREN</button>';
+                }
+                return;
+            }
+
+            authScreen.style.display = 'none';
+            mainApp.classList.remove('hidden');
+            document.getElementById('guestNotice').classList.add('hidden');
+
+            if (user.isAdmin) {
+                document.getElementById('adminBtn').classList.remove('hidden');
+                const abm = document.getElementById('adminBtnMobile');
+                if (abm) abm.classList.remove('hidden');
+            }
+            MODEL_ID = user.model || 'gemini-2.5-flash';
+            await updateFooter(user);
+            updateLanguageUI();
+            updateResetTimeDisplay();
         }
 
         function updateLanguageUI() {
@@ -1417,14 +1461,13 @@
         }
 
         async function startAnalysis() {
-            let user;
-            try {
-                user = await getCurrentUser();
-            } catch (e) {
-                alert('Fehler beim Laden des Benutzers: ' + e.message);
+            const user = await getCurrentUser();
+            if (!user) {
+                if (confirm('Möchtest du eigene Analysen erstellen? Registriere dich jetzt kostenlos, um vollen Zugriff auf das Terminal zu erhalten!')) {
+                    location.href = window.location.pathname; // Back to login
+                }
                 return;
             }
-            if (!user) { setUIState('welcome'); return; }
 
             const limit = user.tier === 'premium' ? 20 : 1;
             const used = await getQueryCount(user.email).catch(() => 0);
