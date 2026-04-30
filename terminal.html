@@ -725,7 +725,7 @@
                                 d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg></div>
                     <div id="adminBtn"
-                        class="hidden p-2 cursor-pointer hover:text-gold-500 transition-all hover:scale-110"
+                        class="p-2 cursor-pointer hover:text-gold-500 transition-all hover:scale-110"
                         onclick="toggleAdmin()" title="Admin"><svg class="w-6 h-6" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -773,7 +773,7 @@
                             d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                     </svg>
                 </div>
-                <div id="adminBtnMobile" class="hidden" onclick="toggleAdmin()">
+                <div id="adminBtnMobile" onclick="toggleAdmin()">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -1040,6 +1040,36 @@
         </div>
 
     </div><!-- /mainApp -->
+
+    <!-- Admin Panel Modal -->
+    <div id="adminModal" class="hidden fixed inset-0 z-[120] flex items-center justify-center p-4 modal-backdrop">
+        <div class="widget-card w-full max-w-md rounded-xl p-8 shadow-2xl">
+            <div class="flex items-center justify-between mb-6 border-b border-gold-500/20 pb-4">
+                <h3 class="text-sm font-bold font-mono text-gold-500 tracking-widest uppercase">Admin Terminal Control</h3>
+                <button onclick="toggleAdmin()" class="text-gray-500 hover:text-white text-xl">&times;</button>
+            </div>
+            <div class="p-6 space-y-6">
+                <div>
+                    <label class="data-label mb-2 block">Usage Management</label>
+                    <p class="text-[10px] text-gray-500 mb-4 uppercase tracking-widest leading-relaxed">Reset daily query limits for your current session.</p>
+                    <button onclick="resetQueries()" id="resetQueriesBtn"
+                        class="w-full py-3 bg-red-500/10 border border-red-500/30 text-red-500 text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-lg shadow-red-500/5">
+                        Reset My Daily Queries
+                    </button>
+                </div>
+                <div class="pt-4 border-t border-white/5">
+                    <label class="data-label mb-2 block">System Status</label>
+                    <div class="space-y-2 text-[10px] font-mono text-gray-400 uppercase tracking-widest">
+                        <div class="flex justify-between"><span>Core Status:</span> <span class="text-green-500 font-bold">Operational</span></div>
+                        <div class="flex justify-between"><span>Session Tier:</span> <span id="adminTierLabel" class="text-gold-500 font-bold">--</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 text-[8px] font-mono text-gray-600 text-center uppercase tracking-[0.2em] opacity-50 italic">
+                Authorized Personnel Only
+            </div>
+        </div>
+    </div>
 
     </div><!-- /mainApp -->
 
@@ -1556,12 +1586,14 @@ Aktueller Kurs: [Use 'Current Price' from FMP API Block]
                 prompt += `<goldman_sachs>
 ROLE: Senior Equity Analyst (Fundamental Value)
 - Thesis: [1 sentence investment case]
-- Current P/E & Fwd P/E: [Use 'Current P/E' from FMP API Block]
-- Average Historical P/E 5y & 10y: [Use '5Y Average P/E' and '10Y Average P/E' from FMP API Block]
-- Revenue & EPS Growth: [Use '1Y Revenue Growth' and '1Y EPS Growth' from FMP API Block]
-- Debt/Equity & FCF Yield: [Use 'Debt to Equity' and 'FCF Yield' from FMP API Block]
-- Competitive Moat: [1 sentence strategic edge]
-- 12m Price Target: [Use 'Analyst Price Target' from FMP API Block]
+- P/E Analysis: [Use 'Current P/E' and '5Y Average P/E' from FMP API Block; compare vs Sector]
+- 5Y Growth: [Use '5Y Revenue CAGR' from FMP API Block]
+- Financial Health: [Use 'Debt to Equity' from FMP API Block; check sustainability]
+- Dividend: [Use 'Dividend Yield' and 'Payout Ratio' from FMP API Block]
+- Competitive Moat: [Rating: WEAK/MODERATE/STRONG + 1 sentence why]
+- Bull/Bear Targets: [Use 'Bull Case' and 'Bear Case' price targets from FMP API Block]
+- Risk Score: [Scale 1-10 + primary risk factor]
+- Trade Zones: [Entry Zone & Suggested Stop-Loss]
 - AI Sentiment: [POSITIVE/NEUTRAL/NEGATIVE]
 </goldman_sachs>\n\n`;
             }
@@ -1569,14 +1601,13 @@ ROLE: Senior Equity Analyst (Fundamental Value)
             if (agentIds.includes('morgan_stanley')) {
                 prompt += `<morgan_stanley>
 ROLE: VP-Level Investment Banker (DCF Valuation)
-- Operating Margin: [Use 'Operating Margin' from FMP API Block]
-- ROE & ROIC: [Use 'ROE' and 'ROIC' from FMP API Block]
-- Free Cash Flow (FCF): [Use 'Current Free Cash Flow' and 'FCF Multiple' from FMP API Block]
-- FCF History: [Use 'Average FCF (5Y)' and 'Average FCF (10Y)' from FMP API Block]
-- WACC Estimate: [Data]
-- Terminal Value: [Exit Multiple/Growth Data]
-- DCF Fair Value (FMP): [Use 'DCF Fair Value Estimate' from FMP API Block]
-- Market Premium/Discount: [% difference between Price and DCF]
+- 5Y Projection: [Use 'Historical Trends' from FMP API Block to est. Revenue & Margin]
+- FCF Forecast: [Year-by-year FCF simulation for next 5 years]
+- WACC & Terminal: [WACC derivation & Terminal Value (Exit vs Perpetuity)]
+- DCF Fair Value: [Use 'DCF Fair Value Estimate' from FMP API Block vs your simulation]
+- Sensitivity Table: [Matrix of Fair Value at +/- 1% WACC variance]
+- Market Check: [Use 'Current Price' from FMP API Block; check % Upside/Downside]
+- Break-Case: [Identify 2 key assumptions that could break this model]
 - AI Outlook: [UNDERVALUED/FAIRLY VALUED/OVERVALUED]
 </morgan_stanley>\n\n`;
             }
@@ -1584,12 +1615,13 @@ ROLE: VP-Level Investment Banker (DCF Valuation)
             if (agentIds.includes('jpmorgan')) {
                 prompt += `<jpmorgan>
 ROLE: Senior Equity Research Analyst (Earnings Specialist)
-- Next Earnings Date: [Date from API]
-- Last 4 Quarters: [EPS Surprise History from API]
-- Upcoming Consensus: [Rev/EPS Estimates from Google/Search]
-- Segment Focus: [Key growth driver data]
-- Options Implied Move: [+/- % Data]
-- Management Guidance: [1 sentence summary]
+- Earnings History: [Use 'EPS Surprise History' from FMP API Block; include Beat/Miss trends]
+- Stock Reaction: [Recherche: Stock price reaction (gain/loss) after last 4 earnings]
+- Upcoming Consensus: [Consensus Rev/EPS estimates for next report]
+- Wall Street Focus: [Identify 2 key metrics the street is watching for this company]
+- Segment Analysis: [Use 'Sector' from FMP API Block; breakdown revenue & growth]
+- Guidance & Options: [Guidance summary & Options implied move for earnings day]
+- Earnings Scenarios: [Bull Case vs Bear Case scenario with estimated price impact]
 - Play: [POSITIVE/NEUTRAL/WAIT]
 </jpmorgan>\n\n`;
             }
@@ -1597,24 +1629,27 @@ ROLE: Senior Equity Research Analyst (Earnings Specialist)
             if (agentIds.includes('citadel')) {
                 prompt += `<citadel>
 ROLE: Senior Quantitative Trader (Market Microstructure)
-- Trend (D/W/M): [Data]
-- Moving Averages (50/200): [DMA Data from API]
-- RSI (14): [RSI Value from API]
-- MACD: [MACD Value from API]
-- Volume Flow: [Avg Volume from API vs Current]
-- Key Support/Resistance: [Price Levels]
-- Trade Plan: [Entry, Stop-Loss, Target Price]
+- Trend Analysis: [Current direction on Daily, Weekly, Monthly timeframes]
+- Moving Averages: [Use '50-DMA' and '200-DMA' from FMP API Block; include 100-day estimate & crossover signals]
+- Technical Indicators: [Use '14-Day RSI' and 'MACD' from FMP API Block; add Bollinger Band interpretation]
+- Volume & Strength: [Volume trend analysis & Buyer vs Seller strength]
+- Chart Patterns: [Identify potential patterns like Head & Shoulders, Cup & Handle, etc.]
+- Fibonacci & Levels: [Key Support/Resistance & Fibonacci retracement bounce zones]
+- Trade Execution: [Ideal Entry, Stop-Loss, and Profit Target price points]
+- Risk Management: [Calculate Risk-to-Reward Ratio for this setup]
 </citadel>\n\n`;
             }
 
             if (agentIds.includes('renaissance')) {
                 prompt += `<renaissance>
 ROLE: Quant Researcher (Statistical Arbitrage)
-- Seasonality: [Historical Monthly/Weekly edge]
-- 13F Institutional Flux: [Major Fund Movements]
-- Short Interest: [Squeeze Potential Data]
-- Macro Correlations: [Rates/VIX/Sector Data]
-- Quant Edge: [1 sentence statistical anomaly]
+- Seasonality: [Best/Worst months & Day-of-week performance patterns]
+- Market Events: [Correlation with Fed/CPI & Macro event impact]
+- Smart Money: [Use 'Insider Activity' from FMP API Block; include 13F Institutional trends]
+- Short & Options: [Use 'Short Interest' from FMP API Block; check squeeze potential & Unusual options]
+- Earnings Behavior: [Price action around earnings (Pre-run vs Post-gap patterns)]
+- Sector Rotation: [Rotation signals affecting this specific stock/sector]
+- Statistical Edge: [Final summary of the quantifiable advantage/anomaly]
 </renaissance>\n\n`;
             }
 
@@ -2008,6 +2043,46 @@ CRITICAL: Add this exact sentence at the end: "DISCLAIMER: Diese Analyse ist ein
             } catch (err) {
                 console.error('Delete Account Error:', err);
                 alert('Fehler beim Löschen des Accounts: ' + err.message);
+            }
+        }
+
+        // ==================== ADMIN LOGIC ====================
+        function toggleAdmin() {
+            const modal = document.getElementById('adminModal');
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) {
+                getCurrentUser().then(user => {
+                    if (user) document.getElementById('adminTierLabel').textContent = user.tier || 'FREE';
+                });
+            }
+        }
+
+        async function resetQueries() {
+            const user = await getCurrentUser();
+            if (!user) return;
+
+            const btn = document.getElementById('resetQueriesBtn');
+            const originalText = btn.textContent;
+            btn.textContent = 'RESETTING...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/reset-queries', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: user.email })
+                });
+
+                if (!res.ok) throw new Error('Reset failed');
+
+                alert('Queries erfolgreich zurückgesetzt! Du kannst jetzt wieder analysieren.');
+                await updateFooter(user);
+                toggleAdmin();
+            } catch (err) {
+                alert('Fehler beim Reset: ' + err.message);
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
             }
         }
 

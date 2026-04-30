@@ -148,6 +148,19 @@ Name (Unternehmensname): ${profile.companyName || 'N/A'} (${symbol})
 Current Price (Aktueller Kurs): $${quote.price || 'N/A'}
 Market Cap (Börsenwert): ${quote.marketCap ? '$' + (quote.marketCap / 1e9).toFixed(2) + ' Billion' : 'N/A'}
 
+--- TECHNICALS & SENTIMENT ---
+50-Day Moving Average: $${quote.priceAvg50 || 'N/A'}
+200-Day Moving Average: $${quote.priceAvg200 || 'N/A'}
+Avg Volume: ${quote.avgVolume || 'N/A'}
+14-Day RSI: ${rsiData !== 'N/A' ? rsiData.toFixed(2) : 'N/A'}
+MACD: ${macdData !== 'N/A' ? macdData.toFixed(2) : 'N/A'}
+Price Action: Current Price $${quote.price} is ${quote.price > quote.priceAvg50 ? 'ABOVE' : 'BELOW'} 50-DMA and ${quote.price > quote.priceAvg200 ? 'ABOVE' : 'BELOW'} 200-DMA.
+
+--- HISTORICAL TRENDS (LAST 5 YEARS) ---
+Yearly Revenue: ${ incomeData.slice(0,5).map(y => (y.revenue/1e9).toFixed(2) + 'B').reverse().join(' -> ') }
+Yearly Op. Margin: ${ incomeData.slice(0,5).map(y => ((y.operatingIncome/y.revenue)*100).toFixed(1) + '%').reverse().join(' -> ') }
+Yearly FCF: ${ cfData.slice(0,5).map(y => (y.freeCashFlow/1e9).toFixed(2) + 'B').reverse().join(' -> ') }
+
 --- MULTIPLES & VALUATION (BEWERTUNG) ---
 Current P/E (Aktuelles KGV): ${currentPE}
 5Y Average P/E (5J KGV Durchschnitt): ${avgPE}
@@ -165,14 +178,20 @@ Average FCF 10Y (10J FCF Durchschnitt): ${avgFCF10}
 --- DCF & TARGETS ---
 DCF Fair Value Estimate (FMP): $${profile.dcf ? profile.dcf.toFixed(2) : 'N/A'}
 Analyst Price Target (Kursziel Consensus): ${pt.targetConsensus ? '$' + pt.targetConsensus : 'N/A'}
+Bull Case (Target High): $${pt.targetHigh || 'N/A'} | Bear Case (Target Low): $${pt.targetLow || 'N/A'}
 
 --- GROWTH & MARGINS (WACHSTUM) ---
 1Y Revenue Growth: ${growth.revenueGrowth ? (growth.revenueGrowth * 100).toFixed(2) + '%' : 'N/A'}
+5Y Revenue CAGR (Ø-Wachstum 5J): ${ (incomeData && incomeData.length >= 5) ? (((Math.pow(incomeData[0].revenue / incomeData[4].revenue, 1/4)) - 1) * 100).toFixed(2) + '%' : 'N/A' }
 1Y EPS Growth: ${growth.epsgrowth ? (growth.epsgrowth * 100).toFixed(2) + '%' : 'N/A'}
 Operating Margin (Operative Marge): ${ttm.operatingProfitMarginTTM ? (ttm.operatingProfitMarginTTM * 100).toFixed(2) + '%' : 'N/A'}
 ROE (Eigenkapitalrendite): ${ttm.roeTTM ? (ttm.roeTTM * 100).toFixed(2) + '%' : 'N/A'}
 Debt to Equity: ${ttm.debtToEquityTTM ? ttm.debtToEquityTTM.toFixed(2) : 'N/A'}
 FCF Yield (FCF Rendite): ${ttm.freeCashFlowYieldTTM ? (ttm.freeCashFlowYieldTTM * 100).toFixed(2) + '%' : 'N/A'}
+Short Interest: [Use Google Search to find latest Short Interest % and Days to Cover]
+Insider Activity: [Use Google Search to find if Insiders are Net Buyers or Sellers in last 6 months]
+Dividend Yield: ${ttm.dividendYieldPercentageTTM ? ttm.dividendYieldPercentageTTM.toFixed(2) + '%' : 'N/A'}
+Payout Ratio: ${ttm.payoutRatioTTM ? (ttm.payoutRatioTTM * 100).toFixed(2) + '%' : 'N/A'}
 
 --- EARNINGS HISTORY ---
 Next Earnings Date: ${quote.earningsAnnouncement || 'N/A'}
