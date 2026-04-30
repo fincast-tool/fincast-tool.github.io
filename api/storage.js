@@ -181,6 +181,12 @@ export default async function handler(req, res) {
                 await redis.del(`archive:${email}`);
                 return res.status(200).json({ success: true });
 
+            case 'delete_single_archive':
+                if (key) {
+                    await redis.hdel(`archive:${email}`, key);
+                }
+                return res.status(200).json({ success: true });
+
             case 'save_shared_report':
                 const shareId = Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
                 // Speichern für 7 Tage (604800 Sekunden)

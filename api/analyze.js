@@ -32,7 +32,7 @@ export default async function handler(req, res) {
                     const [profileRes, quoteRes, metricsRes, ttmRes] = await Promise.all([
                         fetch(`https://financialmodelingprep.com/api/v3/profile/${symbol}?apikey=${fmpKey}`),
                         fetch(`https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=${fmpKey}`),
-                        fetch(`https://financialmodelingprep.com/api/v3/key-metrics/${symbol}?limit=5&apikey=${fmpKey}`),
+                        fetch(`https://financialmodelingprep.com/api/v3/key-metrics/${symbol}?limit=10&apikey=${fmpKey}`),
                         fetch(`https://financialmodelingprep.com/api/v3/key-metrics-ttm/${symbol}?apikey=${fmpKey}`)
                     ]);
 
@@ -48,18 +48,23 @@ export default async function handler(req, res) {
                     if (metricsData && metricsData.length > 0) {
                         let sumPE = 0, sumPB = 0, sumPS = 0, sumEV = 0;
                         let countPE = 0, countPB = 0, countPS = 0, countEV = 0;
+                        let sumPE10 = 0, countPE10 = 0;
                         
-                        metricsData.forEach(y => {
-                            if (y.peRatio) { sumPE += y.peRatio; countPE++; }
-                            if (y.pbRatio) { sumPB += y.pbRatio; countPB++; }
-                            if (y.priceToSalesRatio) { sumPS += y.priceToSalesRatio; countPS++; }
-                            if (y.enterpriseValueOverEBITDA) { sumEV += y.enterpriseValueOverEBITDA; countEV++; }
+                        metricsData.forEach((y, index) => {
+                            if (index < 5) {
+                                if (y.peRatio) { sumPE += y.peRatio; countPE++; }
+                                if (y.pbRatio) { sumPB += y.pbRatio; countPB++; }
+                                if (y.priceToSalesRatio) { sumPS += y.priceToSalesRatio; countPS++; }
+                                if (y.enterpriseValueOverEBITDA) { sumEV += y.enterpriseValueOverEBITDA; countEV++; }
+                            }
+                            if (y.peRatio) { sumPE10 += y.peRatio; countPE10++; }
                         });
                         
                         const avgPE = countPE > 0 ? (sumPE / countPE).toFixed(2) : 'N/A';
                         const avgPB = countPB > 0 ? (sumPB / countPB).toFixed(2) : 'N/A';
                         const avgPS = countPS > 0 ? (sumPS / countPS).toFixed(2) : 'N/A';
                         const avgEV = countEV > 0 ? (sumEV / countEV).toFixed(2) : 'N/A';
+                        const avgPE10 = countPE10 > 0 ? (sumPE10 / countPE10).toFixed(2) : 'N/A';
 
                         const currentPE = metricsData[0].peRatio ? metricsData[0].peRatio.toFixed(2) : 'N/A';
                         const currentPB = metricsData[0].pbRatio ? metricsData[0].pbRatio.toFixed(2) : 'N/A';
@@ -86,7 +91,7 @@ Beta: ${profile.beta || 'N/A'}
 Avg Volume: ${quote.avgVolume || 'N/A'}
 
 --- MULTIPLES & VALUATION ---
-Aktuelles KGV (P/E): ${currentPE} | 5-Jahres-Durchschnitt KGV: ${avgPE}
+Aktuelles KGV (P/E): ${currentPE} | 5-Jahres-Durchschnitt KGV: ${avgPE} | 10-Jahres-Durchschnitt KGV: ${avgPE10}
 Aktuelles KBV (P/B): ${currentPB} | 5-Jahres-Durchschnitt KBV: ${avgPB}
 Aktuelles KUV (P/S): ${currentPS} | 5-Jahres-Durchschnitt KUV: ${avgPS}
 Aktuelles EV/EBITDA: ${currentEV} | 5-Jahres-Durchschnitt EV/EBITDA: ${avgEV}
