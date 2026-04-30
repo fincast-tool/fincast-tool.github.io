@@ -661,7 +661,7 @@
                 <div>
                     <h2 class="text-sm font-bold font-mono text-gold-500 tracking-widest uppercase">Admin Panel</h2>
                     <p class="text-[10px] text-gray-500 font-mono mt-1">Benutzerverwaltung • API-Schlüssel • Abo-Modelle
-                        • <span class="text-gold-500/50">Reset: 09:00 DE-Zeit</span>
+                        • <span class="text-gold-500/50">Reset: <span id="resetTimeDisplay">10:00</span> DE-Zeit</span>
                     </p>
                 </div>
                 <button onclick="toggleAdmin()" class="text-gray-500 hover:text-white text-2xl">&times;</button>
@@ -843,10 +843,13 @@
                                 <div
                                     class="w-16 h-16 border-4 border-gold-500/10 border-t-gold-500 rounded-full animate-spin mb-6">
                                 </div>
-                                <div id="loadingStatus" class="text-gold-500 font-mono text-sm tracking-[0.4em] uppercase animate-pulse mb-2 text-center">
+                                <div id="loadingStatus"
+                                    class="text-gold-500 font-mono text-sm tracking-[0.4em] uppercase animate-pulse mb-2 text-center">
                                     Analysing Market Data...</div>
-                                <div id="loadingProgress" class="w-full h-1 bg-white/5 rounded-full mt-4 overflow-hidden mb-4">
-                                    <div id="loadingProgressBar" class="h-full bg-gold-500 transition-all duration-500" style="width: 0%"></div>
+                                <div id="loadingProgress"
+                                    class="w-full h-1 bg-white/5 rounded-full mt-4 overflow-hidden mb-4">
+                                    <div id="loadingProgressBar" class="h-full bg-gold-500 transition-all duration-500"
+                                        style="width: 0%"></div>
                                 </div>
                                 <div class="text-gray-600 font-mono text-[10px] uppercase tracking-widest text-center">
                                     Multi-Agent Protocol Active</div>
@@ -862,7 +865,10 @@
                         <div id="resultsState" class="state-hidden">
                             <!-- Identity Strip -->
                             <div id="identityStrip"
-                                class="mb-8 p-8 rounded-2xl border border-gold-500/30 bg-gold-500/[0.03] backdrop-blur-sm">
+                                class="mb-8 p-8 rounded-2xl border border-gold-500/30 bg-gold-500/[0.03] backdrop-blur-sm relative">
+                                <button onclick="shareCurrentAnalysis()" class="absolute top-4 right-4 p-2 text-gray-500 hover:text-gold-500 transition-colors" title="Analyse Teilen">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
+                                </button>
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 md:gap-8">
                                     <div class="flex items-center gap-4 md:gap-5">
                                         <div
@@ -966,11 +972,13 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="data-label mb-2 block">Vorname</label>
-                            <input id="userFirstName" type="text" class="w-full terminal-input" placeholder="VORNAME...">
+                            <input id="userFirstName" type="text" class="w-full terminal-input"
+                                placeholder="VORNAME...">
                         </div>
                         <div>
                             <label class="data-label mb-2 block">Nachname</label>
-                            <input id="userLastName" type="text" class="w-full terminal-input" placeholder="NACHNAME...">
+                            <input id="userLastName" type="text" class="w-full terminal-input"
+                                placeholder="NACHNAME...">
                         </div>
                     </div>
                     <div>
@@ -988,12 +996,14 @@
                     </div>
                     <div class="pt-2">
                         <button onclick="saveSettings()"
-                            class="w-full search-btn py-3 text-xs uppercase tracking-widest">Update Configuration</button>
+                            class="w-full search-btn py-3 text-xs uppercase tracking-widest">Update
+                            Configuration</button>
                     </div>
-                    
+
                     <div class="pt-4 border-t border-white/5">
                         <button onclick="deleteAccount()"
-                            class="w-full py-2 border border-red-500/30 text-[10px] text-red-500/50 hover:text-red-500 font-mono uppercase tracking-widest rounded transition-all">Account permanent löschen</button>
+                            class="w-full py-2 border border-red-500/30 text-[10px] text-red-500/50 hover:text-red-500 font-mono uppercase tracking-widest rounded transition-all">Account
+                            permanent löschen</button>
                     </div>
                 </div>
             </div>
@@ -1197,6 +1207,58 @@
             await renderAdminUsers();
         }
 
+        function updateResetTimeDisplay() {
+            try {
+                // The API reset happens at 08:00 UTC
+                const d = new Date();
+                d.setUTCHours(8, 0, 0, 0);
+                const timeStr = d.toLocaleTimeString('de-DE', { timeZone: 'Europe/Berlin', hour: '2-digit', minute: '2-digit' });
+                const el = document.getElementById('resetTimeDisplay');
+                if (el) el.textContent = timeStr;
+            } catch (e) {
+                console.warn('Could not determine reset time dynamically', e);
+            }
+        }
+
+        // ==================== SHARE LOGIC ====================
+        function shareCurrentAnalysis() {
+            if (CURRENT_ANALYSIS_DATA) {
+                shareAnalysisData(CURRENT_ANALYSIS_DATA);
+            }
+        }
+
+        async function shareAnalysisData(data) {
+            try {
+                // Generiere einen kurzen Link über das Backend
+                const res = await apiCall('save_shared_report', { data });
+                if (res.error) throw new Error(res.error);
+                
+                const shareUrl = window.location.origin + window.location.pathname + '?share=' + res.id;
+                
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Fincast Terminal Analysis',
+                        text: 'Sieh dir diese Analyse im Fincast Terminal an:',
+                        url: shareUrl
+                    }).catch(e => {
+                        copyToClipboard(shareUrl);
+                    });
+                } else {
+                    copyToClipboard(shareUrl);
+                }
+            } catch(e) {
+                alert('Fehler beim Generieren des Links: ' + e.message);
+            }
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Share-Link in die Zwischenablage kopiert!');
+            }).catch(() => {
+                prompt('Bitte diesen Link kopieren:', text);
+            });
+        }
+
         // ==================== APP INIT ====================
         async function initApp() {
             const user = await getCurrentUser();
@@ -1219,6 +1281,41 @@
             MODEL_ID = user.model || 'gemini-2.5-flash';
             await updateFooter(user);
             updateLanguageUI();
+            updateResetTimeDisplay();
+
+            // Handle Share Link
+            const urlParams = new URLSearchParams(window.location.search);
+            const shareId = urlParams.get('share');
+            if (shareId) {
+                try {
+                    // Fallback for old base64 links (very long)
+                    if (shareId.length > 50) {
+                        const decoded = JSON.parse(decodeURIComponent(escape(atob(shareId))));
+                        if (decoded) {
+                            CURRENT_ANALYSIS_DATA = decoded;
+                            if (decoded.company_identity) renderIdentity(decoded.company_identity);
+                            renderWidgets(decoded);
+                            setUIState('results');
+                        }
+                    } else {
+                        // Load new short ID from backend
+                        const res = await apiCall('get_shared_report', { id: shareId });
+                        if (!res.error) {
+                            CURRENT_ANALYSIS_DATA = res;
+                            if (res.company_identity) renderIdentity(res.company_identity);
+                            renderWidgets(res);
+                            setUIState('results');
+                        } else {
+                            alert('Der geteilte Report wurde nicht gefunden oder ist abgelaufen.');
+                        }
+                    }
+                    // Clean up URL without reloading
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                } catch(e) {
+                    console.error('Failed to parse shared data', e);
+                    alert('Fehler beim Laden des geteilten Reports.');
+                }
+            }
         }
 
         function updateLanguageUI() {
@@ -1236,13 +1333,14 @@
         // ==================== CONFIGURATION ====================
         let MODEL_ID = 'gemini-2.5-flash';
         let USER_LANG = localStorage.getItem('gemini_user_lang') || 'de-DE';
+        let CURRENT_ANALYSIS_DATA = null;
 
         const CARDS = [
-            { id: 'goldman_sachs', title: 'Stock Screener', firm: 'Goldman Sachs', icon: '🏛️' },
-            { id: 'morgan_stanley', title: 'DCF Deep Dive', firm: 'Morgan Stanley', icon: '📊' },
-            { id: 'jpmorgan', title: 'Earnings Breakdown', firm: 'JPMorgan', icon: '🏦' },
-            { id: 'citadel', title: 'Technical System', firm: 'Citadel', icon: '⚙️' },
-            { id: 'renaissance', title: 'Pattern Finder', firm: 'Renaissance', icon: '🧬' },
+            { id: 'goldman_sachs', title: 'Stock Screener', firm: 'Goldman Sachs AI-Framework', icon: '🏛️' },
+            { id: 'morgan_stanley', title: 'DCF Deep Dive', firm: 'Morgan Stanley AI-Framework', icon: '📊' },
+            { id: 'jpmorgan', title: 'Earnings Breakdown', firm: 'JPMorgan AI-Framework', icon: '🏦' },
+            { id: 'citadel', title: 'Technical System', firm: 'Citadel AI-Framework', icon: '⚙️' },
+            { id: 'renaissance', title: 'Pattern Finder', firm: 'Renaissance AI-Framework', icon: '🧬' },
             { id: 'executive_summary', title: 'AI Verdict', firm: 'Research Council', icon: '⚖️' }
         ];
 
@@ -1313,7 +1411,7 @@
             }
 
             updateLoadingStatus('Initializing Multi-Agent Protocol...', 5);
-            
+
             try {
                 MODEL_ID = user.model || 'gemini-2.5-flash';
                 const langNames = { 'de-DE': 'DEUTSCH', 'en-US': 'ENGLISH', 'fr-FR': 'FRANÇAIS', 'es-ES': 'ESPAÑOL' };
@@ -1324,32 +1422,18 @@
                 setUIState('loading');
                 updateLoadingStatus('Consulting institutional agents...', 10);
 
-                // Step 1: Precise Identity Search
-                updateLoadingStatus('Step 1: Identifying Security...', 15);
-                const rId = await fetchSingleBatch(query, user, getBatchPrompt(query, currentLangName, ['company_identity']));
-                Object.assign(results, parseFrameworks(rId));
+                // Full Analysis in One Step
+                updateLoadingStatus('Executing Full Analysis...', 50);
+                const agentIds = ['company_identity', 'goldman_sachs', 'morgan_stanley', 'jpmorgan', 'citadel', 'renaissance', 'executive_summary'];
+                const rAll = await fetchSingleBatch(query, user, getBatchPrompt(query, currentLangName, agentIds));
+                Object.assign(results, parseFrameworks(rAll));
+                
+                CURRENT_ANALYSIS_DATA = results;
                 if (results.company_identity) renderIdentity(results.company_identity);
                 renderWidgets(results);
 
                 const resolvedName = results.company_identity?.match(/Name:\s*(.*)/)?.[1]?.trim() || query;
-                const searchContext = `${resolvedName} (${query})`;
 
-                // Step 2: Fundamental & Financials (GS, MS, JPM)
-                updateLoadingStatus('Step 2: Fundamental & Earnings Analysis...', 40);
-                const rB1 = await fetchSingleBatch(searchContext, user, getBatchPrompt(searchContext, currentLangName, ['goldman_sachs', 'morgan_stanley', 'jpmorgan']));
-                Object.assign(results, parseFrameworks(rB1));
-                renderWidgets(results);
-
-                // Step 3: Technical, Quant & Synthesis (Citadel, Renaissance, Summary)
-                updateLoadingStatus('Step 3: Market Patterns & Final Synthesis...', 75);
-                
-                // Provide previous agent outputs to Step 3 so the Executive Summary accurately reflects the agents' actual conclusions
-                const step3Context = `Goldman Sachs: ${results.goldman_sachs || 'N/A'}\nMorgan Stanley: ${results.morgan_stanley || 'N/A'}\nJPMorgan: ${results.jpmorgan || 'N/A'}`;
-                
-                const rB2 = await fetchSingleBatch(searchContext, user, getBatchPrompt(searchContext, currentLangName, ['citadel', 'renaissance', 'executive_summary'], step3Context));
-                Object.assign(results, parseFrameworks(rB2));
-                renderWidgets(results);
-                
                 setUIState('results');
 
                 updateLoadingStatus('Report Complete.', 100);
@@ -1409,9 +1493,7 @@ Aktueller Kurs: [Current Price with Currency]
 ROLE: Senior Equity Analyst (Fundamental Value)
 - Thesis: [1 sentence investment case]
 - P/E & Fwd P/E: [Data vs Sector]
-- Historical P/E 5y: [Data]
-- Historical P/E 10y: [Data]
-- Historical P/E 20y: [Data]
+- Average Historical P/E 10y: [Data]
 - Revenue & EPS Growth: [Data]
 - Debt/Equity & FCF Yield: [Data]
 - Competitive Moat: [1 sentence strategic edge]
@@ -1472,11 +1554,11 @@ ROLE: Quant Researcher (Statistical Arbitrage)
 
             if (agentIds.includes('executive_summary')) {
                 prompt += `<executive_summary>
-- Goldman Sachs: [1 sentence synthesis] [BADGE]
-- Morgan Stanley: [1 sentence synthesis] [BADGE]
-- JPMorgan: [1 sentence synthesis] [BADGE]
-- Citadel: [1 sentence synthesis] [BADGE]
-- Renaissance: [1 sentence synthesis] [BADGE]
+- Goldman Sachs AI-Framework: [1 sentence synthesis] [BADGE]
+- Morgan Stanley AI-Framework: [1 sentence synthesis] [BADGE]
+- JPMorgan AI-Framework: [1 sentence synthesis] [BADGE]
+- Citadel AI-Framework: [1 sentence synthesis] [BADGE]
+- Renaissance AI-Framework: [1 sentence synthesis] [BADGE]
 - Strategic DNA: [1 sentence synthesis about Sector and Profile]
 - Final AI Verdict: [1 sentence conclusion] [BADGE]
 MANDATORY: Use EXACTLY ONE of these badges per agent/verdict: [BUY], [STRONG BUY], [HOLD], [NEUTRAL], [SELL], [STRONG SELL], [UNDERVALUED], [OVERVALUED], [FAIRLY VALUED], [WAIT].
@@ -1490,8 +1572,8 @@ MANDATORY: Use EXACTLY ONE of these badges per agent/verdict: [BUY], [STRONG BUY
             const geminiBody = {
                 contents: [{ parts: [{ text: prompt }] }],
                 tools: [{ google_search: {} }],
-                generationConfig: { 
-                    temperature: 0.1, 
+                generationConfig: {
+                    temperature: 0.1,
                     maxOutputTokens: 8192,
                     topP: 0.95
                 }
@@ -1510,10 +1592,10 @@ MANDATORY: Use EXACTLY ONE of these badges per agent/verdict: [BUY], [STRONG BUY
 
                     if (!res.ok) {
                         const isHighDemand = res.status === 503 || errMsg.toLowerCase().includes('high demand') || errMsg.toLowerCase().includes('temporarily overloaded');
-                        const isRateLimit = res.status === 429 || 
-                                          errMsg.toLowerCase().includes('quota') || 
-                                          errMsg.toLowerCase().includes('rate limit') ||
-                                          errMsg.toLowerCase().includes('limit exceeded');
+                        const isRateLimit = res.status === 429 ||
+                            errMsg.toLowerCase().includes('quota') ||
+                            errMsg.toLowerCase().includes('rate limit') ||
+                            errMsg.toLowerCase().includes('limit exceeded');
 
                         if ((isHighDemand || isRateLimit) && i < retries) {
                             console.warn(`Attempt ${i + 1} failed with high demand/rate limit. Retrying in ${2000 * (i + 1)}ms...`);
@@ -1524,7 +1606,7 @@ MANDATORY: Use EXACTLY ONE of these badges per agent/verdict: [BUY], [STRONG BUY
                         if (isRateLimit) {
                             throw new Error("Quota exceeded (Rate Limit). Please wait a minute and try again.");
                         }
-                        
+
                         throw new Error(errMsg || `API_ERROR: ${res.status}`);
                     }
 
@@ -1713,14 +1795,25 @@ MANDATORY: Use EXACTLY ONE of these badges per agent/verdict: [BUY], [STRONG BUY
                 const entry = archive[ticker];
                 const item = document.createElement('div');
                 item.className = 'archive-item';
+                const compName = entry.data.company_identity ? (entry.data.company_identity.match(/Name:\s*(.*)/)?.[1] || 'Unknown Company') : 'Unknown Company';
                 item.innerHTML = `
             <div class="flex justify-between items-start mb-1">
                 <span class="font-bold text-white text-xs tracking-tighter">${ticker}</span>
-                <span class="text-[8px] text-gray-600 font-mono">${entry.timestamp}</span>
+                <div class="flex items-center gap-2">
+                    <button class="share-btn text-gray-500 hover:text-gold-500" title="Analyse Teilen">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
+                    </button>
+                    <span class="text-[8px] text-gray-600 font-mono">${entry.timestamp}</span>
+                </div>
             </div>
-            <div class="text-[9px] text-gray-500 truncate uppercase">${entry.data.company_identity.match(/Name:\s*(.*)/)?.[1] || 'Unknown Company'}</div>
+            <div class="text-[9px] text-gray-500 truncate uppercase">${compName}</div>
         `;
+                item.querySelector('.share-btn').onclick = (e) => {
+                    e.stopPropagation();
+                    shareAnalysisData(entry.data);
+                };
                 item.onclick = () => {
+                    CURRENT_ANALYSIS_DATA = entry.data;
                     renderIdentity(entry.data.company_identity);
                     renderWidgets(entry.data);
                     setUIState('results');
@@ -1745,7 +1838,7 @@ MANDATORY: Use EXACTLY ONE of these badges per agent/verdict: [BUY], [STRONG BUY
             modal.classList.toggle('hidden');
             if (!modal.classList.contains('hidden')) {
                 document.getElementById('userLang').value = USER_LANG;
-                
+
                 // Populate user data
                 const user = await getCurrentUser();
                 if (user) {
@@ -1810,7 +1903,7 @@ MANDATORY: Use EXACTLY ONE of these badges per agent/verdict: [BUY], [STRONG BUY
                 // Delete user and their archive
                 await apiCall('delete_user', { email: user.email });
                 await apiCall('delete_archive', { email: user.email });
-                
+
                 localStorage.removeItem('terminal_session');
                 alert('Dein Account wurde erfolgreich gelöscht.');
                 location.reload();

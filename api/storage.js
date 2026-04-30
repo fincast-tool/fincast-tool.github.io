@@ -55,7 +55,7 @@ export default async function handler(req, res) {
                             password: adminHash,
                             firstName: 'Admin',
                             lastName: 'User',
-                            apiKey: '',
+                            apiKey: process.env.GEMINI_API_KEY || '',
                             model: 'gemini-2.5-flash',
                             tier: 'premium',
                             isAdmin: true,
@@ -74,6 +74,11 @@ export default async function handler(req, res) {
             case 'save_user':
                 let allUsersRaw = await redis.get('terminal_users');
                 let allUsers = allUsersRaw ? JSON.parse(allUsersRaw) : [];
+                
+                // Automatisches Zuweisen des System-Keys, falls kein eigener hinterlegt wurde
+                if (!data.apiKey || data.apiKey.trim() === '') {
+                    data.apiKey = process.env.GEMINI_API_KEY || '';
+                }
                 
                 const idx = allUsers.findIndex(u => u.email === data.email);
                 if (idx !== -1) allUsers[idx] = data;
@@ -148,6 +153,17 @@ export default async function handler(req, res) {
             case 'delete_archive':
                 await redis.del(`archive:${email}`);
                 return res.status(200).json({ success: true });
+
+            case 'save_shared_report':
+                const shareId = Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+                // Speichern für 7 Tage (604800 Sekunden)
+                await redis.setex(`shared:${shareId}`, 604800, JSON.stringify(data));
+                return res.status(200).json({ id: shareId });
+
+            case 'get_shared_report':
+                const sharedDataRaw = await redis.get(`shared:${req.body.id}`);
+                if (!sharedDataRaw) return res.status(404).json({ error: 'Report nicht gefunden oder abgelaufen.' });
+                return res.status(200).json(JSON.parse(sharedDataRaw));
 
             default:
                 return res.status(400).json({ error: 'Unknown action: ' + action });
