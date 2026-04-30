@@ -38,69 +38,31 @@ export default async function handler(req, res) {
     try {
         switch (action) {
             case 'get_users':
-                console.log('Admin Action: get_users triggered');
-                let usersRaw;
-                try {
-                    usersRaw = await redis.get('terminal_users');
-                } catch (redisErr) {
-                    console.error('CRITICAL_REDIS_GET_ERROR:', redisErr);
-                    return res.status(500).json({ error: 'Redis Read Error: ' + redisErr.message });
+                let currentUsers = [];
+                const rawUsers = await redis.get('terminal_users');
+                if (rawUsers) {
+                    try { currentUsers = JSON.parse(rawUsers); } catch(e) { currentUsers = []; }
                 }
 
-                let users = [];
-                if (usersRaw) {
-                    try {
-                        users = JSON.parse(usersRaw);
-                    } catch (parseErr) {
-                        console.error('JSON_PARSE_ERROR in terminal_users:', parseErr);
-                        users = [];
+                // ADMIN RECOVERY
+                const aEmail = process.env.ADMIN_EMAIL;
+                const aHash = process.env.ADMIN_PASSWORD_HASH;
+                
+                if (aEmail && aHash) {
+                    let adminIdx = currentUsers.findIndex(u => u.email === aEmail);
+                    if (adminIdx === -1) {
+                        currentUsers.push({
+                            email: aEmail, password: aHash, firstName: 'Admin', lastName: 'User',
+                            isAdmin: true, tier: 'premium', createdAt: new Date().toISOString()
+                        });
+                        await redis.set('terminal_users', JSON.stringify(currentUsers));
+                    } else if (!currentUsers[adminIdx].isAdmin) {
+                        currentUsers[adminIdx].isAdmin = true;
+                        currentUsers[adminIdx].tier = 'premium';
+                        await redis.set('terminal_users', JSON.stringify(currentUsers));
                     }
                 }
-                
-                console.log(`Found ${users.length} users in database`);
-
-                // ENSURE ADMIN EXISTS (via Environment Variables)
-                const adminEmail = process.env.ADMIN_EMAIL;
-                const adminHash = process.env.ADMIN_PASSWORD_HASH;
-                
-                if (adminEmail && adminHash) {
-                    console.log('Checking for Admin User:', adminEmail);
-                    let userIdx = users.findIndex(u => u.email === adminEmail);
-                    if (userIdx === -1) {
-                        console.log('Admin not found. Creating default admin...');
-                        const adminUser = {
-                            email: adminEmail,
-                            password: adminHash,
-                            firstName: 'Admin',
-                            lastName: 'User',
-                            apiKey: process.env.GEMINI_API_KEY || '',
-                            model: 'gemini-2.5-flash',
-                            tier: 'premium',
-                            isAdmin: true,
-                            createdAt: new Date().toISOString()
-                        };
-                        users.push(adminUser);
-                        await redis.set('terminal_users', JSON.stringify(users));
-                    } else if (!users[userIdx].isAdmin) {
-                        console.log('Upgrading existing user to Admin status');
-                        users[userIdx].isAdmin = true;
-                        users[userIdx].tier = 'premium';
-                        await redis.set('terminal_users', JSON.stringify(users));
-                    }
-                }
-
-                // Sicherheitsschicht: Verhindere, dass der System-Key jemals an das Frontend gesendet wird
-                const sysKey = process.env.GEMINI_API_KEY;
-                if (sysKey && sysKey.trim() !== '') {
-                    users = users.map(u => {
-                        if (u.apiKey === sysKey) {
-                            return { ...u, apiKey: '' }; // Key im Frontend verstecken
-                        }
-                        return u;
-                    });
-                }
-
-                return res.status(200).json(users);
+                return res.status(200).json(currentUsers);
 
             case 'save_user':
                 let allUsersRaw = await redis.get('terminal_users');

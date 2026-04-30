@@ -2075,8 +2075,12 @@ CRITICAL: Add this exact sentence at the end: "DISCLAIMER: Diese Analyse ist ein
 
         // ==================== ADMIN LOGIC ====================
         function toggleAdmin() {
+            alert('Admin Signal empfangen!'); // NOTFALL-CHECK
             const overlay = document.getElementById('adminOverlay');
-            if (!overlay) return;
+            if (!overlay) {
+                alert('FEHLER: adminOverlay nicht gefunden!');
+                return;
+            }
             overlay.classList.toggle('open');
             if (overlay.classList.contains('open')) renderAdminUserList();
         }
