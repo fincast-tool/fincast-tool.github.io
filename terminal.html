@@ -662,7 +662,8 @@
                     <h2 class="text-sm font-bold font-mono text-gold-500 tracking-widest uppercase">Admin Panel</h2>
                     <p class="text-[10px] text-gray-500 font-mono mt-1">Benutzerverwaltung • API-Schlüssel • Abo-Modelle
                         • <span class="text-gold-500/50">Reset: <span id="resetTimeDisplay">10:00</span> DE-Zeit</span>
-                        <select id="seasonToggle" onchange="updateSeasonToggle()" class="ml-2 bg-transparent border border-white/10 text-gold-500 rounded px-1 py-0.5 outline-none cursor-pointer">
+                        <select id="seasonToggle" onchange="updateSeasonToggle()"
+                            class="ml-2 bg-transparent border border-white/10 text-gold-500 rounded px-1 py-0.5 outline-none cursor-pointer">
                             <option value="summer" style="background:#0f1420;">Sommerzeit (10:00)</option>
                             <option value="winter" style="background:#0f1420;">Winterzeit (09:00)</option>
                         </select>
@@ -867,10 +868,13 @@
 
                         <!-- Results State -->
                         <!-- Guest Call to Action -->
-                        <div id="guestNotice" class="hidden mb-6 p-4 rounded-xl bg-gold-500/10 border border-gold-500/20 text-center">
-                            <p class="text-[11px] text-gold-500 font-bold uppercase tracking-widest mb-2">Gast-Modus: Du siehst eine geteilte Analyse</p>
-                            <button onclick="location.reload()" class="bg-gold-500 text-obsidian-950 text-[10px] font-bold px-6 py-2 rounded-lg hover:bg-gold-400 transition-all">
-                                JETZT EIGENE ANALYSEN ERSTELLEN
+                        <div id="guestNotice"
+                            class="hidden mb-6 p-4 rounded-xl bg-gold-500/10 border border-gold-500/20 text-center">
+                            <p class="text-[11px] text-gold-500 font-bold uppercase tracking-widest mb-2">Gast-Modus: Du
+                                siehst eine geteilte Analyse</p>
+                            <button onclick="location.reload()"
+                                class="bg-gold-500 text-obsidian-950 text-[10px] font-bold px-6 py-2 rounded-lg hover:bg-gold-400 transition-all">
+                                JETZT EIGENE ANALYSEN KOSTENLOS ERSTELLEN
                             </button>
                         </div>
 
@@ -879,8 +883,14 @@
                             <!-- Identity Strip -->
                             <div id="identityStrip"
                                 class="mb-8 p-8 rounded-2xl border border-gold-500/30 bg-gold-500/[0.03] backdrop-blur-sm relative">
-                                <button onclick="shareCurrentAnalysis()" class="absolute top-4 right-4 p-2 text-gray-500 hover:text-gold-500 transition-colors" title="Analyse Teilen">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
+                                <button onclick="shareCurrentAnalysis()"
+                                    class="absolute top-4 right-4 p-2 text-gray-500 hover:text-gold-500 transition-colors"
+                                    title="Analyse Teilen">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z">
+                                        </path>
+                                    </svg>
                                 </button>
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 md:gap-8">
                                     <div class="flex items-center gap-4 md:gap-5">
@@ -953,8 +963,9 @@
                     class="flex h-10 bg-obsidian-900 border-t border-white/5 px-4 md:px-6 items-center justify-between text-[9px] md:text-[10px] font-mono text-gray-600 uppercase tracking-widest mb-16 md:mb-0">
                     <div class="flex gap-3 md:gap-6 items-center">
                         <span class="flex items-center gap-1 sm:gap-2">
-                            <span class="hidden min-[450px]:inline">Model:</span> 
-                            <select id="footerModelSelect" onchange="quickChangeModel(this.value)" class="bg-transparent text-gold-600 font-bold outline-none border-none cursor-pointer appearance-none uppercase hover:text-gold-400 transition-colors">
+                            <span class="hidden min-[450px]:inline">Model:</span>
+                            <select id="footerModelSelect" onchange="quickChangeModel(this.value)"
+                                class="bg-transparent text-gold-600 font-bold outline-none border-none cursor-pointer appearance-none uppercase hover:text-gold-400 transition-colors">
                                 <option value="gemini-2.5-flash-lite">2.5 FLASH-LITE</option>
                                 <option value="gemini-2.5-flash">2.5 FLASH</option>
                                 <option value="gemini-flash-latest">FLASH (LATEST)</option>
@@ -1252,7 +1263,7 @@
                 const val = localStorage.getItem('terminal_season') || 'summer';
                 const el = document.getElementById('resetTimeDisplay');
                 const toggle = document.getElementById('seasonToggle');
-                
+
                 if (el) el.textContent = val === 'summer' ? '10:00' : '09:00';
                 if (toggle) toggle.value = val;
             } catch (e) {
@@ -1279,9 +1290,9 @@
                 // Generiere einen kurzen Link über das Backend
                 const res = await apiCall('save_shared_report', { data });
                 if (res.error) throw new Error(res.error);
-                
+
                 const shareUrl = window.location.origin + window.location.pathname + '?share=' + res.id;
-                
+
                 const shareTitle = `Fincast Analyse: ${compName}`;
                 const shareText = `Schau dir die neue Analyse zu ${compName} im Fincast Terminal an:`;
 
@@ -1296,7 +1307,7 @@
                 } else {
                     copyToClipboard(shareUrl, compName);
                 }
-            } catch(e) {
+            } catch (e) {
                 alert('Fehler beim Generieren des Links: ' + e.message);
             }
         }
@@ -1339,7 +1350,7 @@
                             setUIState('results');
                         }
                     }
-                } catch(e) {
+                } catch (e) {
                     console.error('Failed to parse shared data', e);
                 }
             }
@@ -1480,7 +1491,7 @@
                 const agentIds = ['company_identity', 'goldman_sachs', 'morgan_stanley', 'jpmorgan', 'citadel', 'renaissance', 'executive_summary'];
                 const rAll = await fetchSingleBatch(query, user, getBatchPrompt(query, currentLangName, agentIds));
                 Object.assign(results, parseFrameworks(rAll));
-                
+
                 CURRENT_ANALYSIS_DATA = results;
                 if (results.company_identity) renderIdentity(results.company_identity);
                 renderWidgets(results);
@@ -1560,7 +1571,8 @@ ROLE: Senior Equity Analyst (Fundamental Value)
 ROLE: VP-Level Investment Banker (DCF Valuation)
 - Operating Margin: [Use 'Operating Margin' from FMP API Block]
 - ROE & ROIC: [Use 'ROE' and 'ROIC' from FMP API Block]
-- Free Cash Flow (FCF): [Use 'Current Free Cash Flow', 'Average FCF (5Y)' and 'Average FCF (10Y)' from FMP API Block]
+- Free Cash Flow (FCF): [Use 'Current Free Cash Flow' and 'FCF Multiple' from FMP API Block]
+- FCF History: [Use 'Average FCF (5Y)' and 'Average FCF (10Y)' from FMP API Block]
 - WACC Estimate: [Data]
 - Terminal Value: [Exit Multiple/Growth Data]
 - DCF Fair Value (FMP): [Use 'DCF Fair Value Estimate' from FMP API Block]
@@ -1774,21 +1786,29 @@ CRITICAL: Add this exact sentence at the end: "DISCLAIMER: Diese Analyse ist ein
                         .replace(/\*\*(.*?)\*\*/g, '<strong class="text-gold-500">$1</strong>')
                         .replace(/\n/g, '<br>');
 
-                    // Universal handling for Executive Summary Badges across ALL widgets
-                    // Upgrade: Also catches keywords without brackets if they are at the end of a line or after a colon
-                    htmlContent = htmlContent
-                        .replace(/\[?STRONG\s?POSITIVE\]?/gi, '<span class="badge badge-buy">STRONG POSITIVE</span>')
-                        .replace(/\[?STRONG\s?NEGATIVE\]?/gi, '<span class="badge badge-sell">STRONG NEGATIVE</span>')
-                        .replace(/\[?POSITIVE\]?/gi, '<span class="badge badge-buy">POSITIVE</span>')
-                        .replace(/\[?NEGATIVE\]?/gi, '<span class="badge badge-sell">NEGATIVE</span>')
-                        .replace(/\[?NEUTRAL\]?/gi, '<span class="badge badge-wait">NEUTRAL</span>')
-                        .replace(/\[?UNDERVALUED\]?/gi, '<span class="badge badge-buy">UNDERVALUED</span>')
-                        .replace(/\[?OVERVALUED\]?/gi, '<span class="badge badge-sell">OVERVALUED</span>')
-                        .replace(/\[?FAIRLY\s?VALUED\]?/gi, '<span class="badge badge-hold">FAIR VALUED</span>')
-                        .replace(/\[?BUY\]?/gi, '<span class="badge badge-buy">BUY</span>')
-                        .replace(/\[?SELL\]?/gi, '<span class="badge badge-sell">SELL</span>')
-                        .replace(/\[?HOLD\]?/gi, '<span class="badge badge-hold">HOLD</span>')
-                        .replace(/\[?WAIT\]?/gi, '<span class="badge badge-wait">WAIT</span>');
+                    // Single-pass replacement to avoid double-matching keywords in CSS classes
+                    const badgeMap = {
+                        'STRONG POSITIVE': 'buy',
+                        'STRONG NEGATIVE': 'sell',
+                        'POSITIVE': 'buy',
+                        'NEGATIVE': 'sell',
+                        'NEUTRAL': 'wait',
+                        'UNDERVALUED': 'buy',
+                        'OVERVALUED': 'sell',
+                        'FAIRLY VALUED': 'hold',
+                        'FAIR VALUED': 'hold',
+                        'BUY': 'buy',
+                        'SELL': 'sell',
+                        'HOLD': 'hold',
+                        'WAIT': 'wait'
+                    };
+
+                    const badgeRegex = new RegExp(`\\[?(${Object.keys(badgeMap).join('|')})\\]?`, 'gi');
+                    htmlContent = htmlContent.replace(badgeRegex, (match, p1) => {
+                        const key = p1.toUpperCase();
+                        const type = badgeMap[key] || 'wait';
+                        return `<span class="badge badge-${type}">${key}</span>`;
+                    });
 
                     widget.innerHTML = `
                         <div class="widget-header flex items-center justify-between">

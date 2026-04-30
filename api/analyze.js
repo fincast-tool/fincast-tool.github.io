@@ -166,6 +166,7 @@ Current P/B: ${currentPB} | 5Y Average P/B: ${avgPB}
 Current P/S: ${currentPS} | 5Y Average P/S: ${avgPS}
 Current EV/EBITDA: ${currentEV} | 5Y Average EV/EBITDA: ${avgEV}
 Current Free Cash Flow (FCF): ${currentFCF}
+Current P/FCF (FCF Multiple): ${ (quote.marketCap && currentFCFVal > 0) ? (quote.marketCap / currentFCFVal).toFixed(2) : 'N/A' }
 Average FCF (5Y): ${avgFCF5} | Average FCF (10Y): ${avgFCF10}
 DCF Fair Value Estimate (FMP): $${profile.dcf ? profile.dcf.toFixed(2) : 'N/A'}
 Analyst Price Target (Consensus): ${pt.targetConsensus ? '$' + pt.targetConsensus : 'N/A'} (High: $${pt.targetHigh || 'N/A'} | Low: $${pt.targetLow || 'N/A'})
