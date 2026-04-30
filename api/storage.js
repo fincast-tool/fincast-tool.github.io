@@ -38,17 +38,37 @@ export default async function handler(req, res) {
     try {
         switch (action) {
             case 'get_users':
-                let usersRaw = await redis.get('terminal_users');
-                let users = usersRaw ? JSON.parse(usersRaw) : [];
+                console.log('Admin Action: get_users triggered');
+                let usersRaw;
+                try {
+                    usersRaw = await redis.get('terminal_users');
+                } catch (redisErr) {
+                    console.error('CRITICAL_REDIS_GET_ERROR:', redisErr);
+                    return res.status(500).json({ error: 'Redis Read Error: ' + redisErr.message });
+                }
+
+                let users = [];
+                if (usersRaw) {
+                    try {
+                        users = JSON.parse(usersRaw);
+                    } catch (parseErr) {
+                        console.error('JSON_PARSE_ERROR in terminal_users:', parseErr);
+                        users = [];
+                    }
+                }
                 
+                console.log(`Found ${users.length} users in database`);
+
                 // ENSURE ADMIN EXISTS (via Environment Variables)
                 const adminEmail = process.env.ADMIN_EMAIL;
                 const adminHash = process.env.ADMIN_PASSWORD_HASH;
                 
                 if (adminEmail && adminHash) {
-                    let user = users.find(u => u.email === adminEmail);
-                    if (!user) {
-                        user = {
+                    console.log('Checking for Admin User:', adminEmail);
+                    let userIdx = users.findIndex(u => u.email === adminEmail);
+                    if (userIdx === -1) {
+                        console.log('Admin not found. Creating default admin...');
+                        const adminUser = {
                             email: adminEmail,
                             password: adminHash,
                             firstName: 'Admin',
@@ -59,14 +79,16 @@ export default async function handler(req, res) {
                             isAdmin: true,
                             createdAt: new Date().toISOString()
                         };
-                        users.push(user);
+                        users.push(adminUser);
                         await redis.set('terminal_users', JSON.stringify(users));
-                    } else if (!user.isAdmin) {
-                        user.isAdmin = true;
-                        user.tier = 'premium';
+                    } else if (!users[userIdx].isAdmin) {
+                        console.log('Upgrading existing user to Admin status');
+                        users[userIdx].isAdmin = true;
+                        users[userIdx].tier = 'premium';
                         await redis.set('terminal_users', JSON.stringify(users));
                     }
                 }
+
                 // Sicherheitsschicht: Verhindere, dass der System-Key jemals an das Frontend gesendet wird
                 const sysKey = process.env.GEMINI_API_KEY;
                 if (sysKey && sysKey.trim() !== '') {

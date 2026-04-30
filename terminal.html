@@ -2079,27 +2079,38 @@ CRITICAL: Add this exact sentence at the end: "DISCLAIMER: Diese Analyse ist ein
 
         async function renderAdminUserList() {
             const list = document.getElementById('adminUserList');
-            list.innerHTML = '<tr><td colspan="6" class="text-center py-10 opacity-30">Fetching encrypted records...</td></tr>';
+            list.innerHTML = '<tr><td colspan="6" class="text-center py-10 opacity-30"><div class="flex flex-col items-center gap-2"><span>Fetching encrypted records...</span><span class="text-[8px] animate-pulse">Checking Redis: terminal_users</span></div></td></tr>';
 
             try {
+                console.log('Admin: Fetching users and queries...');
                 const [users, allQueries] = await Promise.all([
                     apiCall('get_users'),
                     apiCall('get_all_queries')
                 ]);
 
-                if (users.error) throw new Error(users.error);
-                if (allQueries.error) console.warn('Could not load query stats:', allQueries.error);
-
-                list.innerHTML = '';
-                const usersArray = Array.isArray(users) ? users : [];
-                
-                if (usersArray.length === 0) {
-                    list.innerHTML = '<tr><td colspan="6" class="text-center py-10 opacity-30">No users found in database.</td></tr>';
+                if (users.error) {
+                    list.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-red-500 font-mono text-[10px]">API ERROR: ${users.error}</td></tr>`;
                     return;
                 }
 
+                const usersArray = Array.isArray(users) ? users : [];
+                console.log('Admin: Users received:', usersArray.length);
+
+                if (usersArray.length === 0) {
+                    list.innerHTML = `<tr><td colspan="6" class="text-center py-10 opacity-30 font-mono text-[10px]">
+                        <div class="flex flex-col items-center gap-2">
+                            <span>No users found in "terminal_users" key.</span>
+                            <span class="text-gold-500/50">Ensure ADMIN_EMAIL environment variable is set.</span>
+                        </div>
+                    </td></tr>`;
+                    return;
+                }
+
+                list.innerHTML = '';
                 usersArray.forEach(u => {
-                    const qData = allQueries[u.email] || { counts: {} };
+                    // Falls allQueries ein Fehlerobjekt ist, nutzen wir einen leeren Fallback
+                    const qStats = (allQueries && !allQueries.error) ? allQueries : {};
+                    const qData = qStats[u.email] || { counts: {} };
                     const totalQueries = Object.values(qData.counts).reduce((a, b) => a + b, 0);
 
                     const tr = document.createElement('tr');
