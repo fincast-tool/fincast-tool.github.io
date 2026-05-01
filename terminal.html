@@ -1092,7 +1092,7 @@
         </div>
     </div>
 
-    </div><!-- /mainApp -->
+
 
     <script>
         // ==================== AUTH UI LOGIC ====================
@@ -2101,52 +2101,52 @@ CRITICAL: Add this exact sentence at the end: "DISCLAIMER: Diese Analyse ist ein
                     return;
                 }
 
-                list.innerHTML = '';
+                let html = '';
                 usersArray.forEach(u => {
                     const qStats = (allQueries && !allQueries.error) ? (allQueries[u.email] || { counts: {} }) : { counts: {} };
                     const totalQueries = Object.values(qStats.counts).reduce((a, b) => a + b, 0);
 
-                    const tr = document.createElement('tr');
-                    tr.className = "hover:bg-white/5 transition-all border-b border-white/5";
-                    tr.innerHTML = `
-                        <td class="py-4 px-4">
-                            <div class="flex flex-col">
-                                <span class="text-white font-bold">${u.firstName || 'User'} ${u.lastName || ''}</span>
-                                <span class="text-[9px] text-gray-500 font-mono italic">${u.email}</span>
-                            </div>
-                        </td>
-                        <td class="px-4">
-                            <select onchange="updateUserField('${u.email}', 'tier', this.value)" class="bg-black/40 border border-white/10 rounded text-[10px] uppercase font-bold p-1 ${u.tier === 'premium' ? 'text-gold-500' : 'text-gray-400'}">
-                                <option value="free" ${u.tier === 'free' ? 'selected' : ''}>FREE</option>
-                                <option value="premium" ${u.tier === 'premium' ? 'selected' : ''}>PREMIUM</option>
-                            </select>
-                        </td>
-                        <td class="px-4">
-                            <select onchange="updateUserField('${u.email}', 'model', this.value)" class="bg-black/40 border border-white/10 rounded text-[10px] font-mono p-1 text-white/70">
-                                <option value="gemini-2.5-flash-lite" ${u.model === 'gemini-2.5-flash-lite' ? 'selected' : ''}>2.5 FLASH-LITE</option>
-                                <option value="gemini-2.5-flash" ${u.model === 'gemini-2.5-flash' ? 'selected' : ''}>2.5 FLASH</option>
-                                <option value="gemini-flash-latest" ${u.model === 'gemini-flash-latest' ? 'selected' : ''}>FLASH (LATEST)</option>
-                            </select>
-                        </td>
-                        <td class="px-4">
-                            <input type="text" value="${u.apiKey || ''}" placeholder="System Key" 
-                                onblur="updateUserField('${u.email}', 'apiKey', this.value)"
-                                class="w-full bg-black/40 border border-white/10 rounded px-2 py-1 text-[9px] font-mono text-gold-500/80">
-                        </td>
-                        <td class="px-4">
-                            <div class="flex items-center gap-3">
-                                <span class="text-gold-500 font-bold font-mono">${totalQueries}</span>
-                                <button onclick="resetUserQueries('${u.email}')" class="text-[8px] bg-red-500/10 text-red-500 border border-red-500/20 px-2 py-1 rounded hover:bg-red-500 hover:text-white transition-all">RESET</button>
-                            </div>
-                        </td>
-                        <td class="text-right px-4">
-                            <button onclick="adminDeleteUser('${u.email}')" class="text-gray-600 hover:text-red-500 p-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                            </button>
-                        </td>
+                    html += `
+                        <tr class="hover:bg-white/5 transition-all border-b border-white/5">
+                            <td class="py-4 px-4">
+                                <div class="flex flex-col">
+                                    <span class="text-white font-bold">${u.firstName || 'User'} ${u.lastName || ''}</span>
+                                    <span class="text-[9px] text-gray-500 font-mono italic">${u.email}</span>
+                                </div>
+                            </td>
+                            <td class="px-4">
+                                <select onchange="updateUserField('${u.email}', 'tier', this.value)" class="bg-black/40 border border-white/10 rounded text-[10px] uppercase font-bold p-1 ${u.tier === 'premium' ? 'text-gold-500' : 'text-gray-400'}">
+                                    <option value="free" ${u.tier === 'free' ? 'selected' : ''}>FREE</option>
+                                    <option value="premium" ${u.tier === 'premium' ? 'selected' : ''}>PREMIUM</option>
+                                </select>
+                            </td>
+                            <td class="px-4">
+                                <select onchange="updateUserField('${u.email}', 'model', this.value)" class="bg-black/40 border border-white/10 rounded text-[10px] font-mono p-1 text-white/70">
+                                    <option value="gemini-2.5-flash-lite" ${u.model === 'gemini-2.5-flash-lite' ? 'selected' : ''}>2.5 FLASH-LITE</option>
+                                    <option value="gemini-2.5-flash" ${u.model === 'gemini-2.5-flash' ? 'selected' : ''}>2.5 FLASH</option>
+                                    <option value="gemini-flash-latest" ${u.model === 'gemini-flash-latest' ? 'selected' : ''}>FLASH (LATEST)</option>
+                                </select>
+                            </td>
+                            <td class="px-4">
+                                <input type="text" value="${u.apiKey || ''}" placeholder="System Key" 
+                                    onblur="updateUserField('${u.email}', 'apiKey', this.value)"
+                                    class="w-full bg-black/40 border border-white/10 rounded px-2 py-1 text-[9px] font-mono text-gold-500/80">
+                            </td>
+                            <td class="px-4">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-gold-500 font-bold font-mono">${totalQueries}</span>
+                                    <button onclick="resetUserQueries('${u.email}')" class="text-[8px] bg-red-500/10 text-red-500 border border-red-500/20 px-2 py-1 rounded hover:bg-red-500 hover:text-white transition-all">RESET</button>
+                                </div>
+                            </td>
+                            <td class="text-right px-4">
+                                <button onclick="adminDeleteUser('${u.email}')" class="text-gray-600 hover:text-red-500 p-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
+                            </td>
+                        </tr>
                     `;
-                    list.appendChild(tr);
                 });
+                list.innerHTML = html;
             } catch (err) {
                 list.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-red-500 font-mono text-[10px]">LADEFEHLER: ${err.message}</td></tr>`;
             }
