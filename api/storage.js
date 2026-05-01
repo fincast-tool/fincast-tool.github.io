@@ -64,8 +64,18 @@ module.exports = async function handler(req, res) {
 
         // --- ARCHIVE LOGIC ---
         if (action === 'get_archive') {
-            const archive = await redis.get(`archive:${email}`);
-            return res.status(200).json(archive ? JSON.parse(archive) : []);
+            const key = `archive:${email}`;
+            const type = await redis.type(key);
+            
+            if (type === 'list') {
+                // Altes Format: Liste
+                const list = await redis.lrange(key, 0, -1);
+                return res.status(200).json(list.map(i => JSON.parse(i)));
+            } else {
+                // Neues Format: String
+                const archive = await redis.get(key);
+                return res.status(200).json(archive ? JSON.parse(archive) : []);
+            }
         }
 
         if (action === 'save_archive') {

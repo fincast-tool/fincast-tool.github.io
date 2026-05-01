@@ -4,10 +4,10 @@ module.exports = async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
     const { ticker, model, geminiBody, email, apiKey: clientApiKey } = req.body;
-    
-    const apiKey = (clientApiKey && clientApiKey.trim() !== '') 
-                   ? clientApiKey.trim() 
-                   : process.env.GEMINI_API_KEY;
+
+    const apiKey = (clientApiKey && clientApiKey.trim() !== '')
+        ? clientApiKey.trim()
+        : process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
         return res.status(500).json({ error: 'Kein API-Key gefunden.' });
@@ -16,13 +16,13 @@ module.exports = async function handler(req, res) {
     try {
         // --- FMP INTEGRATION ---
         const fmpKey = process.env.FMP_API_KEY || process.env.API_FMP || process.env.fmp_api_key;
-        
+
         if (fmpKey && ticker && geminiBody && geminiBody.contents && geminiBody.contents[0].parts[0].text) {
             try {
                 const searchRes = await fetch(`https://financialmodelingprep.com/api/v3/search?query=${encodeURIComponent(ticker)}&limit=1&apikey=${fmpKey}`);
                 const searchData = await searchRes.json();
                 const symbol = (searchData && searchData.length > 0) ? searchData[0].symbol : ticker.toUpperCase();
-                
+
                 const [profileRes, quoteRes, metricsRes, ttmRes, growthRes, ptRes, earnRes, rsiRes, macdRes, cfRes, incomeRes] = await Promise.all([
                     fetch(`https://financialmodelingprep.com/api/v3/profile/${symbol}?apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
                     fetch(`https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
@@ -48,7 +48,7 @@ module.exports = async function handler(req, res) {
                 const macdDataRaw = await macdRes.json().catch(() => []);
                 const cfData = await cfRes.json().catch(() => []);
                 const incomeData = await incomeRes.json().catch(() => []);
-                
+
                 if (profileData && profileData.length > 0 && quoteData && quoteData.length > 0) {
                     const profile = profileData[0] || {};
                     const quote = quoteData[0] || {};
@@ -57,15 +57,15 @@ module.exports = async function handler(req, res) {
                     const pt = ptData[0] || {};
                     const rsiData = (rsiDataRaw && rsiDataRaw.length > 0) ? rsiDataRaw[0].rsi : 'N/A';
                     const macdData = (macdDataRaw && macdDataRaw.length > 0) ? macdDataRaw[0].macd : 'N/A';
-                    const earnString = (earnData && earnData.length > 0) 
-                        ? earnData.slice(0,4).map(e => `Q-Date: ${e.date?.split(' ')[0]} | Est: ${e.estimatedEarning} | Act: ${e.actualEarning}`).join('\n') 
+                    const earnString = (earnData && earnData.length > 0)
+                        ? earnData.slice(0, 4).map(e => `Q-Date: ${e.date?.split(' ')[0]} | Est: ${e.estimatedEarning} | Act: ${e.actualEarning}`).join('\n')
                         : 'N/A';
-                    
+
                     if (metricsData && metricsData.length > 0) {
                         let sumPE = 0, sumPB = 0, sumPS = 0, sumEV = 0;
                         let countPE = 0, countPB = 0, countPS = 0, countEV = 0;
                         let sumPE10 = 0, countPE10 = 0;
-                        
+
                         metricsData.forEach((y, index) => {
                             if (index < 5) {
                                 if (y.peRatio) { sumPE += y.peRatio; countPE++; }
@@ -82,7 +82,7 @@ module.exports = async function handler(req, res) {
                             if (index < 5) { sumFCF5 += fcf; countFCF5++; }
                             sumFCF10 += fcf; countFCF10++;
                         });
-                        
+
                         const avgPE = countPE > 0 ? (sumPE / countPE).toFixed(2) : 'N/A';
                         const avgPE10 = countPE10 > 0 ? (sumPE10 / countPE10).toFixed(2) : 'N/A';
                         const currentFCFVal = cfData[0] ? (cfData[0].freeCashFlow || (cfData[0].operatingCashFlow - Math.abs(cfData[0].capitalExpenditure || 0))) : 0;
@@ -94,9 +94,9 @@ Name: ${profile.companyName || 'N/A'} (${symbol}) | Price: $${quote.price || 'N/
 Market Cap: ${quote.marketCap ? '$' + (quote.marketCap / 1e9).toFixed(2) + ' Billion' : 'N/A'}
 
 --- TRENDS ---
-Revenue: ${ incomeData.slice(0,5).map(y => (y.revenue/1e9).toFixed(2) + 'B').reverse().join(' -> ') }
-Op. Margins: ${ incomeData.slice(0,5).map(y => ((y.operatingIncome/y.revenue)*100).toFixed(1) + '%').reverse().join(' -> ') }
-FCF Trend: ${ cfData.slice(0,5).map(y => (y.freeCashFlow/1e9).toFixed(2) + 'B').reverse().join(' -> ') }
+Revenue: ${incomeData.slice(0, 5).map(y => (y.revenue / 1e9).toFixed(2) + 'B').reverse().join(' -> ')}
+Op. Margins: ${incomeData.slice(0, 5).map(y => ((y.operatingIncome / y.revenue) * 100).toFixed(1) + '%').reverse().join(' -> ')}
+FCF Trend: ${cfData.slice(0, 5).map(y => (y.freeCashFlow / 1e9).toFixed(2) + 'B').reverse().join(' -> ')}
 
 --- VALUATION ---
 Current P/E: ${metricsData[0]?.peRatio?.toFixed(2) || 'N/A'}
@@ -113,7 +113,7 @@ Next Earnings: ${quote.earningsAnnouncement || 'N/A'}
                         geminiBody.contents[0].parts[0].text = fmpContext + geminiBody.contents[0].parts[0].text;
                     }
                 }
-            } catch(e) { console.error("FMP Error:", e); }
+            } catch (e) { console.error("FMP Error:", e); }
         }
 
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;

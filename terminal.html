@@ -1682,13 +1682,17 @@ ROLE: Quant Researcher (Statistical Arbitrage)
 
             if (agentIds.includes('executive_summary')) {
                 prompt += `<executive_summary>
-- Fundamental Value AI (Simulation): [1 sentence synthesis] [BADGE]
-- Intrinsic Value AI (Simulation): [1 sentence synthesis] [BADGE]
-- Earnings Momentum AI (Simulation): [1 sentence synthesis] [BADGE]
-- Quantitative Technical AI (Simulation): [1 sentence synthesis] [BADGE]
-- Statistical Arbitrage AI (Simulation): [1 sentence synthesis] [BADGE]
+- Stock Screener (Fundamental Value AI): [1 sentence synthesis] [BADGE]
+- DCF Deep Dive (Intrinsic Value AI): [1 sentence synthesis] [BADGE]
+- Earnings Breakdown (Earnings Momentum AI): [1 sentence synthesis] [BADGE]
+- Technical System (Quantitative Technical AI): [1 sentence synthesis] [BADGE]
+- Pattern Finder (Statistical Arbitrage AI): [1 sentence synthesis] [BADGE]
 - Strategic DNA: [1 sentence synthesis about Sector and Profile]
-- Final AI Sentiment: [1 sentence conclusion] [BADGE]
+
+- INSTITUTIONAL MASTER CONCLUSION:
+[Provide a 3-4 sentence sophisticated synthesis of all agent findings. Explain the core conflict or agreement between frameworks and provide a final strategic outlook.]
+
+- FINAL TERMINAL SENTIMENT: [BADGE]
 MANDATORY: Use EXACTLY ONE of these badges per agent/sentiment: [POSITIVE], [STRONG POSITIVE], [NEUTRAL], [NEGATIVE], [STRONG NEGATIVE], [UNDERVALUED], [OVERVALUED], [FAIRLY VALUED], [WAIT].
 CRITICAL: Add this exact sentence at the end: "DISCLAIMER: Diese Analyse ist eine KI-gestützte Simulation und stellt keine Anlageberatung dar."
 </executive_summary>\n\n`;
