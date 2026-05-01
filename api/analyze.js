@@ -23,14 +23,16 @@ export default async function handler(req, res) {
 
         if (fmpKey && ticker && geminiBody && geminiBody.contents && geminiBody.contents[0].parts[0].text) {
             try {
-                // 1. Symbol auflösen
-                const searchRes = await fetch(`https://financialmodelingprep.com/api/v3/search?query=${encodeURIComponent(ticker)}&limit=1&apikey=${fmpKey}`);
-                const searchData = await searchRes.json();
-                
-                if (searchData && searchData.length > 0) {
-                    const symbol = searchData[0].symbol;
+                    // 1. Symbol auflösen
+                    const searchRes = await fetch(`https://financialmodelingprep.com/api/v3/search?query=${encodeURIComponent(ticker)}&limit=1&apikey=${fmpKey}`);
+                    const searchData = await searchRes.json();
                     
-                    // Lade alle zentralen Marktdaten parallel für maximale Geschwindigkeit
+                    // Fallback: Wenn Suche nichts findet, nimm den Ticker direkt (Großbuchstaben)
+                    const symbol = (searchData && searchData.length > 0) ? searchData[0].symbol : ticker.toUpperCase();
+                    
+                    console.log(`[DIAGNOSE] Nutze Symbol: ${symbol}`);
+
+                    // Lade alle zentralen Marktdaten parallel
                     const [profileRes, quoteRes, metricsRes, ttmRes, growthRes, ptRes, earnRes, rsiRes, macdRes, cfRes, incomeRes] = await Promise.all([
                         fetch(`https://financialmodelingprep.com/api/v3/profile/${symbol}?apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
                         fetch(`https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
@@ -56,6 +58,8 @@ export default async function handler(req, res) {
                     const macdDataRaw = await macdRes.json().catch(() => []);
                     const cfData = await cfRes.json().catch(() => []);
                     const incomeData = await incomeRes.json().catch(() => []);
+                    
+                    console.log(`[DIAGNOSE] Daten erhalten: Profile=${profileData.length}, Quote=${quoteData.length}, Metrics=${metricsData.length}, Income=${incomeData.length}, CF=${cfData.length}`);
 
                     const profile = profileData[0] || {};
                     const quote = quoteData[0] || {};
