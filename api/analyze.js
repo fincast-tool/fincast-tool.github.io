@@ -7,31 +7,37 @@ module.exports = async function handler(req, res) {
     if (!apiKey) return res.status(500).json({ error: 'Kein API-Key gefunden.' });
 
 
+    console.log(`[Backend] Processing request for ticker: ${ticker}, model: ${model}`);
+
     try {
-        // --- FMP INTEGRATION ---
         const fmpKey = process.env.FMP_API_KEY || process.env.API_FMP || process.env.fmp_api_key || process.env.FMP_KEY || process.env.fmp_key;
+        
+        // Initial system status for debugging
+        let systemStatus = `DEBUG: Backend reached. Ticker: ${ticker}. `;
 
         if (ticker && geminiBody && geminiBody.contents) {
             if (!fmpKey) {
                 console.warn("FMP API Key missing.");
-                geminiBody.contents[0].parts[0].text = "<system_status>\nDEBUG: FMP_API_KEY_MISSING - The system could not find an FMP API key in environment variables.\n</system_status>\n\n" + geminiBody.contents[0].parts[0].text;
+                systemStatus += "ERROR: FMP_API_KEY_MISSING.";
+                geminiBody.contents[0].parts[0].text = `<system_status>\n${systemStatus}\n</system_status>\n\n` + geminiBody.contents[0].parts[0].text;
             } else {
-                const maskedKey = fmpKey.substring(0, 3) + "..." + fmpKey.substring(fmpKey.length - 3);
-                let statusMsg = `DEBUG: FMP_KEY_FOUND (${maskedKey}). Attempting fetch for ${ticker}...`;
+                const maskedKey = fmpKey.length > 5 ? (fmpKey.substring(0, 3) + "..." + fmpKey.substring(fmpKey.length - 3)) : "***";
+                systemStatus += `FMP Key Found (${maskedKey}). `;
+                let fmpDetails = "";
                 try {
-                // Detect if ticker is already a symbol (1-5 uppercase letters)
-                const isTicker = /^[A-Z]{1,5}$/.test(ticker.trim().toUpperCase());
-                let symbol = isTicker ? ticker.trim().toUpperCase() : null;
 
-                if (!symbol) {
-                    try {
+                    // Detect if ticker is already a symbol (1-5 uppercase letters)
+                    const isTicker = /^[A-Z0-9.\-]{1,6}$/.test(ticker.trim().toUpperCase());
+                    let symbol = isTicker ? ticker.trim().toUpperCase() : null;
+
+                    if (!symbol || ticker.length > 5) {
+                        fmpDetails += "Searching symbol... ";
                         const searchRes = await fetch(`https://financialmodelingprep.com/api/v3/search?query=${encodeURIComponent(ticker)}&limit=1&apikey=${fmpKey}`);
-                        const searchData = await searchRes.json();
-                        symbol = (Array.isArray(searchData) && searchData.length > 0) ? searchData[0].symbol : ticker.toUpperCase();
-                    } catch (e) {
-                        symbol = ticker.toUpperCase();
+                        const searchData = await searchRes.json().catch(() => []);
+                        symbol = (searchData && searchData[0]) ? searchData[0].symbol : ticker.trim().toUpperCase();
                     }
-                }
+                    fmpDetails += `Using Symbol: ${symbol}. `;
+
 
                     const [profileRes, quoteRes, metricsRes, ttmRes, earnRes, rsiRes, macdRes, cfRes, incomeRes] = await Promise.all([
                         fetch(`https://financialmodelingprep.com/api/v3/profile/${symbol}?apikey=${fmpKey}`).catch(() => null),
@@ -143,19 +149,17 @@ Short Interest: ${quote.sharesOutstanding ? ((quote.volume / quote.sharesOutstan
 Next Earnings: ${quote.earningsAnnouncement || 'N/A'}
 [/FMP API BLOCK]
 `;
-                        geminiBody.contents[0].parts[0].text = fmpContext + "\n" + geminiBody.contents[0].parts[0].text;
-                    } // close if (metricsData)
-                } else { // close if (hasProfile) and start else
-                    geminiBody.contents[0].parts[0].text = `<system_status>\n${statusMsg} | ERROR: Data incomplete (Profile: ${hasProfile}, Quote: ${hasQuote})\n</system_status>\n\n` + geminiBody.contents[0].parts[0].text;
-                }
+                        geminiBody.contents[0].parts[0].text = fmpContext + "\n<system_status>\n" + systemStatus + fmpDetails + "FMP_SUCCESS\n</system_status>\n\n" + geminiBody.contents[0].parts[0].text;
+                    } else {
+                        geminiBody.contents[0].parts[0].text = `<system_status>\n${systemStatus}${fmpDetails} | ERROR: No Profile data for ${symbol}\n</system_status>\n\n` + geminiBody.contents[0].parts[0].text;
+                    }
                 } catch (e) { 
                     console.error("FMP Error:", e);
-                    geminiBody.contents[0].parts[0].text = `<system_status>\n${statusMsg} | FETCH_EXCEPTION: ${e.message}\n</system_status>\n\n` + geminiBody.contents[0].parts[0].text;
+                    geminiBody.contents[0].parts[0].text = `<system_status>\n${systemStatus}${fmpDetails} | EXCEPTION: ${e.message}\n</system_status>\n\n` + geminiBody.contents[0].parts[0].text;
                 }
             }
         } else {
-            // Log structure mismatch if it happens
-            console.error("Request Body Mismatch:", { hasTicker: !!ticker, hasBody: !!geminiBody, hasContents: !!geminiBody?.contents });
+            console.error("Request Body Mismatch:", { hasTicker: !!ticker, hasBody: !!geminiBody });
         }
 
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;

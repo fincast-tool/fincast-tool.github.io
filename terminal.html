@@ -1606,12 +1606,9 @@ TASK: Deep-Dive Analysis for "${query}". \n\n`;
 - Do not guess or use outdated data.
 - NEVER mention the tool usage or "based on my search" in the output.
 - Output ONLY the tags and the data inside.
-- If a <system_status> tag is provided in the prompt, you MUST include it in your output as the first section.
-- If a value is unknown, use "N/A".
-- If the FMP block is empty or missing, use google_search to find the necessary data.
-- For technical analysis, if real-time indicators are missing in FMP, use google_search.
+- If a <system_status> tag is provided in the prompt, you MUST include it in your output as the FIRST section.
 
-Generate the following sections with EXACT tags. Output ONLY the data inside the tags.\n\n`;
+Generate the following sections with EXACT tags (including <system_status> if present). Output ONLY the data inside the tags.\n\n`;
 
             if (agentIds.includes('company_identity')) {
                 prompt += `<company_identity>
