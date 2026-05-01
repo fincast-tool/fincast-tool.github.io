@@ -1,18 +1,11 @@
-const Redis = require('ioredis');
-const fetch = typeof global.fetch !== 'undefined' ? global.fetch : (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
-
 module.exports = async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-    const { ticker, model, geminiBody, email, apiKey: clientApiKey } = req.body;
+    const { ticker, model, geminiBody, apiKey: clientApiKey } = req.body;
+    const apiKey = (clientApiKey && clientApiKey.trim() !== '') ? clientApiKey.trim() : process.env.GEMINI_API_KEY;
 
-    const apiKey = (clientApiKey && clientApiKey.trim() !== '')
-        ? clientApiKey.trim()
-        : process.env.GEMINI_API_KEY;
+    if (!apiKey) return res.status(500).json({ error: 'Kein API-Key gefunden.' });
 
-    if (!apiKey) {
-        return res.status(500).json({ error: 'Kein API-Key gefunden.' });
-    }
 
     try {
         // --- FMP INTEGRATION ---
@@ -40,64 +33,29 @@ module.exports = async function handler(req, res) {
                     }
                 }
 
-                const [profileRes, quoteRes, metricsRes, ttmRes, growthRes, ptRes, earnRes, rsiRes, macdRes, cfRes, incomeRes, estRes, insiderRes, instRes] = await Promise.all([
-                    fetch(`https://financialmodelingprep.com/api/v3/profile/${symbol}?apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
-                    fetch(`https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
-                    fetch(`https://financialmodelingprep.com/api/v3/key-metrics/${symbol}?limit=10&apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
-                    fetch(`https://financialmodelingprep.com/api/v3/key-metrics-ttm/${symbol}?apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
-                    fetch(`https://financialmodelingprep.com/api/v3/financial-growth/${symbol}?limit=1&apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
-                    fetch(`https://financialmodelingprep.com/api/v4/price-target-consensus?symbol=${symbol}&apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
-                    fetch(`https://financialmodelingprep.com/api/v3/earnings-surprises/${symbol}?apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
-                    fetch(`https://financialmodelingprep.com/api/v3/technical_indicator/1day/${symbol}?type=rsi&period=14&apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
-                    fetch(`https://financialmodelingprep.com/api/v3/technical_indicator/1day/${symbol}?type=macd&apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
-                    fetch(`https://financialmodelingprep.com/api/v3/cash-flow-statement/${symbol}?limit=10&apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
-                    fetch(`https://financialmodelingprep.com/api/v3/income-statement/${symbol}?limit=10&apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
-                    fetch(`https://financialmodelingprep.com/api/v3/analyst-estimates/${symbol}?limit=1&apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
-                    fetch(`https://financialmodelingprep.com/api/v4/insider-trading?symbol=${symbol}&limit=5&apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
-                    fetch(`https://financialmodelingprep.com/api/v4/institutional-ownership/symbol-ownership-percent?symbol=${symbol}&apikey=${fmpKey}`).catch(() => ({ json: () => [] }))
-                ]);
+                    const [profileRes, quoteRes, metricsRes, ttmRes, earnRes, rsiRes, macdRes, cfRes, incomeRes] = await Promise.all([
+                        fetch(`https://financialmodelingprep.com/api/v3/profile/${symbol}?apikey=${fmpKey}`).catch(() => null),
+                        fetch(`https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=${fmpKey}`).catch(() => null),
+                        fetch(`https://financialmodelingprep.com/api/v3/key-metrics/${symbol}?limit=5&apikey=${fmpKey}`).catch(() => null),
+                        fetch(`https://financialmodelingprep.com/api/v3/key-metrics-ttm/${symbol}?apikey=${fmpKey}`).catch(() => null),
+                        fetch(`https://financialmodelingprep.com/api/v3/earnings-surprises/${symbol}?apikey=${fmpKey}`).catch(() => null),
+                        fetch(`https://financialmodelingprep.com/api/v3/technical_indicator/1day/${symbol}?type=rsi&period=14&apikey=${fmpKey}`).catch(() => null),
+                        fetch(`https://financialmodelingprep.com/api/v3/technical_indicator/1day/${symbol}?type=macd&apikey=${fmpKey}`).catch(() => null),
+                        fetch(`https://financialmodelingprep.com/api/v3/cash-flow-statement/${symbol}?limit=5&apikey=${fmpKey}`).catch(() => null),
+                        fetch(`https://financialmodelingprep.com/api/v3/income-statement/${symbol}?limit=5&apikey=${fmpKey}`).catch(() => null)
+                    ]);
 
-                let profileData = await profileRes.json().catch(() => []);
-                if (!Array.isArray(profileData)) profileData = [];
-                
-                let quoteData = await quoteRes.json().catch(() => []);
-                if (!Array.isArray(quoteData)) quoteData = [];
-                
-                let metricsData = await metricsRes.json().catch(() => []);
-                if (!Array.isArray(metricsData)) metricsData = [];
-                
-                let ttmData = await ttmRes.json().catch(() => []);
-                if (!Array.isArray(ttmData)) ttmData = [];
-                
-                let growthData = await growthRes.json().catch(() => []);
-                if (!Array.isArray(growthData)) growthData = [];
-                
-                let ptData = await ptRes.json().catch(() => []);
-                if (!Array.isArray(ptData)) ptData = [];
-                
-                let earnData = await earnRes.json().catch(() => []);
-                if (!Array.isArray(earnData)) earnData = [];
-                
-                let rsiDataRaw = await rsiRes.json().catch(() => []);
-                if (!Array.isArray(rsiDataRaw)) rsiDataRaw = [];
-                
-                let macdDataRaw = await macdRes.json().catch(() => []);
-                if (!Array.isArray(macdDataRaw)) macdDataRaw = [];
-                
-                let cfData = await cfRes.json().catch(() => []);
-                if (!Array.isArray(cfData)) cfData = [];
-                
-                let incomeData = await incomeRes.json().catch(() => []);
-                if (!Array.isArray(incomeData)) incomeData = [];
-                
-                let estData = await estRes.json().catch(() => []);
-                if (!Array.isArray(estData)) estData = [];
-                
-                let insiderData = await insiderRes.json().catch(() => []);
-                if (!Array.isArray(insiderData)) insiderData = [];
-                
-                let instData = await instRes.json().catch(() => []);
-                if (!Array.isArray(instData)) instData = [];
+
+                const profileData = profileRes ? await profileRes.json().catch(() => []) : [];
+                const quoteData = quoteRes ? await quoteRes.json().catch(() => []) : [];
+                const metricsData = metricsRes ? await metricsRes.json().catch(() => []) : [];
+                const ttmData = ttmRes ? await ttmRes.json().catch(() => []) : [];
+                const earnData = earnRes ? await earnRes.json().catch(() => []) : [];
+                const rsiDataRaw = rsiRes ? await rsiRes.json().catch(() => []) : [];
+                const macdDataRaw = macdRes ? await macdRes.json().catch(() => []) : [];
+                const cfData = cfRes ? await cfRes.json().catch(() => []) : [];
+                const incomeData = incomeRes ? await incomeRes.json().catch(() => []) : [];
+
 
                 const hasProfile = Array.isArray(profileData) && profileData.length > 0;
                 const hasQuote = Array.isArray(quoteData) && quoteData.length > 0;
@@ -145,18 +103,6 @@ module.exports = async function handler(req, res) {
                             }
                         }
 
-                        const upcomingEst = (estData && estData.length > 0) 
-                            ? `Rev: ${estData[0].revenueLow}-${estData[0].revenueHigh} | EPS: ${estData[0].estimatedEarningLow}-${estData[0].estimatedEarningHigh}`
-                            : 'N/A';
-
-                        const insiderActivity = (insiderData && insiderData.length > 0)
-                            ? insiderData.slice(0, 5).map(i => `${i.transactionDate}: ${i.reportingName} (${i.typeOfOwner}) ${i.transactionType} ${i.securitiesTransacted} shares`).join('\n')
-                            : 'N/A';
-
-                        const instOwnership = (instData && instData.length > 0)
-                            ? `Institutional Ownership: ${instData[0].ownershipPercent?.toFixed(2)}%`
-                            : 'N/A';
-
                         const fmpContext = `
 [FMP API BLOCK]
 Name: ${profile.companyName || 'N/A'}
@@ -177,12 +123,6 @@ FCF Trend (5Y): ${cfData.slice(0, 5).map(y => (y.freeCashFlow / 1e9).toFixed(2) 
 EPS Surprise History:
 ${earnString}
 
---- ANALYST & SMART MONEY ---
-Upcoming Consensus: ${upcomingEst}
-Institutional Trends: ${instOwnership}
-Insider Activity:
-${insiderActivity}
-
 --- VALUATION METRICS ---
 Current P/E: ${metricsData[0]?.peRatio?.toFixed(2) || 'N/A'}
 5Y Avg P/E: ${avgPE}
@@ -193,9 +133,6 @@ ROE: ${ttm.roeTTM ? (ttm.roeTTM * 100).toFixed(2) + '%' : 'N/A'}
 Dividend Yield: ${quote.dividendYield ? (quote.dividendYield * 100).toFixed(2) + '%' : 'N/A'}
 Payout Ratio: ${ttm.payoutRatioTTM ? (ttm.payoutRatioTTM * 100).toFixed(2) + '%' : 'N/A'}
 DCF Fair Value Estimate: $${profile.dcf?.toFixed(2) || 'N/A'}
-Bull Case Target: $${pt.targetHigh || 'N/A'}
-Bear Case Target: $${pt.targetLow || 'N/A'}
-Consensus Target: $${pt.targetConsensus || 'N/A'}
 
 --- TECHNICAL INDICATORS ---
 14-Day RSI: ${rsiData !== 'N/A' ? rsiData.toFixed(2) : 'N/A'}
