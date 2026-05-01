@@ -70,16 +70,16 @@ module.exports = async function handler(req, res) {
                     systemStatus += ` | Profile: OK | Symbol: ${symbol}`;
 
                     const profile = profileData[0] || {};
-
                     const quote = quoteData[0] || {};
                     const ttm = ttmData[0] || {};
-                    const growth = growthData[0] || {};
-                    const pt = ptData[0] || {};
+
                     const rsiData = (rsiDataRaw && rsiDataRaw.length > 0 && rsiDataRaw[0].rsi != null) ? rsiDataRaw[0].rsi : 'N/A';
                     const macdData = (macdDataRaw && macdDataRaw.length > 0 && macdDataRaw[0].macd != null) ? macdDataRaw[0].macd : 'N/A';
+                    
                     const earnString = (earnData && earnData.length > 0)
                         ? earnData.slice(0, 4).map(e => `Q-Date: ${e.date?.split(' ')[0]} | Est: ${e.estimatedEarning} | Act: ${e.actualEarning}`).join('\n')
                         : 'N/A';
+
 
                     let avgPE = 'N/A', avgPE10 = 'N/A';
                     if (metricsData && metricsData.length > 0) {
