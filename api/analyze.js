@@ -17,11 +17,13 @@ export default async function handler(req, res) {
 
     try {
         // --- FMP INTEGRATION ---
-        // Lädt historische Multiples, falls ein FMP_API_KEY in Vercel hinterlegt ist.
-        const fmpKey = process.env.FMP_API_KEY;
+        const fmpKey = process.env.FMP_API_KEY || process.env.API_FMP || process.env.fmp_api_key;
+        
+        console.log(`[DIAGNOSE] FMP-Check: Key vorhanden? ${fmpKey ? 'JA' : 'NEIN'} | Ticker: ${ticker}`);
+
         if (fmpKey && ticker && geminiBody && geminiBody.contents && geminiBody.contents[0].parts[0].text) {
             try {
-                // 1. Symbol auflösen (falls der User z.B. "Apple" statt "AAPL" eingegeben hat)
+                // 1. Symbol auflösen
                 const searchRes = await fetch(`https://financialmodelingprep.com/api/v3/search?query=${encodeURIComponent(ticker)}&limit=1&apikey=${fmpKey}`);
                 const searchData = await searchRes.json();
                 
