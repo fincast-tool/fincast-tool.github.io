@@ -1,4 +1,5 @@
 const Redis = require('ioredis');
+const fetch = typeof global.fetch !== 'undefined' ? global.fetch : (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 module.exports = async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -22,6 +23,8 @@ module.exports = async function handler(req, res) {
                 console.warn("FMP API Key missing.");
                 geminiBody.contents[0].parts[0].text = "[DEBUG: FMP_API_KEY_MISSING - The system could not find an FMP API key in environment variables. Falling back to Google Search.]\n\n" + geminiBody.contents[0].parts[0].text;
             } else {
+                const maskedKey = fmpKey.substring(0, 3) + "..." + fmpKey.substring(fmpKey.length - 3);
+                geminiBody.contents[0].parts[0].text = `[DEBUG: FMP_KEY_FOUND - Key: ${maskedKey}. Attempting fetch...]\n\n` + geminiBody.contents[0].parts[0].text;
                 try {
                 // Detect if ticker is already a symbol (1-5 uppercase letters)
                 const isTicker = /^[A-Z]{1,5}$/.test(ticker.trim().toUpperCase());
@@ -96,11 +99,12 @@ module.exports = async function handler(req, res) {
                 let instData = await instRes.json().catch(() => []);
                 if (!Array.isArray(instData)) instData = [];
 
-                // Ensure we have at least the basic profile and quote data
                 const hasProfile = Array.isArray(profileData) && profileData.length > 0;
                 const hasQuote = Array.isArray(quoteData) && quoteData.length > 0;
 
-                if (hasProfile && hasQuote) {
+                if (hasProfile) {
+                    geminiBody.contents[0].parts[0].text = `[DEBUG: FMP_PROFILE_FOUND - Symbol: ${symbol}. Building data block...]\n\n` + geminiBody.contents[0].parts[0].text;
+
                     const profile = profileData[0] || {};
                     const quote = quoteData[0] || {};
                     const ttm = ttmData[0] || {};
