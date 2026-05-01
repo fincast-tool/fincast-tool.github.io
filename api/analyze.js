@@ -18,13 +18,13 @@ module.exports = async function handler(req, res) {
         // --- FMP INTEGRATION ---
         const fmpKey = process.env.FMP_API_KEY || process.env.API_FMP || process.env.fmp_api_key || process.env.FMP_KEY || process.env.fmp_key;
 
-        if (ticker && geminiBody && geminiBody.contents && geminiBody.contents[0].parts[0].text) {
+        if (ticker && geminiBody && geminiBody.contents) {
             if (!fmpKey) {
                 console.warn("FMP API Key missing.");
-                geminiBody.contents[0].parts[0].text = "[DEBUG: FMP_API_KEY_MISSING - The system could not find an FMP API key in environment variables. Falling back to Google Search.]\n\n" + geminiBody.contents[0].parts[0].text;
+                geminiBody.contents[0].parts[0].text = "<system_status>\nDEBUG: FMP_API_KEY_MISSING - The system could not find an FMP API key in environment variables.\n</system_status>\n\n" + geminiBody.contents[0].parts[0].text;
             } else {
                 const maskedKey = fmpKey.substring(0, 3) + "..." + fmpKey.substring(fmpKey.length - 3);
-                geminiBody.contents[0].parts[0].text = `[DEBUG: FMP_KEY_FOUND - Key: ${maskedKey}. Attempting fetch...]\n\n` + geminiBody.contents[0].parts[0].text;
+                let statusMsg = `DEBUG: FMP_KEY_FOUND (${maskedKey}). Attempting fetch for ${ticker}...`;
                 try {
                 // Detect if ticker is already a symbol (1-5 uppercase letters)
                 const isTicker = /^[A-Z]{1,5}$/.test(ticker.trim().toUpperCase());
@@ -103,7 +103,8 @@ module.exports = async function handler(req, res) {
                 const hasQuote = Array.isArray(quoteData) && quoteData.length > 0;
 
                 if (hasProfile) {
-                    geminiBody.contents[0].parts[0].text = `[DEBUG: FMP_PROFILE_FOUND - Symbol: ${symbol}. Building data block...]\n\n` + geminiBody.contents[0].parts[0].text;
+                    statusMsg += ` | Profile: OK | Symbol: ${symbol}`;
+                    geminiBody.contents[0].parts[0].text = `<system_status>\n${statusMsg}\n</system_status>\n\n` + geminiBody.contents[0].parts[0].text;
 
                     const profile = profileData[0] || {};
                     const quote = quoteData[0] || {};
@@ -206,15 +207,18 @@ Next Earnings: ${quote.earningsAnnouncement || 'N/A'}
 [/FMP API BLOCK]
 `;
                         geminiBody.contents[0].parts[0].text = fmpContext + "\n" + geminiBody.contents[0].parts[0].text;
+                    } else {
+                        geminiBody.contents[0].parts[0].text = `<system_status>\n${statusMsg} | ERROR: Data incomplete (Profile: ${hasProfile}, Quote: ${hasQuote})\n</system_status>\n\n` + geminiBody.contents[0].parts[0].text;
                     }
-                } else {
-                    geminiBody.contents[0].parts[0].text = `[DEBUG: FMP_DATA_INCOMPLETE - Profile: ${hasProfile}, Quote: ${hasQuote}. Falling back to Google Search.]\n\n` + geminiBody.contents[0].parts[0].text;
                 }
                 } catch (e) { 
                     console.error("FMP Error:", e);
-                    geminiBody.contents[0].parts[0].text = `[DEBUG: FMP_FETCH_ERROR - ${e.message}. Falling back to Google Search.]\n\n` + geminiBody.contents[0].parts[0].text;
+                    geminiBody.contents[0].parts[0].text = `<system_status>\n${statusMsg} | FETCH_EXCEPTION: ${e.message}\n</system_status>\n\n` + geminiBody.contents[0].parts[0].text;
                 }
             }
+        } else {
+            // Log structure mismatch if it happens
+            console.error("Request Body Mismatch:", { hasTicker: !!ticker, hasBody: !!geminiBody, hasContents: !!geminiBody?.contents });
         }
 
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
