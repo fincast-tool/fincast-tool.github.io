@@ -1,12 +1,10 @@
-import Redis from 'ioredis';
+const Redis = require('ioredis');
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
     const { ticker, model, geminiBody, email, apiKey: clientApiKey, action } = req.body;
     
-    // Architektur-Update: Wir nutzen direkt den lokalen Key des Users (falls vorhanden), 
-    // um die langsame Vercel-Datenbank-Verbindung (Redis) vor der Generierung komplett zu umgehen.
     const apiKey = (clientApiKey && clientApiKey.trim() !== '') 
                    ? clientApiKey.trim() 
                    : process.env.GEMINI_API_KEY;
@@ -23,44 +21,41 @@ export default async function handler(req, res) {
 
         if (fmpKey && ticker && geminiBody && geminiBody.contents && geminiBody.contents[0].parts[0].text) {
             try {
-                    // 1. Symbol auflösen
-                    const searchRes = await fetch(`https://financialmodelingprep.com/api/v3/search?query=${encodeURIComponent(ticker)}&limit=1&apikey=${fmpKey}`);
-                    const searchData = await searchRes.json();
-                    
-                    // Fallback: Wenn Suche nichts findet, nimm den Ticker direkt (Großbuchstaben)
-                    const symbol = (searchData && searchData.length > 0) ? searchData[0].symbol : ticker.toUpperCase();
-                    
-                    console.log(`[DIAGNOSE] Nutze Symbol: ${symbol}`);
+                // 1. Symbol auflösen
+                const searchRes = await fetch(`https://financialmodelingprep.com/api/v3/search?query=${encodeURIComponent(ticker)}&limit=1&apikey=${fmpKey}`);
+                const searchData = await searchRes.json();
+                
+                const symbol = (searchData && searchData.length > 0) ? searchData[0].symbol : ticker.toUpperCase();
+                
+                console.log(`[DIAGNOSE] Nutze Symbol: ${symbol}`);
 
-                    // Lade alle zentralen Marktdaten parallel
-                    const [profileRes, quoteRes, metricsRes, ttmRes, growthRes, ptRes, earnRes, rsiRes, macdRes, cfRes, incomeRes] = await Promise.all([
-                        fetch(`https://financialmodelingprep.com/api/v3/profile/${symbol}?apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
-                        fetch(`https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
-                        fetch(`https://financialmodelingprep.com/api/v3/key-metrics/${symbol}?limit=10&apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
-                        fetch(`https://financialmodelingprep.com/api/v3/key-metrics-ttm/${symbol}?apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
-                        fetch(`https://financialmodelingprep.com/api/v3/financial-growth/${symbol}?limit=1&apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
-                        fetch(`https://financialmodelingprep.com/api/v4/price-target-consensus?symbol=${symbol}&apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
-                        fetch(`https://financialmodelingprep.com/api/v3/earnings-surprises/${symbol}?apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
-                        fetch(`https://financialmodelingprep.com/api/v3/technical_indicator/1day/${symbol}?type=rsi&period=14&apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
-                        fetch(`https://financialmodelingprep.com/api/v3/technical_indicator/1day/${symbol}?type=macd&apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
-                        fetch(`https://financialmodelingprep.com/api/v3/cash-flow-statement/${symbol}?limit=10&apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
-                        fetch(`https://financialmodelingprep.com/api/v3/income-statement/${symbol}?limit=10&apikey=${fmpKey}`).catch(() => ({ json: () => [] }))
-                    ]);
+                const [profileRes, quoteRes, metricsRes, ttmRes, growthRes, ptRes, earnRes, rsiRes, macdRes, cfRes, incomeRes] = await Promise.all([
+                    fetch(`https://financialmodelingprep.com/api/v3/profile/${symbol}?apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
+                    fetch(`https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
+                    fetch(`https://financialmodelingprep.com/api/v3/key-metrics/${symbol}?limit=10&apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
+                    fetch(`https://financialmodelingprep.com/api/v3/key-metrics-ttm/${symbol}?apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
+                    fetch(`https://financialmodelingprep.com/api/v3/financial-growth/${symbol}?limit=1&apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
+                    fetch(`https://financialmodelingprep.com/api/v4/price-target-consensus?symbol=${symbol}&apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
+                    fetch(`https://financialmodelingprep.com/api/v3/earnings-surprises/${symbol}?apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
+                    fetch(`https://financialmodelingprep.com/api/v3/technical_indicator/1day/${symbol}?type=rsi&period=14&apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
+                    fetch(`https://financialmodelingprep.com/api/v3/technical_indicator/1day/${symbol}?type=macd&apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
+                    fetch(`https://financialmodelingprep.com/api/v3/cash-flow-statement/${symbol}?limit=10&apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
+                    fetch(`https://financialmodelingprep.com/api/v3/income-statement/${symbol}?limit=10&apikey=${fmpKey}`).catch(() => ({ json: () => [] }))
+                ]);
 
-                    const profileData = await profileRes.json().catch(() => []);
-                    const quoteData = await quoteRes.json().catch(() => []);
-                    const metricsData = await metricsRes.json().catch(() => []);
-                    const ttmData = await ttmRes.json().catch(() => []);
-                    const growthData = await growthRes.json().catch(() => []);
-                    const ptData = await ptRes.json().catch(() => []);
-                    const earnData = await earnRes.json().catch(() => []);
-                    const rsiDataRaw = await rsiRes.json().catch(() => []);
-                    const macdDataRaw = await macdRes.json().catch(() => []);
-                    const cfData = await cfRes.json().catch(() => []);
-                    const incomeData = await incomeRes.json().catch(() => []);
-                    
-                    console.log(`[DIAGNOSE] Daten erhalten: Profile=${profileData.length}, Quote=${quoteData.length}, Metrics=${metricsData.length}, Income=${incomeData.length}, CF=${cfData.length}`);
-
+                const profileData = await profileRes.json().catch(() => []);
+                const quoteData = await quoteRes.json().catch(() => []);
+                const metricsData = await metricsRes.json().catch(() => []);
+                const ttmData = await ttmRes.json().catch(() => []);
+                const growthData = await growthRes.json().catch(() => []);
+                const ptData = await ptRes.json().catch(() => []);
+                const earnData = await earnRes.json().catch(() => []);
+                const rsiDataRaw = await rsiRes.json().catch(() => []);
+                const macdDataRaw = await macdRes.json().catch(() => []);
+                const cfData = await cfRes.json().catch(() => []);
+                const incomeData = await incomeRes.json().catch(() => []);
+                
+                if (profileData && profileData.length > 0 && quoteData && quoteData.length > 0) {
                     const profile = profileData[0] || {};
                     const quote = quoteData[0] || {};
                     const ttm = ttmData[0] || {};
@@ -93,39 +88,26 @@ export default async function handler(req, res) {
                             if (pe !== null && pe !== undefined) { sumPE10 += pe; countPE10++; }
                         });
 
-                        // FCF Berechnung aus Cash Flow Statement
                         let sumFCF5 = 0, countFCF5 = 0, sumFCF10 = 0, countFCF10 = 0;
                         if (cfData && cfData.length > 0) {
                             cfData.forEach((y, index) => {
-                                // Fallback: Falls freeCashFlow null ist, berechne es selbst
                                 let fcf = y.freeCashFlow;
                                 if (fcf === null || fcf === undefined) {
                                     const ocf = y.netCashProvidedByOperatingActivities || y.operatingCashFlow || 0;
                                     const capex = Math.abs(y.capitalExpenditure || 0);
                                     fcf = ocf - capex;
                                 }
-
                                 if (fcf !== null && fcf !== undefined) {
-                                    if (index < 5) {
-                                        sumFCF5 += fcf;
-                                        countFCF5++;
-                                    }
-                                    sumFCF10 += fcf;
-                                    countFCF10++;
+                                    if (index < 5) { sumFCF5 += fcf; countFCF5++; }
+                                    sumFCF10 += fcf; countFCF10++;
                                 }
                             });
                         }
                         
                         const avgPE = countPE > 0 ? (sumPE / countPE).toFixed(2) : 'N/A';
-                        const avgPB = countPB > 0 ? (sumPB / countPB).toFixed(2) : 'N/A';
-                        const avgPS = countPS > 0 ? (sumPS / countPS).toFixed(2) : 'N/A';
-                        const avgEV = countEV > 0 ? (sumEV / countEV).toFixed(2) : 'N/A';
                         const avgPE10 = countPE10 > 0 ? (sumPE10 / countPE10).toFixed(2) : 'N/A';
-
                         const avgFCF5 = countFCF5 > 0 ? (sumFCF5 / countFCF5 / 1e6).toFixed(2) + ' M' : 'N/A';
-                        const avgFCF10 = countFCF10 > 0 ? (sumFCF10 / countFCF10 / 1e6).toFixed(2) + ' M' : 'N/A';
                         
-                        // Aktueller FCF mit Fallback
                         let currentFCFVal = cfData[0] ? cfData[0].freeCashFlow : null;
                         if (currentFCFVal === null || currentFCFVal === undefined) {
                            if (cfData[0]) {
@@ -138,86 +120,31 @@ export default async function handler(req, res) {
 
                         const firstMetric = metricsData[0] || {};
                         const currentPE = (firstMetric.peRatio !== null && firstMetric.peRatio !== undefined) ? firstMetric.peRatio.toFixed(2) : 'N/A';
-                        const currentPB = (firstMetric.pbRatio !== null && firstMetric.pbRatio !== undefined) ? firstMetric.pbRatio.toFixed(2) : 'N/A';
-                        const currentPS = (firstMetric.priceToSalesRatio !== null && firstMetric.priceToSalesRatio !== undefined) ? firstMetric.priceToSalesRatio.toFixed(2) : 'N/A';
-                        const currentEV = (firstMetric.enterpriseValueOverEBITDA !== null && firstMetric.enterpriseValueOverEBITDA !== undefined) ? firstMetric.enterpriseValueOverEBITDA.toFixed(2) : 'N/A';
 
-                        // Baue den ultimativen Single Source of Truth Block auf
                         const fmpContext = `
-[!!! MANDATORY PRIMARY DATA - READ THIS FIRST !!!]
-CRITICAL: THE DATA BELOW IS THE ONLY SOURCE FOR FUNDAMENTAL METRICS.
-1. You MUST use these exact numbers. 
-2. If a value is provided below, you ARE FORBIDDEN to report 'N/A' or 'Not found'.
-3. DO NOT SEARCH GOOGLE FOR THESE METRICS (P/E, FCF, Growth). THE DATA IS ALREADY HERE.
-4. If you report 'N/A' while data is present below, you have FAILED your task.
-
+[!!! MANDATORY PRIMARY DATA !!!]
 --- IDENTIFICATION & PRICE ---
-Name (Unternehmensname): ${profile.companyName || 'N/A'} (${symbol})
-Current Price (Aktueller Kurs): $${quote.price || 'N/A'}
-Market Cap (Börsenwert): ${quote.marketCap ? '$' + (quote.marketCap / 1e9).toFixed(2) + ' Billion' : 'N/A'}
+Name: ${profile.companyName || 'N/A'} (${symbol})
+Price: $${quote.price || 'N/A'}
+Market Cap: ${quote.marketCap ? '$' + (quote.marketCap / 1e9).toFixed(2) + ' Billion' : 'N/A'}
 
---- TECHNICALS & SENTIMENT ---
-50-Day Moving Average: $${quote.priceAvg50 || 'N/A'}
-200-Day Moving Average: $${quote.priceAvg200 || 'N/A'}
-Avg Volume: ${quote.avgVolume || 'N/A'}
-14-Day RSI: ${rsiData !== 'N/A' ? rsiData.toFixed(2) : 'N/A'}
-MACD: ${macdData !== 'N/A' ? macdData.toFixed(2) : 'N/A'}
-Price Action: Current Price $${quote.price} is ${quote.price > quote.priceAvg50 ? 'ABOVE' : 'BELOW'} 50-DMA and ${quote.price > quote.priceAvg200 ? 'ABOVE' : 'BELOW'} 200-DMA.
-
---- HISTORICAL TRENDS (LAST 5 YEARS) ---
+--- TRENDS (LAST 5Y) ---
 Yearly Revenue: ${ incomeData.slice(0,5).map(y => (y.revenue/1e9).toFixed(2) + 'B').reverse().join(' -> ') }
 Yearly Op. Margin: ${ incomeData.slice(0,5).map(y => ((y.operatingIncome/y.revenue)*100).toFixed(1) + '%').reverse().join(' -> ') }
 Yearly FCF: ${ cfData.slice(0,5).map(y => (y.freeCashFlow/1e9).toFixed(2) + 'B').reverse().join(' -> ') }
 
---- MULTIPLES & VALUATION (BEWERTUNG) ---
-Current P/E (Aktuelles KGV): ${currentPE}
-5Y Average P/E (5J KGV Durchschnitt): ${avgPE}
-10Y Average P/E (10J KGV Durchschnitt): ${avgPE10}
-Current P/S (Aktuelles KUV): ${currentPS}
-Current P/B (Aktuelles KBV): ${currentPB}
-Current EV/EBITDA: ${currentEV}
-
---- CASH FLOW & MULTIPLES (FCF) ---
-Current Free Cash Flow (Aktueller FCF): ${currentFCF}
-Current P/FCF (FCF Multiple): ${ (quote.marketCap && currentFCFVal > 0) ? (quote.marketCap / currentFCFVal).toFixed(2) : 'N/A' }
-Average FCF 5Y (5J FCF Durchschnitt): ${avgFCF5}
-Average FCF 10Y (10J FCF Durchschnitt): ${avgFCF10}
-
---- DCF & TARGETS ---
-DCF Fair Value Estimate (FMP): $${profile.dcf ? profile.dcf.toFixed(2) : 'N/A'}
-Analyst Price Target (Kursziel Consensus): ${pt.targetConsensus ? '$' + pt.targetConsensus : 'N/A'}
-Bull Case (Target High): $${pt.targetHigh || 'N/A'} | Bear Case (Target Low): $${pt.targetLow || 'N/A'}
-
---- GROWTH & MARGINS (WACHSTUM) ---
-1Y Revenue Growth: ${growth.revenueGrowth ? (growth.revenueGrowth * 100).toFixed(2) + '%' : 'N/A'}
-5Y Revenue CAGR (Ø-Wachstum 5J): ${ (incomeData && incomeData.length >= 5) ? (((Math.pow(incomeData[0].revenue / incomeData[4].revenue, 1/4)) - 1) * 100).toFixed(2) + '%' : 'N/A' }
-1Y EPS Growth: ${growth.epsgrowth ? (growth.epsgrowth * 100).toFixed(2) + '%' : 'N/A'}
-Operating Margin (Operative Marge): ${ttm.operatingProfitMarginTTM ? (ttm.operatingProfitMarginTTM * 100).toFixed(2) + '%' : 'N/A'}
-ROE (Eigenkapitalrendite): ${ttm.roeTTM ? (ttm.roeTTM * 100).toFixed(2) + '%' : 'N/A'}
-Debt to Equity: ${ttm.debtToEquityTTM ? ttm.debtToEquityTTM.toFixed(2) : 'N/A'}
-FCF Yield (FCF Rendite): ${ttm.freeCashFlowYieldTTM ? (ttm.freeCashFlowYieldTTM * 100).toFixed(2) + '%' : 'N/A'}
-Short Interest: [Use Google Search to find latest Short Interest % and Days to Cover]
-Insider Activity: [Use Google Search to find if Insiders are Net Buyers or Sellers in last 6 months]
-Dividend Yield: ${ttm.dividendYieldPercentageTTM ? ttm.dividendYieldPercentageTTM.toFixed(2) + '%' : 'N/A'}
-Payout Ratio: ${ttm.payoutRatioTTM ? (ttm.payoutRatioTTM * 100).toFixed(2) + '%' : 'N/A'}
-
---- EARNINGS HISTORY ---
-Next Earnings Date: ${quote.earningsAnnouncement || 'N/A'}
-Last 4 Quarters EPS Surprise History:
-${earnString}
+--- VALUATION ---
+Current P/E: ${currentPE} | 5Y Avg: ${avgPE} | 10Y Avg: ${avgPE10}
+ROE: ${ttm.roeTTM ? (ttm.roeTTM * 100).toFixed(2) + '%' : 'N/A'}
 [/MANDATORY PRIMARY DATA]
 `;
-
-                        // Fügt die harten FMP-Daten GANZ OBEN in den Gemini Prompt ein
                         geminiBody.contents[0].parts[0].text = fmpContext + geminiBody.contents[0].parts[0].text;
                     }
                 }
             } catch(e) {
                 console.error("FMP Fetch Error:", e);
-                // Fehler ignorieren, damit Gemini trotzdem antwortet
             }
         }
-        // --- END FMP INTEGRATION ---
 
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
         
@@ -230,10 +157,8 @@ ${earnString}
         const data = await response.json();
 
         if (!response.ok) {
-            console.error('Google API Error:', data);
             return res.status(response.status).json({ 
-                error: data.error?.message || `Google API Error: ${response.status}`,
-                details: data.error
+                error: data.error?.message || `Google API Error: ${response.status}`
             });
         }
 
