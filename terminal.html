@@ -1590,25 +1590,37 @@ TASK: Deep-Dive Analysis for "${query}". \n\n`;
             }
 
             prompt += `STRICT INSTRUCTIONS (NO NOVELS, NO FLUFF):
-- CRITICAL: You MUST use the google_search tool to fetch REAL-TIME data for today (${today}). Do not guess or use outdated data.
+- Use the provided [FMP API BLOCK] as your primary and absolute source of truth for all financial data, company identifiers, and metrics.
+- Use the google_search tool ONLY to supplement the analysis with very recent news (last 24-48h), current market sentiment, or specific qualitative information not found in the FMP block.
+- DO NOT use google_search for data that is already provided in the FMP block.
+- If data in the FMP block and google_search conflicts, prioritize the FMP block for financial metrics.
 - You are a team of SCIENTISTS, not writers.
 - Provide ONLY hard facts, numbers, and logical deductions.
 - ABSOLUTELY NO prose, NO introductions, NO conclusions.
 - Output MUST be strictly formatted as short bullet points.
 - Maximum 1 line per data point.
 - Be extremely concise. Efficiency is key.
+- Respond in ${lang}.
+- CURRENT DATE: ${today}.
+- Use REAL-TIME data.
+- Do not guess or use outdated data.
+- NEVER mention the tool usage or "based on my search" in the output.
+- Output ONLY the tags and the data inside.
+- If a value is unknown, use "N/A".
+- If the FMP block is empty or missing, use google_search to find the necessary data.
+- For technical analysis, if real-time indicators are missing in FMP, use google_search.
 
 Generate the following sections with EXACT tags. Output ONLY the data inside the tags.\n\n`;
 
             if (agentIds.includes('company_identity')) {
                 prompt += `<company_identity>
-Name: [Use 'Name' from FMP API Block]
+Name: [Use 'Name' from FMP API BLOCK]
 ISIN: [ISIN]
 WKN: [WKN]
-Sektor: [Use 'Sector/Industry' from FMP API Block]
-HQ: [Use 'HQ' from FMP API Block]
-Profil: [Use 'Description' from FMP API Block]
-Aktueller Kurs: [Use 'Current Price' from FMP API Block]
+Sektor: [Use 'Sector/Industry' from FMP API BLOCK]
+HQ: [Use 'HQ' from FMP API BLOCK]
+Profil: [Use 'Description' from FMP API BLOCK]
+Aktueller Kurs: [Use 'Current Price' from FMP API BLOCK]
 </company_identity>\n\n`;
             }
 
@@ -1616,12 +1628,12 @@ Aktueller Kurs: [Use 'Current Price' from FMP API Block]
                 prompt += `<goldman_sachs>
 ROLE: Senior Equity Analyst (Fundamental Value)
 - Thesis: [1 sentence investment case]
-- P/E Analysis: [Use 'Current P/E' and '5Y Average P/E' from FMP API Block; compare vs Sector]
-- 5Y Growth: [Use '5Y Revenue CAGR' from FMP API Block]
-- Financial Health: [Use 'Debt to Equity' from FMP API Block; check sustainability]
-- Dividend: [Use 'Dividend Yield' and 'Payout Ratio' from FMP API Block]
+- P/E Analysis: [Use 'Current P/E' and '5Y Average P/E' from FMP API BLOCK; compare vs Sector]
+- 5Y Growth: [Use '5Y Revenue CAGR' from FMP API BLOCK]
+- Financial Health: [Use 'Debt to Equity' from FMP API BLOCK; check sustainability]
+- Dividend: [Use 'Dividend Yield' and 'Payout Ratio' from FMP API BLOCK]
 - Competitive Moat: [Rating: WEAK/MODERATE/STRONG + 1 sentence why]
-- Bull/Bear Targets: [Use 'Bull Case' and 'Bear Case' price targets from FMP API Block]
+- Bull/Bear Targets: [Use 'Bull Case' and 'Bear Case' price targets from FMP API BLOCK]
 - Risk Score: [Scale 1-10 + primary risk factor]
 - Trade Zones: [Entry Zone & Suggested Stop-Loss]
 - AI Sentiment: [POSITIVE/NEUTRAL/NEGATIVE]
@@ -1631,12 +1643,12 @@ ROLE: Senior Equity Analyst (Fundamental Value)
             if (agentIds.includes('morgan_stanley')) {
                 prompt += `<morgan_stanley>
 ROLE: VP-Level Investment Banker (DCF Valuation)
-- 5Y Projection: [Use 'Historical Trends' from FMP API Block to est. Revenue & Margin]
+- 5Y Projection: [Use 'Historical Trends' from FMP API BLOCK to est. Revenue & Margin]
 - FCF Forecast: [Year-by-year FCF simulation for next 5 years]
 - WACC & Terminal: [WACC derivation & Terminal Value (Exit vs Perpetuity)]
-- DCF Fair Value: [Use 'DCF Fair Value Estimate' from FMP API Block vs your simulation]
+- DCF Fair Value: [Use 'DCF Fair Value Estimate' from FMP API BLOCK vs your simulation]
 - Sensitivity Table: [Matrix of Fair Value at +/- 1% WACC variance]
-- Market Check: [Use 'Current Price' from FMP API Block; check % Upside/Downside]
+- Market Check: [Use 'Current Price' from FMP API BLOCK; check % Upside/Downside]
 - Break-Case: [Identify 2 key assumptions that could break this model]
 - AI Outlook: [UNDERVALUED/FAIRLY VALUED/OVERVALUED]
 </morgan_stanley>\n\n`;
@@ -1645,11 +1657,11 @@ ROLE: VP-Level Investment Banker (DCF Valuation)
             if (agentIds.includes('jpmorgan')) {
                 prompt += `<jpmorgan>
 ROLE: Senior Equity Research Analyst (Earnings Specialist)
-- Earnings History: [Use 'EPS Surprise History' from FMP API Block; include Beat/Miss trends]
+- Earnings History: [Use 'EPS Surprise History' from FMP API BLOCK; include Beat/Miss trends]
 - Stock Reaction: [Recherche: Stock price reaction (gain/loss) after last 4 earnings]
-- Upcoming Consensus: [Consensus Rev/EPS estimates for next report]
+- Upcoming Consensus: [Use 'Upcoming Consensus' from FMP API BLOCK]
 - Wall Street Focus: [Identify 2 key metrics the street is watching for this company]
-- Segment Analysis: [Use 'Sector' from FMP API Block; breakdown revenue & growth]
+- Segment Analysis: [Use 'Sector' from FMP API BLOCK; breakdown revenue & growth]
 - Guidance & Options: [Guidance summary & Options implied move for earnings day]
 - Earnings Scenarios: [Bull Case vs Bear Case scenario with estimated price impact]
 - Play: [POSITIVE/NEUTRAL/WAIT]
@@ -1660,8 +1672,8 @@ ROLE: Senior Equity Research Analyst (Earnings Specialist)
                 prompt += `<citadel>
 ROLE: Senior Quantitative Trader (Market Microstructure)
 - Trend Analysis: [Current direction on Daily, Weekly, Monthly timeframes]
-- Moving Averages: [Use '50-DMA' and '200-DMA' from FMP API Block; include 100-day estimate & crossover signals]
-- Technical Indicators: [Use '14-Day RSI' and 'MACD' from FMP API Block; add Bollinger Band interpretation]
+- Moving Averages: [Use '50-DMA' and '200-DMA' from FMP API BLOCK; include 100-day estimate & crossover signals]
+- Technical Indicators: [Use '14-Day RSI' and 'MACD' from FMP API BLOCK; add Bollinger Band interpretation]
 - Volume & Strength: [Volume trend analysis & Buyer vs Seller strength]
 - Chart Patterns: [Identify potential patterns like Head & Shoulders, Cup & Handle, etc.]
 - Fibonacci & Levels: [Key Support/Resistance & Fibonacci retracement bounce zones]
@@ -1675,8 +1687,8 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
 ROLE: Quant Researcher (Statistical Arbitrage)
 - Seasonality: [Best/Worst months & Day-of-week performance patterns]
 - Market Events: [Correlation with Fed/CPI & Macro event impact]
-- Smart Money: [Use 'Insider Activity' from FMP API Block; include 13F Institutional trends]
-- Short & Options: [Use 'Short Interest' from FMP API Block; check squeeze potential & Unusual options]
+- Smart Money: [Use 'Insider Activity' and 'Institutional Trends' from FMP API BLOCK]
+- Short & Options: [Use 'Short Interest' from FMP API BLOCK; check squeeze potential]
 - Earnings Behavior: [Price action around earnings (Pre-run vs Post-gap patterns)]
 - Sector Rotation: [Rotation signals affecting this specific stock/sector]
 - Statistical Edge: [Final summary of the quantifiable advantage/anomaly]
