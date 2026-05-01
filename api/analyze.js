@@ -15,13 +15,27 @@ module.exports = async function handler(req, res) {
 
     try {
         // --- FMP INTEGRATION ---
-        const fmpKey = process.env.FMP_API_KEY || process.env.API_FMP || process.env.fmp_api_key;
+        const fmpKey = process.env.FMP_API_KEY || process.env.API_FMP || process.env.fmp_api_key || process.env.FMP_KEY || process.env.fmp_key;
 
-        if (fmpKey && ticker && geminiBody && geminiBody.contents && geminiBody.contents[0].parts[0].text) {
-            try {
-                const searchRes = await fetch(`https://financialmodelingprep.com/api/v3/search?query=${encodeURIComponent(ticker)}&limit=1&apikey=${fmpKey}`);
-                const searchData = await searchRes.json();
-                const symbol = (searchData && searchData.length > 0) ? searchData[0].symbol : ticker.toUpperCase();
+        if (ticker && geminiBody && geminiBody.contents && geminiBody.contents[0].parts[0].text) {
+            if (!fmpKey) {
+                console.warn("FMP API Key missing.");
+                geminiBody.contents[0].parts[0].text = "[DEBUG: FMP_API_KEY_MISSING - The system could not find an FMP API key in environment variables. Falling back to Google Search.]\n\n" + geminiBody.contents[0].parts[0].text;
+            } else {
+                try {
+                // Detect if ticker is already a symbol (1-5 uppercase letters)
+                const isTicker = /^[A-Z]{1,5}$/.test(ticker.trim().toUpperCase());
+                let symbol = isTicker ? ticker.trim().toUpperCase() : null;
+
+                if (!symbol) {
+                    try {
+                        const searchRes = await fetch(`https://financialmodelingprep.com/api/v3/search?query=${encodeURIComponent(ticker)}&limit=1&apikey=${fmpKey}`);
+                        const searchData = await searchRes.json();
+                        symbol = (Array.isArray(searchData) && searchData.length > 0) ? searchData[0].symbol : ticker.toUpperCase();
+                    } catch (e) {
+                        symbol = ticker.toUpperCase();
+                    }
+                }
 
                 const [profileRes, quoteRes, metricsRes, ttmRes, growthRes, ptRes, earnRes, rsiRes, macdRes, cfRes, incomeRes, estRes, insiderRes, instRes] = await Promise.all([
                     fetch(`https://financialmodelingprep.com/api/v3/profile/${symbol}?apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
@@ -40,22 +54,53 @@ module.exports = async function handler(req, res) {
                     fetch(`https://financialmodelingprep.com/api/v4/institutional-ownership/symbol-ownership-percent?symbol=${symbol}&apikey=${fmpKey}`).catch(() => ({ json: () => [] }))
                 ]);
 
-                const profileData = await profileRes.json().catch(() => []);
-                const quoteData = await quoteRes.json().catch(() => []);
-                const metricsData = await metricsRes.json().catch(() => []);
-                const ttmData = await ttmRes.json().catch(() => []);
-                const growthData = await growthRes.json().catch(() => []);
-                const ptData = await ptRes.json().catch(() => []);
-                const earnData = await earnRes.json().catch(() => []);
-                const rsiDataRaw = await rsiRes.json().catch(() => []);
-                const macdDataRaw = await macdRes.json().catch(() => []);
-                const cfData = await cfRes.json().catch(() => []);
-                const incomeData = await incomeRes.json().catch(() => []);
-                const estData = await estRes.json().catch(() => []);
-                const insiderData = await insiderRes.json().catch(() => []);
-                const instData = await instRes.json().catch(() => []);
+                let profileData = await profileRes.json().catch(() => []);
+                if (!Array.isArray(profileData)) profileData = [];
+                
+                let quoteData = await quoteRes.json().catch(() => []);
+                if (!Array.isArray(quoteData)) quoteData = [];
+                
+                let metricsData = await metricsRes.json().catch(() => []);
+                if (!Array.isArray(metricsData)) metricsData = [];
+                
+                let ttmData = await ttmRes.json().catch(() => []);
+                if (!Array.isArray(ttmData)) ttmData = [];
+                
+                let growthData = await growthRes.json().catch(() => []);
+                if (!Array.isArray(growthData)) growthData = [];
+                
+                let ptData = await ptRes.json().catch(() => []);
+                if (!Array.isArray(ptData)) ptData = [];
+                
+                let earnData = await earnRes.json().catch(() => []);
+                if (!Array.isArray(earnData)) earnData = [];
+                
+                let rsiDataRaw = await rsiRes.json().catch(() => []);
+                if (!Array.isArray(rsiDataRaw)) rsiDataRaw = [];
+                
+                let macdDataRaw = await macdRes.json().catch(() => []);
+                if (!Array.isArray(macdDataRaw)) macdDataRaw = [];
+                
+                let cfData = await cfRes.json().catch(() => []);
+                if (!Array.isArray(cfData)) cfData = [];
+                
+                let incomeData = await incomeRes.json().catch(() => []);
+                if (!Array.isArray(incomeData)) incomeData = [];
+                
+                let estData = await estRes.json().catch(() => []);
+                if (!Array.isArray(estData)) estData = [];
+                
+                let insiderData = await insiderRes.json().catch(() => []);
+                if (!Array.isArray(insiderData)) insiderData = [];
+                
+                let instData = await instRes.json().catch(() => []);
+                if (!Array.isArray(instData)) instData = [];
 
-                if (profileData && profileData.length > 0 && quoteData && quoteData.length > 0) {
+                // Ensure we have at least the basic profile and quote data
+                const hasProfile = Array.isArray(profileData) && profileData.length > 0;
+                const hasQuote = Array.isArray(quoteData) && quoteData.length > 0;
+
+                if (hasProfile && hasQuote) {
                     const profile = profileData[0] || {};
                     const quote = quoteData[0] || {};
                     const ttm = ttmData[0] || {};
@@ -158,8 +203,14 @@ Next Earnings: ${quote.earningsAnnouncement || 'N/A'}
 `;
                         geminiBody.contents[0].parts[0].text = fmpContext + "\n" + geminiBody.contents[0].parts[0].text;
                     }
+                } else {
+                    geminiBody.contents[0].parts[0].text = `[DEBUG: FMP_DATA_INCOMPLETE - Profile: ${hasProfile}, Quote: ${hasQuote}. Falling back to Google Search.]\n\n` + geminiBody.contents[0].parts[0].text;
                 }
-            } catch (e) { console.error("FMP Error:", e); }
+                } catch (e) { 
+                    console.error("FMP Error:", e);
+                    geminiBody.contents[0].parts[0].text = `[DEBUG: FMP_FETCH_ERROR - ${e.message}. Falling back to Google Search.]\n\n` + geminiBody.contents[0].parts[0].text;
+                }
+            }
         }
 
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
