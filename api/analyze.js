@@ -81,35 +81,27 @@ module.exports = async function handler(req, res) {
                         ? earnData.slice(0, 4).map(e => `Q-Date: ${e.date?.split(' ')[0]} | Est: ${e.estimatedEarning} | Act: ${e.actualEarning}`).join('\n')
                         : 'N/A';
 
+                    let avgPE = 'N/A', avgPE10 = 'N/A';
                     if (metricsData && metricsData.length > 0) {
-                        let sumPE = 0, sumPB = 0, sumPS = 0, sumEV = 0;
-                        let countPE = 0, countPB = 0, countPS = 0, countEV = 0;
-                        let sumPE10 = 0, countPE10 = 0;
-
+                        let sumPE = 0, countPE = 0, sumPE10 = 0, countPE10 = 0;
                         metricsData.forEach((y, index) => {
-                            if (index < 5) {
-                                if (y.peRatio) { sumPE += y.peRatio; countPE++; }
-                                if (y.pbRatio) { sumPB += y.pbRatio; countPB++; }
-                                if (y.priceToSalesRatio) { sumPS += y.priceToSalesRatio; countPS++; }
-                                if (y.enterpriseValueOverEBITDA) { sumEV += y.enterpriseValueOverEBITDA; countEV++; }
-                            }
+                            if (index < 5 && y.peRatio) { sumPE += y.peRatio; countPE++; }
                             if (y.peRatio) { sumPE10 += y.peRatio; countPE10++; }
                         });
+                        avgPE = countPE > 0 ? (sumPE / countPE).toFixed(2) : 'N/A';
+                        avgPE10 = countPE10 > 0 ? (sumPE10 / countPE10).toFixed(2) : 'N/A';
+                    }
 
-                        const avgPE = countPE > 0 ? (sumPE / countPE).toFixed(2) : 'N/A';
-                        const avgPE10 = countPE10 > 0 ? (sumPE10 / countPE10).toFixed(2) : 'N/A';
-
-                        // Calculate 5Y Revenue CAGR
-                        let revenueCAGR = 'N/A';
-                        if (incomeData.length >= 5) {
-                            const revEnd = incomeData[0].revenue;
-                            const revStart = incomeData[4].revenue;
-                            if (revStart > 0 && revEnd > 0) {
-                                revenueCAGR = ((Math.pow(revEnd / revStart, 1 / 4) - 1) * 100).toFixed(2) + '%';
-                            }
+                    let revenueCAGR = 'N/A';
+                    if (incomeData && incomeData.length >= 5) {
+                        const revEnd = incomeData[0].revenue;
+                        const revStart = incomeData[4].revenue;
+                        if (revStart > 0 && revEnd > 0) {
+                            revenueCAGR = ((Math.pow(revEnd / revStart, 1 / 4) - 1) * 100).toFixed(2) + '%';
                         }
+                    }
 
-                        const fmpContext = `
+                    const fmpContext = `
 [FMP API BLOCK]
 Name: ${profile.companyName || 'N/A'}
 Symbol: ${symbol}
