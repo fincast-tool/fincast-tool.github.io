@@ -29,7 +29,7 @@ export default async function handler(req, res) {
                     const symbol = searchData[0].symbol;
                     
                     // Lade alle zentralen Marktdaten parallel für maximale Geschwindigkeit
-                    const [profileRes, quoteRes, metricsRes, ttmRes, growthRes, ptRes, earnRes, rsiRes, macdRes, cfRes] = await Promise.all([
+                    const [profileRes, quoteRes, metricsRes, ttmRes, growthRes, ptRes, earnRes, rsiRes, macdRes, cfRes, incomeRes] = await Promise.all([
                         fetch(`https://financialmodelingprep.com/api/v3/profile/${symbol}?apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
                         fetch(`https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
                         fetch(`https://financialmodelingprep.com/api/v3/key-metrics/${symbol}?limit=10&apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
@@ -39,7 +39,8 @@ export default async function handler(req, res) {
                         fetch(`https://financialmodelingprep.com/api/v3/earnings-surprises/${symbol}?apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
                         fetch(`https://financialmodelingprep.com/api/v3/technical_indicator/1day/${symbol}?type=rsi&period=14&apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
                         fetch(`https://financialmodelingprep.com/api/v3/technical_indicator/1day/${symbol}?type=macd&apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
-                        fetch(`https://financialmodelingprep.com/api/v3/cash-flow-statement/${symbol}?limit=10&apikey=${fmpKey}`).catch(() => ({ json: () => [] }))
+                        fetch(`https://financialmodelingprep.com/api/v3/cash-flow-statement/${symbol}?limit=10&apikey=${fmpKey}`).catch(() => ({ json: () => [] })),
+                        fetch(`https://financialmodelingprep.com/api/v3/income-statement/${symbol}?limit=10&apikey=${fmpKey}`).catch(() => ({ json: () => [] }))
                     ]);
 
                     const profileData = await profileRes.json().catch(() => []);
@@ -52,6 +53,7 @@ export default async function handler(req, res) {
                     const rsiDataRaw = await rsiRes.json().catch(() => []);
                     const macdDataRaw = await macdRes.json().catch(() => []);
                     const cfData = await cfRes.json().catch(() => []);
+                    const incomeData = await incomeRes.json().catch(() => []);
 
                     const profile = profileData[0] || {};
                     const quote = quoteData[0] || {};
