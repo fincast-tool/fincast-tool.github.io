@@ -1082,7 +1082,7 @@
                                     <th class="text-right">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="adminUserList">
+                            <tbody id="MASTER_ADMIN_USER_CONTAINER">
                                 <!-- Dynamic content -->
                             </tbody>
                         </table>
@@ -2082,9 +2082,9 @@ CRITICAL: Add this exact sentence at the end: "DISCLAIMER: Diese Analyse ist ein
         }
 
         async function renderAdminUserList() {
-            const list = document.getElementById('adminUserList');
+            const list = document.getElementById('MASTER_ADMIN_USER_CONTAINER');
             if (!list) return;
-            list.innerHTML = '<tr><td colspan="6" class="text-center py-10 opacity-30 font-mono text-[10px]">VERBINDUNG ZUR DATENBANK WIRD HERGESTELLT...</td></tr>';
+            list.innerHTML = '<tr><td colspan="6" style="background: red; color: white; text-align: center; font-weight: bold; padding: 10px;">DEBUG: DATABASE CONNECTING...</td></tr>';
 
             try {
                 const users = await apiCall('get_users');
@@ -2102,15 +2102,18 @@ CRITICAL: Add this exact sentence at the end: "DISCLAIMER: Diese Analyse ist ein
                 }
 
                 let html = '';
+                // Rote Debug-Zeile am Anfang
+                html += '<tr><td colspan="6" style="background: green; color: white; text-align: center; padding: 4px; font-size: 8px;">DEBUG: RENDER_START - ' + usersArray.length + ' USERS</td></tr>';
+
                 usersArray.forEach(u => {
                     const qStats = (allQueries && !allQueries.error) ? (allQueries[u.email] || { counts: {} }) : { counts: {} };
                     const totalQueries = Object.values(qStats.counts).reduce((a, b) => a + b, 0);
 
                     html += `
                         <tr class="hover:bg-white/5 transition-all border-b border-white/5">
-                            <td class="py-4 px-4">
+                            <td class="py-4 px-4 text-white">
                                 <div class="flex flex-col">
-                                    <span class="text-white font-bold">${u.firstName || 'User'} ${u.lastName || ''}</span>
+                                    <span class="font-bold">${u.firstName || 'User'} ${u.lastName || ''}</span>
                                     <span class="text-[9px] text-gray-500 font-mono italic">${u.email}</span>
                                 </div>
                             </td>
