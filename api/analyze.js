@@ -207,9 +207,9 @@ Next Earnings: ${quote.earningsAnnouncement || 'N/A'}
 [/FMP API BLOCK]
 `;
                         geminiBody.contents[0].parts[0].text = fmpContext + "\n" + geminiBody.contents[0].parts[0].text;
-                    } else {
-                        geminiBody.contents[0].parts[0].text = `<system_status>\n${statusMsg} | ERROR: Data incomplete (Profile: ${hasProfile}, Quote: ${hasQuote})\n</system_status>\n\n` + geminiBody.contents[0].parts[0].text;
-                    }
+                    } // close if (metricsData)
+                } else { // close if (hasProfile) and start else
+                    geminiBody.contents[0].parts[0].text = `<system_status>\n${statusMsg} | ERROR: Data incomplete (Profile: ${hasProfile}, Quote: ${hasQuote})\n</system_status>\n\n` + geminiBody.contents[0].parts[0].text;
                 }
                 } catch (e) { 
                     console.error("FMP Error:", e);
