@@ -1,36 +1,38 @@
+const Redis = require('ioredis');
 
-import Redis from 'ioredis';
-
-// Wir nutzen denselben Redis-Client wie in api/storage.js
-let redis;
-try {
-    const redisUrl = process.env.KV_REDIS_URL || process.env.REDIS_URL;
-    if (redisUrl) {
-        redis = new Redis(redisUrl, {
-            connectTimeout: 10000,
-            maxRetriesPerRequest: 1
-        });
-    }
-} catch (e) {
-    console.error('Redis Init Error in reset-queries:', e);
-}
-
-export default async function handler(req, res) {
-    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-    if (!redis) return res.status(500).json({ error: 'Database connection not initialized' });
+module.exports = async function handler(req, res) {
+    // Vercel Cron-Jobs senden einen GET-Request. 
+    // Wir erlauben GET für den automatischen Reset und POST für manuelle Admin-Aktionen.
+    
+    const redis = new Redis(process.env.KV_REDIS_URL || process.env.REDIS_URL);
 
     try {
-        const { userId } = req.body;
-        if (!userId) return res.status(400).json({ error: 'User ID required' });
+        // Falls eine spezifische E-Mail mitgesendet wurde (manueller Reset im Admin Panel)
+        const email = req.body?.email || req.query?.email;
 
-        // Wir löschen den spezifischen Tages-Key
-        // Das Format in api/storage.js scheint queries:email zu sein
-        const key = `queries:${userId}`;
-        await redis.del(key);
-
-        return res.status(200).json({ success: true });
+        if (email) {
+            // Nur einen spezifischen Nutzer zurücksetzen
+            await redis.del(`queries:${email}`);
+            console.log(`[RESET] Queries for ${email} cleared.`);
+            return res.status(200).json({ success: true, message: `Reset for ${email} complete.` });
+        } else {
+            // GLOBALER RESET (für 10:00 Uhr Cron-Job)
+            // Wir suchen alle Keys, die mit 'queries:' beginnen
+            const keys = await redis.keys('queries:*');
+            if (keys.length > 0) {
+                await redis.del(...keys);
+            }
+            console.log(`[RESET] Global reset complete. ${keys.length} users cleared.`);
+            return res.status(200).json({ 
+                success: true, 
+                message: 'Global reset complete.',
+                clearedCount: keys.length
+            });
+        }
     } catch (error) {
         console.error('Reset Queries Error:', error);
-        return res.status(500).json({ error: error.message });
+        res.status(500).json({ error: error.message });
+    } finally {
+        await redis.quit();
     }
 }

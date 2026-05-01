@@ -1049,7 +1049,7 @@
                     <h2 class="text-2xl font-black text-white tracking-tighter uppercase italic">Terminal <span
                             class="text-gold-500">Master Control</span></h2>
                     <p class="text-[10px] text-gray-500 font-mono uppercase tracking-[0.3em] mt-1">Authorized Access Only
-                        • Protocol v4.2</p>
+                        • Protocol v4.2 • Auto-Reset: 10:00 CEST</p>
                 </div>
                 <button onclick="toggleAdmin()"
                     class="bg-white/5 hover:bg-white/10 text-white p-3 rounded-xl transition-all border border-white/5">
@@ -1224,16 +1224,17 @@
             }
         }
 
-        async function getQueryCount(email) {
-            const q = await apiCall('get_queries', { email });
+        async function getQueryCount(email, model = '') {
+            const q = await apiCall('get_queries', { email, model });
+            if (model && q && q.counts) return q.counts[model] || 0;
             return q ? q.count : 0;
         }
 
-        async function incrementQuery(email) { await apiCall('increment_query', { email }); }
+        async function incrementQuery(email, model = '') { await apiCall('increment_query', { email, model }); }
 
         async function updateFooter(user) {
             const limit = user.tier === 'premium' ? 20 : 1;
-            const used = await getQueryCount(user.email);
+            const used = await getQueryCount(user.email, MODEL_ID);
             const modelSelect = document.getElementById('footerModelSelect');
             if (modelSelect) modelSelect.value = user.model || 'gemini-2.5-flash-lite';
             document.getElementById('queryCountLabel').textContent = `${used}/${limit}`;
@@ -1338,20 +1339,22 @@
         async function shareAnalysisData(data) {
             try {
                 // Extrahiere Firmennamen für personalisierten Text
-                let compName = 'Unknown';
+                let compName = 'Unternehmen';
                 if (data.company_identity) {
-                    const match = data.company_identity.match(/Name:\s*(.*)/);
+                    // Sucht nach "Name: [Name]" oder einfach einer Zeile mit dem Namen am Anfang
+                    const match = data.company_identity.match(/Name:\s*(.*)/i) || data.company_identity.match(/^([^\n:]+)/);
                     if (match && match[1]) compName = match[1].trim();
                 }
+
+                const shareTitle = `Fincast Aktien-Analyse: ${compName}`;
+                const shareText = `Sieh dir die institutionelle KI-Analyse zu ${compName} im Fincast Terminal an:`;
 
                 // Generiere einen kurzen Link über das Backend
                 const res = await apiCall('save_shared_report', { data });
                 if (res.error) throw new Error(res.error);
 
-                const shareUrl = window.location.origin + window.location.pathname + '?share=' + res.id;
 
-                const shareTitle = `Fincast Analyse: ${compName}`;
-                const shareText = `Schau dir die neue Analyse zu ${compName} im Fincast Terminal an:`;
+                const shareUrl = window.location.origin + window.location.pathname + '?share=' + res.id;
 
                 if (navigator.share) {
                     navigator.share({
@@ -1566,7 +1569,7 @@
                 };
                 await apiCall('save_archive', { email: user.email, key: resolvedName, data: archiveEntry }).catch(e => console.warn('Archive save failed:', e));
 
-                await incrementQuery(user.email).catch(() => { });
+                await incrementQuery(user.email, MODEL_ID).catch(() => { });
                 await updateFooter(user).catch(() => { });
 
             } catch (err) {

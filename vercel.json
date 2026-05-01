@@ -4,5 +4,11 @@
       "source": "/api/(.*)",
       "destination": "/api/$1"
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/reset-queries",
+      "schedule": "0 8 * * *"
+    }
   ]
 }

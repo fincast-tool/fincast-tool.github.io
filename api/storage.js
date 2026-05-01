@@ -1,7 +1,7 @@
 const Redis = require('ioredis');
 
 module.exports = async function handler(req, res) {
-    const { action, params, data, email } = req.body;
+    const { action, params, data, email, key: tickerKey } = req.body;
     const redis = new Redis(process.env.KV_REDIS_URL || process.env.REDIS_URL);
 
     try {
@@ -54,7 +54,28 @@ module.exports = async function handler(req, res) {
 
         if (action === 'get_queries') {
             const stats = await redis.get(`queries:${email}`);
-            return res.status(200).json(stats ? JSON.parse(stats) : { counts: {} });
+            const parsed = stats ? JSON.parse(stats) : { count: 0, counts: {} };
+            return res.status(200).json({
+                count: parsed.count || 0,
+                counts: parsed.counts || {}
+            });
+        }
+
+        if (action === 'increment_query') {
+            const key = `queries:${email}`;
+            const stats = await redis.get(key);
+            let statsObj = stats ? JSON.parse(stats) : { count: 0, counts: {} };
+            
+            statsObj.count = (statsObj.count || 0) + 1;
+            
+            // Falls ein Modell mitgesendet wurde, auch dort zählen
+            if (req.body.model) {
+                if (!statsObj.counts) statsObj.counts = {};
+                statsObj.counts[req.body.model] = (statsObj.counts[req.body.model] || 0) + 1;
+            }
+            
+            await redis.set(key, JSON.stringify(statsObj));
+            return res.status(200).json({ success: true });
         }
 
         if (action === 'reset_queries') {
@@ -68,24 +89,66 @@ module.exports = async function handler(req, res) {
             const type = await redis.type(key);
             
             if (type === 'list') {
-                // Altes Format: Liste
                 const list = await redis.lrange(key, 0, -1);
-                return res.status(200).json(list.map(i => JSON.parse(i)));
+                // Konvertiere altes Listen-Format in neues Objekt-Format für das Frontend
+                const archiveObj = {};
+                list.forEach(item => {
+                    const parsed = JSON.parse(item);
+                    const ticker = parsed.ticker || 'UNKNOWN';
+                    archiveObj[ticker] = parsed;
+                });
+                return res.status(200).json(archiveObj);
             } else {
-                // Neues Format: String
                 const archive = await redis.get(key);
-                return res.status(200).json(archive ? JSON.parse(archive) : []);
+                return res.status(200).json(archive ? JSON.parse(archive) : {});
             }
         }
 
         if (action === 'save_archive') {
-            await redis.set(`archive:${email}`, JSON.stringify(data));
+            const key = `archive:${email}`;
+            const archive = await redis.get(key);
+            let archiveObj = archive ? JSON.parse(archive) : {};
+            
+            // Füge die neue Analyse unter dem Ticker-Key hinzu
+            if (tickerKey) {
+                archiveObj[tickerKey] = data;
+            } else {
+                // Fallback falls kein Key gesendet wurde (sollte nicht passieren)
+                const fallbackKey = new Date().getTime().toString();
+                archiveObj[fallbackKey] = data;
+            }
+            
+            await redis.set(key, JSON.stringify(archiveObj));
+            return res.status(200).json({ success: true });
+        }
+
+        if (action === 'delete_single_archive') {
+            const key = `archive:${email}`;
+            const archive = await redis.get(key);
+            if (archive) {
+                let archiveObj = JSON.parse(archive);
+                delete archiveObj[tickerKey];
+                await redis.set(key, JSON.stringify(archiveObj));
+            }
             return res.status(200).json({ success: true });
         }
 
         if (action === 'delete_archive') {
             await redis.del(`archive:${req.body.email}`);
             return res.status(200).json({ success: true });
+        }
+
+        // --- SHARE LINK LOGIC ---
+        if (action === 'save_shared_report') {
+            const id = Math.random().toString(36).substring(2, 15);
+            await redis.set(`shared:${id}`, JSON.stringify(data), 'EX', 60 * 60 * 24 * 10); // 10 Tage gültig
+            return res.status(200).json({ id });
+        }
+
+        if (action === 'get_shared_report') {
+            const report = await redis.get(`shared:${req.body.id}`);
+            if (!report) return res.status(404).json({ error: 'Bericht nicht gefunden.' });
+            return res.status(200).json(JSON.parse(report));
         }
 
         res.status(400).json({ error: 'Unknown action: ' + action });
