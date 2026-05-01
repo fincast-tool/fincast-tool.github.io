@@ -67,10 +67,10 @@ module.exports = async function handler(req, res) {
                 const hasQuote = Array.isArray(quoteData) && quoteData.length > 0;
 
                 if (hasProfile) {
-                    statusMsg += ` | Profile: OK | Symbol: ${symbol}`;
-                    geminiBody.contents[0].parts[0].text = `<system_status>\n${statusMsg}\n</system_status>\n\n` + geminiBody.contents[0].parts[0].text;
+                    systemStatus += ` | Profile: OK | Symbol: ${symbol}`;
 
                     const profile = profileData[0] || {};
+
                     const quote = quoteData[0] || {};
                     const ttm = ttmData[0] || {};
                     const growth = growthData[0] || {};
