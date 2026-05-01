@@ -32,36 +32,40 @@ module.exports = async function handler(req, res) {
                     let symbol = isTicker ? ticker.trim().toUpperCase() : null;
 
                     if (!symbol || ticker.length > 5) {
+                        console.log(`[Backend] Searching symbol for: ${ticker}`);
                         fmpDetails += "Searching symbol... ";
                         const searchRes = await fetch(`https://financialmodelingprep.com/api/v3/search?query=${encodeURIComponent(ticker)}&limit=1&apikey=${fmpKey}`);
                         const searchData = await searchRes.json().catch(() => []);
                         symbol = (searchData && searchData[0]) ? searchData[0].symbol : ticker.trim().toUpperCase();
+                        console.log(`[Backend] Search result: ${symbol}`);
                     }
                     fmpDetails += `Using Symbol: ${symbol}. `;
 
+                    console.log(`[Backend] Starting fetches for ${symbol}...`);
 
                     const [profileRes, quoteRes, metricsRes, ttmRes, earnRes, rsiRes, macdRes, cfRes, incomeRes] = await Promise.all([
-                        fetch(`https://financialmodelingprep.com/api/v3/profile/${symbol}?apikey=${fmpKey}`).catch(() => null),
-                        fetch(`https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=${fmpKey}`).catch(() => null),
-                        fetch(`https://financialmodelingprep.com/api/v3/key-metrics/${symbol}?limit=5&apikey=${fmpKey}`).catch(() => null),
-                        fetch(`https://financialmodelingprep.com/api/v3/key-metrics-ttm/${symbol}?apikey=${fmpKey}`).catch(() => null),
-                        fetch(`https://financialmodelingprep.com/api/v3/earnings-surprises/${symbol}?apikey=${fmpKey}`).catch(() => null),
-                        fetch(`https://financialmodelingprep.com/api/v3/technical_indicator/1day/${symbol}?type=rsi&period=14&apikey=${fmpKey}`).catch(() => null),
-                        fetch(`https://financialmodelingprep.com/api/v3/technical_indicator/1day/${symbol}?type=macd&apikey=${fmpKey}`).catch(() => null),
-                        fetch(`https://financialmodelingprep.com/api/v3/cash-flow-statement/${symbol}?limit=5&apikey=${fmpKey}`).catch(() => null),
-                        fetch(`https://financialmodelingprep.com/api/v3/income-statement/${symbol}?limit=5&apikey=${fmpKey}`).catch(() => null)
+                        fetch(`https://financialmodelingprep.com/api/v3/profile/${symbol}?apikey=${fmpKey}`).catch(e => { console.error("Profile Fetch Error:", e); return null; }),
+                        fetch(`https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=${fmpKey}`).catch(e => { console.error("Quote Fetch Error:", e); return null; }),
+                        fetch(`https://financialmodelingprep.com/api/v3/key-metrics/${symbol}?limit=5&apikey=${fmpKey}`).catch(e => { console.error("Metrics Fetch Error:", e); return null; }),
+                        fetch(`https://financialmodelingprep.com/api/v3/key-metrics-ttm/${symbol}?apikey=${fmpKey}`).catch(e => { console.error("TTM Fetch Error:", e); return null; }),
+                        fetch(`https://financialmodelingprep.com/api/v3/earnings-surprises/${symbol}?apikey=${fmpKey}`).catch(e => { console.error("Earnings Fetch Error:", e); return null; }),
+                        fetch(`https://financialmodelingprep.com/api/v3/technical_indicator/1day/${symbol}?type=rsi&period=14&apikey=${fmpKey}`).catch(e => { console.error("RSI Fetch Error:", e); return null; }),
+                        fetch(`https://financialmodelingprep.com/api/v3/technical_indicator/1day/${symbol}?type=macd&apikey=${fmpKey}`).catch(e => { console.error("MACD Fetch Error:", e); return null; }),
+                        fetch(`https://financialmodelingprep.com/api/v3/cash-flow-statement/${symbol}?limit=5&apikey=${fmpKey}`).catch(e => { console.error("CF Fetch Error:", e); return null; }),
+                        fetch(`https://financialmodelingprep.com/api/v3/income-statement/${symbol}?limit=5&apikey=${fmpKey}`).catch(e => { console.error("Income Fetch Error:", e); return null; })
                     ]);
 
+                    console.log(`[Backend] Fetches complete. Statuses: Profile=${profileRes?.status}, Quote=${quoteRes?.status}`);
 
-                const profileData = profileRes ? await profileRes.json().catch(() => []) : [];
-                const quoteData = quoteRes ? await quoteRes.json().catch(() => []) : [];
-                const metricsData = metricsRes ? await metricsRes.json().catch(() => []) : [];
-                const ttmData = ttmRes ? await ttmRes.json().catch(() => []) : [];
-                const earnData = earnRes ? await earnRes.json().catch(() => []) : [];
-                const rsiDataRaw = rsiRes ? await rsiRes.json().catch(() => []) : [];
-                const macdDataRaw = macdRes ? await macdRes.json().catch(() => []) : [];
-                const cfData = cfRes ? await cfRes.json().catch(() => []) : [];
-                const incomeData = incomeRes ? await incomeRes.json().catch(() => []) : [];
+                    const profileData = profileRes ? await profileRes.json().catch(() => []) : [];
+                    const quoteData = quoteRes ? await quoteRes.json().catch(() => []) : [];
+                    const metricsData = metricsRes ? await metricsRes.json().catch(() => []) : [];
+                    const ttmData = ttmRes ? await ttmRes.json().catch(() => []) : [];
+                    const earnData = earnRes ? await earnRes.json().catch(() => []) : [];
+                    const rsiDataRaw = rsiRes ? await rsiRes.json().catch(() => []) : [];
+                    const macdDataRaw = macdRes ? await macdRes.json().catch(() => []) : [];
+                    const cfData = cfRes ? await cfRes.json().catch(() => []) : [];
+                    const incomeData = incomeRes ? await incomeRes.json().catch(() => []) : [];
 
 
                 const hasProfile = Array.isArray(profileData) && profileData.length > 0;
