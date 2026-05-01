@@ -130,32 +130,41 @@ EPS Surprise History:
 ${earnString}
 
 --- VALUATION METRICS ---
-Current P/E: ${metricsData[0]?.peRatio?.toFixed(2) || 'N/A'}
+Current P/E: ${metricsData[0]?.peRatio ? Number(metricsData[0].peRatio).toFixed(2) : 'N/A'}
 5Y Avg P/E: ${avgPE}
 10Y Avg P/E: ${avgPE10}
-Current P/S: ${metricsData[0]?.priceToSalesRatio?.toFixed(2) || 'N/A'}
-Debt to Equity: ${ttm.debtToEquityTTM?.toFixed(2) || 'N/A'}
-ROE: ${ttm.roeTTM ? (ttm.roeTTM * 100).toFixed(2) + '%' : 'N/A'}
-Dividend Yield: ${quote.dividendYield ? (quote.dividendYield * 100).toFixed(2) + '%' : 'N/A'}
-Payout Ratio: ${ttm.payoutRatioTTM ? (ttm.payoutRatioTTM * 100).toFixed(2) + '%' : 'N/A'}
-DCF Fair Value Estimate: $${profile.dcf?.toFixed(2) || 'N/A'}
+Current P/S: ${metricsData[0]?.priceToSalesRatio ? Number(metricsData[0].priceToSalesRatio).toFixed(2) : 'N/A'}
+Debt to Equity: ${ttm.debtToEquityTTM ? Number(ttm.debtToEquityTTM).toFixed(2) : 'N/A'}
+ROE: ${ttm.roeTTM ? (Number(ttm.roeTTM) * 100).toFixed(2) + '%' : 'N/A'}
+Dividend Yield: ${quote.dividendYield ? (Number(quote.dividendYield) * 100).toFixed(2) + '%' : 'N/A'}
+Payout Ratio: ${ttm.payoutRatioTTM ? (Number(ttm.payoutRatioTTM) * 100).toFixed(2) + '%' : 'N/A'}
+DCF Fair Value Estimate: $${profile.dcf ? Number(profile.dcf).toFixed(2) : 'N/A'}
 
 --- TECHNICAL INDICATORS ---
-14-Day RSI: ${rsiData !== 'N/A' ? rsiData.toFixed(2) : 'N/A'}
-MACD: ${macdData !== 'N/A' ? macdData.toFixed(2) : 'N/A'}
+14-Day RSI: ${rsiData !== 'N/A' ? Number(rsiData).toFixed(2) : 'N/A'}
+MACD: ${macdData !== 'N/A' ? Number(macdData).toFixed(2) : 'N/A'}
 50-DMA: $${quote.priceAvg50 || 'N/A'}
 200-DMA: $${quote.priceAvg200 || 'N/A'}
 Short Interest: ${quote.sharesOutstanding ? ((quote.volume / quote.sharesOutstanding) * 100).toFixed(2) + '%' : 'N/A'} (Volume Proxy)
 Next Earnings: ${quote.earningsAnnouncement || 'N/A'}
 [/FMP API BLOCK]
 `;
-                        geminiBody.contents[0].parts[0].text = fmpContext + "\n<system_status>\n" + systemStatus + fmpDetails + "FMP_SUCCESS\n</system_status>\n\n" + geminiBody.contents[0].parts[0].text;
+                        const targetPart = geminiBody?.contents?.[0]?.parts?.[0];
+                        if (targetPart) {
+                            targetPart.text = fmpContext + "\n<system_status>\n" + systemStatus + fmpDetails + "FMP_SUCCESS\n</system_status>\n\n" + targetPart.text;
+                        }
                     } else {
-                        geminiBody.contents[0].parts[0].text = `<system_status>\n${systemStatus}${fmpDetails} | ERROR: No Profile data for ${symbol}\n</system_status>\n\n` + geminiBody.contents[0].parts[0].text;
+                        const targetPart = geminiBody?.contents?.[0]?.parts?.[0];
+                        if (targetPart) {
+                            targetPart.text = `<system_status>\n${systemStatus}${fmpDetails} | ERROR: No Profile data for ${symbol}\n</system_status>\n\n` + targetPart.text;
+                        }
                     }
                 } catch (e) { 
                     console.error("FMP Error:", e);
-                    geminiBody.contents[0].parts[0].text = `<system_status>\n${systemStatus}${fmpDetails} | EXCEPTION: ${e.message}\n</system_status>\n\n` + geminiBody.contents[0].parts[0].text;
+                    const targetPart = geminiBody?.contents?.[0]?.parts?.[0];
+                    if (targetPart) {
+                        targetPart.text = `<system_status>\n${systemStatus}${fmpDetails} | EXCEPTION: ${e.message}\n</system_status>\n\n` + targetPart.text;
+                    }
                 }
             }
         } else {
@@ -173,6 +182,7 @@ Next Earnings: ${quote.earningsAnnouncement || 'N/A'}
         if (!response.ok) return res.status(response.status).json({ error: data.error?.message });
         res.status(200).json(data);
     } catch (error) {
+        console.error("Critical Backend Error:", error);
         res.status(500).json({ error: 'Server-Fehler: ' + error.message });
     }
 }
