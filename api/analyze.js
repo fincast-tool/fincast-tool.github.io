@@ -57,7 +57,13 @@ module.exports = async function handler(req, res) {
 
                     console.log(`[Backend] Fetches complete. Statuses: Profile=${profileRes?.status}, Quote=${quoteRes?.status}`);
 
-                    const profileData = profileRes ? await profileRes.json().catch(() => []) : [];
+                    if (profileRes && profileRes.status === 403) {
+                        const errBody = await profileRes.text().catch(() => "unknown");
+                        console.error(`[Backend] FMP 403 Error Detail: ${errBody}`);
+                        fmpDetails += `FMP_403_FORBIDDEN: ${errBody}. `;
+                    }
+
+                    const profileData = (profileRes && profileRes.ok) ? await profileRes.json().catch(() => []) : [];
                     const quoteData = quoteRes ? await quoteRes.json().catch(() => []) : [];
                     const metricsData = metricsRes ? await metricsRes.json().catch(() => []) : [];
                     const ttmData = ttmRes ? await ttmRes.json().catch(() => []) : [];
