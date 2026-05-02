@@ -724,8 +724,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg></div>
-                    <div id="adminBtn"
-                        class="p-2 cursor-pointer hover:text-gold-500 transition-all hover:scale-110"
+                    <div id="adminBtn" class="p-2 cursor-pointer hover:text-gold-500 transition-all hover:scale-110"
                         onclick="toggleAdmin()" title="Admin"><svg class="w-6 h-6" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -1049,13 +1048,15 @@
                 <div>
                     <h2 class="text-2xl font-black text-white tracking-tighter uppercase italic">Terminal <span
                             class="text-gold-500">Master Control</span></h2>
-                    <p class="text-[10px] text-gray-500 font-mono uppercase tracking-[0.3em] mt-1">Authorized Access Only
+                    <p class="text-[10px] text-gray-500 font-mono uppercase tracking-[0.3em] mt-1">Authorized Access
+                        Only
                         • Protocol v4.2 • Auto-Reset: 10:00 CEST</p>
                 </div>
                 <button onclick="toggleAdmin()"
                     class="bg-white/5 hover:bg-white/10 text-white p-3 rounded-xl transition-all border border-white/5">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
@@ -1518,6 +1519,7 @@
             const query = e.target.value.trim();
             const dropdown = document.getElementById('searchDropdown');
 
+            console.log('[Terminal] Live Search Query:', query);
             clearTimeout(searchTimeout);
 
             if (query.length < 2) {
@@ -1527,15 +1529,39 @@
 
             searchTimeout = setTimeout(async () => {
                 try {
+                    // Pass email if available to check archive
+                    const user = await getCurrentUser();
+                    const email = user ? user.email : null;
+
                     const res = await fetch('/api/stock-search', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ query })
+                        body: JSON.stringify({ query, email })
                     });
                     const data = await res.json();
 
-                    if (data && data.length > 0) {
-                        renderSearchDropdown(data);
+                    // Also check local archive for matches
+                    let archiveMatches = [];
+                    if (user) {
+                        const archive = await apiCall('get_archive', { email: user.email });
+                        if (archive) {
+                            archiveMatches = Object.keys(archive)
+                                .filter(ticker => ticker.includes(upperQuery) || 
+                                    (archive[ticker].data.company_identity && archive[ticker].data.company_identity.toUpperCase().includes(upperQuery)))
+                                .map(ticker => ({
+                                    symbol: ticker,
+                                    name: archive[ticker].data.company_identity ? (archive[ticker].data.company_identity.match(/Name:\s*(.*)/)?.[1] || ticker) : ticker,
+                                    exchange: 'ARCHIVE',
+                                    isArchived: true
+                                }));
+                        }
+                    }
+
+                    // Combine results (prioritize archive)
+                    const combined = [...archiveMatches, ...data.filter(d => !archiveMatches.some(a => a.symbol === d.symbol))];
+
+                    if (combined.length > 0) {
+                        renderSearchDropdown(combined);
                     } else {
                         dropdown.classList.add('hidden');
                     }
@@ -1556,7 +1582,7 @@
                 item.innerHTML = `
                     <div class="flex flex-col">
                         <span class="text-white font-bold text-xs">${res.name}</span>
-                        <span class="text-[10px] text-gray-500 font-mono">${res.exchange} • ${res.isin || 'N/A'}</span>
+                        <span class="text-[10px] ${res.isArchived ? 'text-gold-500 font-bold' : 'text-gray-500'} font-mono">${res.isArchived ? '☁️ IM ARCHIV' : res.exchange} • ${res.isin || 'N/A'}</span>
                     </div>
                     <span class="text-gold-500 font-mono font-bold text-xs">${res.symbol}</span>
                 `;
@@ -1614,14 +1640,27 @@
             const upperQuery = query.toUpperCase();
             try {
                 const archive = await apiCall('get_archive', { email: user.email });
-                if (archive && (archive[upperQuery] || archive[query])) {
-                    const entry = archive[upperQuery] || archive[query];
-                    console.log(`[Terminal] Nutze bereits ermittelte Informationen für ${query}.`);
-                    CURRENT_ANALYSIS_DATA = entry.data;
-                    if (entry.data.company_identity) renderIdentity(entry.data.company_identity);
-                    renderWidgets(entry.data);
-                    setUIState('results');
-                    return; // Beenden -> Kein API-Call, kein Eckpunkt verbraucht
+                if (archive) {
+                    // Search by Ticker OR search by Name in the identity data
+                    let foundEntry = archive[upperQuery] || archive[query];
+                    
+                    if (!foundEntry) {
+                        // Fallback: Check if the query is part of the stored company identity (Name)
+                        const tickerInArchive = Object.keys(archive).find(ticker => {
+                            const idData = archive[ticker].data.company_identity || '';
+                            return idData.toUpperCase().includes(upperQuery);
+                        });
+                        if (tickerInArchive) foundEntry = archive[tickerInArchive];
+                    }
+
+                    if (foundEntry) {
+                        console.log(`[Terminal] Nutze bereits ermittelte Informationen für ${query}.`);
+                        CURRENT_ANALYSIS_DATA = foundEntry.data;
+                        if (foundEntry.data.company_identity) renderIdentity(foundEntry.data.company_identity);
+                        renderWidgets(foundEntry.data);
+                        setUIState('results');
+                        return; // Beenden -> Kein API-Call, kein Eckpunkt verbraucht
+                    }
                 }
             } catch (e) {
                 console.warn('Archiv-Check fehlgeschlagen:', e);
@@ -1653,7 +1692,7 @@
 
                 // Robust Cloud Save - Use Symbol as key if available
                 const resolvedSymbol = results.company_identity?.match(/Symbol:\s*(.*)/)?.[1]?.trim()?.toUpperCase() || query.toUpperCase();
-                
+
                 const archiveEntry = {
                     timestamp: new Date().toLocaleString(USER_LANG),
                     data: results
@@ -2311,4 +2350,5 @@ CRITICAL: Add this exact sentence at the end: "DISCLAIMER: Diese Analyse ist ein
         });
     </script>
 </body>
-</html>
+
+</html>
