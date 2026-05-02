@@ -804,9 +804,8 @@
                             Terminal</span>
                     </div>
                     <div class="flex-1 max-w-xl relative flex gap-2">
-                        <input id="tickerInput" type="text" placeholder="ENTER SYMBOL (E.G. AAPL, TSLA, BTC)..."
+                        <input id="tickerInput" type="text" placeholder="TICKER, NAME ODER ISIN EINGEBEN..."
                             class="terminal-input" autocomplete="off">
-                        <div id="searchDropdown" class="autocomplete-dropdown hidden"></div>
                         <button id="execBtn" onclick="startAnalysis()"
                             class="search-btn px-6 py-2 text-[10px] uppercase tracking-widest">Execute</button>
                     </div>
@@ -909,9 +908,9 @@
                                         <div id="id_codes" class="font-mono text-xs text-gold-400">--</div>
                                     </div>
                                     <div class="identity-divider border-l border-white/5 pl-4 md:pl-8">
-                                        <div class="data-label mb-1">Sector & Headquarter</div>
-                                        <div class="font-mono text-[11px] text-gray-300">
-                                            <span id="id_sector">--</span> • <span id="id_hq">--</span>
+                                        <div class="data-label mb-1">Börse & Sektor</div>
+                                        <div class="font-mono text-[11px] text-gray-300 uppercase">
+                                            <span id="id_exchange" class="text-gold-500">--</span> • <span id="id_sector">--</span>
                                         </div>
                                     </div>
                                     <div class="identity-divider border-l border-white/5 pl-4 md:pl-8">
@@ -1512,119 +1511,6 @@
             if (bar && progress !== undefined) bar.style.width = progress + '%';
         }
 
-        // ==================== LIVE SEARCH LOGIC ====================
-        let searchTimeout = null;
-
-        document.getElementById('tickerInput').addEventListener('input', (e) => {
-            const query = e.target.value.trim();
-            const upperQuery = query.toUpperCase();
-            const dropdown = document.getElementById('searchDropdown');
-
-            console.log('[Terminal] Live Search Query:', query);
-            clearTimeout(searchTimeout);
-
-            if (query.length < 2) {
-                dropdown.classList.add('hidden');
-                dropdown.style.display = 'none';
-                return;
-            }
-
-            // Show loading state
-            dropdown.innerHTML = '<div class="p-4 text-[10px] font-mono text-gold-500/50 uppercase tracking-widest text-center animate-pulse">Searching Google...</div>';
-            dropdown.classList.remove('hidden');
-            dropdown.style.display = 'block';
-
-            searchTimeout = setTimeout(async () => {
-                try {
-                    // Pass email if available to check archive
-                    const user = await getCurrentUser();
-                    const email = user ? user.email : null;
-
-                    const res = await fetch('/api/stock-search', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ query, email })
-                    });
-                    const data = await res.json();
-
-                    // Check Personal Archive
-                    let archiveMatches = [];
-                    if (user) {
-                        const archive = await apiCall('get_archive', { email: user.email });
-                        if (archive) {
-                            archiveMatches = Object.keys(archive)
-                                .filter(ticker => ticker.includes(upperQuery) || 
-                                    (archive[ticker].data.company_identity && archive[ticker].data.company_identity.toUpperCase().includes(upperQuery)))
-                                .map(ticker => ({
-                                    symbol: ticker,
-                                    name: archive[ticker].data.company_identity ? (archive[ticker].data.company_identity.match(/Name:\s*(.*)/)?.[1] || ticker) : ticker,
-                                    exchange: 'ARCHIVE',
-                                    isArchived: true
-                                }));
-                        }
-                    }
-
-                    // Check Global Swarm Archive (Optional: If we want to show it in dropdown)
-                    // We only do this if results are low to avoid over-fetching
-                    if (data.length < 5) {
-                        const globalTickers = await apiCall('get_global_tickers').catch(() => []);
-                        const globalMatches = globalTickers
-                            .filter(t => t.includes(upperQuery) && !archiveMatches.some(a => a.symbol === t))
-                            .map(t => ({ symbol: t, name: 'Global Pool Entry', exchange: 'SWARM', isArchived: true }));
-                        archiveMatches = [...archiveMatches, ...globalMatches];
-                    }
-
-                    // Combine results (prioritize archive/swarm)
-                    const combined = [...archiveMatches, ...data.filter(d => !archiveMatches.some(a => a.symbol === d.symbol))];
-
-                    if (combined.length > 0) {
-                        renderSearchDropdown(combined);
-                    } else {
-                        dropdown.classList.add('hidden');
-                        dropdown.style.display = 'none';
-                    }
-                } catch (err) {
-                    console.error('Search error:', err);
-                    dropdown.classList.add('hidden');
-                    dropdown.style.display = 'none';
-                }
-            }, 300);
-        });
-
-        function renderSearchDropdown(results) {
-            const dropdown = document.getElementById('searchDropdown');
-            dropdown.innerHTML = '';
-            dropdown.classList.remove('hidden');
-            dropdown.style.display = 'block';
-
-            results.forEach(res => {
-                const item = document.createElement('div');
-                item.className = 'autocomplete-item flex justify-between items-center';
-                item.innerHTML = `
-                    <div class="flex flex-col">
-                        <span class="text-white font-bold text-xs">${res.name}</span>
-                        <span class="text-[10px] ${res.isArchived ? 'text-gold-500 font-bold' : 'text-gray-500'} font-mono">${res.isArchived ? '☁️ IM ARCHIV' : res.exchange} • ${res.isin || 'N/A'}</span>
-                    </div>
-                    <span class="text-gold-500 font-mono font-bold text-xs">${res.symbol}</span>
-                `;
-                item.onclick = () => {
-                    document.getElementById('tickerInput').value = res.symbol;
-                    dropdown.classList.add('hidden');
-                    startAnalysis();
-                };
-                dropdown.appendChild(item);
-            });
-        }
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', (e) => {
-            const dropdown = document.getElementById('searchDropdown');
-            const input = document.getElementById('tickerInput');
-            if (!dropdown.contains(e.target) && e.target !== input) {
-                dropdown.classList.add('hidden');
-            }
-        });
-
         function shakeInput() {
             const input = document.getElementById('tickerInput');
             input.classList.add('border-red-500');
@@ -1787,6 +1673,7 @@ Name: [Use 'Name' from FMP API BLOCK]
 Symbol: [Use 'Symbol' from FMP API BLOCK]
 ISIN: [ISIN]
 WKN: [WKN]
+Börse: [Use 'Exchange' from FMP API BLOCK]
 Sektor: [Use 'Sector/Industry' from FMP API BLOCK]
 HQ: [Use 'HQ' from FMP API BLOCK]
 Profil: [A highly condensed 2-sentence summary of the core business model and USPs. MAX 40 words. Do NOT copy the full description.]
@@ -1994,8 +1881,9 @@ CRITICAL: Add this exact sentence at the end: "DISCLAIMER: Diese Analyse ist ein
                 return match ? match[1].trim() : '--';
             };
 
-            document.getElementById('id_name').textContent = getValue('Name');
+            document.getElementById('id_name').textContent = `${getValue('Name')} (${getValue('Symbol')})`;
             document.getElementById('id_codes').textContent = `${getValue('ISIN')} / ${getValue('WKN')}`;
+            document.getElementById('id_exchange').textContent = getValue('Börse');
             document.getElementById('id_sector').textContent = getValue('Sektor');
             document.getElementById('id_hq').textContent = getValue('HQ');
             document.getElementById('id_desc').textContent = getValue('Profil');
