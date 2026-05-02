@@ -1517,6 +1517,7 @@
 
         document.getElementById('tickerInput').addEventListener('input', (e) => {
             const query = e.target.value.trim();
+            const upperQuery = query.toUpperCase();
             const dropdown = document.getElementById('searchDropdown');
 
             console.log('[Terminal] Live Search Query:', query);
@@ -1524,8 +1525,14 @@
 
             if (query.length < 2) {
                 dropdown.classList.add('hidden');
+                dropdown.style.display = 'none';
                 return;
             }
+
+            // Show loading state
+            dropdown.innerHTML = '<div class="p-4 text-[10px] font-mono text-gold-500/50 uppercase tracking-widest text-center animate-pulse">Searching Google...</div>';
+            dropdown.classList.remove('hidden');
+            dropdown.style.display = 'block';
 
             searchTimeout = setTimeout(async () => {
                 try {
@@ -1540,7 +1547,7 @@
                     });
                     const data = await res.json();
 
-                    // Also check local archive for matches
+                    // Check Personal Archive
                     let archiveMatches = [];
                     if (user) {
                         const archive = await apiCall('get_archive', { email: user.email });
@@ -1557,16 +1564,29 @@
                         }
                     }
 
-                    // Combine results (prioritize archive)
+                    // Check Global Swarm Archive (Optional: If we want to show it in dropdown)
+                    // We only do this if results are low to avoid over-fetching
+                    if (data.length < 5) {
+                        const globalTickers = await apiCall('get_global_tickers').catch(() => []);
+                        const globalMatches = globalTickers
+                            .filter(t => t.includes(upperQuery) && !archiveMatches.some(a => a.symbol === t))
+                            .map(t => ({ symbol: t, name: 'Global Pool Entry', exchange: 'SWARM', isArchived: true }));
+                        archiveMatches = [...archiveMatches, ...globalMatches];
+                    }
+
+                    // Combine results (prioritize archive/swarm)
                     const combined = [...archiveMatches, ...data.filter(d => !archiveMatches.some(a => a.symbol === d.symbol))];
 
                     if (combined.length > 0) {
                         renderSearchDropdown(combined);
                     } else {
                         dropdown.classList.add('hidden');
+                        dropdown.style.display = 'none';
                     }
                 } catch (err) {
                     console.error('Search error:', err);
+                    dropdown.classList.add('hidden');
+                    dropdown.style.display = 'none';
                 }
             }, 300);
         });
@@ -1575,6 +1595,7 @@
             const dropdown = document.getElementById('searchDropdown');
             dropdown.innerHTML = '';
             dropdown.classList.remove('hidden');
+            dropdown.style.display = 'block';
 
             results.forEach(res => {
                 const item = document.createElement('div');
@@ -1659,7 +1680,23 @@
                         if (foundEntry.data.company_identity) renderIdentity(foundEntry.data.company_identity);
                         renderWidgets(foundEntry.data);
                         setUIState('results');
-                        return; // Beenden -> Kein API-Call, kein Eckpunkt verbraucht
+                        return;
+                    }
+
+                    // 2. CHECK GLOBAL SWARM ARCHIVE (Serverwide Intelligence)
+                    const globalEntry = await apiCall('get_global_archive_entry', { key: upperQuery });
+                    if (globalEntry) {
+                        console.log(`[Terminal] Profitiere von Schwarm-Intelligenz für ${query}.`);
+                        CURRENT_ANALYSIS_DATA = globalEntry.data;
+                        if (globalEntry.data.company_identity) renderIdentity(globalEntry.data.company_identity);
+                        renderWidgets(globalEntry.data);
+                        setUIState('results');
+
+                        // Auch lokal speichern für den User-Verlauf
+                        const archiveEntry = { timestamp: new Date().toLocaleString(USER_LANG), data: globalEntry.data };
+                        await apiCall('save_archive', { email: user.email, key: upperQuery, data: archiveEntry }).catch(() => { });
+
+                        return; 
                     }
                 }
             } catch (e) {
@@ -1697,7 +1734,11 @@
                     timestamp: new Date().toLocaleString(USER_LANG),
                     data: results
                 };
+                // Personal Archive
                 await apiCall('save_archive', { email: user.email, key: resolvedSymbol, data: archiveEntry }).catch(e => console.warn('Archive save failed:', e));
+                
+                // Global Swarm Archive (30 Days TTL)
+                await apiCall('save_global_archive', { key: resolvedSymbol, data: archiveEntry }).catch(e => console.warn('Global archive save failed:', e));
 
                 await incrementQuery(user.email, MODEL_ID).catch(() => { });
                 await updateFooter(user).catch(() => { });
