@@ -724,7 +724,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg></div>
-                    <div id="adminBtn" class="p-2 cursor-pointer hover:text-gold-500 transition-all hover:scale-110"
+                    <div id="adminBtn"
+                        class="p-2 cursor-pointer hover:text-gold-500 transition-all hover:scale-110"
                         onclick="toggleAdmin()" title="Admin"><svg class="w-6 h-6" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -804,7 +805,7 @@
                             Terminal</span>
                     </div>
                     <div class="flex-1 max-w-xl relative flex gap-2">
-                        <input id="tickerInput" type="text" placeholder="TICKER, NAME ODER ISIN EINGEBEN..."
+                        <input id="tickerInput" type="text" placeholder="ENTER SYMBOL (E.G. AAPL, TSLA, BTC)..."
                             class="terminal-input" autocomplete="off">
                         <button id="execBtn" onclick="startAnalysis()"
                             class="search-btn px-6 py-2 text-[10px] uppercase tracking-widest">Execute</button>
@@ -908,9 +909,9 @@
                                         <div id="id_codes" class="font-mono text-xs text-gold-400">--</div>
                                     </div>
                                     <div class="identity-divider border-l border-white/5 pl-4 md:pl-8">
-                                        <div class="data-label mb-1">Börse • Sektor • HQ</div>
-                                        <div class="font-mono text-[10px] text-gray-300 uppercase">
-                                            <span id="id_exchange" class="text-gold-500">--</span> • <span id="id_sector">--</span> • <span id="id_hq" class="text-gray-500">--</span>
+                                        <div class="data-label mb-1">Sector & Headquarter</div>
+                                        <div class="font-mono text-[11px] text-gray-300">
+                                            <span id="id_sector">--</span> • <span id="id_hq">--</span>
                                         </div>
                                     </div>
                                     <div class="identity-divider border-l border-white/5 pl-4 md:pl-8">
@@ -1047,15 +1048,13 @@
                 <div>
                     <h2 class="text-2xl font-black text-white tracking-tighter uppercase italic">Terminal <span
                             class="text-gold-500">Master Control</span></h2>
-                    <p class="text-[10px] text-gray-500 font-mono uppercase tracking-[0.3em] mt-1">Authorized Access
-                        Only
+                    <p class="text-[10px] text-gray-500 font-mono uppercase tracking-[0.3em] mt-1">Authorized Access Only
                         • Protocol v4.2 • Auto-Reset: 10:00 CEST</p>
                 </div>
                 <button onclick="toggleAdmin()"
                     class="bg-white/5 hover:bg-white/10 text-white p-3 rounded-xl transition-all border border-white/5">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M6 18L18 6M6 6l12 12" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
@@ -1511,12 +1510,6 @@
             if (bar && progress !== undefined) bar.style.width = progress + '%';
         }
 
-        function shakeInput() {
-            const input = document.getElementById('tickerInput');
-            input.classList.add('border-red-500');
-            setTimeout(() => input.classList.remove('border-red-500'), 1000);
-        }
-
         async function startAnalysis() {
             const user = await getCurrentUser();
             if (!user) {
@@ -1543,53 +1536,6 @@
 
             updateLoadingStatus('Initializing Multi-Agent Protocol...', 5);
 
-            // --- ARCHIV-CHECK ZUR VERMEIDUNG DOPPELTER ECKPUNKTE ---
-            const upperQuery = query.toUpperCase();
-            try {
-                const archive = await apiCall('get_archive', { email: user.email });
-                if (archive) {
-                    // Search by Ticker OR search by Name in the identity data
-                    let foundEntry = archive[upperQuery] || archive[query];
-                    
-                    if (!foundEntry) {
-                        // Fallback: Check if the query is part of the stored company identity (Name)
-                        const tickerInArchive = Object.keys(archive).find(ticker => {
-                            const idData = archive[ticker].data.company_identity || '';
-                            return idData.toUpperCase().includes(upperQuery);
-                        });
-                        if (tickerInArchive) foundEntry = archive[tickerInArchive];
-                    }
-
-                    if (foundEntry) {
-                        console.log(`[Terminal] Nutze bereits ermittelte Informationen für ${query}.`);
-                        CURRENT_ANALYSIS_DATA = foundEntry.data;
-                        if (foundEntry.data.company_identity) renderIdentity(foundEntry.data.company_identity);
-                        renderWidgets(foundEntry.data);
-                        setUIState('results');
-                        return;
-                    }
-
-                    // 2. CHECK GLOBAL SWARM ARCHIVE (Serverwide Intelligence)
-                    const globalEntry = await apiCall('get_global_archive_entry', { key: upperQuery });
-                    if (globalEntry) {
-                        console.log(`[Terminal] Profitiere von Schwarm-Intelligenz für ${query}.`);
-                        CURRENT_ANALYSIS_DATA = globalEntry.data;
-                        if (globalEntry.data.company_identity) renderIdentity(globalEntry.data.company_identity);
-                        renderWidgets(globalEntry.data);
-                        setUIState('results');
-
-                        // Auch lokal speichern für den User-Verlauf
-                        const archiveEntry = { timestamp: new Date().toLocaleString(USER_LANG), data: globalEntry.data };
-                        await apiCall('save_archive', { email: user.email, key: upperQuery, data: archiveEntry }).catch(() => { });
-
-                        return; 
-                    }
-                }
-            } catch (e) {
-                console.warn('Archiv-Check fehlgeschlagen:', e);
-            }
-            // ------------------------------------------------------------
-
             try {
                 MODEL_ID = user.model || 'gemini-2.5-flash';
                 const langNames = { 'de-DE': 'DEUTSCH', 'en-US': 'ENGLISH', 'fr-FR': 'FRANÇAIS', 'es-ES': 'ESPAÑOL' };
@@ -1610,21 +1556,18 @@
                 if (results.company_identity) renderIdentity(results.company_identity);
                 renderWidgets(results);
 
+                const resolvedName = results.company_identity?.match(/Name:\s*(.*)/)?.[1]?.trim() || query;
+
                 setUIState('results');
+
                 updateLoadingStatus('Report Complete.', 100);
 
-                // Robust Cloud Save - Use Symbol as key if available
-                const resolvedSymbol = results.company_identity?.match(/Symbol:\s*(.*)/)?.[1]?.trim()?.toUpperCase() || query.toUpperCase();
-
+                // Robust Cloud Save
                 const archiveEntry = {
                     timestamp: new Date().toLocaleString(USER_LANG),
                     data: results
                 };
-                // Personal Archive
-                await apiCall('save_archive', { email: user.email, key: resolvedSymbol, data: archiveEntry }).catch(e => console.warn('Archive save failed:', e));
-                
-                // Global Swarm Archive (30 Days TTL)
-                await apiCall('save_global_archive', { key: resolvedSymbol, data: archiveEntry }).catch(e => console.warn('Global archive save failed:', e));
+                await apiCall('save_archive', { email: user.email, key: resolvedName, data: archiveEntry }).catch(e => console.warn('Archive save failed:', e));
 
                 await incrementQuery(user.email, MODEL_ID).catch(() => { });
                 await updateFooter(user).catch(() => { });
@@ -1670,10 +1613,8 @@ Generate the following sections with EXACT tags (including <system_status> if pr
             if (agentIds.includes('company_identity')) {
                 prompt += `<company_identity>
 Name: [Use 'Name' from FMP API BLOCK]
-Symbol: [Use 'Symbol' from FMP API BLOCK]
 ISIN: [ISIN]
 WKN: [WKN]
-Börse: [Use 'Exchange' from FMP API BLOCK]
 Sektor: [Use 'Sector/Industry' from FMP API BLOCK]
 HQ: [Use 'HQ' from FMP API BLOCK]
 Profil: [A highly condensed 2-sentence summary of the core business model and USPs. MAX 40 words. Do NOT copy the full description.]
@@ -1881,9 +1822,8 @@ CRITICAL: Add this exact sentence at the end: "DISCLAIMER: Diese Analyse ist ein
                 return match ? match[1].trim() : '--';
             };
 
-            document.getElementById('id_name').textContent = `${getValue('Name')} (${getValue('Symbol')})`;
+            document.getElementById('id_name').textContent = getValue('Name');
             document.getElementById('id_codes').textContent = `${getValue('ISIN')} / ${getValue('WKN')}`;
-            document.getElementById('id_exchange').textContent = getValue('Börse');
             document.getElementById('id_sector').textContent = getValue('Sektor');
             document.getElementById('id_hq').textContent = getValue('HQ');
             document.getElementById('id_desc').textContent = getValue('Profil');
@@ -2279,5 +2219,4 @@ CRITICAL: Add this exact sentence at the end: "DISCLAIMER: Diese Analyse ist ein
         });
     </script>
 </body>
-
-</html>
+</html>

@@ -151,27 +151,6 @@ module.exports = async function handler(req, res) {
             return res.status(200).json(JSON.parse(report));
         }
 
-        // --- GLOBAL SWARM ARCHIVE (30 DAYS) ---
-        if (action === 'get_global_archive_entry') {
-            if (!tickerKey) return res.status(400).json({ error: 'Ticker key required' });
-            const entry = await redis.get(`global_archive:${tickerKey.toUpperCase()}`);
-            return res.status(200).json(entry ? JSON.parse(entry) : null);
-        }
-
-        if (action === 'save_global_archive') {
-            if (!tickerKey || !data) return res.status(400).json({ error: 'Ticker key and data required' });
-            // Hinterlegt für 30 Tage (Swarm Intelligence)
-            await redis.set(`global_archive:${tickerKey.toUpperCase()}`, JSON.stringify(data), 'EX', 60 * 60 * 24 * 30);
-            return res.status(200).json({ success: true });
-        }
-
-        if (action === 'get_global_tickers') {
-            // Holt alle aktuell im globalen Archiv verfügbaren Ticker
-            const keys = await redis.keys('global_archive:*');
-            const tickers = keys.map(k => k.split(':')[1]);
-            return res.status(200).json(tickers);
-        }
-
         res.status(400).json({ error: 'Unknown action: ' + action });
     } catch (error) {
         console.error('Storage API Error:', error);

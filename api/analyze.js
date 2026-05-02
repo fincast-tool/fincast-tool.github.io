@@ -120,7 +120,6 @@ Name: ${profile.companyName || 'N/A'}
 Symbol: ${symbol}
 ISIN: ${profile.isin || 'N/A'}
 WKN: ${profile.cusip || 'N/A'}
-Exchange: ${profile.exchange || 'N/A'}
 Sector/Industry: ${profile.sector || 'N/A'} / ${profile.industry || 'N/A'}
 HQ: ${profile.city || 'N/A'}, ${profile.country || 'N/A'}
 Description: ${profile.description || 'N/A'}

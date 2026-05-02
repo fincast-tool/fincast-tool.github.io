@@ -3,7 +3,7 @@ const Redis = require('ioredis');
 module.exports = async function handler(req, res) {
     // Vercel Cron-Jobs senden einen GET-Request. 
     // Wir erlauben GET für den automatischen Reset und POST für manuelle Admin-Aktionen.
-
+    
     const redis = new Redis(process.env.KV_REDIS_URL || process.env.REDIS_URL);
 
     try {
@@ -23,8 +23,8 @@ module.exports = async function handler(req, res) {
                 await redis.del(...keys);
             }
             console.log(`[RESET] Global reset complete. ${keys.length} users cleared.`);
-            return res.status(200).json({
-                success: true,
+            return res.status(200).json({ 
+                success: true, 
                 message: 'Global reset complete.',
                 clearedCount: keys.length
             });
