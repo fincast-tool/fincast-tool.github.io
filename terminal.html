@@ -807,6 +807,7 @@
                     <div class="flex-1 max-w-xl relative flex gap-2">
                         <input id="tickerInput" type="text" placeholder="ENTER SYMBOL (E.G. AAPL, TSLA, BTC)..."
                             class="terminal-input" autocomplete="off">
+                        <div id="searchDropdown" class="autocomplete-dropdown hidden"></div>
                         <button id="execBtn" onclick="startAnalysis()"
                             class="search-btn px-6 py-2 text-[10px] uppercase tracking-widest">Execute</button>
                     </div>
@@ -1510,6 +1511,79 @@
             if (bar && progress !== undefined) bar.style.width = progress + '%';
         }
 
+        // ==================== LIVE SEARCH LOGIC ====================
+        let searchTimeout = null;
+
+        document.getElementById('tickerInput').addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            const dropdown = document.getElementById('searchDropdown');
+
+            clearTimeout(searchTimeout);
+
+            if (query.length < 2) {
+                dropdown.classList.add('hidden');
+                return;
+            }
+
+            searchTimeout = setTimeout(async () => {
+                try {
+                    const res = await fetch('/api/stock-search', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ query })
+                    });
+                    const data = await res.json();
+
+                    if (data && data.length > 0) {
+                        renderSearchDropdown(data);
+                    } else {
+                        dropdown.classList.add('hidden');
+                    }
+                } catch (err) {
+                    console.error('Search error:', err);
+                }
+            }, 300);
+        });
+
+        function renderSearchDropdown(results) {
+            const dropdown = document.getElementById('searchDropdown');
+            dropdown.innerHTML = '';
+            dropdown.classList.remove('hidden');
+
+            results.forEach(res => {
+                const item = document.createElement('div');
+                item.className = 'autocomplete-item flex justify-between items-center';
+                item.innerHTML = `
+                    <div class="flex flex-col">
+                        <span class="text-white font-bold text-xs">${res.name}</span>
+                        <span class="text-[10px] text-gray-500 font-mono">${res.exchange} • ${res.isin || 'N/A'}</span>
+                    </div>
+                    <span class="text-gold-500 font-mono font-bold text-xs">${res.symbol}</span>
+                `;
+                item.onclick = () => {
+                    document.getElementById('tickerInput').value = res.symbol;
+                    dropdown.classList.add('hidden');
+                    startAnalysis();
+                };
+                dropdown.appendChild(item);
+            });
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('searchDropdown');
+            const input = document.getElementById('tickerInput');
+            if (!dropdown.contains(e.target) && e.target !== input) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        function shakeInput() {
+            const input = document.getElementById('tickerInput');
+            input.classList.add('border-red-500');
+            setTimeout(() => input.classList.remove('border-red-500'), 1000);
+        }
+
         async function startAnalysis() {
             const user = await getCurrentUser();
             if (!user) {
@@ -1536,6 +1610,24 @@
 
             updateLoadingStatus('Initializing Multi-Agent Protocol...', 5);
 
+            // --- ARCHIV-CHECK ZUR VERMEIDUNG DOPPELTER ECKPUNKTE ---
+            const upperQuery = query.toUpperCase();
+            try {
+                const archive = await apiCall('get_archive', { email: user.email });
+                if (archive && (archive[upperQuery] || archive[query])) {
+                    const entry = archive[upperQuery] || archive[query];
+                    console.log(`[Terminal] Nutze bereits ermittelte Informationen für ${query}.`);
+                    CURRENT_ANALYSIS_DATA = entry.data;
+                    if (entry.data.company_identity) renderIdentity(entry.data.company_identity);
+                    renderWidgets(entry.data);
+                    setUIState('results');
+                    return; // Beenden -> Kein API-Call, kein Eckpunkt verbraucht
+                }
+            } catch (e) {
+                console.warn('Archiv-Check fehlgeschlagen:', e);
+            }
+            // ------------------------------------------------------------
+
             try {
                 MODEL_ID = user.model || 'gemini-2.5-flash';
                 const langNames = { 'de-DE': 'DEUTSCH', 'en-US': 'ENGLISH', 'fr-FR': 'FRANÇAIS', 'es-ES': 'ESPAÑOL' };
@@ -1556,18 +1648,17 @@
                 if (results.company_identity) renderIdentity(results.company_identity);
                 renderWidgets(results);
 
-                const resolvedName = results.company_identity?.match(/Name:\s*(.*)/)?.[1]?.trim() || query;
-
                 setUIState('results');
-
                 updateLoadingStatus('Report Complete.', 100);
 
-                // Robust Cloud Save
+                // Robust Cloud Save - Use Symbol as key if available
+                const resolvedSymbol = results.company_identity?.match(/Symbol:\s*(.*)/)?.[1]?.trim()?.toUpperCase() || query.toUpperCase();
+                
                 const archiveEntry = {
                     timestamp: new Date().toLocaleString(USER_LANG),
                     data: results
                 };
-                await apiCall('save_archive', { email: user.email, key: resolvedName, data: archiveEntry }).catch(e => console.warn('Archive save failed:', e));
+                await apiCall('save_archive', { email: user.email, key: resolvedSymbol, data: archiveEntry }).catch(e => console.warn('Archive save failed:', e));
 
                 await incrementQuery(user.email, MODEL_ID).catch(() => { });
                 await updateFooter(user).catch(() => { });
@@ -1613,6 +1704,7 @@ Generate the following sections with EXACT tags (including <system_status> if pr
             if (agentIds.includes('company_identity')) {
                 prompt += `<company_identity>
 Name: [Use 'Name' from FMP API BLOCK]
+Symbol: [Use 'Symbol' from FMP API BLOCK]
 ISIN: [ISIN]
 WKN: [WKN]
 Sektor: [Use 'Sector/Industry' from FMP API BLOCK]
