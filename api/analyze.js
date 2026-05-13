@@ -34,8 +34,17 @@ module.exports = async function handler(req, res) {
                     if (!symbol || ticker.length > 5) {
                         console.log(`[Backend] Searching symbol for: ${ticker}`);
                         fmpDetails += "Searching symbol... ";
-                        const searchRes = await fetch(`https://financialmodelingprep.com/stable/search?query=${encodeURIComponent(ticker)}&limit=1&apikey=${fmpKey}`);
-                        const searchData = await searchRes.json().catch(() => []);
+                        
+                        // 1. Try finding a US ticker (ADR) first to bypass international data restrictions
+                        let searchRes = await fetch(`https://financialmodelingprep.com/stable/search?query=${encodeURIComponent(ticker)}&limit=3&exchange=NYSE,NASDAQ&apikey=${fmpKey}`);
+                        let searchData = await searchRes.json().catch(() => []);
+                        
+                        // 2. Fallback to global search if no US ticker is found
+                        if (!searchData || searchData.length === 0) {
+                            searchRes = await fetch(`https://financialmodelingprep.com/stable/search?query=${encodeURIComponent(ticker)}&limit=1&apikey=${fmpKey}`);
+                            searchData = await searchRes.json().catch(() => []);
+                        }
+
                         symbol = (searchData && searchData[0]) ? searchData[0].symbol : ticker.trim().toUpperCase();
                         console.log(`[Backend] Search result: ${symbol}`);
                     }
@@ -161,7 +170,51 @@ Next Earnings: ${quote.earningsAnnouncement || 'N/A'}
                     } else {
                         const targetPart = geminiBody?.contents?.[0]?.parts?.[0];
                         if (targetPart) {
-                            targetPart.text = `<system_status>\n${systemStatus}${fmpDetails} | ERROR: No Profile data for ${symbol}\n</system_status>\n\n` + targetPart.text;
+                            const fallbackFmpContext = `
+[FMP API BLOCK]
+Name: ${symbol} (International / Not Found)
+Symbol: ${symbol}
+ISIN: N/A
+WKN: N/A
+Sector/Industry: N/A
+HQ: N/A
+Description: N/A
+Current Price: N/A
+Market Cap: N/A
+--- FINANCIAL TRENDS ---
+Revenue (5Y): N/A
+5Y Revenue CAGR: N/A
+Op. Margins (5Y): N/A
+FCF Trend (5Y): N/A
+EPS Surprise History: N/A
+--- VALUATION METRICS ---
+Current P/E: N/A
+5Y Avg P/E: N/A
+10Y Avg P/E: N/A
+Current P/S: N/A
+Debt to Equity: N/A
+ROE: N/A
+Dividend Yield: N/A
+Payout Ratio: N/A
+DCF Fair Value Estimate: N/A
+--- TECHNICAL INDICATORS ---
+14-Day RSI: N/A
+MACD: N/A
+50-DMA: N/A
+200-DMA: N/A
+Short Interest: N/A
+Next Earnings: N/A
+[/FMP API BLOCK]
+
+<system_instruction>
+Die FMP API hat für dieses internationale Symbol keine Daten geliefert. Nutze zwingend dein integriertes Google Search Tool, um die aktuellsten Finanzkennzahlen (KGV, Umsatzwachstum, Dividendenrendite etc.) aus verlässlichen Quellen wie Google Finance, Yahoo Finance oder ähnlichen Finanzportalen in Echtzeit zu recherchieren, anstatt sie nur zu schätzen. Fülle damit die fehlenden Felder. Schreibe NICHT "FMP API BLOCK benötigt".
+</system_instruction>
+`;
+                            targetPart.text = fallbackFmpContext + `<system_status>\n${systemStatus}${fmpDetails} | ERROR: No Profile data for ${symbol}\n</system_status>\n\n` + targetPart.text;
+                            
+                            // Enable Google Search for fallback
+                            if (!geminiBody.tools) geminiBody.tools = [];
+                            geminiBody.tools.push({ googleSearch: {} });
                         }
                     }
                 } catch (e) { 
