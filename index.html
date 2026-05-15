@@ -716,12 +716,21 @@
     <!-- Presentation Modal -->
     <div id="presentationModal"
         class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/90 backdrop-blur-sm p-4 opacity-0 transition-opacity duration-300">
-        <div class="relative w-full max-w-2xl flex flex-col bg-[#1a1a1a] rounded-2xl overflow-hidden shadow-2xl border border-white/10 transform scale-95 transition-transform duration-300"
+        <div class="relative w-full max-w-lg flex flex-col bg-[#1a1a1a] rounded-2xl overflow-hidden shadow-2xl border border-white/10 transform scale-95 transition-transform duration-300"
             id="presentationModalContent">
             <!-- Header -->
             <div class="flex justify-between items-center p-3 sm:p-4 border-b border-white/10 shrink-0">
                 <h3 class="text-white font-bold text-sm sm:text-lg truncate pr-2">Ebook: The Vibe of Wealth</h3>
                 <div class="flex items-center gap-2">
+                    <a href="https://docs.google.com/document/d/19xJVJDZ71X8U8WkFWSy1o-Suc1VQuB5dVhKbvI8FU1I/edit?tab=t.0" target="_blank" rel="noopener noreferrer"
+                        class="text-[var(--gold-400)] bg-[var(--gold-glow)] hover:bg-[rgba(234,179,8,0.25)] border border-[rgba(234,179,8,0.3)] px-3 py-1.5 rounded-lg transition-colors focus:outline-none flex items-center gap-2 text-xs sm:text-sm font-semibold mr-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                        <span class="hidden sm:inline">Vollbild lesen</span>
+                    </a>
                     <button onclick="shareEbook()"
                         class="text-gray-400 hover:text-white transition-colors focus:outline-none p-1 shrink-0 flex items-center gap-1 text-xs sm:text-sm">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
@@ -743,12 +752,11 @@
                 </div>
             </div>
             <!-- Ebook Container - Image Preview -->
-            <a href="https://docs.google.com/document/d/19xJVJDZ71X8U8WkFWSy1o-Suc1VQuB5dVhKbvI8FU1I/edit?tab=t.0" target="_blank" rel="noopener noreferrer" class="relative block w-full aspect-[3/2] bg-[#0f172a] cursor-pointer group overflow-hidden">
-                <!-- HINWEIS: Hier das Bild eintragen (bei src="...") -->
-                <img src="theme-toggle-portfoliomanager.png" class="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-500 scale-100 group-hover:scale-105" alt="Ebook Preview">
+            <a href="https://docs.google.com/document/d/19xJVJDZ71X8U8WkFWSy1o-Suc1VQuB5dVhKbvI8FU1I/edit?tab=t.0" target="_blank" rel="noopener noreferrer" class="relative block w-full aspect-[9/6] bg-[#0f172a] cursor-pointer group overflow-hidden">
+                <img src="https://drive.google.com/uc?export=view&id=1rFNiV56aaZGFEIWfOLw00ahTxEMizcG0" class="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-500 scale-100 group-hover:scale-105" alt="Ebook Preview">
                 
                 <div class="absolute inset-0 flex items-center justify-center">
-                    <div class="w-20 h-20 text-white rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(234,179,8,0.4)] group-hover:scale-110 transition-transform duration-300" style="background-color: var(--gold-500);">
+                    <div class="w-20 h-20 bg-gray-600/40 backdrop-blur-md text-white rounded-full flex items-center justify-center border border-white/20 shadow-lg group-hover:scale-110 transition-all duration-300 group-hover:bg-gray-600/60">
                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
                             <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
