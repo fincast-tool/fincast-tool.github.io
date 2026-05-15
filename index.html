@@ -7,13 +7,25 @@
     <title>fincast | Strategic Intelligence Hub</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>fincast | Institutional AI Investment Terminal</title>
+    <title>fincast Hub | Smarte Tools für kluge Anleger</title>
 
     <!-- SEO Meta Tags -->
     <meta name="description"
-        content="Fincast ist ein hochmodernes KI-gestütztes Investment-Terminal für professionelle Aktienanalysen, DCF-Modelle und Markt-Intelligenz. Maximieren Sie Ihre Rendite mit Deep-Learning Analysen.">
+        content="fincast Hub ist eine Sammlung von smarten Tools & Wissen für Börsenorientierte Anleger.">
     <meta name="keywords"
         content="Aktienanalyse, KI Investment, Finanzterminal, DCF Modell, Börsenanalyse, Fincast, Aktienbewertung, Investment Strategie">
+
+    <!-- Open Graph / Social Media Meta Tags -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://fincast-tool.vercel.app/">
+    <meta property="og:title" content="fincast Hub | Smarte Tools für kluge Anleger">
+    <meta property="og:description" content="fincast Hub ist eine Sammlung von smarten Tools & Wissen für Börsenorientierte Anleger.">
+    <meta property="og:image" content="https://fincast-tool.vercel.app/theme-toggle-portfoliomanager.png">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="fincast Hub | Smarte Tools für kluge Anleger">
+    <meta name="twitter:description" content="fincast Hub ist eine Sammlung von smarten Tools & Wissen für Börsenorientierte Anleger.">
+    <meta name="twitter:image" content="https://fincast-tool.vercel.app/theme-toggle-portfoliomanager.png">
     <link rel="canonical" href="https://fincast-tool.vercel.app/">
     <link rel="icon" type="image/png" href="portfoliomanager%20-%20Symbol.png">
     <link rel="shortcut icon" href="portfoliomanager%20-%20Symbol.png">
@@ -318,7 +330,7 @@
                     <span class="tool-tag" id="t-pres-tag">Ebook</span>
                     <h2 class="tool-name">The Vibe of<br><span
                             style="color: var(--terminal-gold)">Wealth</span></h2>
-                    <p class="tool-desc" id="t-pres-desc">Mein exklusives Mentoring-Ebook für deinen Weg in die finanzielle Flexibilität.</p>
+                    <p class="tool-desc" id="t-pres-desc">Mein exklusives Mentoring-Ebook von Nikolai Bretthauer für deinen Weg in die finanzielle Flexibilität.</p>
                     <div class="flex items-center gap-1.5 mt-3 text-xs font-medium text-slate-400">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
@@ -413,7 +425,7 @@
                 videoTag: "Erklärvideo",
                 videoDesc: "Ein umfassender Einstieg und Leitfaden für neue Investoren in die Welt der Aktien.",
                 presTag: "Ebook",
-                presDesc: "Mein exklusives Mentoring-Ebook für deinen Weg in die finanzielle Freiheit.",
+                presDesc: "Mein exklusives Mentoring-Ebook von Nikolai Bretthauer für deinen Weg in die finanzielle Freiheit.",
                 adsTitle: "Empfohlene Partner & Support"
             },
             EN: {
@@ -433,7 +445,7 @@
                 videoTag: "Explainer Video",
                 videoDesc: "A comprehensive introduction and guide for new investors into the world of stocks.",
                 presTag: "Ebook",
-                presDesc: "My exclusive mentoring ebook for your journey to financial freedom.",
+                presDesc: "My exclusive mentoring ebook by Nikolai Bretthauer for your journey to financial freedom.",
                 adsTitle: "Recommended Partners & Support"
             }
         };
@@ -546,7 +558,7 @@
         }
 
         function shareVideo() {
-            const shareUrl = window.location.origin + window.location.pathname + "?video=1";
+            const shareUrl = window.location.origin + "/video.html";
             if (navigator.share) {
                 navigator.share({
                     title: 'Fincast | Erste Schritte an der Börse',
@@ -561,7 +573,7 @@
         }
 
         function shareEbook() {
-            const shareUrl = window.location.origin + window.location.pathname + "?ebook=1";
+            const shareUrl = window.location.origin + "/ebook.html";
             if (navigator.share) {
                 navigator.share({
                     title: 'Fincast | The Vibe of Wealth Ebook',
