@@ -318,7 +318,7 @@
                     <span class="tool-tag" id="t-pres-tag">Ebook</span>
                     <h2 class="tool-name">The Vibe of<br><span
                             style="color: var(--terminal-gold)">Wealth</span></h2>
-                    <p class="tool-desc" id="t-pres-desc">Mein exklusives Mentoring-Ebook für deinen Weg in die finanzielle Freiheit.</p>
+                    <p class="tool-desc" id="t-pres-desc">Mein exklusives Mentoring-Ebook für deinen Weg in die finanzielle Flexibilität.</p>
                 </div>
             </div>
         </div>
@@ -553,6 +553,21 @@
             }
         }
 
+        function shareEbook() {
+            const shareUrl = window.location.origin + window.location.pathname + "?ebook=1";
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Fincast | The Vibe of Wealth Ebook',
+                    text: 'Lies das exklusive "The Vibe of Wealth" Ebook auf Fincast!',
+                    url: shareUrl
+                }).catch(err => console.log('Error sharing:', err));
+            } else {
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    alert('Link zur Webseite (mit Ebook) in die Zwischenablage kopiert!');
+                });
+            }
+        }
+
         function openVideoModal() {
             const modal = document.getElementById('videoModal');
             const modalContent = document.getElementById('videoModalContent');
@@ -647,6 +662,10 @@
             if (urlParams.get('video') === '1') {
                 openVideoModal();
             }
+            // Auto-open ebook if parameter ?ebook=1 is present
+            if (urlParams.get('ebook') === '1') {
+                openPresentationModal();
+            }
         };
     </script>
 
@@ -699,14 +718,26 @@
             <!-- Header -->
             <div class="flex justify-between items-center p-3 sm:p-4 border-b border-white/10 shrink-0">
                 <h3 class="text-white font-bold text-sm sm:text-lg truncate pr-2">Ebook: The Vibe of Wealth</h3>
-                <button onclick="closePresentationModal()"
-                    class="text-gray-400 hover:text-white transition-colors focus:outline-none p-1 shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor"
-                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
+                <div class="flex items-center gap-2">
+                    <button onclick="shareEbook()"
+                        class="text-gray-400 hover:text-white transition-colors focus:outline-none p-1 shrink-0 flex items-center gap-1 text-xs sm:text-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                            <polyline points="16 6 12 2 8 6"></polyline>
+                            <line x1="12" y1="2" x2="12" y2="15"></line>
+                        </svg>
+                        <span class="hidden sm:inline">Teilen</span>
+                    </button>
+                    <button onclick="closePresentationModal()"
+                        class="text-gray-400 hover:text-white transition-colors focus:outline-none p-1 shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
             </div>
             <!-- Ebook Container - Portrait optimized for reading -->
             <div class="relative w-full bg-black flex-1 sm:min-h-[75vh]">
