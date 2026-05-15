@@ -319,6 +319,13 @@
                     <h2 class="tool-name">The Vibe of<br><span
                             style="color: var(--terminal-gold)">Wealth</span></h2>
                     <p class="tool-desc" id="t-pres-desc">Mein exklusives Mentoring-Ebook für deinen Weg in die finanzielle Flexibilität.</p>
+                    <div class="flex items-center gap-1.5 mt-3 text-xs font-medium text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                        </svg>
+                        <span>25 Min Lesezeit</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -666,6 +673,7 @@
             if (urlParams.get('ebook') === '1') {
                 openPresentationModal();
             }
+
         };
     </script>
 
@@ -710,6 +718,7 @@
         </div>
     </div>
 
+
     <!-- Presentation Modal -->
     <div id="presentationModal"
         class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/90 backdrop-blur-sm p-0 sm:p-4 opacity-0 transition-opacity duration-300">
@@ -719,6 +728,15 @@
             <div class="flex justify-between items-center p-3 sm:p-4 border-b border-white/10 shrink-0">
                 <h3 class="text-white font-bold text-sm sm:text-lg truncate pr-2">Ebook: The Vibe of Wealth</h3>
                 <div class="flex items-center gap-2">
+                    <a href="https://docs.google.com/document/d/19xJVJDZ71X8U8WkFWSy1o-Suc1VQuB5dVhKbvI8FU1I/edit?tab=t.0" target="_blank" rel="noopener noreferrer"
+                        class="text-[var(--gold-400)] bg-[var(--gold-glow)] hover:bg-[rgba(234,179,8,0.25)] border border-[rgba(234,179,8,0.3)] px-3 py-1.5 rounded-lg transition-colors focus:outline-none flex items-center gap-2 text-xs sm:text-sm font-semibold mr-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                        <span class="hidden sm:inline">Vollbild lesen</span>
+                    </a>
                     <button onclick="shareEbook()"
                         class="text-gray-400 hover:text-white transition-colors focus:outline-none p-1 shrink-0 flex items-center gap-1 text-xs sm:text-sm">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
@@ -746,6 +764,7 @@
             </div>
         </div>
     </div>
+
 </body>
 
 </html>
