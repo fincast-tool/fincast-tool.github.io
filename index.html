@@ -604,8 +604,8 @@
             const modalContent = document.getElementById('presentationModalContent');
             const iframe = document.getElementById('presentationIframe');
 
-            // The Vibe of Wealth Ebook - Preview Mode for better readability
-            iframe.src = "https://docs.google.com/document/d/19xJVJDZ71X8U8WkFWSy1o-Suc1VQuB5dVhKbvI8FU1I/preview";
+            // The Vibe of Wealth Ebook - Published Web View for crisp images on mobile
+            iframe.src = "https://docs.google.com/document/d/e/2PACX-1vTmou6WHDhe92wxRGcaf_jkNPbCHN1q0licAWRlZSAB5WorappXdVx8nl36K78pMT3oO1n7QvsDjtEp/pub?embedded=true";
 
             modal.classList.remove('hidden');
             modal.classList.add('flex');
@@ -693,9 +693,9 @@
 
     <!-- Presentation Modal -->
     <div id="presentationModal"
-        class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/90 backdrop-blur-sm p-2 sm:p-4 opacity-0 transition-opacity duration-300">
-        <div class="relative w-full max-w-4xl flex flex-col bg-[#1a1a1a] rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl border border-white/10 transform scale-95 transition-transform duration-300"
-            id="presentationModalContent" style="max-height: 95vh;">
+        class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/90 backdrop-blur-sm p-0 sm:p-4 opacity-0 transition-opacity duration-300">
+        <div class="relative w-full h-full sm:h-auto sm:max-h-[95vh] max-w-4xl flex flex-col bg-[#1a1a1a] rounded-none sm:rounded-2xl overflow-hidden shadow-2xl border-0 sm:border border-white/10 transform scale-95 transition-transform duration-300"
+            id="presentationModalContent">
             <!-- Header -->
             <div class="flex justify-between items-center p-3 sm:p-4 border-b border-white/10 shrink-0">
                 <h3 class="text-white font-bold text-sm sm:text-lg truncate pr-2">Ebook: The Vibe of Wealth</h3>
@@ -709,7 +709,7 @@
                 </button>
             </div>
             <!-- Ebook Container - Portrait optimized for reading -->
-            <div class="relative w-full bg-black grow" style="min-height: 75vh;">
+            <div class="relative w-full bg-black flex-1 sm:min-h-[75vh]">
                 <iframe id="presentationIframe" class="absolute top-0 left-0 w-full h-full z-10" src="" frameborder="0"
                     allowfullscreen="true"></iframe>
             </div>
