@@ -311,6 +311,25 @@
 
         // ── Main Render ──
         function render(d) {
+            if (d && d.error) {
+                document.getElementById('lastUpdate').textContent = '--:--:--';
+                document.getElementById('mTickers').textContent = '-';
+                document.getElementById('mMentions').textContent = '-';
+                document.getElementById('mAlerts').textContent = '-';
+                document.getElementById('tickerList').innerHTML = `
+                    <div class="text-center py-20 text-gray-500 font-mono text-xs">
+                        <span class="animate-pulse">⏳ Warte auf erste Analyse...</span><br>
+                        <span class="text-[10px] text-gray-600 mt-2 block">(Dies kann nach Server-Start bis zu 60s dauern)</span>
+                    </div>
+                `;
+                document.getElementById('alertList').innerHTML = `
+                    <div class="text-center py-16">
+                        <p class="text-xs text-gray-600 font-mono">No signals triggered</p>
+                    </div>
+                `;
+                return;
+            }
+            
             const m = d.meta;
             document.getElementById('lastUpdate').textContent = new Date(m.last_updated).toLocaleTimeString('de-DE');
             document.getElementById('mTickers').textContent = m.total_active_tickers;
