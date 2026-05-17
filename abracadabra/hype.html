@@ -598,10 +598,10 @@
 
             <div class="flex items-center gap-1 bg-[#0f1420] p-1 rounded-md border border-white/[0.04]">
                 <button id="btn15m"
-                    class="px-3 py-1 text-[10px] font-mono rounded bg-gold-500/20 text-gold-400 font-bold transition-all"
+                    class="px-3 py-1 text-[10px] font-mono rounded text-gray-500 hover:text-gray-300 transition-all"
                     onclick="setTimeframe('15m')">15 MIN</button>
                 <button id="btnMax"
-                    class="px-3 py-1 text-[10px] font-mono rounded text-gray-500 hover:text-gray-300 transition-all"
+                    class="px-3 py-1 text-[10px] font-mono rounded bg-gold-500/20 text-gold-400 font-bold transition-all"
                     onclick="setTimeframe('max')">24 STD</button>
             </div>
         </div>
@@ -760,7 +760,7 @@
 
     <!-- ═══ JAVASCRIPT ═══ -->
     <script>
-        let currentTF = '15m'; // '15m' oder 'max'
+        let currentTF = 'max'; // '15m' oder 'max'
         const REFRESH_MS = 600000; // 10 Minuten in Millisekunden (schont Akku und Datenvolumen)
         let failCount = 0;
         let isInitialLoad = true;
