@@ -52,16 +52,17 @@ module.exports = async function handler(req, res) {
 
                     console.log(`[Backend] Starting fetches for ${symbol}...`);
 
-                    const [profileRes, quoteRes, metricsRes, ttmRes, earnRes, rsiRes, macdRes, cfRes, incomeRes] = await Promise.all([
+                    const [profileRes, quoteRes, metricsRes, ttmRes, earnRes, rsiRes, macdRes, cfRes, incomeRes, histRes] = await Promise.all([
                         fetch(`https://financialmodelingprep.com/stable/profile?symbol=${symbol}&apikey=${fmpKey}`).catch(e => { console.error("Profile Fetch Error:", e); return null; }),
                         fetch(`https://financialmodelingprep.com/stable/quote?symbol=${symbol}&apikey=${fmpKey}`).catch(e => { console.error("Quote Fetch Error:", e); return null; }),
                         fetch(`https://financialmodelingprep.com/stable/key-metrics?symbol=${symbol}&limit=5&apikey=${fmpKey}`).catch(e => { console.error("Metrics Fetch Error:", e); return null; }),
                         fetch(`https://financialmodelingprep.com/stable/key-metrics-ttm?symbol=${symbol}&apikey=${fmpKey}`).catch(e => { console.error("TTM Fetch Error:", e); return null; }),
                         fetch(`https://financialmodelingprep.com/stable/earnings-surprises?symbol=${symbol}&apikey=${fmpKey}`).catch(e => { console.error("Earnings Fetch Error:", e); return null; }),
-                        fetch(`https://financialmodelingprep.com/stable/technical-indicators/rsi?symbol=${symbol}&periodLength=14&timeframe=1day&apikey=${fmpKey}`).catch(e => { console.error("RSI Fetch Error:", e); return null; }),
-                        fetch(`https://financialmodelingprep.com/stable/technical-indicators/macd?symbol=${symbol}&timeframe=1day&apikey=${fmpKey}`).catch(e => { console.error("MACD Fetch Error:", e); return null; }),
+                        fetch(`https://financialmodelingprep.com/api/v3/technical-indicators/daily/${symbol}?type=rsi&period=14&apikey=${fmpKey}`).catch(e => { console.error("RSI Fetch Error:", e); return null; }),
+                        fetch(`https://financialmodelingprep.com/api/v3/technical-indicators/daily/${symbol}?type=macd&apikey=${fmpKey}`).catch(e => { console.error("MACD Fetch Error:", e); return null; }),
                         fetch(`https://financialmodelingprep.com/stable/cash-flow-statement?symbol=${symbol}&limit=5&apikey=${fmpKey}`).catch(e => { console.error("CF Fetch Error:", e); return null; }),
-                        fetch(`https://financialmodelingprep.com/stable/income-statement?symbol=${symbol}&limit=5&apikey=${fmpKey}`).catch(e => { console.error("Income Fetch Error:", e); return null; })
+                        fetch(`https://financialmodelingprep.com/stable/income-statement?symbol=${symbol}&limit=5&apikey=${fmpKey}`).catch(e => { console.error("Income Fetch Error:", e); return null; }),
+                        fetch(`https://financialmodelingprep.com/api/v3/historical-price-full/${symbol}?timeseries=20&apikey=${fmpKey}`).catch(e => { console.error("Hist Fetch Error:", e); return null; })
                     ]);
 
 
@@ -75,14 +76,15 @@ module.exports = async function handler(req, res) {
                     }
 
                     const profileData = (profileRes && profileRes.ok) ? await profileRes.json().catch(() => []) : [];
-                    const quoteData = quoteRes ? await quoteRes.json().catch(() => []) : [];
-                    const metricsData = metricsRes ? await metricsRes.json().catch(() => []) : [];
-                    const ttmData = ttmRes ? await ttmRes.json().catch(() => []) : [];
-                    const earnData = earnRes ? await earnRes.json().catch(() => []) : [];
-                    const rsiDataRaw = rsiRes ? await rsiRes.json().catch(() => []) : [];
-                    const macdDataRaw = macdRes ? await macdRes.json().catch(() => []) : [];
-                    const cfData = cfRes ? await cfRes.json().catch(() => []) : [];
-                    const incomeData = incomeRes ? await incomeRes.json().catch(() => []) : [];
+                    const quoteData = (quoteRes && quoteRes.ok) ? await quoteRes.json().catch(() => []) : [];
+                    const metricsData = (metricsRes && metricsRes.ok) ? await metricsRes.json().catch(() => []) : [];
+                    const ttmData = (ttmRes && ttmRes.ok) ? await ttmRes.json().catch(() => []) : [];
+                    const earnData = (earnRes && earnRes.ok) ? await earnRes.json().catch(() => []) : [];
+                    const rsiDataRaw = (rsiRes && rsiRes.ok) ? await rsiRes.json().catch(() => []) : [];
+                    const macdDataRaw = (macdRes && macdRes.ok) ? await macdRes.json().catch(() => []) : [];
+                    const cfData = (cfRes && cfRes.ok) ? await cfRes.json().catch(() => []) : [];
+                    const incomeData = (incomeRes && incomeRes.ok) ? await incomeRes.json().catch(() => []) : [];
+                    const histDataRaw = (histRes && histRes.ok) ? await histRes.json().catch(() => null) : null;
 
 
                 const hasProfile = Array.isArray(profileData) && profileData.length > 0;
@@ -97,9 +99,14 @@ module.exports = async function handler(req, res) {
 
                     const rsiData = (rsiDataRaw && rsiDataRaw.length > 0 && rsiDataRaw[0].rsi != null) ? rsiDataRaw[0].rsi : 'N/A';
                     const macdData = (macdDataRaw && macdDataRaw.length > 0 && macdDataRaw[0].macd != null) ? macdDataRaw[0].macd : 'N/A';
+                    const histData = (histDataRaw && histDataRaw.historical) ? histDataRaw.historical : [];
                     
                     const earnString = (earnData && earnData.length > 0)
                         ? earnData.slice(0, 4).map(e => `Q-Date: ${e.date?.split(' ')[0]} | Est: ${e.estimatedEarning} | Act: ${e.actualEarning}`).join('\n')
+                        : 'N/A';
+
+                    const histString = (histData && histData.length > 0)
+                        ? histData.slice(0, 15).map(h => `Date: ${h.date} | Close: $${h.close} | High: $${h.high} | Low: $${h.low} | Vol: ${(h.volume / 1e6).toFixed(2)}M`).join('\n')
                         : 'N/A';
 
 
@@ -161,6 +168,9 @@ MACD: ${macdData !== 'N/A' ? Number(macdData).toFixed(2) : 'N/A'}
 200-DMA: $${quote.priceAvg200 || 'N/A'}
 Short Interest: ${quote.sharesOutstanding ? ((quote.volume / quote.sharesOutstanding) * 100).toFixed(2) + '%' : 'N/A'} (Volume Proxy)
 Next Earnings: ${quote.earningsAnnouncement || 'N/A'}
+
+--- HISTORICAL DAILY DATA (Last 15 Trading Days) ---
+${histString}
 [/FMP API BLOCK]
 `;
                         const targetPart = geminiBody?.contents?.[0]?.parts?.[0];
