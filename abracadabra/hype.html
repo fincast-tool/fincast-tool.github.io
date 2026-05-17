@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="de" class="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>fincast | Hype-Barometer</title>
-    <meta name="description" content="Echtzeit Reddit Hype-Barometer – Ticker-Tracking, Sentiment-Analyse und Hype-Alerts für Aktien und Krypto.">
+    <meta name="description"
+        content="Echtzeit Reddit Hype-Barometer – Ticker-Tracking, Sentiment-Analyse und Hype-Alerts für Aktien und Krypto.">
     <meta property="og:type" content="website">
     <meta property="og:title" content="fincast | Hype-Barometer">
     <meta property="og:description" content="Echtzeit Reddit Hype-Barometer – Ticker-Tracking und Sentiment-Analyse.">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+        rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -25,78 +29,164 @@
         }
     </script>
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background-color: #0a0d14; color: #e2e8f0; -webkit-font-smoothing: antialiased; }
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #0a0d14;
+            color: #e2e8f0;
+            -webkit-font-smoothing: antialiased;
+        }
 
         /* ─── Widget Card System (terminal.html identisch) ─── */
         .widget-card {
             background: #0f1420;
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 12px;
-            transition: all 0.3s cubic-bezier(.4,0,.2,1);
-            position: relative; overflow: hidden;
+            transition: all 0.3s cubic-bezier(.4, 0, .2, 1);
+            position: relative;
+            overflow: hidden;
         }
+
         .widget-card:hover {
-            border-color: rgba(212,175,55,0.3);
+            border-color: rgba(212, 175, 55, 0.3);
             background: #141926;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
+
         .widget-header {
-            border-bottom: 1px solid rgba(255,255,255,0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
             padding: 14px 18px;
-            background: rgba(0,0,0,0.15);
+            background: rgba(0, 0, 0, 0.15);
         }
+
         .data-label {
-            color: #64748b; font-size: 10px; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 0.08em;
+            color: #64748b;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
             font-family: 'JetBrains Mono', monospace;
         }
 
         /* ─── Badges ─── */
-        .badge { display:inline-block; padding:3px 10px; border-radius:4px; font-size:10px; font-weight:800; font-family:'JetBrains Mono',monospace; letter-spacing:0.08em; text-transform:uppercase; }
-        .badge-hype { background:rgba(234,179,8,0.15); color:#eab308; border:1px solid rgba(234,179,8,0.3); }
-        .badge-bullish { background:rgba(34,197,94,0.15); color:#22c55e; border:1px solid rgba(34,197,94,0.3); }
-        .badge-neutral { background:rgba(100,116,139,0.15); color:#94a3b8; border:1px solid rgba(100,116,139,0.3); }
-        .badge-bearish { background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid rgba(239,68,68,0.3); }
-        .badge-buy { background:rgba(34, 197, 94, 0.15); color:#22c55e; border:1px solid rgba(34, 197, 94, 0.3); }
-        .badge-hold { background:rgba(234, 179, 8, 0.15); color:#eab308; border:1px solid rgba(234, 179, 8, 0.3); }
-        .badge-sell { background:rgba(239, 68, 68, 0.15); color:#ef4444; border:1px solid rgba(239, 68, 68, 0.3); }
-        .badge-wait { background:rgba(100, 116, 139, 0.15); color:#94a3b8; border:1px solid rgba(100, 116, 139, 0.3); }
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .badge-hype {
+            background: rgba(234, 179, 8, 0.15);
+            color: #eab308;
+            border: 1px solid rgba(234, 179, 8, 0.3);
+        }
+
+        .badge-bullish {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .badge-neutral {
+            background: rgba(100, 116, 139, 0.15);
+            color: #94a3b8;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+        }
+
+        .badge-bearish {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .badge-buy {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .badge-hold {
+            background: rgba(234, 179, 8, 0.15);
+            color: #eab308;
+            border: 1px solid rgba(234, 179, 8, 0.3);
+        }
+
+        .badge-sell {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .badge-wait {
+            background: rgba(100, 116, 139, 0.15);
+            color: #94a3b8;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+        }
 
         /* ─── Sentiment Gauge ─── */
-        .gauge-track { height:4px; border-radius:2px; background:#1a1f2e; overflow:hidden; position:relative; }
-        .gauge-fill { height:100%; border-radius:2px; transition: width 0.6s cubic-bezier(.4,0,.2,1); }
+        .gauge-track {
+            height: 4px;
+            border-radius: 2px;
+            background: #1a1f2e;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .gauge-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.6s cubic-bezier(.4, 0, .2, 1);
+        }
 
         /* ─── Ticker Row ─── */
         .ticker-row {
             background: #0f1420;
-            border: 1px solid rgba(255,255,255,0.04);
-            border-radius: 10px; padding: 14px 18px;
-            transition: all 0.25s cubic-bezier(.4,0,.2,1);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 10px;
+            padding: 14px 18px;
+            transition: all 0.25s cubic-bezier(.4, 0, .2, 1);
             cursor: default;
         }
+
         .ticker-row:hover {
-            border-color: rgba(255,255,255,0.08);
+            border-color: rgba(255, 255, 255, 0.08);
             background: #111624;
         }
+
         .ticker-row.is-hype {
-            border-color: rgba(212,175,55,0.15);
-            background: linear-gradient(135deg, rgba(212,175,55,0.04) 0%, #0f1420 100%);
+            border-color: rgba(212, 175, 55, 0.15);
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.04) 0%, #0f1420 100%);
         }
+
         .ticker-row.is-hype:hover {
-            border-color: rgba(212,175,55,0.4);
-            box-shadow: 0 0 24px rgba(212,175,55,0.06);
+            border-color: rgba(212, 175, 55, 0.4);
+            box-shadow: 0 0 24px rgba(212, 175, 55, 0.06);
         }
 
         /* ─── Alert Item ─── */
         .alert-item {
-            padding: 12px 14px; border-radius: 8px;
-            border: 1px solid rgba(212,175,55,0.1);
-            background: rgba(212,175,55,0.03);
+            padding: 12px 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            background: rgba(212, 175, 55, 0.03);
             transition: all 0.2s;
             cursor: pointer;
         }
-        .alert-item:hover { border-color: rgba(212,175,55,0.25); }
+
+        .alert-item:hover {
+            border-color: rgba(212, 175, 55, 0.25);
+        }
 
         /* ─── Citadel Drawer ─── */
         .citadel-drawer {
@@ -114,17 +204,20 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            box-shadow: -10px 0 40px rgba(0,0,0,0.6);
+            box-shadow: -10px 0 40px rgba(0, 0, 0, 0.6);
         }
+
         @media (max-width: 640px) {
             .citadel-drawer {
                 width: 100%;
                 right: -100%;
             }
         }
+
         .citadel-drawer.open {
             right: 0;
         }
+
         .citadel-drawer-content {
             opacity: 0;
             transition: opacity 0.3s;
@@ -132,9 +225,11 @@
             flex-direction: column;
             height: 100%;
         }
+
         .citadel-drawer.open .citadel-drawer-content {
             opacity: 1;
         }
+
         .drawer-overlay {
             position: fixed;
             inset: 0;
@@ -146,55 +241,142 @@
             pointer-events: none;
             transition: opacity 0.3s;
         }
+
         .drawer-overlay.active {
             opacity: 1;
             pointer-events: auto;
         }
+
         .alert-item.new-glowing {
             animation: alertPulse 2s infinite alternate;
         }
+
         @keyframes alertPulse {
-            0% { border-color: rgba(212, 175, 55, 0.25); box-shadow: 0 0 5px rgba(212, 175, 55, 0.1); }
-            100% { border-color: rgba(212, 175, 55, 0.85); box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
+            0% {
+                border-color: rgba(212, 175, 55, 0.25);
+                box-shadow: 0 0 5px rgba(212, 175, 55, 0.1);
+            }
+
+            100% {
+                border-color: rgba(212, 175, 55, 0.85);
+                box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+            }
         }
 
         /* ─── Status Indicator ─── */
-        @keyframes pulse-live { 0%,100%{opacity:1} 50%{opacity:.35} }
-        .status-live { width:6px; height:6px; border-radius:50%; background:#22c55e; animation:pulse-live 2s ease-in-out infinite; flex-shrink:0; }
-        .status-offline { width:6px; height:6px; border-radius:50%; background:#ef4444; flex-shrink:0; }
+        @keyframes pulse-live {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: .35
+            }
+        }
+
+        .status-live {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #22c55e;
+            animation: pulse-live 2s ease-in-out infinite;
+            flex-shrink: 0;
+        }
+
+        .status-offline {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #ef4444;
+            flex-shrink: 0;
+        }
 
         /* ─── Shimmer (terminal.html identisch) ─── */
-        .shimmer { background:linear-gradient(90deg,transparent,rgba(255,255,255,0.06),transparent); background-size:200% 100%; animation:shimmer 2s infinite; }
-        @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+        .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0
+            }
+
+            100% {
+                background-position: 200% 0
+            }
+        }
 
         /* ─── Fade Animation ─── */
-        .fade-up { animation: fadeUp 0.4s ease-out both; }
-        @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+        .fade-up {
+            animation: fadeUp 0.4s ease-out both;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
 
         /* ─── Metric Sparkline ─── */
-        .metric-value { font-family:'JetBrains Mono',monospace; font-weight:700; color:#d4af37; }
+        .metric-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            color: #d4af37;
+        }
 
         /* ─── Scrollbar (terminal.html identisch) ─── */
-        ::-webkit-scrollbar { width:5px; height:5px; }
-        ::-webkit-scrollbar-track { background:transparent; }
-        ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.06); border-radius:10px; }
-        ::-webkit-scrollbar-thumb:hover { background:rgba(255,255,255,0.12); }
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
 
         /* ─── Responsive ─── */
         @media (max-width: 768px) {
-            .desktop-only { display: none !important; }
-            .main-grid { grid-template-columns: 1fr !important; }
+            .desktop-only {
+                display: none !important;
+            }
+
+            .main-grid {
+                grid-template-columns: 1fr !important;
+            }
         }
     </style>
 </head>
+
 <body class="font-sans">
 
     <!-- ═══ TOP BAR ═══ -->
-    <header class="sticky top-0 z-50 border-b border-white/[0.04]" style="background:rgba(10,13,20,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);">
+    <header class="sticky top-0 z-50 border-b border-white/[0.04]"
+        style="background:rgba(10,13,20,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);">
         <div class="max-w-[1400px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
             <!-- Left: Back Button & Identity -->
             <div class="flex items-center gap-3 sm:gap-4">
-                <a href="../index.html" class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-white/5 border border-white/10 hover:bg-white/10 hover:border-gold-500/30 text-[9px] font-mono text-gray-400 hover:text-white uppercase tracking-wider transition-all" title="Zurück zum Fincast Hub">
+                <a href="../index.html"
+                    class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-white/5 border border-white/10 hover:bg-white/10 hover:border-gold-500/30 text-[9px] font-mono text-gray-400 hover:text-white uppercase tracking-wider transition-all"
+                    title="Zurück zum Fincast Hub">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
                     </svg>
@@ -202,23 +384,35 @@
                 </a>
                 <div class="w-px h-4 bg-white/[0.06]"></div>
                 <div class="flex items-center gap-2">
-                    <svg class="w-5 h-5 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    <span class="text-sm font-extrabold tracking-tight text-white">Hype<span class="text-gold-500">Barometer</span></span>
+                    <svg class="w-5 h-5 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.5">
+                        <path d="M3 3v18h18" />
+                        <path d="m19 9-5 5-4-4-3 3" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span class="text-sm font-extrabold tracking-tight text-white">Hype<span
+                            class="text-gold-500">Barometer</span></span>
                 </div>
-                <span class="hidden md:inline text-[9px] font-mono text-gray-600 uppercase tracking-[0.15em] border-l border-white/[0.06] pl-3 ml-1">Reddit Sentiment Engine</span>
+                <span
+                    class="hidden md:inline text-[9px] font-mono text-gray-600 uppercase tracking-[0.15em] border-l border-white/[0.06] pl-3 ml-1">Reddit
+                    Sentiment Engine</span>
             </div>
             <!-- Right: Status + Time -->
             <div class="flex items-center gap-3 sm:gap-4">
-                <button id="pushToggleBtn" onclick="togglePushNotifications()" class="flex items-center gap-1.5 px-2 py-1 rounded bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-[9px] font-mono text-gray-400 uppercase tracking-wider transition-all" title="Push-Benachrichtigungen aktivieren">
-                    <svg id="bellIcon" class="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" stroke-linecap="round" stroke-linejoin="round"/>
+                <button id="pushToggleBtn" onclick="togglePushNotifications()"
+                    class="flex items-center gap-1.5 px-2 py-1 rounded bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-[9px] font-mono text-gray-400 uppercase tracking-wider transition-all"
+                    title="Push-Benachrichtigungen aktivieren">
+                    <svg id="bellIcon" class="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"
+                            stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                     <span id="pushToggleLabel">Push Off</span>
                 </button>
                 <div class="w-px h-4 bg-white/[0.06]"></div>
                 <div class="flex items-center gap-2">
                     <div id="statusDot" class="status-live"></div>
-                    <span id="statusLabel" class="text-[10px] font-mono text-gray-500 uppercase tracking-widest">Connecting</span>
+                    <span id="statusLabel"
+                        class="text-[10px] font-mono text-gray-500 uppercase tracking-widest">Connecting</span>
                 </div>
                 <div class="hidden sm:block w-px h-4 bg-white/[0.06]"></div>
                 <span id="lastUpdate" class="hidden sm:inline text-[10px] font-mono text-gray-600">--:--:--</span>
@@ -231,19 +425,25 @@
 
         <!-- ── HYPE HUB SYSTEM GUIDE ── -->
         <div class="widget-card mb-5 overflow-hidden transition-all duration-300">
-            <button onclick="toggleSystemGuide()" class="w-full px-5 py-4 flex items-center justify-between bg-black/10 hover:bg-black/20 transition-all border-none text-left focus:outline-none cursor-pointer">
+            <button onclick="toggleSystemGuide()"
+                class="w-full px-5 py-4 flex items-center justify-between bg-black/10 hover:bg-black/20 transition-all border-none text-left focus:outline-none cursor-pointer">
                 <div class="flex items-center gap-3">
-                    <svg class="w-4 h-4 text-gold-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+                    <svg class="w-4 h-4 text-gold-500" fill="none" stroke="currentColor" stroke-width="1.5"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
                     </svg>
                     <div class="flex flex-col">
                         <span class="data-label leading-none mb-1">DOKUMENTATION & SYSTEM-SPEZIFIKATIONEN</span>
-                        <span class="text-[10px] font-mono text-gray-500">Architektur und Funktionsweise des Fincast Hype-Barometers</span>
+                        <span class="text-[10px] font-mono text-gray-500">Architektur und Funktionsweise des Fincast
+                            Hype-Barometers</span>
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
-                    <span id="guideStatusText" class="text-[9px] font-mono text-gray-600 uppercase tracking-widest">Einblenden</span>
-                    <span id="guideArrow" class="text-xs text-gray-500 transition-transform duration-300 transform">▼</span>
+                    <span id="guideStatusText"
+                        class="text-[9px] font-mono text-gray-600 uppercase tracking-widest">Einblenden</span>
+                    <span id="guideArrow"
+                        class="text-xs text-gray-500 transition-transform duration-300 transform">▼</span>
                 </div>
             </button>
             <div id="systemGuideContent" class="hidden border-t border-white/[0.04] p-6 bg-black/5">
@@ -251,23 +451,35 @@
                     <!-- Column 1: Social Listening & Sentiments -->
                     <div class="space-y-4">
                         <div class="flex items-center gap-2.5 border-b border-white/5 pb-2.5">
-                            <svg class="w-4 h-4 text-gold-500/60" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-.778.099-1.533.284-2.253" />
+                            <svg class="w-4 h-4 text-gold-500/60" fill="none" stroke="currentColor" stroke-width="1.5"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-.778.099-1.533.284-2.253" />
                             </svg>
-                            <h4 class="font-mono text-xs font-bold text-gold-500 uppercase tracking-wider">DATENERFASSUNG & INDEXIERUNG</h4>
+                            <h4 class="font-mono text-xs font-bold text-gold-500 uppercase tracking-wider">
+                                DATENERFASSUNG & INDEXIERUNG</h4>
                         </div>
                         <div class="space-y-4">
                             <div class="border-l border-gold-500/10 pl-3">
-                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">Algorithmic Listening</div>
-                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Permanentes Indexieren von Erwähnungsdaten in globalen Finanz- und Krypto-Subreddits zur Lokalisierung spekulativer Marktströmungen.</p>
+                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">
+                                    Algorithmic Listening</div>
+                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Permanentes Indexieren von
+                                    Erwähnungsdaten in globalen Finanz- und Krypto-Subreddits zur Lokalisierung
+                                    spekulativer Marktströmungen.</p>
                             </div>
                             <div class="border-l border-gold-500/10 pl-3">
-                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">Asset-Klassifizierung</div>
-                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Präzise Zuordnung in dedizierte Leaderboards für Aktien und Kryptowährungen durch Ausschluss-Algorithmen für Misch-Assets.</p>
+                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">
+                                    Asset-Klassifizierung</div>
+                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Präzise Zuordnung in
+                                    dedizierte Leaderboards für Aktien und Kryptowährungen durch Ausschluss-Algorithmen
+                                    für Misch-Assets.</p>
                             </div>
                             <div class="border-l border-gold-500/10 pl-3">
-                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">NLP Sentiment-Analyse</div>
-                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Quantifizierung der Marktstimmung auf einer Skala von -1.000 bis +1.000 basierend auf computerlinguistischen Text-Scans.</p>
+                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">NLP
+                                    Sentiment-Analyse</div>
+                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Quantifizierung der
+                                    Marktstimmung auf einer Skala von -1.000 bis +1.000 basierend auf
+                                    computerlinguistischen Text-Scans.</p>
                             </div>
                         </div>
                     </div>
@@ -275,24 +487,37 @@
                     <!-- Column 2: Live Signal Feed & Triggering -->
                     <div class="space-y-4">
                         <div class="flex items-center gap-2.5 border-b border-white/5 pb-2.5">
-                            <svg class="w-4 h-4 text-gold-500/60" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 18a3.75 3.75 0 0 0 .495-7.467 5.99 5.99 0 0 0-1.925 3.546 5.974 5.974 0 0 1-2.133-1A3.75 3.75 0 0 0 12 18Z" />
+                            <svg class="w-4 h-4 text-gold-500/60" fill="none" stroke="currentColor" stroke-width="1.5"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z" />
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M12 18a3.75 3.75 0 0 0 .495-7.467 5.99 5.99 0 0 0-1.925 3.546 5.974 5.974 0 0 1-2.133-1A3.75 3.75 0 0 0 12 18Z" />
                             </svg>
-                            <h4 class="font-mono text-xs font-bold text-gold-500 uppercase tracking-wider">SIGNAL-DETEKTION & ALERTS</h4>
+                            <h4 class="font-mono text-xs font-bold text-gold-500 uppercase tracking-wider">
+                                SIGNAL-DETEKTION & ALERTS</h4>
                         </div>
                         <div class="space-y-4">
                             <div class="border-l border-gold-500/10 pl-3">
-                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">Volumen-Ausbruch</div>
-                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Automatische Kennzeichnung von Werten als Hype-Assets bei plötzlicher Dynamik und signifikant steigendem Sentiment-Volumen.</p>
+                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">
+                                    Volumen-Ausbruch</div>
+                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Automatische Kennzeichnung von
+                                    Werten als Hype-Assets bei plötzlicher Dynamik und signifikant steigendem
+                                    Sentiment-Volumen.</p>
                             </div>
                             <div class="border-l border-gold-500/10 pl-3">
-                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">Echtzeit-Signal-Trigger</div>
-                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Unmittelbare Generierung visueller Signale im Live Feed zur sofortigen Einleitung quantitativer Prüfverfahren.</p>
+                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">
+                                    Echtzeit-Signal-Trigger</div>
+                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Unmittelbare Generierung
+                                    visueller Signale im Live Feed zur sofortigen Einleitung quantitativer
+                                    Prüfverfahren.</p>
                             </div>
                             <div class="border-l border-gold-500/10 pl-3">
-                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">Push-Infrastruktur</div>
-                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Integration nativer Push-Dienste zur akustischen und visuellen Benachrichtigung über kritische Signale auch bei inaktivem Browser-Tab.</p>
+                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">
+                                    Push-Infrastruktur</div>
+                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Integration nativer
+                                    Push-Dienste zur akustischen und visuellen Benachrichtigung über kritische Signale
+                                    auch bei inaktivem Browser-Tab.</p>
                             </div>
                         </div>
                     </div>
@@ -300,23 +525,35 @@
                     <!-- Column 3: Swarm Intelligence & AI -->
                     <div class="space-y-4">
                         <div class="flex items-center gap-2.5 border-b border-white/5 pb-2.5">
-                            <svg class="w-4 h-4 text-gold-500/60" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25" />
+                            <svg class="w-4 h-4 text-gold-500/60" fill="none" stroke="currentColor" stroke-width="1.5"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25" />
                             </svg>
-                            <h4 class="font-mono text-xs font-bold text-gold-500 uppercase tracking-wider">SWARM VALIDIERUNG & AI</h4>
+                            <h4 class="font-mono text-xs font-bold text-gold-500 uppercase tracking-wider">SWARM
+                                VALIDIERUNG & AI</h4>
                         </div>
                         <div class="space-y-4">
                             <div class="border-l border-gold-500/10 pl-3">
-                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">Technical AI-Validierung</div>
-                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Automatisierte Gemini-Modellierung zur Marktstrukturanalyse unter Berücksichtigung von Moving Averages, RSI-14, MACD und Chart-Mustern.</p>
+                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">
+                                    Technical AI-Validierung</div>
+                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Automatisierte
+                                    Gemini-Modellierung zur Marktstrukturanalyse unter Berücksichtigung von Moving
+                                    Averages, RSI-14, MACD und Chart-Mustern.</p>
                             </div>
                             <div class="border-l border-gold-500/10 pl-3">
-                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">Redis Swarm Caching</div>
-                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Ressourcenschonende, 6-stündige globale Speicherung aller Analysen zur geteilten, sofortigen Einsicht ohne API-Mehrfachverbrauch.</p>
+                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">Redis
+                                    Swarm Caching</div>
+                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Ressourcenschonende,
+                                    6-stündige globale Speicherung aller Analysen zur geteilten, sofortigen Einsicht
+                                    ohne API-Mehrfachverbrauch.</p>
                             </div>
                             <div class="border-l border-gold-500/10 pl-3">
-                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">Recalculate Bypass</div>
-                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Optionale, direkte Aktualisierung von Datenpunkten zur sofortigen Neukalkulation und globalen Aktualisierung des Caches für alle Hub-User.</p>
+                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">
+                                    Recalculate Bypass</div>
+                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Optionale, direkte
+                                    Aktualisierung von Datenpunkten zur sofortigen Neukalkulation und globalen
+                                    Aktualisierung des Caches für alle Hub-User.</p>
                             </div>
                         </div>
                     </div>
@@ -358,10 +595,14 @@
                 <span class="data-label mr-1">Monitoring</span>
                 <div id="subTags" class="flex items-center gap-1.5 flex-wrap"></div>
             </div>
-            
+
             <div class="flex items-center gap-1 bg-[#0f1420] p-1 rounded-md border border-white/[0.04]">
-                <button id="btn15m" class="px-3 py-1 text-[10px] font-mono rounded bg-gold-500/20 text-gold-400 font-bold transition-all" onclick="setTimeframe('15m')">15 MIN</button>
-                <button id="btnMax" class="px-3 py-1 text-[10px] font-mono rounded text-gray-500 hover:text-gray-300 transition-all" onclick="setTimeframe('max')">24 STD</button>
+                <button id="btn15m"
+                    class="px-3 py-1 text-[10px] font-mono rounded bg-gold-500/20 text-gold-400 font-bold transition-all"
+                    onclick="setTimeframe('15m')">15 MIN</button>
+                <button id="btnMax"
+                    class="px-3 py-1 text-[10px] font-mono rounded text-gray-500 hover:text-gray-300 transition-all"
+                    onclick="setTimeframe('max')">24 STD</button>
             </div>
         </div>
 
@@ -370,12 +611,19 @@
 
             <!-- LEFT: Ticker Leaderboards (Stocks & Cryptos) -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                
+
                 <!-- Stocks Ticker Leaderboard -->
                 <div class="widget-card">
                     <div class="widget-header flex items-center justify-between">
                         <div class="flex items-center gap-2">
-                            <svg class="w-4 h-4 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 17V13" stroke-linecap="round" stroke-width="2.5"/><path d="M11 17V9" stroke-linecap="round" stroke-width="2.5"/><path d="M15 17V5" stroke-linecap="round" stroke-width="2.5"/><path d="M19 17V11" stroke-linecap="round" stroke-width="2.5"/></svg>
+                            <svg class="w-4 h-4 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M3 3v18h18" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M7 17V13" stroke-linecap="round" stroke-width="2.5" />
+                                <path d="M11 17V9" stroke-linecap="round" stroke-width="2.5" />
+                                <path d="M15 17V5" stroke-linecap="round" stroke-width="2.5" />
+                                <path d="M19 17V11" stroke-linecap="round" stroke-width="2.5" />
+                            </svg>
                             <span class="data-label">Aktien-Leaderboard</span>
                         </div>
                         <span class="text-[9px] font-mono text-gray-600" id="stockTickerCount">0 active</span>
@@ -383,7 +631,11 @@
 
                     <div class="p-3 space-y-2 max-h-[calc(100vh-320px)] overflow-y-auto" id="stockTickerList">
                         <div class="text-center py-16">
-                            <svg class="w-10 h-10 mx-auto text-gray-700 mb-3" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3" stroke-linecap="round"/></svg>
+                            <svg class="w-10 h-10 mx-auto text-gray-700 mb-3" fill="none" stroke="currentColor"
+                                stroke-width="1" viewBox="0 0 24 24">
+                                <path d="M3 3v18h18" />
+                                <path d="m19 9-5 5-4-4-3 3" stroke-linecap="round" />
+                            </svg>
                             <p class="text-xs text-gray-600 font-mono">Warte auf Daten-Feed...</p>
                         </div>
                     </div>
@@ -393,7 +645,12 @@
                 <div class="widget-card">
                     <div class="widget-header flex items-center justify-between">
                         <div class="flex items-center gap-2">
-                            <svg class="w-4 h-4 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2" /><circle cx="12" cy="5" r="2" /><path d="M12 7v4" /></svg>
+                            <svg class="w-4 h-4 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <rect x="3" y="11" width="18" height="10" rx="2" />
+                                <circle cx="12" cy="5" r="2" />
+                                <path d="M12 7v4" />
+                            </svg>
                             <span class="data-label">Krypto-Leaderboard</span>
                         </div>
                         <span class="text-[9px] font-mono text-gray-600" id="cryptoTickerCount">0 active</span>
@@ -401,7 +658,11 @@
 
                     <div class="p-3 space-y-2 max-h-[calc(100vh-320px)] overflow-y-auto" id="cryptoTickerList">
                         <div class="text-center py-16">
-                            <svg class="w-10 h-10 mx-auto text-gray-700 mb-3" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3" stroke-linecap="round"/></svg>
+                            <svg class="w-10 h-10 mx-auto text-gray-700 mb-3" fill="none" stroke="currentColor"
+                                stroke-width="1" viewBox="0 0 24 24">
+                                <path d="M3 3v18h18" />
+                                <path d="m19 9-5 5-4-4-3 3" stroke-linecap="round" />
+                            </svg>
                             <p class="text-xs text-gray-600 font-mono">Warte auf Daten-Feed...</p>
                         </div>
                     </div>
@@ -413,7 +674,12 @@
             <div class="widget-card">
                 <div class="widget-header flex items-center justify-between">
                     <div class="flex items-center gap-2">
-                        <svg class="w-4 h-4 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                        <svg class="w-4 h-4 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                        </svg>
                         <span class="data-label">Signal Feed</span>
                     </div>
                     <span class="text-[9px] font-mono text-gray-600" id="alertCount">0 signals</span>
@@ -429,7 +695,8 @@
 
         <!-- ── Footer ── -->
         <div class="text-center mt-8 mb-4">
-            <span class="text-[9px] font-mono text-gray-700 uppercase tracking-[0.2em]">Abracadabra Hype-Barometer &middot; Reddit &times; VADER NLP Engine</span>
+            <span class="text-[9px] font-mono text-gray-700 uppercase tracking-[0.2em]">Abracadabra Hype-Barometer
+                &middot; Reddit &times; VADER NLP Engine</span>
         </div>
     </main>
 
@@ -442,28 +709,49 @@
             <!-- Header -->
             <div class="widget-header flex items-center justify-between border-b border-white/[0.04] p-4 bg-black/20">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.15)]">
-                        <svg class="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+                    <div
+                        class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.15)]">
+                        <svg class="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z">
+                            </path>
                         </svg>
                     </div>
                     <div class="flex flex-col">
                         <span class="data-label leading-none mb-1">Technical Analysis</span>
-                        <span class="text-[11px] font-bold text-white uppercase tracking-tighter" id="technicalTickerLabel">Technical System Analysis</span>
+                        <span class="text-[11px] font-bold text-white uppercase tracking-tighter"
+                            id="technicalTickerLabel">Technical System Analysis</span>
                     </div>
                 </div>
-                <button onclick="closeTechnicalDrawer()" class="text-gray-500 hover:text-white transition-colors text-lg p-1">&times;</button>
+                <button onclick="closeTechnicalDrawer()"
+                    class="text-gray-500 hover:text-white transition-colors text-lg p-1">&times;</button>
             </div>
-            
+
             <!-- Body -->
             <div class="flex-1 overflow-y-auto p-5" id="technicalDrawerBody">
-                <div class="text-center py-20 text-gray-500 font-mono text-xs">
-                    <span>💡 Klicke auf ein Signal im Feed oder warte auf neue Hype-Signale, um eine Echtzeit-Technische-Analyse zu laden.</span>
+                <div
+                    class="flex flex-col items-center justify-center py-20 text-center gap-4 text-gray-500 font-mono text-xs max-w-xs mx-auto">
+                    <div
+                        class="w-12 h-12 rounded-full bg-gold-500/5 border border-gold-500/20 flex items-center justify-center text-gold-400 shadow-[0_0_15px_rgba(212,175,55,0.05)]">
+                        <svg class="w-6 h-6 text-gold-400/80 animate-pulse" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1A3.75 3.75 0 0012 18z">
+                            </path>
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 2.25V4.5m5.303.197l-1.591 1.591M21.75 12h-2.25m-.197 5.303l-1.591-1.591M12 21.75V19.5m-5.303-.197l1.591-1.591M2.25 12h2.25m.197-5.303l1.591 1.591">
+                            </path>
+                        </svg>
+                    </div>
+                    <span class="leading-relaxed text-gray-400">Klicke auf ein Signal im Feed oder warte auf neue
+                        Hype-Signale, um eine Echtzeit-Technische-Analyse zu laden.</span>
                 </div>
             </div>
 
             <!-- Footer info -->
-            <div class="px-5 py-3 bg-black/20 text-[9px] font-mono text-gray-600 border-t border-white/[0.04] flex justify-between items-center">
+            <div
+                class="px-5 py-3 bg-black/20 text-[9px] font-mono text-gray-600 border-t border-white/[0.04] flex justify-between items-center">
                 <span>AGENT_ID: TECHNICAL_v4.2</span>
                 <span id="technicalQueryCounter" class="text-gold-500/50">--/-- Queries</span>
             </div>
@@ -486,7 +774,7 @@
             const btn = document.getElementById('pushToggleBtn');
             const lbl = document.getElementById('pushToggleLabel');
             const icon = document.getElementById('bellIcon');
-            
+
             if (Notification.permission === "granted" && pushEnabled) {
                 btn.className = "flex items-center gap-1.5 px-2.5 py-1 rounded bg-emerald-500/10 border border-emerald-500/25 hover:bg-emerald-500/20 text-[9px] font-mono text-emerald-400 uppercase tracking-wider transition-all";
                 lbl.textContent = "Push On";
@@ -535,13 +823,13 @@
                 const AudioContext = window.AudioContext || window.webkitAudioContext;
                 if (!AudioContext) return;
                 const ctx = new AudioContext();
-                
+
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
-                
+
                 osc.connect(gain);
                 gain.connect(ctx.destination);
-                
+
                 if (isShort) {
                     // Minor Alert für Short-Signale (Alarm-Chime)
                     osc.type = 'sawtooth';
@@ -554,10 +842,10 @@
                     osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.1); // A5
                     osc.frequency.exponentialRampToValueAtTime(1174.66, ctx.currentTime + 0.25); // D6
                 }
-                
+
                 gain.gain.setValueAtTime(0.12, ctx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.45);
-                
+
                 osc.start();
                 osc.stop(ctx.currentTime + 0.5);
             } catch (e) {
@@ -574,20 +862,25 @@
         // ── Glassmorphic In-App Toast Notification Banner ──
         function showInAppToast(ticker, mentions, sentiment, isShort, subreddits) {
             const toast = document.createElement('div');
-            toast.className = `pointer-events-auto flex flex-col p-4 rounded-xl border backdrop-blur-xl shadow-2xl transition-all duration-500 transform translate-x-12 opacity-0 cursor-pointer ${
-                isShort 
-                    ? 'bg-red-500/10 border-red-500/20 shadow-red-500/5 hover:bg-red-500/15' 
-                    : 'bg-emerald-500/10 border-emerald-500/20 shadow-emerald-500/5 hover:bg-emerald-500/15'
-            }`;
-            
+            toast.className = `pointer-events-auto flex flex-col p-4 rounded-xl border backdrop-blur-xl shadow-2xl transition-all duration-500 transform translate-x-12 opacity-0 cursor-pointer ${isShort
+                ? 'bg-red-500/10 border-red-500/20 shadow-red-500/5 hover:bg-red-500/15'
+                : 'bg-emerald-500/10 border-emerald-500/20 shadow-emerald-500/5 hover:bg-emerald-500/15'
+                }`;
+
             const badgeClass = isShort ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
-            const iconSymbol = isShort ? '🚨' : '🎩';
+            const iconHtml = isShort 
+                ? `<svg class="w-3.5 h-3.5 text-red-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                       <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                   </svg>`
+                : `<svg class="w-3.5 h-3.5 text-emerald-400 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                       <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                   </svg>`;
             const alertText = isShort ? 'Short-Signal' : 'Hype-Alarm';
-            
+
             toast.innerHTML = `
                 <div class="flex items-center justify-between gap-3 mb-2">
                     <span class="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider ${isShort ? 'text-red-400' : 'text-emerald-400'}">
-                        <span>${iconSymbol}</span> ${alertText}
+                        ${iconHtml} ${alertText}
                     </span>
                     <span class="text-[9px] font-mono text-gray-500">gerade eben</span>
                 </div>
@@ -600,30 +893,33 @@
                 <p class="text-xs text-gray-400 leading-relaxed mb-2 font-mono">
                     ${mentions} Erwähnungen in ${subreddits.map(s => 'r/' + s).join(', ')}
                 </p>
-                <div class="text-[10px] font-bold text-amber-400 flex items-center gap-1 group">
-                    <span>⚡ Klicke für Live AI-Analyse</span>
+                <div class="text-[10px] font-bold text-amber-400 flex items-center gap-1.5 group">
+                    <svg class="w-3.5 h-3.5 text-amber-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"></path>
+                    </svg>
+                    <span>Klicke für Live AI-Analyse</span>
                     <span class="transition-transform group-hover:translate-x-1">→</span>
                 </div>
             `;
-            
+
             // Audio-Chime abspielen
             playChime(isShort);
-            
+
             // Klick-Action zum Oeffnen des AI-Drawers
             toast.onclick = () => {
                 openTechnicalAnalysis(ticker, true);
                 toast.classList.add('translate-x-12', 'opacity-0');
                 setTimeout(() => toast.remove(), 500);
             };
-            
+
             document.getElementById('toastContainer').appendChild(toast);
-            
+
             // Einblenden
             requestAnimationFrame(() => {
                 toast.classList.remove('translate-x-12', 'opacity-0');
                 toast.classList.add('translate-x-0', 'opacity-100');
             });
-            
+
             // Auto-Schliessen nach 8 Sekunden
             setTimeout(() => {
                 if (toast.parentNode) {
@@ -654,7 +950,7 @@
         const host = window.location.hostname;
         const isLocal = host === 'localhost' || host === '127.0.0.1';
         const isRender = host.includes('onrender.com');
-        
+
         // Trage hier spaeter deine tatsaechliche Render-App-URL ein!
         const RENDER_BACKEND_URL = 'https://fincast-hype-barometer.onrender.com';
 
@@ -664,8 +960,8 @@
                 return currentTF === '15m' ? 'hype_data.json' : 'hype_data_max.json';
             } else {
                 // Auf Vercel gehostet -> Absolute Endpunkte des Render-Backends nutzen
-                return currentTF === '15m' 
-                    ? RENDER_BACKEND_URL + '/api/hype' 
+                return currentTF === '15m'
+                    ? RENDER_BACKEND_URL + '/api/hype'
                     : RENDER_BACKEND_URL + '/api/hype-max';
             }
         }
@@ -676,7 +972,7 @@
             const btnMax = document.getElementById('btnMax');
             isInitialLoad = true; // reset animation for new view
             currentTF = tf;
-            
+
             if (tf === '15m') {
                 btn15.className = "px-3 py-1 text-[10px] font-mono rounded bg-gold-500/20 text-gold-400 font-bold transition-all";
                 btnMax.className = "px-3 py-1 text-[10px] font-mono rounded text-gray-500 hover:text-gray-300 transition-all";
@@ -684,7 +980,7 @@
                 btnMax.className = "px-3 py-1 text-[10px] font-mono rounded bg-gold-500/20 text-gold-400 font-bold transition-all";
                 btn15.className = "px-3 py-1 text-[10px] font-mono rounded text-gray-500 hover:text-gray-300 transition-all";
             }
-            
+
             // Sofort neues Fetch triggern
             fetchData();
         }
@@ -722,7 +1018,7 @@
                 document.getElementById('mTickers').textContent = '-';
                 document.getElementById('mMentions').textContent = '-';
                 document.getElementById('mAlerts').textContent = '-';
-                
+
                 const errHtml = `
                     <div class="text-center py-20 text-gray-500 font-mono text-xs">
                         <span class="animate-pulse">⏳ Warte auf erste Analyse...</span><br>
@@ -731,7 +1027,7 @@
                 `;
                 document.getElementById('stockTickerList').innerHTML = errHtml;
                 document.getElementById('cryptoTickerList').innerHTML = errHtml;
-                
+
                 document.getElementById('alertList').innerHTML = `
                     <div class="text-center py-16">
                         <p class="text-xs text-gray-600 font-mono">No signals triggered</p>
@@ -739,17 +1035,17 @@
                 `;
                 return;
             }
-            
+
             const m = d.meta;
             document.getElementById('lastUpdate').textContent = new Date(m.last_updated).toLocaleTimeString('de-DE');
             document.getElementById('mTickers').textContent = m.total_active_tickers;
             document.getElementById('mMentions').textContent = m.total_mentions;
             document.getElementById('mAlerts').textContent = d.alerts.length;
-            
+
             let winText = m.window_minutes + ' min';
             if (m.window_minutes === 1440) winText = '24 hours';
             document.getElementById('mWindow').textContent = winText;
-            
+
             renderSubs(m.subreddits_monitored);
             renderTickers(d.tickers);
             renderAlerts(d.alerts);
@@ -776,13 +1072,13 @@
         function renderTickers(tickers) {
             const elStock = document.getElementById('stockTickerList');
             const elCrypto = document.getElementById('cryptoTickerList');
-            
+
             const currentStockScroll = elStock.scrollTop;
             const currentCryptoScroll = elCrypto.scrollTop;
-            
+
             let stocks = [];
             let cryptos = [];
-            
+
             tickers.forEach(t => {
                 if (isCryptoTicker(t)) {
                     cryptos.push(t);
@@ -790,20 +1086,20 @@
                     stocks.push(t);
                 }
             });
-            
+
             const sortFn = (a, b) => {
                 if (b.mentions !== a.mentions) {
                     return b.mentions - a.mentions;
                 }
                 return b.avg_sentiment - a.avg_sentiment;
             };
-            
+
             stocks.sort(sortFn);
             cryptos.sort(sortFn);
-            
+
             document.getElementById('stockTickerCount').textContent = stocks.length + ' active';
             document.getElementById('cryptoTickerCount').textContent = cryptos.length + ' active';
-            
+
             // Render Stocks
             if (!stocks.length) {
                 elStock.innerHTML = '<div class="text-center py-16"><p class="text-xs text-gray-600 font-mono">Keine aktiven Aktien</p></div>';
@@ -814,7 +1110,7 @@
                     elStock.appendChild(row);
                 });
             }
-            
+
             // Render Cryptos
             if (!cryptos.length) {
                 elCrypto.innerHTML = '<div class="text-center py-16"><p class="text-xs text-gray-600 font-mono">Keine aktiven Kryptos</p></div>';
@@ -825,7 +1121,7 @@
                     elCrypto.appendChild(row);
                 });
             }
-            
+
             elStock.scrollTop = currentStockScroll;
             elCrypto.scrollTop = currentCryptoScroll;
         }
@@ -878,7 +1174,7 @@
         function renderAlerts(alerts) {
             const el = document.getElementById('alertList');
             const currentScroll = el.scrollTop; // Scroll-Position merken
-            
+
             document.getElementById('alertCount').textContent = alerts.length + ' signals';
             if (!alerts.length) {
                 el.innerHTML = '<div class="text-center py-16"><p class="text-xs text-gray-600 font-mono">No signals triggered</p></div>';
@@ -893,12 +1189,12 @@
                     if (!seenAlerts.has(alertKey)) {
                         seenAlerts.add(alertKey);
                         newAlertTickers.add(alertKey);
-                        
+
                         // Berechne das Alter des Alerts in Minuten
                         const alertTime = new Date(a.triggered_at).getTime();
                         const now = Date.now();
                         const ageMinutes = (now - alertTime) / (1000 * 60);
-                        
+
                         // Benachrichtigen, wenn:
                         // 1. Es kein Initial-Load ist ODER
                         // 2. Es ein Initial-Load ist, der Alert aber jünger als 15 Minuten ist (sehr frisch!)
@@ -944,17 +1240,17 @@
                 const fadeClass = isInitialLoad ? ' fade-up' : '';
                 const alertKey = a.ticker + '_' + a.triggered_at;
                 const isNewAlert = newAlertTickers.has(alertKey);
-                
+
                 item.className = 'alert-item' + fadeClass + (isNewAlert ? ' new-glowing' : '');
                 item.style.animationDelay = (i * 50) + 'ms';
                 item.setAttribute('onclick', `openTechnicalAnalysis('${a.ticker}')`);
-                
-                const time = a.triggered_at ? new Date(a.triggered_at).toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit'}) : '--:--';
+
+                const time = a.triggered_at ? new Date(a.triggered_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) : '--:--';
                 const color = sentimentColor(a.avg_sentiment);
                 const subs = a.subreddits.map(s => 'r/' + s).join(', ');
 
                 const isShort = a.avg_sentiment < 0 || a.alert_type === 'negative';
-                const badgeHtml = isShort 
+                const badgeHtml = isShort
                     ? `<span class="text-[8px] font-mono px-1.5 py-0.5 rounded font-bold bg-rose-500/10 text-rose-500 border border-rose-500/20 uppercase tracking-wide">SHORT</span>`
                     : `<span class="text-[8px] font-mono px-1.5 py-0.5 rounded font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 uppercase tracking-wide">LONG</span>`;
 
@@ -976,7 +1272,7 @@
                 `;
                 el.appendChild(item);
             });
-            
+
             el.scrollTop = currentScroll; // Scroll-Position wiederherstellen
         }
 
@@ -1047,8 +1343,8 @@
             }
         }
 
-        async function incrementQuery(email, model = '') { 
-            await apiCall('increment_query', { email, model }).catch(e => console.error('incrementQuery failed:', e)); 
+        async function incrementQuery(email, model = '') {
+            await apiCall('increment_query', { email, model }).catch(e => console.error('incrementQuery failed:', e));
         }
 
         // ==================== TECHNICAL AGENT SYSTEM ====================
@@ -1072,10 +1368,10 @@
             const today = new Date().toLocaleDateString();
             const sentimentStr = (sentiment !== undefined && sentiment !== null) ? ` (Live Social Sentiment Score: ${sentiment > 0 ? '+' : ''}${sentiment.toFixed(3)})` : '';
             const directionStr = (sentiment !== undefined && sentiment !== null && sentiment < 0)
-                ? "Der Social-Sentiment-Trend ist NEGATIV. Identifiziere primär bärische Zielmarken für fallende Kurse (Short-Setup)." 
+                ? "Der Social-Sentiment-Trend ist NEGATIV. Identifiziere primär bärische Zielmarken für fallende Kurse (Short-Setup)."
                 : "Der Social-Sentiment-Trend ist POSITIV. Identifiziere primär bullische Zielmarken für steigende Kurse (Long-Setup).";
             const setupType = (sentiment !== undefined && sentiment !== null && sentiment < 0) ? 'SHORT' : 'LONG';
-            
+
             return `CURRENT DATE: ${today}
 LANGUAGE: Respond EXCLUSIVELY in ${lang}.
 TASK: Deep-Dive Technical Quantitative Analysis for "${query}"${sentimentStr}. \n\n
@@ -1110,12 +1406,12 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
 
         async function openTechnicalAnalysis(ticker, autoTriggered = false, forceRefresh = false) {
             if (isTechnicalLoading) return;
-            
+
             openTechnicalDrawer();
             document.getElementById('technicalTickerLabel').textContent = `TECHNICAL ANALYSIS FOR $${ticker.toUpperCase()}`;
-            
+
             const bodyEl = document.getElementById('technicalDrawerBody');
-            
+
             bodyEl.innerHTML = `
                 <div class="flex flex-col gap-4 justify-center items-center py-24">
                     <div class="w-10 h-10 border-2 border-gold-500/10 border-t-gold-500 rounded-full animate-spin"></div>
@@ -1139,11 +1435,11 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
                             const cacheTime = new Date(cached.timestamp).getTime();
                             const now = Date.now();
                             const sixHours = 6 * 60 * 60 * 1000; // 6 Stunden Cache-Gültigkeit
-                            
+
                             if (now - cacheTime < sixHours) {
                                 // Cache geladen!
                                 renderTechnicalReport(ticker, cached.text, true, cached.timestamp, autoTriggered);
-                                
+
                                 // Richtiges Limit einblenden
                                 const user = await getCurrentUser();
                                 if (user) {
@@ -1153,7 +1449,7 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
                                 } else {
                                     document.getElementById('technicalQueryCounter').textContent = `Swarm Cache (Instant)`;
                                 }
-                                
+
                                 isTechnicalLoading = false;
                                 return;
                             }
@@ -1170,7 +1466,7 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
                 let modelId = 'gemini-2.5-flash';
                 let clientApiKey = '';
                 let userEmail = '';
-                
+
                 if (user) {
                     modelId = user.model || 'gemini-2.5-flash';
                     clientApiKey = user.apiKey || '';
@@ -1178,7 +1474,7 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
 
                     const limit = user.tier === 'premium' ? 20 : 1;
                     const used = await getQueryCount(user.email, modelId);
-                    
+
                     document.getElementById('technicalQueryCounter').textContent = `${used}/${limit} Queries (${user.tier.toUpperCase()})`;
 
                     if (used >= limit) {
@@ -1237,7 +1533,7 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
                 const endTag = '</technical>';
                 const startIdx = cleanText.toLowerCase().indexOf(startTag.toLowerCase());
                 const endIdx = cleanText.toLowerCase().indexOf(endTag.toLowerCase());
-                
+
                 let content = '';
                 if (startIdx !== -1) {
                     const contentStart = startIdx + startTag.length;
@@ -1292,7 +1588,7 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
         // ── Report Renderer (Mit Swarm Cache-Info) ──
         function renderTechnicalReport(ticker, content, fromCache = false, timestamp = null, autoTriggered = false) {
             const bodyEl = document.getElementById('technicalDrawerBody');
-            
+
             let htmlContent = content
                 .replace(/\*\*(.*?)\*\*/g, '<strong class="text-gold-500">$1</strong>')
                 .replace(/\n/g, '<br>');
@@ -1312,7 +1608,7 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
                 'HOLD': 'hold',
                 'WAIT': 'wait'
             };
-            
+
             const badgeRegex = new RegExp(`\\[(${Object.keys(badgeMap).join('|')})\\]|\\b(${Object.keys(badgeMap).join('|')})\\b`, 'gi');
             htmlContent = htmlContent.replace(badgeRegex, (match, p1, p2) => {
                 const key = (p1 || p2).toUpperCase();
@@ -1323,7 +1619,7 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
             let cacheNotice = '';
             if (fromCache && timestamp) {
                 const dateObj = new Date(timestamp);
-                const timeStr = dateObj.toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit'});
+                const timeStr = dateObj.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
                 const dateStr = dateObj.toLocaleDateString('de-DE');
                 cacheNotice = `
                     <div class="px-3 py-2 rounded bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-mono text-emerald-400 flex items-center justify-between mb-2 shadow-[0_0_8px_rgba(16,185,129,0.05)]">
@@ -1408,10 +1704,10 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
                     investment_verdict: `### Quantitative Trading Verdict\nDieser Report wurde live über das Abracadabra Quantitative Hype-Barometer generiert.`,
                     valuation_model: `### Technical Multi-Agent Verification Status\nSYSTEM_STATUS: FMP_SUCCESS | Verification Successful.`
                 };
-                
+
                 const shareTitle = `Fincast Quantitative Analyse: $${ticker.toUpperCase()}`;
                 const shareText = `Sieh dir die institutionelle KI-Verifizierung zu $${ticker.toUpperCase()} im Fincast Terminal an:`;
-                
+
                 const btn = document.getElementById('shareReportBtn');
                 const origHtml = btn.innerHTML;
                 btn.innerHTML = `
@@ -1422,16 +1718,16 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
                     Generating...
                 `;
                 btn.disabled = true;
-                
+
                 const res = await apiCall('save_shared_report', { data: mappedData });
-                
+
                 btn.innerHTML = origHtml;
                 btn.disabled = false;
-                
+
                 if (res.error) throw new Error(res.error);
-                
+
                 const shareUrl = window.location.origin + '/abracadabra/hype.html?share=' + res.id;
-                
+
                 if (navigator.share) {
                     await navigator.share({
                         title: shareTitle,
@@ -1447,7 +1743,7 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
                 alert("Fehler beim Generieren des Links: " + err.message);
             }
         }
-        
+
         function copyShareUrlToClipboard(url, ticker) {
             navigator.clipboard.writeText(url).then(() => {
                 const toast = document.createElement('div');
@@ -1507,7 +1803,7 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
                     if (res && !res.error) {
                         let ticker = 'Asset';
                         let content = '';
-                        
+
                         // Extract ticker from mapped company_identity
                         if (res.company_identity) {
                             const symbolMatch = res.company_identity.match(/Symbol:\s*([A-Z0-9.\-]+)/i);
@@ -1515,10 +1811,10 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
                                 ticker = symbolMatch[1].toUpperCase();
                             }
                         }
-                        
+
                         // Extract content
                         content = res.financial_ratios || '';
-                        
+
                         if (content) {
                             document.getElementById('technicalTickerLabel').textContent = `SHARED ANALYSIS FOR $${ticker}`;
                             renderTechnicalReport(ticker, content, false, null, false);
@@ -1542,4 +1838,5 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
         })();
     </script>
 </body>
+
 </html>
