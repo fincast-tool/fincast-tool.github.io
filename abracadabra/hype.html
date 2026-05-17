@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>fincast | Hype-Barometer</title>
+    <meta name="description" content="Echtzeit Reddit Hype-Barometer – Ticker-Tracking, Sentiment-Analyse und Hype-Alerts für Aktien und Krypto.">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="fincast | Hype-Barometer">
+    <meta property="og:description" content="Echtzeit Reddit Hype-Barometer – Ticker-Tracking und Sentiment-Analyse.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+                    colors: {
+                        obsidian: { 800: '#1a1f2e', 900: '#0f1420', 950: '#0a0d14' },
+                        gold: { 400: '#e5c07b', 500: '#d4af37', 600: '#b08d2b' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: #0a0d14; color: #e2e8f0; -webkit-font-smoothing: antialiased; }
+
+        /* ─── Widget Card System (terminal.html identisch) ─── */
+        .widget-card {
+            background: #0f1420;
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(.4,0,.2,1);
+            position: relative; overflow: hidden;
+        }
+        .widget-card:hover {
+            border-color: rgba(212,175,55,0.3);
+            background: #141926;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .widget-header {
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            padding: 14px 18px;
+            background: rgba(0,0,0,0.15);
+        }
+        .data-label {
+            color: #64748b; font-size: 10px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.08em;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* ─── Badges ─── */
+        .badge { display:inline-block; padding:3px 10px; border-radius:4px; font-size:10px; font-weight:800; font-family:'JetBrains Mono',monospace; letter-spacing:0.08em; text-transform:uppercase; }
+        .badge-hype { background:rgba(234,179,8,0.15); color:#eab308; border:1px solid rgba(234,179,8,0.3); }
+        .badge-bullish { background:rgba(34,197,94,0.15); color:#22c55e; border:1px solid rgba(34,197,94,0.3); }
+        .badge-neutral { background:rgba(100,116,139,0.15); color:#94a3b8; border:1px solid rgba(100,116,139,0.3); }
+        .badge-bearish { background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid rgba(239,68,68,0.3); }
+        .badge-buy { background:rgba(34, 197, 94, 0.15); color:#22c55e; border:1px solid rgba(34, 197, 94, 0.3); }
+        .badge-hold { background:rgba(234, 179, 8, 0.15); color:#eab308; border:1px solid rgba(234, 179, 8, 0.3); }
+        .badge-sell { background:rgba(239, 68, 68, 0.15); color:#ef4444; border:1px solid rgba(239, 68, 68, 0.3); }
+        .badge-wait { background:rgba(100, 116, 139, 0.15); color:#94a3b8; border:1px solid rgba(100, 116, 139, 0.3); }
+
+        /* ─── Sentiment Gauge ─── */
+        .gauge-track { height:4px; border-radius:2px; background:#1a1f2e; overflow:hidden; position:relative; }
+        .gauge-fill { height:100%; border-radius:2px; transition: width 0.6s cubic-bezier(.4,0,.2,1); }
+
+        /* ─── Ticker Row ─── */
+        .ticker-row {
+            background: #0f1420;
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 10px; padding: 14px 18px;
+            transition: all 0.25s cubic-bezier(.4,0,.2,1);
+            cursor: default;
+        }
+        .ticker-row:hover {
+            border-color: rgba(255,255,255,0.08);
+            background: #111624;
+        }
+        .ticker-row.is-hype {
+            border-color: rgba(212,175,55,0.15);
+            background: linear-gradient(135deg, rgba(212,175,55,0.04) 0%, #0f1420 100%);
+        }
+        .ticker-row.is-hype:hover {
+            border-color: rgba(212,175,55,0.4);
+            box-shadow: 0 0 24px rgba(212,175,55,0.06);
+        }
+
+        /* ─── Alert Item ─── */
+        .alert-item {
+            padding: 12px 14px; border-radius: 8px;
+            border: 1px solid rgba(212,175,55,0.1);
+            background: rgba(212,175,55,0.03);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .alert-item:hover { border-color: rgba(212,175,55,0.25); }
+
+        /* ─── Citadel Drawer ─── */
+        .citadel-drawer {
+            position: fixed;
+            top: 0;
+            right: -420px;
+            width: 420px;
+            height: 100vh;
+            background: rgba(15, 20, 32, 0.95);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-left: 1px solid rgba(212, 175, 55, 0.2);
+            z-index: 100;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: -10px 0 40px rgba(0,0,0,0.6);
+        }
+        @media (max-width: 640px) {
+            .citadel-drawer {
+                width: 100%;
+                right: -100%;
+            }
+        }
+        .citadel-drawer.open {
+            right: 0;
+        }
+        .citadel-drawer-content {
+            opacity: 0;
+            transition: opacity 0.3s;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .citadel-drawer.open .citadel-drawer-content {
+            opacity: 1;
+        }
+        .drawer-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 90;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .drawer-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .alert-item.new-glowing {
+            animation: alertPulse 2s infinite alternate;
+        }
+        @keyframes alertPulse {
+            0% { border-color: rgba(212, 175, 55, 0.25); box-shadow: 0 0 5px rgba(212, 175, 55, 0.1); }
+            100% { border-color: rgba(212, 175, 55, 0.85); box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
+        }
+
+        /* ─── Status Indicator ─── */
+        @keyframes pulse-live { 0%,100%{opacity:1} 50%{opacity:.35} }
+        .status-live { width:6px; height:6px; border-radius:50%; background:#22c55e; animation:pulse-live 2s ease-in-out infinite; flex-shrink:0; }
+        .status-offline { width:6px; height:6px; border-radius:50%; background:#ef4444; flex-shrink:0; }
+
+        /* ─── Shimmer (terminal.html identisch) ─── */
+        .shimmer { background:linear-gradient(90deg,transparent,rgba(255,255,255,0.06),transparent); background-size:200% 100%; animation:shimmer 2s infinite; }
+        @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+
+        /* ─── Fade Animation ─── */
+        .fade-up { animation: fadeUp 0.4s ease-out both; }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+        /* ─── Metric Sparkline ─── */
+        .metric-value { font-family:'JetBrains Mono',monospace; font-weight:700; color:#d4af37; }
+
+        /* ─── Scrollbar (terminal.html identisch) ─── */
+        ::-webkit-scrollbar { width:5px; height:5px; }
+        ::-webkit-scrollbar-track { background:transparent; }
+        ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.06); border-radius:10px; }
+        ::-webkit-scrollbar-thumb:hover { background:rgba(255,255,255,0.12); }
+
+        /* ─── Responsive ─── */
+        @media (max-width: 768px) {
+            .desktop-only { display: none !important; }
+            .main-grid { grid-template-columns: 1fr !important; }
+        }
+    </style>
+</head>
+<body class="font-sans">
+
+    <!-- ═══ TOP BAR ═══ -->
+    <header class="sticky top-0 z-50 border-b border-white/[0.04]" style="background:rgba(10,13,20,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);">
+        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+            <!-- Left: Back Button & Identity -->
+            <div class="flex items-center gap-3 sm:gap-4">
+                <a href="../index.html" class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-white/5 border border-white/10 hover:bg-white/10 hover:border-gold-500/30 text-[9px] font-mono text-gray-400 hover:text-white uppercase tracking-wider transition-all" title="Zurück zum Fincast Hub">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+                    </svg>
+                    <span>Hub</span>
+                </a>
+                <div class="w-px h-4 bg-white/[0.06]"></div>
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span class="text-sm font-extrabold tracking-tight text-white">Hype<span class="text-gold-500">Barometer</span></span>
+                </div>
+                <span class="hidden md:inline text-[9px] font-mono text-gray-600 uppercase tracking-[0.15em] border-l border-white/[0.06] pl-3 ml-1">Reddit Sentiment Engine</span>
+            </div>
+            <!-- Right: Status + Time -->
+            <div class="flex items-center gap-3 sm:gap-4">
+                <button id="pushToggleBtn" onclick="togglePushNotifications()" class="flex items-center gap-1.5 px-2 py-1 rounded bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-[9px] font-mono text-gray-400 uppercase tracking-wider transition-all" title="Push-Benachrichtigungen aktivieren">
+                    <svg id="bellIcon" class="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span id="pushToggleLabel">Push Off</span>
+                </button>
+                <div class="w-px h-4 bg-white/[0.06]"></div>
+                <div class="flex items-center gap-2">
+                    <div id="statusDot" class="status-live"></div>
+                    <span id="statusLabel" class="text-[10px] font-mono text-gray-500 uppercase tracking-widest">Connecting</span>
+                </div>
+                <div class="hidden sm:block w-px h-4 bg-white/[0.06]"></div>
+                <span id="lastUpdate" class="hidden sm:inline text-[10px] font-mono text-gray-600">--:--:--</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ═══ MAIN CONTENT ═══ -->
+    <main class="max-w-[1400px] mx-auto px-4 sm:px-6 py-5">
+
+        <!-- ── HYPE HUB SYSTEM GUIDE ── -->
+        <div class="widget-card mb-5 overflow-hidden transition-all duration-300">
+            <button onclick="toggleSystemGuide()" class="w-full px-5 py-4 flex items-center justify-between bg-black/10 hover:bg-black/20 transition-all border-none text-left focus:outline-none cursor-pointer">
+                <div class="flex items-center gap-3">
+                    <svg class="w-4 h-4 text-gold-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+                    </svg>
+                    <div class="flex flex-col">
+                        <span class="data-label leading-none mb-1">DOKUMENTATION & SYSTEM-SPEZIFIKATIONEN</span>
+                        <span class="text-[10px] font-mono text-gray-500">Architektur und Funktionsweise des Fincast Hype-Barometers</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span id="guideStatusText" class="text-[9px] font-mono text-gray-600 uppercase tracking-widest">Einblenden</span>
+                    <span id="guideArrow" class="text-xs text-gray-500 transition-transform duration-300 transform">▼</span>
+                </div>
+            </button>
+            <div id="systemGuideContent" class="hidden border-t border-white/[0.04] p-6 bg-black/5">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Column 1: Social Listening & Sentiments -->
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-2.5 border-b border-white/5 pb-2.5">
+                            <svg class="w-4 h-4 text-gold-500/60" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-.778.099-1.533.284-2.253" />
+                            </svg>
+                            <h4 class="font-mono text-xs font-bold text-gold-500 uppercase tracking-wider">DATENERFASSUNG & INDEXIERUNG</h4>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="border-l border-gold-500/10 pl-3">
+                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">Algorithmic Listening</div>
+                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Permanentes Indexieren von Erwähnungsdaten in globalen Finanz- und Krypto-Subreddits zur Lokalisierung spekulativer Marktströmungen.</p>
+                            </div>
+                            <div class="border-l border-gold-500/10 pl-3">
+                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">Asset-Klassifizierung</div>
+                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Präzise Zuordnung in dedizierte Leaderboards für Aktien und Kryptowährungen durch Ausschluss-Algorithmen für Misch-Assets.</p>
+                            </div>
+                            <div class="border-l border-gold-500/10 pl-3">
+                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">NLP Sentiment-Analyse</div>
+                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Quantifizierung der Marktstimmung auf einer Skala von -1.000 bis +1.000 basierend auf computerlinguistischen Text-Scans.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Column 2: Live Signal Feed & Triggering -->
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-2.5 border-b border-white/5 pb-2.5">
+                            <svg class="w-4 h-4 text-gold-500/60" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 18a3.75 3.75 0 0 0 .495-7.467 5.99 5.99 0 0 0-1.925 3.546 5.974 5.974 0 0 1-2.133-1A3.75 3.75 0 0 0 12 18Z" />
+                            </svg>
+                            <h4 class="font-mono text-xs font-bold text-gold-500 uppercase tracking-wider">SIGNAL-DETEKTION & ALERTS</h4>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="border-l border-gold-500/10 pl-3">
+                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">Volumen-Ausbruch</div>
+                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Automatische Kennzeichnung von Werten als Hype-Assets bei plötzlicher Dynamik und signifikant steigendem Sentiment-Volumen.</p>
+                            </div>
+                            <div class="border-l border-gold-500/10 pl-3">
+                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">Echtzeit-Signal-Trigger</div>
+                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Unmittelbare Generierung visueller Signale im Live Feed zur sofortigen Einleitung quantitativer Prüfverfahren.</p>
+                            </div>
+                            <div class="border-l border-gold-500/10 pl-3">
+                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">Push-Infrastruktur</div>
+                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Integration nativer Push-Dienste zur akustischen und visuellen Benachrichtigung über kritische Signale auch bei inaktivem Browser-Tab.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Column 3: Swarm Intelligence & AI -->
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-2.5 border-b border-white/5 pb-2.5">
+                            <svg class="w-4 h-4 text-gold-500/60" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25" />
+                            </svg>
+                            <h4 class="font-mono text-xs font-bold text-gold-500 uppercase tracking-wider">SWARM VALIDIERUNG & AI</h4>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="border-l border-gold-500/10 pl-3">
+                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">Technical AI-Validierung</div>
+                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Automatisierte Gemini-Modellierung zur Marktstrukturanalyse unter Berücksichtigung von Moving Averages, RSI-14, MACD und Chart-Mustern.</p>
+                            </div>
+                            <div class="border-l border-gold-500/10 pl-3">
+                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">Redis Swarm Caching</div>
+                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Ressourcenschonende, 6-stündige globale Speicherung aller Analysen zur geteilten, sofortigen Einsicht ohne API-Mehrfachverbrauch.</p>
+                            </div>
+                            <div class="border-l border-gold-500/10 pl-3">
+                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">Recalculate Bypass</div>
+                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Optionale, direkte Aktualisierung von Datenpunkten zur sofortigen Neukalkulation und globalen Aktualisierung des Caches für alle Hub-User.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Metrics Strip ── -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+            <div class="widget-card">
+                <div class="p-4">
+                    <div class="data-label mb-2">Active Tickers</div>
+                    <div class="metric-value text-2xl" id="mTickers">0</div>
+                </div>
+            </div>
+            <div class="widget-card">
+                <div class="p-4">
+                    <div class="data-label mb-2">Total Mentions</div>
+                    <div class="metric-value text-2xl text-white" id="mMentions">0</div>
+                </div>
+            </div>
+            <div class="widget-card">
+                <div class="p-4">
+                    <div class="data-label mb-2">Hype Signals</div>
+                    <div class="metric-value text-2xl text-emerald-400" id="mAlerts">0</div>
+                </div>
+            </div>
+            <div class="widget-card">
+                <div class="p-4">
+                    <div class="data-label mb-2">Window</div>
+                    <div class="metric-value text-2xl text-gray-300" id="mWindow">--</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Monitored Subreddits & Timeframe Toggle ── -->
+        <div class="flex items-center justify-between mb-5 flex-wrap gap-4">
+            <div class="flex items-center gap-2">
+                <span class="data-label mr-1">Monitoring</span>
+                <div id="subTags" class="flex items-center gap-1.5 flex-wrap"></div>
+            </div>
+            
+            <div class="flex items-center gap-1 bg-[#0f1420] p-1 rounded-md border border-white/[0.04]">
+                <button id="btn15m" class="px-3 py-1 text-[10px] font-mono rounded bg-gold-500/20 text-gold-400 font-bold transition-all" onclick="setTimeframe('15m')">15 MIN</button>
+                <button id="btnMax" class="px-3 py-1 text-[10px] font-mono rounded text-gray-500 hover:text-gray-300 transition-all" onclick="setTimeframe('max')">24 STD</button>
+            </div>
+        </div>
+
+        <!-- ── Main Grid: Ticker Feed + Alerts ── -->
+        <div class="main-grid grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-5">
+
+            <!-- LEFT: Ticker Leaderboards (Stocks & Cryptos) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                
+                <!-- Stocks Ticker Leaderboard -->
+                <div class="widget-card">
+                    <div class="widget-header flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 17V13" stroke-linecap="round" stroke-width="2.5"/><path d="M11 17V9" stroke-linecap="round" stroke-width="2.5"/><path d="M15 17V5" stroke-linecap="round" stroke-width="2.5"/><path d="M19 17V11" stroke-linecap="round" stroke-width="2.5"/></svg>
+                            <span class="data-label">Aktien-Leaderboard</span>
+                        </div>
+                        <span class="text-[9px] font-mono text-gray-600" id="stockTickerCount">0 active</span>
+                    </div>
+
+                    <div class="p-3 space-y-2 max-h-[calc(100vh-320px)] overflow-y-auto" id="stockTickerList">
+                        <div class="text-center py-16">
+                            <svg class="w-10 h-10 mx-auto text-gray-700 mb-3" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3" stroke-linecap="round"/></svg>
+                            <p class="text-xs text-gray-600 font-mono">Warte auf Daten-Feed...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cryptos Ticker Leaderboard -->
+                <div class="widget-card">
+                    <div class="widget-header flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2" /><circle cx="12" cy="5" r="2" /><path d="M12 7v4" /></svg>
+                            <span class="data-label">Krypto-Leaderboard</span>
+                        </div>
+                        <span class="text-[9px] font-mono text-gray-600" id="cryptoTickerCount">0 active</span>
+                    </div>
+
+                    <div class="p-3 space-y-2 max-h-[calc(100vh-320px)] overflow-y-auto" id="cryptoTickerList">
+                        <div class="text-center py-16">
+                            <svg class="w-10 h-10 mx-auto text-gray-700 mb-3" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3" stroke-linecap="round"/></svg>
+                            <p class="text-xs text-gray-600 font-mono">Warte auf Daten-Feed...</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT: Alert Feed -->
+            <div class="widget-card">
+                <div class="widget-header flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                        <span class="data-label">Signal Feed</span>
+                    </div>
+                    <span class="text-[9px] font-mono text-gray-600" id="alertCount">0 signals</span>
+                </div>
+                <div class="p-3 space-y-2 max-h-[calc(100vh-320px)] overflow-y-auto" id="alertList">
+                    <div class="text-center py-16">
+                        <p class="text-xs text-gray-600 font-mono">No signals triggered</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ── Footer ── -->
+        <div class="text-center mt-8 mb-4">
+            <span class="text-[9px] font-mono text-gray-700 uppercase tracking-[0.2em]">Abracadabra Hype-Barometer &middot; Reddit &times; VADER NLP Engine</span>
+        </div>
+    </main>
+
+    <!-- ═══ DRAWER OVERLAY ═══ -->
+    <div id="drawerOverlay" class="drawer-overlay" onclick="closeTechnicalDrawer()"></div>
+
+    <!-- ═══ TECHNICAL QUANTITATIVE DRAWER ═══ -->
+    <div id="technicalDrawer" class="citadel-drawer">
+        <div class="citadel-drawer-content" id="technicalDrawerContent">
+            <!-- Header -->
+            <div class="widget-header flex items-center justify-between border-b border-white/[0.04] p-4 bg-black/20">
+                <div class="flex items-center gap-3">
+                    <span class="text-lg">⚙️</span>
+                    <div class="flex flex-col">
+                        <span class="data-label leading-none mb-1">Technical Analysis</span>
+                        <span class="text-[11px] font-bold text-white uppercase tracking-tighter" id="technicalTickerLabel">Technical System Analysis</span>
+                    </div>
+                </div>
+                <button onclick="closeTechnicalDrawer()" class="text-gray-500 hover:text-white transition-colors text-lg p-1">&times;</button>
+            </div>
+            
+            <!-- Body -->
+            <div class="flex-1 overflow-y-auto p-5" id="technicalDrawerBody">
+                <div class="text-center py-20 text-gray-500 font-mono text-xs">
+                    <span>💡 Klicke auf ein Signal im Feed oder warte auf neue Hype-Signale, um eine Echtzeit-Technische-Analyse zu laden.</span>
+                </div>
+            </div>
+
+            <!-- Footer info -->
+            <div class="px-5 py-3 bg-black/20 text-[9px] font-mono text-gray-600 border-t border-white/[0.04] flex justify-between items-center">
+                <span>AGENT_ID: TECHNICAL_v4.2</span>
+                <span id="technicalQueryCounter" class="text-gold-500/50">--/-- Queries</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ JAVASCRIPT ═══ -->
+    <script>
+        let currentTF = '15m'; // '15m' oder 'max'
+        const REFRESH_MS = 600000; // 10 Minuten in Millisekunden (schont Akku und Datenvolumen)
+        let failCount = 0;
+        let isInitialLoad = true;
+
+        let pushEnabled = localStorage.getItem('abracadabra_push_enabled') === 'true';
+        let seenAlerts = new Set(JSON.parse(localStorage.getItem('abracadabra_seen_alerts') || '[]'));
+
+        // ── Push-Benachrichtigungen ──
+        function updatePushUI() {
+            const btn = document.getElementById('pushToggleBtn');
+            const lbl = document.getElementById('pushToggleLabel');
+            const icon = document.getElementById('bellIcon');
+            
+            if (Notification.permission === "granted" && pushEnabled) {
+                btn.className = "flex items-center gap-1.5 px-2.5 py-1 rounded bg-emerald-500/10 border border-emerald-500/25 hover:bg-emerald-500/20 text-[9px] font-mono text-emerald-400 uppercase tracking-wider transition-all";
+                lbl.textContent = "Push On";
+                icon.setAttribute("class", "w-3 h-3 text-emerald-400");
+                icon.setAttribute("fill", "currentColor");
+            } else {
+                btn.className = "flex items-center gap-1.5 px-2.5 py-1 rounded bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-[9px] font-mono text-gray-400 uppercase tracking-wider transition-all";
+                lbl.textContent = "Push Off";
+                icon.setAttribute("class", "w-3 h-3 text-gray-500");
+                icon.removeAttribute("fill");
+            }
+        }
+
+        async function togglePushNotifications() {
+            if (!("Notification" in window)) {
+                alert("Dieses Gerät unterstützt leider keine Push-Benachrichtigungen.");
+                return;
+            }
+
+            if (Notification.permission === "denied") {
+                alert("Benachrichtigungen wurden blockiert. Bitte aktiviere sie in den App- bzw. Browser-Einstellungen deines Smartphones.");
+                return;
+            }
+
+            if (Notification.permission === "default") {
+                const permission = await Notification.requestPermission();
+                if (permission !== "granted") return;
+            }
+
+            pushEnabled = !pushEnabled;
+            localStorage.setItem('abracadabra_push_enabled', pushEnabled ? 'true' : 'false');
+            updatePushUI();
+
+            if (pushEnabled) {
+                // Test-Benachrichtigung senden
+                new Notification("🎩 Abracadabra Live!", {
+                    body: "Push-Benachrichtigungen wurden erfolgreich für dein Smartphone aktiviert!",
+                    icon: '../portfoliomanager - Symbol.png'
+                });
+            }
+        }
+
+        // Bei Laden initialisieren
+        window.addEventListener('DOMContentLoaded', () => {
+            if ("Notification" in window && Notification.permission === "granted") {
+                // Wenn Browser-Erlaubnis erteilt ist, standardmäßig aktivieren, außer es wurde explizit ausgeschaltet
+                if (localStorage.getItem('abracadabra_push_enabled') !== 'false') {
+                    pushEnabled = true;
+                    localStorage.setItem('abracadabra_push_enabled', 'true');
+                } else {
+                    pushEnabled = false;
+                }
+            } else {
+                pushEnabled = false;
+                localStorage.setItem('abracadabra_push_enabled', 'false');
+            }
+            updatePushUI();
+        });
+
+        // Wenn wir auf Vercel gehostet sind, leiten wir API-Anfragen an das Render-Backend weiter
+        const host = window.location.hostname;
+        const isLocal = host === 'localhost' || host === '127.0.0.1';
+        const isRender = host.includes('onrender.com');
+        
+        // Trage hier spaeter deine tatsaechliche Render-App-URL ein!
+        const RENDER_BACKEND_URL = 'https://fincast-hype-barometer.onrender.com';
+
+        function getFetchUrl() {
+            if (isLocal || isRender) {
+                // Lokal oder direkt auf Render gehostet -> Relative Pfade nutzen
+                return currentTF === '15m' ? 'hype_data.json' : 'hype_data_max.json';
+            } else {
+                // Auf Vercel gehostet -> Absolute Endpunkte des Render-Backends nutzen
+                return currentTF === '15m' 
+                    ? RENDER_BACKEND_URL + '/api/hype' 
+                    : RENDER_BACKEND_URL + '/api/hype-max';
+            }
+        }
+
+        // ── Timeframe Toggle ──
+        function setTimeframe(tf) {
+            const btn15 = document.getElementById('btn15m');
+            const btnMax = document.getElementById('btnMax');
+            isInitialLoad = true; // reset animation for new view
+            currentTF = tf;
+            
+            if (tf === '15m') {
+                btn15.className = "px-3 py-1 text-[10px] font-mono rounded bg-gold-500/20 text-gold-400 font-bold transition-all";
+                btnMax.className = "px-3 py-1 text-[10px] font-mono rounded text-gray-500 hover:text-gray-300 transition-all";
+            } else {
+                btnMax.className = "px-3 py-1 text-[10px] font-mono rounded bg-gold-500/20 text-gold-400 font-bold transition-all";
+                btn15.className = "px-3 py-1 text-[10px] font-mono rounded text-gray-500 hover:text-gray-300 transition-all";
+            }
+            
+            // Sofort neues Fetch triggern
+            fetchData();
+        }
+
+        // ── Fetch Loop ──
+        async function fetchData() {
+            try {
+                const url = getFetchUrl();
+                const r = await fetch(url + (url.includes('?') ? '&' : '?') + '_=' + Date.now());
+                if (!r.ok) throw new Error(r.status);
+                const d = await r.json();
+                failCount = 0;
+                setStatus(true);
+                render(d);
+                isInitialLoad = false;
+            } catch (e) {
+                failCount++;
+                if (failCount > 3) setStatus(false);
+            }
+        }
+
+        function setStatus(online) {
+            const dot = document.getElementById('statusDot');
+            const lbl = document.getElementById('statusLabel');
+            dot.className = online ? 'status-live' : 'status-offline';
+            lbl.textContent = online ? 'Live' : 'Offline';
+            lbl.style.color = online ? '#22c55e' : '#ef4444';
+        }
+
+        // ── Main Render ──
+        function render(d) {
+            if (d && d.error) {
+                document.getElementById('lastUpdate').textContent = '--:--:--';
+                document.getElementById('mTickers').textContent = '-';
+                document.getElementById('mMentions').textContent = '-';
+                document.getElementById('mAlerts').textContent = '-';
+                
+                const errHtml = `
+                    <div class="text-center py-20 text-gray-500 font-mono text-xs">
+                        <span class="animate-pulse">⏳ Warte auf erste Analyse...</span><br>
+                        <span class="text-[10px] text-gray-600 mt-2 block">(Dies kann nach Server-Start bis zu 60s dauern)</span>
+                    </div>
+                `;
+                document.getElementById('stockTickerList').innerHTML = errHtml;
+                document.getElementById('cryptoTickerList').innerHTML = errHtml;
+                
+                document.getElementById('alertList').innerHTML = `
+                    <div class="text-center py-16">
+                        <p class="text-xs text-gray-600 font-mono">No signals triggered</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const m = d.meta;
+            document.getElementById('lastUpdate').textContent = new Date(m.last_updated).toLocaleTimeString('de-DE');
+            document.getElementById('mTickers').textContent = m.total_active_tickers;
+            document.getElementById('mMentions').textContent = m.total_mentions;
+            document.getElementById('mAlerts').textContent = d.alerts.length;
+            
+            let winText = m.window_minutes + ' min';
+            if (m.window_minutes === 1440) winText = '24 hours';
+            document.getElementById('mWindow').textContent = winText;
+            
+            renderSubs(m.subreddits_monitored);
+            renderTickers(d.tickers);
+            renderAlerts(d.alerts);
+        }
+
+        // ── Subreddits ──
+        function renderSubs(str) {
+            const el = document.getElementById('subTags');
+            el.innerHTML = str.split('+').map(s =>
+                `<span class="text-[10px] font-mono px-2 py-0.5 rounded border border-white/[0.06] text-gray-500">r/${s}</span>`
+            ).join('');
+        }
+
+        // ── Ticker Leaderboards ──
+        const CRYPTO_TICKERS = new Set(['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'ADA', 'DOGE', 'SHIB', 'DOT', 'LTC', 'LINK', 'UNI', 'PEPE', 'BONK', 'WIF', 'BCH', 'SPACE', 'AVAX', 'NEAR', 'SUI', 'APT', 'RENDER', 'FIL', 'ICP', 'GRT', 'RNDR', 'FET', 'LUNA', 'LUNC']);
+
+        function isCryptoTicker(t) {
+            if (CRYPTO_TICKERS.has(t.ticker.toUpperCase())) return true;
+            const hasCryptoSub = t.subreddits.some(s => s.toLowerCase() === 'cryptocurrency' || s.toLowerCase() === 'satoshistreetbets');
+            const hasStockSub = t.subreddits.some(s => s.toLowerCase() === 'stocks' || s.toLowerCase() === 'wallstreetbets' || s.toLowerCase() === 'pennystocks');
+            return hasCryptoSub && !hasStockSub;
+        }
+
+        function renderTickers(tickers) {
+            const elStock = document.getElementById('stockTickerList');
+            const elCrypto = document.getElementById('cryptoTickerList');
+            
+            const currentStockScroll = elStock.scrollTop;
+            const currentCryptoScroll = elCrypto.scrollTop;
+            
+            let stocks = [];
+            let cryptos = [];
+            
+            tickers.forEach(t => {
+                if (isCryptoTicker(t)) {
+                    cryptos.push(t);
+                } else {
+                    stocks.push(t);
+                }
+            });
+            
+            const sortFn = (a, b) => {
+                if (b.mentions !== a.mentions) {
+                    return b.mentions - a.mentions;
+                }
+                return b.avg_sentiment - a.avg_sentiment;
+            };
+            
+            stocks.sort(sortFn);
+            cryptos.sort(sortFn);
+            
+            document.getElementById('stockTickerCount').textContent = stocks.length + ' active';
+            document.getElementById('cryptoTickerCount').textContent = cryptos.length + ' active';
+            
+            // Render Stocks
+            if (!stocks.length) {
+                elStock.innerHTML = '<div class="text-center py-16"><p class="text-xs text-gray-600 font-mono">Keine aktiven Aktien</p></div>';
+            } else {
+                elStock.innerHTML = '';
+                stocks.forEach((t, i) => {
+                    const row = createTickerRow(t, i + 1);
+                    elStock.appendChild(row);
+                });
+            }
+            
+            // Render Cryptos
+            if (!cryptos.length) {
+                elCrypto.innerHTML = '<div class="text-center py-16"><p class="text-xs text-gray-600 font-mono">Keine aktiven Kryptos</p></div>';
+            } else {
+                elCrypto.innerHTML = '';
+                cryptos.forEach((t, i) => {
+                    const row = createTickerRow(t, i + 1);
+                    elCrypto.appendChild(row);
+                });
+            }
+            
+            elStock.scrollTop = currentStockScroll;
+            elCrypto.scrollTop = currentCryptoScroll;
+        }
+
+        function createTickerRow(t, rank) {
+            const row = document.createElement('div');
+            const fadeClass = isInitialLoad ? ' fade-up' : '';
+            row.className = 'ticker-row' + fadeClass + (t.is_hype ? ' is-hype' : '');
+            row.style.animationDelay = ((rank - 1) * 40) + 'ms';
+
+            const pct = Math.round(((t.avg_sentiment + 1) / 2) * 100);
+            const color = sentimentColor(t.avg_sentiment);
+            const badgeClass = t.is_hype ? 'badge-hype' : sentimentBadge(t.avg_sentiment);
+            const badgeText = t.is_hype ? 'HYPE' : t.sentiment_level;
+            const subs = t.subreddits.map(s => 'r/' + s).join(', ');
+
+            row.innerHTML = `
+                <div class="flex items-center justify-between mb-2.5">
+                    <div class="flex items-center gap-3">
+                        <span class="text-[10px] font-mono text-gray-600 w-4 text-right">${rank}</span>
+                        <span class="font-mono font-bold text-[15px] text-gold-400">$${t.ticker}</span>
+                        <span class="badge ${badgeClass}">${badgeText}</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="font-mono font-bold text-lg text-white">${t.mentions}</span>
+                        <span class="text-[9px] font-mono text-gray-600 uppercase">mentions</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="flex-1 gauge-track">
+                        <div class="gauge-fill" style="width:${pct}%;background:${color}"></div>
+                    </div>
+                    <span class="font-mono text-[11px] font-bold w-14 text-right" style="color:${color}">${t.avg_sentiment > 0 ? '+' : ''}${t.avg_sentiment.toFixed(3)}</span>
+                </div>
+                <div class="text-[9px] font-mono text-gray-600 mt-2">${subs}</div>
+            `;
+            return row;
+        }
+
+        // ── Alert Feed ──
+        function renderAlerts(alerts) {
+            const el = document.getElementById('alertList');
+            const currentScroll = el.scrollTop; // Scroll-Position merken
+            
+            document.getElementById('alertCount').textContent = alerts.length + ' signals';
+            if (!alerts.length) {
+                el.innerHTML = '<div class="text-center py-16"><p class="text-xs text-gray-600 font-mono">No signals triggered</p></div>';
+                return;
+            }
+
+            // Push-Benachrichtigungen triggern fuer brandneue Alerts
+            const newAlertTickers = new Set();
+            if (alerts.length > 0) {
+                alerts.forEach(a => {
+                    const alertKey = a.ticker + '_' + a.triggered_at;
+                    if (!seenAlerts.has(alertKey)) {
+                        seenAlerts.add(alertKey);
+                        newAlertTickers.add(alertKey);
+                        
+                        // Berechne das Alter des Alerts in Minuten
+                        const alertTime = new Date(a.triggered_at).getTime();
+                        const now = Date.now();
+                        const ageMinutes = (now - alertTime) / (1000 * 60);
+                        
+                        // Benachrichtigen, wenn:
+                        // 1. Es kein Initial-Load ist ODER
+                        // 2. Es ein Initial-Load ist, der Alert aber jünger als 15 Minuten ist (sehr frisch!)
+                        const isVeryRecent = ageMinutes < 15;
+                        
+                        if (pushEnabled && Notification.permission === "granted") {
+                            if (!isInitialLoad || isVeryRecent) {
+                                new Notification(`🎩 Hype-Alarm: $${a.ticker}!`, {
+                                    body: `${a.mentions} Erwähnungen | Sentiment: ${a.avg_sentiment > 0 ? '+' : ''}${a.avg_sentiment.toFixed(3)}\nQuellen: ${a.subreddits.map(s => 'r/' + s).join(', ')}`,
+                                    icon: '../portfoliomanager - Symbol.png',
+                                    vibrate: [200, 100, 200]
+                                });
+                            }
+                        }
+                    }
+                });
+                if (newAlertTickers.size > 0) {
+                    localStorage.setItem('abracadabra_seen_alerts', JSON.stringify(Array.from(seenAlerts).slice(-100))); // Begrenzen auf 100
+                }
+            }
+
+            // Auto-trigger technical analysis on first new alert in live feed!
+            if (newAlertTickers.size > 0 && !isInitialLoad) {
+                const firstNewTicker = alerts.find(a => newAlertTickers.has(a.ticker + '_' + a.triggered_at))?.ticker;
+                if (firstNewTicker) {
+                    openTechnicalAnalysis(firstNewTicker, true);
+                }
+            }
+
+            el.innerHTML = '';
+            alerts.slice(0, 25).forEach((a, i) => {
+                const item = document.createElement('div');
+                const fadeClass = isInitialLoad ? ' fade-up' : '';
+                const alertKey = a.ticker + '_' + a.triggered_at;
+                const isNewAlert = newAlertTickers.has(alertKey);
+                
+                item.className = 'alert-item' + fadeClass + (isNewAlert ? ' new-glowing' : '');
+                item.style.animationDelay = (i * 50) + 'ms';
+                item.setAttribute('onclick', `openTechnicalAnalysis('${a.ticker}')`);
+                
+                const time = a.triggered_at ? new Date(a.triggered_at).toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit'}) : '--:--';
+                const color = sentimentColor(a.avg_sentiment);
+                const subs = a.subreddits.map(s => 'r/' + s).join(', ');
+
+                item.innerHTML = `
+                    <div class="flex items-center justify-between mb-1">
+                        <div class="flex items-center gap-1.5">
+                            <span class="font-mono font-bold text-xs text-gold-400">$${a.ticker}</span>
+                            <span class="text-[7px] font-mono px-1 py-0.2 rounded border border-gold-500/10 text-gold-500/50 uppercase">TECHNICAL</span>
+                        </div>
+                        <span class="text-[9px] font-mono text-gray-600">${time}</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-[10px] font-mono text-gray-400">
+                        <span>${a.mentions}x mentions</span>
+                        <span class="text-gray-700">&middot;</span>
+                        <span style="color:${color}">${a.avg_sentiment > 0 ? '+' : ''}${a.avg_sentiment}</span>
+                    </div>
+                    <div class="text-[9px] font-mono text-gray-700 mt-1">${subs}</div>
+                `;
+                el.appendChild(item);
+            });
+            
+            el.scrollTop = currentScroll; // Scroll-Position wiederherstellen
+        }
+
+        // ── Helpers ──
+        function sentimentColor(s) {
+            if (s >= 0.4) return '#22c55e';
+            if (s >= 0.1) return '#d4af37';
+            if (s >= -0.1) return '#64748b';
+            return '#ef4444';
+        }
+        function sentimentBadge(s) {
+            if (s >= 0.4) return 'badge-bullish';
+            if (s >= 0.1) return 'badge-hype';
+            if (s >= -0.1) return 'badge-neutral';
+            return 'badge-bearish';
+        }
+
+        // ==================== CLOUD STORAGE WRAPPER (terminal.html identisch) ====================
+        async function apiCall(action, params = {}) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+            try {
+                const res = await fetch('/api/storage', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action, ...params }),
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                const data = await res.json();
+                if (!res.ok) return { error: data.error || `HTTP ${res.status}` };
+                return data;
+            } catch (e) {
+                clearTimeout(timeoutId);
+                console.error('Cloud Storage Error:', e);
+                return { error: e.name === 'AbortError' ? 'Timeout: Datenbank antwortet nicht.' : 'Netzwerkfehler.' };
+            }
+        }
+
+        async function getUsers() {
+            try {
+                const res = await apiCall('get_users');
+                if (res && res.error) throw new Error(res.error);
+                return Array.isArray(res) ? res : [];
+            } catch (e) {
+                console.error('getUsers failed:', e);
+                return [];
+            }
+        }
+
+        async function getCurrentUser() {
+            const e = localStorage.getItem('terminal_session');
+            if (!e) return null;
+            const users = await getUsers();
+            if (!Array.isArray(users)) return null;
+            return users.find(u => u.email === e) || null;
+        }
+
+        async function getQueryCount(email, model = '') {
+            try {
+                const q = await apiCall('get_queries', { email, model });
+                if (model && q && q.counts) return q.counts[model] || 0;
+                return q ? q.count : 0;
+            } catch (e) {
+                console.error('getQueryCount failed:', e);
+                return 0;
+            }
+        }
+
+        async function incrementQuery(email, model = '') { 
+            await apiCall('increment_query', { email, model }).catch(e => console.error('incrementQuery failed:', e)); 
+        }
+
+        // ==================== TECHNICAL AGENT SYSTEM ====================
+        let isDrawerOpen = false;
+        let isTechnicalLoading = false;
+        let USER_LANG = localStorage.getItem('gemini_user_lang') || 'de-DE';
+
+        function openTechnicalDrawer() {
+            document.getElementById('technicalDrawer').classList.add('open');
+            document.getElementById('drawerOverlay').classList.add('active');
+            isDrawerOpen = true;
+        }
+
+        function closeTechnicalDrawer() {
+            document.getElementById('technicalDrawer').classList.remove('open');
+            document.getElementById('drawerOverlay').classList.remove('active');
+            isDrawerOpen = false;
+        }
+
+        function getTechnicalPrompt(query, lang) {
+            const today = new Date().toLocaleDateString();
+            return `CURRENT DATE: ${today}
+LANGUAGE: Respond EXCLUSIVELY in ${lang}.
+TASK: Deep-Dive Technical Quantitative Analysis for "${query}". \n\n
+STRICT INSTRUCTIONS (NO NOVELS, NO FLUFF):
+- Use the provided [FMP API BLOCK] as your primary and absolute source of truth for all financial data, moving averages, volume, and indicators.
+- Use the google_search tool ONLY to supplement the analysis with very recent news (last 24-48h), current market sentiment, or specific technical breakout patterns.
+- Output MUST be strictly formatted as short bullet points.
+- Maximum 1 line per data point.
+- Be extremely concise. Efficiency is key.
+- Respond in ${lang}.
+- Use REAL-TIME data.
+- Do not guess or use outdated data.
+- NEVER mention the tool usage in the output.
+- Output ONLY the tags and the data inside.
+- If a <system_status> tag is provided in the prompt, you MUST include it in your output as the FIRST section.
+
+Generate the following section with EXACT tags. Output ONLY the data inside the tags.
+
+<technical>
+ROLE: Senior Quantitative Trader (Market Microstructure)
+- Trend Analysis: [Current direction on Daily, Weekly, Monthly timeframes]
+- Moving Averages: [Use '50-DMA' and '200-DMA' from FMP API BLOCK; include 100-day estimate & crossover signals]
+- Technical Indicators: [Use '14-Day RSI' and 'MACD' from FMP API BLOCK; add Bollinger Band interpretation]
+- Volume & Strength: [Volume trend analysis & Buyer vs Seller strength]
+- Chart Patterns: [Identify potential patterns like Head & Shoulders, Cup & Handle, etc.]
+- Fibonacci & Levels: [Key Support/Resistance & Fibonacci retracement bounce zones]
+- Trade Execution: [Ideal Entry, Stop-Loss, and Profit Target price points]
+- Risk Management: [Calculate Risk-to-Reward Ratio for this setup]
+</technical>\n\n`;
+        }
+
+        async function openTechnicalAnalysis(ticker, autoTriggered = false, forceRefresh = false) {
+            if (isTechnicalLoading) return;
+            
+            openTechnicalDrawer();
+            document.getElementById('technicalTickerLabel').textContent = `TECHNICAL ANALYSIS FOR $${ticker.toUpperCase()}`;
+            
+            const bodyEl = document.getElementById('technicalDrawerBody');
+            
+            bodyEl.innerHTML = `
+                <div class="flex flex-col gap-4 justify-center items-center py-24">
+                    <div class="w-10 h-10 border-2 border-gold-500/10 border-t-gold-500 rounded-full animate-spin"></div>
+                    <div class="text-center">
+                        <div class="text-[10px] font-mono text-gold-500 uppercase tracking-[0.25em] animate-pulse">Consulting Technical AI...</div>
+                        <div class="text-[9px] font-mono text-gray-500 mt-2">Analyzing indicators for $${ticker.toUpperCase()}</div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('technicalQueryCounter').textContent = `--/-- Queries`;
+            isTechnicalLoading = true;
+
+            // 1. Swarm Intelligence Cache-Abfrage (Redis)
+            if (!forceRefresh) {
+                try {
+                    const archiveData = await apiCall('get_archive', { email: 'global' });
+                    if (archiveData && !archiveData.error) {
+                        const cached = archiveData[ticker.toUpperCase()];
+                        if (cached && cached.timestamp && cached.text) {
+                            const cacheTime = new Date(cached.timestamp).getTime();
+                            const now = Date.now();
+                            const sixHours = 6 * 60 * 60 * 1000; // 6 Stunden Cache-Gültigkeit
+                            
+                            if (now - cacheTime < sixHours) {
+                                // Cache geladen!
+                                renderTechnicalReport(ticker, cached.text, true, cached.timestamp, autoTriggered);
+                                
+                                // Richtiges Limit einblenden
+                                const user = await getCurrentUser();
+                                if (user) {
+                                    const limit = user.tier === 'premium' ? 20 : 1;
+                                    const used = await getQueryCount(user.email, user.model || 'gemini-2.5-flash');
+                                    document.getElementById('technicalQueryCounter').textContent = `${used}/${limit} Queries (${user.tier.toUpperCase()}) [Cached]`;
+                                } else {
+                                    document.getElementById('technicalQueryCounter').textContent = `Swarm Cache (Instant)`;
+                                }
+                                
+                                isTechnicalLoading = false;
+                                return;
+                            }
+                        }
+                    }
+                } catch (cacheErr) {
+                    console.warn("Global swarm cache lookup failed, fallback to live API:", cacheErr);
+                }
+            }
+
+            // 2. Echtzeit-AI-Anfrage (Wenn Cache veraltet oder forceRefresh=true)
+            try {
+                const user = await getCurrentUser();
+                let modelId = 'gemini-2.5-flash';
+                let clientApiKey = '';
+                let userEmail = '';
+                
+                if (user) {
+                    modelId = user.model || 'gemini-2.5-flash';
+                    clientApiKey = user.apiKey || '';
+                    userEmail = user.email;
+
+                    const limit = user.tier === 'premium' ? 20 : 1;
+                    const used = await getQueryCount(user.email, modelId);
+                    
+                    document.getElementById('technicalQueryCounter').textContent = `${used}/${limit} Queries (${user.tier.toUpperCase()})`;
+
+                    if (used >= limit) {
+                        bodyEl.innerHTML = `
+                            <div class="p-4 rounded border border-yellow-500/20 bg-yellow-500/5 text-xs text-yellow-400 font-mono leading-relaxed">
+                                <span class="font-bold text-sm block mb-1">⚠️ TAGESLIMIT ERREICHT</span>
+                                Tageslimit für Modell ${modelId.toUpperCase()} erreicht (${used}/${limit} Anfragen).<br><br>
+                                Bitte wechsle im <a href="/terminal.html" class="underline text-gold-500 hover:text-gold-400 font-bold">Institutional Terminal</a> das Modell (unten links) oder warte bis morgen.
+                            </div>
+                        `;
+                        isTechnicalLoading = false;
+                        return;
+                    }
+                } else {
+                    document.getElementById('technicalQueryCounter').textContent = `Server Default Key`;
+                }
+
+                const langNames = { 'de-DE': 'DEUTSCH', 'en-US': 'ENGLISH', 'fr-FR': 'FRANÇAIS', 'es-ES': 'ESPAÑOL' };
+                const currentLangName = langNames[USER_LANG] || 'DEUTSCH';
+
+                const prompt = getTechnicalPrompt(ticker, currentLangName);
+
+                const geminiBody = {
+                    contents: [{ parts: [{ text: prompt }] }],
+                    tools: [{ google_search: {} }],
+                    generationConfig: {
+                        temperature: 0.1,
+                        maxOutputTokens: 8192,
+                        topP: 0.95
+                    }
+                };
+
+                const res = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ticker, model: modelId, geminiBody, email: userEmail, apiKey: clientApiKey })
+                });
+
+                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error(data.error || `HTTP ${res.status}`);
+                }
+
+                const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                let cleanText = rawText.replace(/```[a-z]*\n?/gi, '').replace(/```/g, '').trim();
+                const startTag = '<technical>';
+                const endTag = '</technical>';
+                const startIdx = cleanText.toLowerCase().indexOf(startTag.toLowerCase());
+                const endIdx = cleanText.toLowerCase().indexOf(endTag.toLowerCase());
+                
+                let content = '';
+                if (startIdx !== -1) {
+                    const contentStart = startIdx + startTag.length;
+                    if (endIdx !== -1 && endIdx > startIdx) {
+                        content = cleanText.substring(contentStart, endIdx).trim();
+                    } else {
+                        content = cleanText.substring(contentStart).trim();
+                    }
+                } else {
+                    content = cleanText;
+                }
+
+                if (!content || content.length < 10) {
+                    throw new Error("Das Modell hat keine technische Analyse zurückgegeben.");
+                }
+
+                // Render Live Report
+                renderTechnicalReport(ticker, content, false, null, autoTriggered);
+
+                // Im globalen Swarm Intelligence Cache sichern
+                const archiveEntry = {
+                    timestamp: new Date().toISOString(),
+                    text: content
+                };
+                await apiCall('save_archive', { email: 'global', key: ticker.toUpperCase(), data: archiveEntry })
+                    .catch(e => console.warn('Global Swarm save failed:', e));
+
+                if (user) {
+                    await incrementQuery(user.email, modelId);
+                    const updatedCount = await getQueryCount(user.email, modelId);
+                    const limit = user.tier === 'premium' ? 20 : 1;
+                    document.getElementById('technicalQueryCounter').textContent = `${updatedCount}/${limit} Queries (${user.tier.toUpperCase()})`;
+                }
+
+            } catch (err) {
+                console.error("Technical Analysis Error:", err);
+                bodyEl.innerHTML = `
+                    <div class="p-4 rounded border border-red-500/20 bg-red-500/5 text-xs text-red-400 font-mono leading-relaxed">
+                        <span class="font-bold text-sm block mb-1">❌ PROTOKOLLFEHLER</span>
+                        Fehler beim Einholen der technischen Analyse:<br>
+                        ${err.message}<br><br>
+                        <button onclick="openTechnicalAnalysis('${ticker}', false, true)" class="px-3 py-1 bg-red-500/20 border border-red-500/40 hover:bg-red-500/35 rounded text-[10px] text-red-300 uppercase transition-all mt-1">
+                            Erneut versuchen
+                        </button>
+                    </div>
+                `;
+            } finally {
+                isTechnicalLoading = false;
+            }
+        }
+
+        // ── Report Renderer (Mit Swarm Cache-Info) ──
+        function renderTechnicalReport(ticker, content, fromCache = false, timestamp = null, autoTriggered = false) {
+            const bodyEl = document.getElementById('technicalDrawerBody');
+            
+            let htmlContent = content
+                .replace(/\*\*(.*?)\*\*/g, '<strong class="text-gold-500">$1</strong>')
+                .replace(/\n/g, '<br>');
+
+            const badgeMap = {
+                'STRONG POSITIVE': 'buy',
+                'STRONG NEGATIVE': 'sell',
+                'POSITIVE': 'buy',
+                'NEGATIVE': 'sell',
+                'NEUTRAL': 'wait',
+                'UNDERVALUED': 'buy',
+                'OVERVALUED': 'sell',
+                'FAIRLY VALUED': 'hold',
+                'FAIR VALUED': 'hold',
+                'BUY': 'buy',
+                'SELL': 'sell',
+                'HOLD': 'hold',
+                'WAIT': 'wait'
+            };
+            
+            const badgeRegex = new RegExp(`\\[(${Object.keys(badgeMap).join('|')})\\]|\\b(${Object.keys(badgeMap).join('|')})\\b`, 'gi');
+            htmlContent = htmlContent.replace(badgeRegex, (match, p1, p2) => {
+                const key = (p1 || p2).toUpperCase();
+                const type = badgeMap[key] || 'wait';
+                return `<span class="badge badge-${type}">${key}</span>`;
+            });
+
+            let cacheNotice = '';
+            if (fromCache && timestamp) {
+                const dateObj = new Date(timestamp);
+                const timeStr = dateObj.toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit'});
+                const dateStr = dateObj.toLocaleDateString('de-DE');
+                cacheNotice = `
+                    <div class="px-3 py-2 rounded bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-mono text-emerald-400 flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-1.5">
+                            <span>📡</span>
+                            <span>SWARM INTELLIGENCE CACHE</span>
+                        </div>
+                        <span class="text-gray-500 text-[9px]">${dateStr}, ${timeStr} Uhr</span>
+                    </div>
+                `;
+            }
+
+            bodyEl.innerHTML = `
+                <div class="space-y-4">
+                    ${cacheNotice}
+                    
+                    ${autoTriggered ? `
+                        <div class="px-3 py-2 rounded bg-gold-500/10 border border-gold-500/30 text-[10px] font-mono text-gold-400 flex items-center gap-2 mb-2 animate-pulse">
+                            <span>🧠</span>
+                            <span>SYSTEM: Automatischer Technical-Verifizierungstrigger bei neuem Signal aktiv.</span>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="text-[12px] leading-relaxed text-gray-400 font-mono">
+                        ${htmlContent}
+                    </div>
+
+                    <div class="pt-4 border-t border-white/5 mt-6 flex justify-between">
+                        <a href="/terminal.html?ticker=${ticker.toUpperCase()}" target="_blank" class="px-3 py-1.5 rounded bg-white/5 border border-white/10 hover:bg-white/10 hover:border-gold-500/30 text-[10px] font-mono text-gray-400 hover:text-white uppercase transition-all flex items-center gap-1.5">
+                            🏛️ Full Terminal Analysis
+                        </a>
+                        <button onclick="forceRefreshTechnical('${ticker}')" class="px-3 py-1.5 rounded bg-gold-500/10 border border-gold-500/20 hover:border-gold-500/40 text-[10px] font-mono text-gold-400 hover:text-gold-300 uppercase transition-all">
+                            🔄 Recalculate
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function forceRefreshTechnical(ticker) {
+            openTechnicalAnalysis(ticker, false, true);
+        }
+
+        function toggleSystemGuide() {
+            const content = document.getElementById('systemGuideContent');
+            const arrow = document.getElementById('guideArrow');
+            const status = document.getElementById('guideStatusText');
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                arrow.style.transform = 'rotate(180deg)';
+                status.textContent = 'Ausblenden';
+            } else {
+                content.classList.add('hidden');
+                arrow.style.transform = 'rotate(0deg)';
+                status.textContent = 'Einblenden';
+            }
+        }
+
+        // ── Init ──
+        fetchData();
+        setInterval(fetchData, REFRESH_MS);
+    </script>
+</body>
+</html>
