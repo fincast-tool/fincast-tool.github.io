@@ -16,8 +16,19 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import config
+from ticker_extraction import KNOWN_CRYPTO_TICKERS
 
 logger = logging.getLogger("abracadabra.aggregator")
+
+
+def is_crypto_ticker(ticker: str, subreddits: set) -> bool:
+    """Prueft ob ein Ticker zu Krypto oder Krypto-Subreddits gehört."""
+    if ticker.upper() in KNOWN_CRYPTO_TICKERS:
+        return True
+    crypto_subs = {"cryptocurrency", "satoshistreetbets"}
+    if any(s.lower() in crypto_subs for s in subreddits):
+        return True
+    return False
 
 
 @dataclass
@@ -129,9 +140,15 @@ class HypeAggregator:
             if agg.count == 0:
                 continue
 
-            # Hype-Bedingungen pruefen (sowohl positive Hypes als auch extrem negative Panik/Short Hypes)
-            is_positive_hype = agg.count >= self._min_mentions and agg.avg_sentiment >= self._min_sentiment
-            is_negative_hype = agg.count >= self._min_mentions and agg.avg_sentiment <= self._min_neg_sentiment
+            # Krypto- vs Aktien-Grenzwerte
+            is_crypto = is_crypto_ticker(ticker, agg.subreddits)
+            
+            min_mentions = 2 if is_crypto else self._min_mentions
+            min_pos_sentiment = 0.9 if is_crypto else self._min_sentiment
+            min_neg_sentiment = -0.6 if is_crypto else self._min_neg_sentiment
+
+            is_positive_hype = agg.count >= min_mentions and agg.avg_sentiment >= min_pos_sentiment
+            is_negative_hype = agg.count >= min_mentions and agg.avg_sentiment <= min_neg_sentiment
 
             if is_positive_hype or is_negative_hype:
                 # Cooldown-Check: Nicht erneut alerten
@@ -276,11 +293,18 @@ class HypeAggregator:
             else:
                 level = "EXTREM NEGATIV"
 
+            # Krypto- vs Aktien-Grenzwerte
+            is_crypto = is_crypto_ticker(ticker, set(data["subreddits"]))
+            
+            min_mentions = 2 if is_crypto else self._min_mentions
+            min_pos_sentiment = 0.9 if is_crypto else self._min_sentiment
+            min_neg_sentiment = -0.6 if is_crypto else self._min_neg_sentiment
+
             # Hype-Status: erfuellt der Ticker die Alert-Bedingungen (sowohl positive als auch negative)?
             is_hype = (
-                data["count"] >= self._min_mentions and (
-                    data["avg_sentiment"] >= self._min_sentiment or
-                    data["avg_sentiment"] <= self._min_neg_sentiment
+                data["count"] >= min_mentions and (
+                    data["avg_sentiment"] >= min_pos_sentiment or
+                    data["avg_sentiment"] <= min_neg_sentiment
                 )
             )
 
