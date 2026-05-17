@@ -1414,7 +1414,13 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
                 
                 const btn = document.getElementById('shareReportBtn');
                 const origHtml = btn.innerHTML;
-                btn.innerHTML = `⏳ Generating...`;
+                btn.innerHTML = `
+                    <svg class="w-3.5 h-3.5 animate-spin text-gold-400 inline mr-1" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Generating...
+                `;
                 btn.disabled = true;
                 
                 const res = await apiCall('save_shared_report', { data: mappedData });
@@ -1424,7 +1430,7 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
                 
                 if (res.error) throw new Error(res.error);
                 
-                const shareUrl = window.location.origin + '/terminal.html?share=' + res.id;
+                const shareUrl = window.location.origin + '/abracadabra/hype.html?share=' + res.id;
                 
                 if (navigator.share) {
                     await navigator.share({
@@ -1446,7 +1452,14 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
             navigator.clipboard.writeText(url).then(() => {
                 const toast = document.createElement('div');
                 toast.className = 'fixed bottom-4 left-4 z-[99999] px-4 py-2 bg-emerald-500/10 border border-emerald-500/35 backdrop-blur-xl text-emerald-400 font-mono text-xs rounded-lg shadow-2xl animate-pulse';
-                toast.textContent = `📋 Link für $${ticker.toUpperCase()} kopiert!`;
+                toast.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-emerald-400 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                        </svg>
+                        <span>Link für $${ticker.toUpperCase()} kopiert!</span>
+                    </div>
+                `;
                 document.body.appendChild(toast);
                 setTimeout(() => toast.remove(), 3000);
             }).catch(e => {
@@ -1472,6 +1485,61 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
         // ── Init ──
         fetchData();
         setInterval(fetchData, REFRESH_MS);
+
+        // Handle incoming shared reports automatically in self-contained drawer
+        (async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const shareId = urlParams.get('share');
+            if (shareId) {
+                openTechnicalDrawer();
+                const bodyEl = document.getElementById('technicalDrawerBody');
+                bodyEl.innerHTML = `
+                    <div class="flex flex-col gap-4 justify-center items-center py-24">
+                        <div class="w-10 h-10 border-2 border-gold-500/10 border-t-gold-500 rounded-full animate-spin"></div>
+                        <div class="text-center">
+                            <div class="text-[10px] font-mono text-gold-500 uppercase tracking-[0.25em] animate-pulse">Loading Shared Report...</div>
+                            <div class="text-[9px] font-mono text-gray-500 mt-2">Fetching database entry</div>
+                        </div>
+                    </div>
+                `;
+                try {
+                    const res = await apiCall('get_shared_report', { id: shareId });
+                    if (res && !res.error) {
+                        let ticker = 'Asset';
+                        let content = '';
+                        
+                        // Extract ticker from mapped company_identity
+                        if (res.company_identity) {
+                            const symbolMatch = res.company_identity.match(/Symbol:\s*([A-Z0-9.\-]+)/i);
+                            if (symbolMatch && symbolMatch[1]) {
+                                ticker = symbolMatch[1].toUpperCase();
+                            }
+                        }
+                        
+                        // Extract content
+                        content = res.financial_ratios || '';
+                        
+                        if (content) {
+                            document.getElementById('technicalTickerLabel').textContent = `SHARED ANALYSIS FOR $${ticker}`;
+                            renderTechnicalReport(ticker, content, false, null, false);
+                            document.getElementById('technicalQueryCounter').textContent = `Shared Link (Public)`;
+                        } else {
+                            throw new Error("Shared analysis content is empty.");
+                        }
+                    } else {
+                        throw new Error(res?.error || "Report not found.");
+                    }
+                } catch (err) {
+                    bodyEl.innerHTML = `
+                        <div class="p-4 rounded border border-red-500/20 bg-red-500/5 text-xs text-red-400 font-mono leading-relaxed">
+                            <span class="font-bold text-sm block mb-1">❌ PROTOKOLLFEHLER</span>
+                            Fehler beim Laden des geteilten Reports:<br>
+                            ${err.message}
+                        </div>
+                    `;
+                }
+            }
+        })();
     </script>
 </body>
 </html>
