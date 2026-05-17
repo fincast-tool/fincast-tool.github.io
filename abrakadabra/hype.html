@@ -192,13 +192,20 @@
     <!-- ═══ TOP BAR ═══ -->
     <header class="sticky top-0 z-50 border-b border-white/[0.04]" style="background:rgba(10,13,20,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);">
         <div class="max-w-[1400px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-            <!-- Left: Identity -->
-            <div class="flex items-center gap-3">
+            <!-- Left: Back Button & Identity -->
+            <div class="flex items-center gap-3 sm:gap-4">
+                <a href="../index.html" class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-white/5 border border-white/10 hover:bg-white/10 hover:border-gold-500/30 text-[9px] font-mono text-gray-400 hover:text-white uppercase tracking-wider transition-all" title="Zurück zum Fincast Hub">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+                    </svg>
+                    <span>Hub</span>
+                </a>
+                <div class="w-px h-4 bg-white/[0.06]"></div>
                 <div class="flex items-center gap-2">
                     <svg class="w-5 h-5 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     <span class="text-sm font-extrabold tracking-tight text-white">Hype<span class="text-gold-500">Barometer</span></span>
                 </div>
-                <span class="hidden sm:inline text-[9px] font-mono text-gray-600 uppercase tracking-[0.15em] border-l border-white/[0.06] pl-3 ml-1">Reddit Sentiment Engine</span>
+                <span class="hidden md:inline text-[9px] font-mono text-gray-600 uppercase tracking-[0.15em] border-l border-white/[0.06] pl-3 ml-1">Reddit Sentiment Engine</span>
             </div>
             <!-- Right: Status + Time -->
             <div class="flex items-center gap-3 sm:gap-4">
@@ -224,85 +231,94 @@
 
         <!-- ── HYPE HUB SYSTEM GUIDE ── -->
         <div class="widget-card mb-5 overflow-hidden transition-all duration-300">
-            <button onclick="toggleSystemGuide()" class="w-full px-5 py-4 flex items-center justify-between bg-black/10 hover:bg-black/20 transition-all border-none text-left focus:outline-none">
+            <button onclick="toggleSystemGuide()" class="w-full px-5 py-4 flex items-center justify-between bg-black/10 hover:bg-black/20 transition-all border-none text-left focus:outline-none cursor-pointer">
                 <div class="flex items-center gap-3">
-                    <span class="text-lg">📖</span>
+                    <svg class="w-4 h-4 text-gold-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+                    </svg>
                     <div class="flex flex-col">
-                        <span class="data-label leading-none mb-1">System-Dokumentation & Features</span>
-                        <span class="text-[10px] font-mono text-gold-500/80">Entdecke alle Funktionen des Abrakadabra Hype Barometers</span>
+                        <span class="data-label leading-none mb-1">DOKUMENTATION & SYSTEM-SPEZIFIKATIONEN</span>
+                        <span class="text-[10px] font-mono text-gray-500">Architektur und Funktionsweise des Fincast Hype-Barometers</span>
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
-                    <span id="guideStatusText" class="text-[9px] font-mono text-gray-500 uppercase tracking-widest">Einblenden</span>
-                    <span id="guideArrow" class="text-xs transition-transform duration-300 transform">▼</span>
+                <div class="flex items-center gap-3">
+                    <span id="guideStatusText" class="text-[9px] font-mono text-gray-600 uppercase tracking-widest">Einblenden</span>
+                    <span id="guideArrow" class="text-xs text-gray-500 transition-transform duration-300 transform">▼</span>
                 </div>
             </button>
             <div id="systemGuideContent" class="hidden border-t border-white/[0.04] p-6 bg-black/5">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <!-- Column 1: Social Listening & Sentiments -->
-                    <div class="space-y-3">
-                        <div class="flex items-center gap-2 border-b border-white/5 pb-2">
-                            <span class="text-base">📡</span>
-                            <h4 class="font-mono text-xs font-bold text-gold-400 uppercase tracking-wider">Social Listening & Engine</h4>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-2.5 border-b border-white/5 pb-2.5">
+                            <svg class="w-4 h-4 text-gold-500/60" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-.778.099-1.533.284-2.253" />
+                            </svg>
+                            <h4 class="font-mono text-xs font-bold text-gold-500 uppercase tracking-wider">DATENERFASSUNG & INDEXIERUNG</h4>
                         </div>
-                        <ul class="text-[11px] font-mono text-gray-400 space-y-2.5 leading-relaxed list-none pl-0">
-                            <li class="flex gap-2">
-                                <span class="text-gold-500">•</span>
-                                <span><strong>Realtime Scanning:</strong> Scannt permanent führende Reddit-Communities wie <em>r/wallstreetbets</em>, <em>r/CryptoCurrency</em> und mehr auf Mentions.</span>
-                            </li>
-                            <li class="flex gap-2">
-                                <span class="text-gold-500">•</span>
-                                <span><strong>Leaderboard Split:</strong> Getrennte Ansicht für Aktien- und Krypto-Märkte mit intelligentem Ausschluss von Misch-Werten (z. B. $COIN).</span>
-                            </li>
-                            <li class="flex gap-2">
-                                <span class="text-gold-500">•</span>
-                                <span><strong>NLP Sentiment:</strong> Analysiert die Stimmung des Textes auf einer Skala von -1 (Extrem Negativ) bis +1 (Extrem Positiv) für jeden Ticker.</span>
-                            </li>
-                        </ul>
+                        <div class="space-y-4">
+                            <div class="border-l border-gold-500/10 pl-3">
+                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">Algorithmic Listening</div>
+                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Permanentes Indexieren von Erwähnungsdaten in globalen Finanz- und Krypto-Subreddits zur Lokalisierung spekulativer Marktströmungen.</p>
+                            </div>
+                            <div class="border-l border-gold-500/10 pl-3">
+                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">Asset-Klassifizierung</div>
+                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Präzise Zuordnung in dedizierte Leaderboards für Aktien und Kryptowährungen durch Ausschluss-Algorithmen für Misch-Assets.</p>
+                            </div>
+                            <div class="border-l border-gold-500/10 pl-3">
+                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">NLP Sentiment-Analyse</div>
+                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Quantifizierung der Marktstimmung auf einer Skala von -1.000 bis +1.000 basierend auf computerlinguistischen Text-Scans.</p>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Column 2: Live Signal Feed & Triggering -->
-                    <div class="space-y-3">
-                        <div class="flex items-center gap-2 border-b border-white/5 pb-2">
-                            <span class="text-base">⚡</span>
-                            <h4 class="font-mono text-xs font-bold text-gold-400 uppercase tracking-wider">Live Signal Feed & Triggers</h4>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-2.5 border-b border-white/5 pb-2.5">
+                            <svg class="w-4 h-4 text-gold-500/60" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 18a3.75 3.75 0 0 0 .495-7.467 5.99 5.99 0 0 0-1.925 3.546 5.974 5.974 0 0 1-2.133-1A3.75 3.75 0 0 0 12 18Z" />
+                            </svg>
+                            <h4 class="font-mono text-xs font-bold text-gold-500 uppercase tracking-wider">SIGNAL-DETEKTION & ALERTS</h4>
                         </div>
-                        <ul class="text-[11px] font-mono text-gray-400 space-y-2.5 leading-relaxed list-none pl-0">
-                            <li class="flex gap-2">
-                                <span class="text-gold-500">•</span>
-                                <span><strong>Hype-Schwellenwert:</strong> Erkennt plötzliche Volumen- und Sentiment-Ausbrüche und markiert diese als goldene HYPE-Werte.</span>
-                            </li>
-                            <li class="flex gap-2">
-                                <span class="text-gold-500">•</span>
-                                <span><strong>Realtime Signal-Trigger:</strong> Neue Signale im Live Feed leuchten pulsierend auf und triggern sofort eine KI-Verifizierung.</span>
-                            </li>
-                            <li class="flex gap-2">
-                                <span class="text-gold-500">•</span>
-                                <span><strong>Push-Notifications:</strong> Integrierte Browser-Push-Dienste, um bei Hype-Signalen direkt benachrichtigt zu werden – auch im Hintergrund!</span>
-                            </li>
-                        </ul>
+                        <div class="space-y-4">
+                            <div class="border-l border-gold-500/10 pl-3">
+                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">Volumen-Ausbruch</div>
+                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Automatische Kennzeichnung von Werten als Hype-Assets bei plötzlicher Dynamik und signifikant steigendem Sentiment-Volumen.</p>
+                            </div>
+                            <div class="border-l border-gold-500/10 pl-3">
+                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">Echtzeit-Signal-Trigger</div>
+                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Unmittelbare Generierung visueller Signale im Live Feed zur sofortigen Einleitung quantitativer Prüfverfahren.</p>
+                            </div>
+                            <div class="border-l border-gold-500/10 pl-3">
+                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">Push-Infrastruktur</div>
+                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Integration nativer Push-Dienste zur akustischen und visuellen Benachrichtigung über kritische Signale auch bei inaktivem Browser-Tab.</p>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Column 3: Swarm Intelligence & AI -->
-                    <div class="space-y-3">
-                        <div class="flex items-center gap-2 border-b border-white/5 pb-2">
-                            <span class="text-base">🧠</span>
-                            <h4 class="font-mono text-xs font-bold text-gold-400 uppercase tracking-wider">Swarm Intelligence & AI</h4>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-2.5 border-b border-white/5 pb-2.5">
+                            <svg class="w-4 h-4 text-gold-500/60" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25" />
+                            </svg>
+                            <h4 class="font-mono text-xs font-bold text-gold-500 uppercase tracking-wider">SWARM VALIDIERUNG & AI</h4>
                         </div>
-                        <ul class="text-[11px] font-mono text-gray-400 space-y-2.5 leading-relaxed list-none pl-0">
-                            <li class="flex gap-2">
-                                <span class="text-gold-500">•</span>
-                                <span><strong>Technical Analysis Agent:</strong> Verifiziert Hype-Signale mit hochpräzisen Moving Averages, RSI-14, MACD und Chart-Mustern.</span>
-                            </li>
-                            <li class="flex gap-2">
-                                <span class="text-gold-500">•</span>
-                                <span><strong>Redis Swarm Cache:</strong> Jede generierte Analyse wird global für alle Benutzer 6 Std. lang zwischengespeichert – spart deine Query-Credits!</span>
-                            </li>
-                            <li class="flex gap-2">
-                                <span class="text-gold-500">•</span>
-                                <span><strong>Recalculate Bypass:</strong> Klicke auf "Recalculate", um die Analyse sofort live neu zu berechnen und das globale Archiv für alle zu aktualisieren.</span>
-                            </li>
-                        </ul>
+                        <div class="space-y-4">
+                            <div class="border-l border-gold-500/10 pl-3">
+                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">Technical AI-Validierung</div>
+                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Automatisierte Gemini-Modellierung zur Marktstrukturanalyse unter Berücksichtigung von Moving Averages, RSI-14, MACD und Chart-Mustern.</p>
+                            </div>
+                            <div class="border-l border-gold-500/10 pl-3">
+                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">Redis Swarm Caching</div>
+                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Ressourcenschonende, 6-stündige globale Speicherung aller Analysen zur geteilten, sofortigen Einsicht ohne API-Mehrfachverbrauch.</p>
+                            </div>
+                            <div class="border-l border-gold-500/10 pl-3">
+                                <div class="text-[10px] font-mono font-bold text-white uppercase tracking-wider">Recalculate Bypass</div>
+                                <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">Optionale, direkte Aktualisierung von Datenpunkten zur sofortigen Neukalkulation und globalen Aktualisierung des Caches für alle Hub-User.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -510,8 +526,14 @@
 
         // Bei Laden initialisieren
         window.addEventListener('DOMContentLoaded', () => {
-            if ("Notification" in window && Notification.permission === "granted" && pushEnabled) {
-                pushEnabled = true;
+            if ("Notification" in window && Notification.permission === "granted") {
+                // Wenn Browser-Erlaubnis erteilt ist, standardmäßig aktivieren, außer es wurde explizit ausgeschaltet
+                if (localStorage.getItem('abrakadabra_push_enabled') !== 'false') {
+                    pushEnabled = true;
+                    localStorage.setItem('abrakadabra_push_enabled', 'true');
+                } else {
+                    pushEnabled = false;
+                }
             } else {
                 pushEnabled = false;
                 localStorage.setItem('abrakadabra_push_enabled', 'false');
@@ -753,13 +775,24 @@
                         seenAlerts.add(alertKey);
                         newAlertTickers.add(alertKey);
                         
-                        // Nur benachrichtigen, wenn es kein Initial-Load ist (sonst hagelt es alte Notifications bei Seitenaufruf)
-                        if (pushEnabled && Notification.permission === "granted" && !isInitialLoad) {
-                            new Notification(`🎩 Hype-Alarm: $${a.ticker}!`, {
-                                body: `${a.mentions} Erwähnungen | Sentiment: ${a.avg_sentiment > 0 ? '+' : ''}${a.avg_sentiment}\nQuellen: ${a.subreddits.map(s => 'r/' + s).join(', ')}`,
-                                icon: '../portfoliomanager - Symbol.png',
-                                vibrate: [200, 100, 200]
-                            });
+                        // Berechne das Alter des Alerts in Minuten
+                        const alertTime = new Date(a.triggered_at).getTime();
+                        const now = Date.now();
+                        const ageMinutes = (now - alertTime) / (1000 * 60);
+                        
+                        // Benachrichtigen, wenn:
+                        // 1. Es kein Initial-Load ist ODER
+                        // 2. Es ein Initial-Load ist, der Alert aber jünger als 15 Minuten ist (sehr frisch!)
+                        const isVeryRecent = ageMinutes < 15;
+                        
+                        if (pushEnabled && Notification.permission === "granted") {
+                            if (!isInitialLoad || isVeryRecent) {
+                                new Notification(`🎩 Hype-Alarm: $${a.ticker}!`, {
+                                    body: `${a.mentions} Erwähnungen | Sentiment: ${a.avg_sentiment > 0 ? '+' : ''}${a.avg_sentiment.toFixed(3)}\nQuellen: ${a.subreddits.map(s => 'r/' + s).join(', ')}`,
+                                    icon: '../portfoliomanager - Symbol.png',
+                                    vibrate: [200, 100, 200]
+                                });
+                            }
                         }
                     }
                 });
@@ -1031,7 +1064,7 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
                     tools: [{ google_search: {} }],
                     generationConfig: {
                         temperature: 0.1,
-                        maxOutputTokens: 2048,
+                        maxOutputTokens: 8192,
                         topP: 0.95
                     }
                 };
