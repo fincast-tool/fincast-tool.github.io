@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>fincast | Hype-Barometer</title>
+    <meta name="description" content="Echtzeit Reddit Hype-Barometer – Ticker-Tracking, Sentiment-Analyse und Hype-Alerts für Aktien und Krypto.">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="fincast | Hype-Barometer">
+    <meta property="og:description" content="Echtzeit Reddit Hype-Barometer – Ticker-Tracking und Sentiment-Analyse.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+                    colors: {
+                        obsidian: { 800: '#1a1f2e', 900: '#0f1420', 950: '#0a0d14' },
+                        gold: { 400: '#e5c07b', 500: '#d4af37', 600: '#b08d2b' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: #0a0d14; color: #e2e8f0; -webkit-font-smoothing: antialiased; }
+
+        /* ─── Widget Card System (terminal.html identisch) ─── */
+        .widget-card {
+            background: #0f1420;
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(.4,0,.2,1);
+            position: relative; overflow: hidden;
+        }
+        .widget-card:hover {
+            border-color: rgba(212,175,55,0.3);
+            background: #141926;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .widget-header {
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            padding: 14px 18px;
+            background: rgba(0,0,0,0.15);
+        }
+        .data-label {
+            color: #64748b; font-size: 10px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.08em;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* ─── Badges ─── */
+        .badge { display:inline-block; padding:3px 10px; border-radius:4px; font-size:10px; font-weight:800; font-family:'JetBrains Mono',monospace; letter-spacing:0.08em; text-transform:uppercase; }
+        .badge-hype { background:rgba(234,179,8,0.15); color:#eab308; border:1px solid rgba(234,179,8,0.3); }
+        .badge-bullish { background:rgba(34,197,94,0.15); color:#22c55e; border:1px solid rgba(34,197,94,0.3); }
+        .badge-neutral { background:rgba(100,116,139,0.15); color:#94a3b8; border:1px solid rgba(100,116,139,0.3); }
+        .badge-bearish { background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid rgba(239,68,68,0.3); }
+
+        /* ─── Sentiment Gauge ─── */
+        .gauge-track { height:4px; border-radius:2px; background:#1a1f2e; overflow:hidden; position:relative; }
+        .gauge-fill { height:100%; border-radius:2px; transition: width 0.6s cubic-bezier(.4,0,.2,1); }
+
+        /* ─── Ticker Row ─── */
+        .ticker-row {
+            background: #0f1420;
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 10px; padding: 14px 18px;
+            transition: all 0.25s cubic-bezier(.4,0,.2,1);
+            cursor: default;
+        }
+        .ticker-row:hover {
+            border-color: rgba(212,175,55,0.25);
+            background: #141926;
+            transform: translateX(3px);
+        }
+        .ticker-row.is-hype {
+            border-color: rgba(212,175,55,0.15);
+            background: linear-gradient(135deg, rgba(212,175,55,0.04) 0%, #0f1420 100%);
+        }
+        .ticker-row.is-hype:hover {
+            border-color: rgba(212,175,55,0.4);
+            box-shadow: 0 0 24px rgba(212,175,55,0.06);
+        }
+
+        /* ─── Alert Item ─── */
+        .alert-item {
+            padding: 12px 14px; border-radius: 8px;
+            border: 1px solid rgba(212,175,55,0.1);
+            background: rgba(212,175,55,0.03);
+            transition: all 0.2s;
+        }
+        .alert-item:hover { border-color: rgba(212,175,55,0.25); }
+
+        /* ─── Status Indicator ─── */
+        @keyframes pulse-live { 0%,100%{opacity:1} 50%{opacity:.35} }
+        .status-live { width:6px; height:6px; border-radius:50%; background:#22c55e; animation:pulse-live 2s ease-in-out infinite; flex-shrink:0; }
+        .status-offline { width:6px; height:6px; border-radius:50%; background:#ef4444; flex-shrink:0; }
+
+        /* ─── Shimmer (terminal.html identisch) ─── */
+        .shimmer { background:linear-gradient(90deg,transparent,rgba(255,255,255,0.06),transparent); background-size:200% 100%; animation:shimmer 2s infinite; }
+        @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+
+        /* ─── Fade Animation ─── */
+        .fade-up { animation: fadeUp 0.4s ease-out both; }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+        /* ─── Metric Sparkline ─── */
+        .metric-value { font-family:'JetBrains Mono',monospace; font-weight:700; color:#d4af37; }
+
+        /* ─── Scrollbar (terminal.html identisch) ─── */
+        ::-webkit-scrollbar { width:5px; height:5px; }
+        ::-webkit-scrollbar-track { background:transparent; }
+        ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.06); border-radius:10px; }
+        ::-webkit-scrollbar-thumb:hover { background:rgba(255,255,255,0.12); }
+
+        /* ─── Responsive ─── */
+        @media (max-width: 768px) {
+            .desktop-only { display: none !important; }
+            .main-grid { grid-template-columns: 1fr !important; }
+        }
+    </style>
+</head>
+<body class="font-sans">
+
+    <!-- ═══ TOP BAR ═══ -->
+    <header class="sticky top-0 z-50 border-b border-white/[0.04]" style="background:rgba(10,13,20,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);">
+        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+            <!-- Left: Identity -->
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span class="text-sm font-extrabold tracking-tight text-white">Hype<span class="text-gold-500">Barometer</span></span>
+                </div>
+                <span class="hidden sm:inline text-[9px] font-mono text-gray-600 uppercase tracking-[0.15em] border-l border-white/[0.06] pl-3 ml-1">Reddit Sentiment Engine</span>
+            </div>
+            <!-- Right: Status + Time -->
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <div id="statusDot" class="status-live"></div>
+                    <span id="statusLabel" class="text-[10px] font-mono text-gray-500 uppercase tracking-widest">Connecting</span>
+                </div>
+                <div class="hidden sm:block w-px h-4 bg-white/[0.06]"></div>
+                <span id="lastUpdate" class="hidden sm:inline text-[10px] font-mono text-gray-600">--:--:--</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ═══ MAIN CONTENT ═══ -->
+    <main class="max-w-[1400px] mx-auto px-4 sm:px-6 py-5">
+
+        <!-- ── Metrics Strip ── -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+            <div class="widget-card">
+                <div class="p-4">
+                    <div class="data-label mb-2">Active Tickers</div>
+                    <div class="metric-value text-2xl" id="mTickers">0</div>
+                </div>
+            </div>
+            <div class="widget-card">
+                <div class="p-4">
+                    <div class="data-label mb-2">Total Mentions</div>
+                    <div class="metric-value text-2xl text-white" id="mMentions">0</div>
+                </div>
+            </div>
+            <div class="widget-card">
+                <div class="p-4">
+                    <div class="data-label mb-2">Hype Signals</div>
+                    <div class="metric-value text-2xl text-emerald-400" id="mAlerts">0</div>
+                </div>
+            </div>
+            <div class="widget-card">
+                <div class="p-4">
+                    <div class="data-label mb-2">Window</div>
+                    <div class="metric-value text-2xl text-gray-300" id="mWindow">--</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Monitored Subreddits & Timeframe Toggle ── -->
+        <div class="flex items-center justify-between mb-5 flex-wrap gap-4">
+            <div class="flex items-center gap-2">
+                <span class="data-label mr-1">Monitoring</span>
+                <div id="subTags" class="flex items-center gap-1.5 flex-wrap"></div>
+            </div>
+            
+            <div class="flex items-center gap-1 bg-[#0f1420] p-1 rounded-md border border-white/[0.04]">
+                <button id="btn15m" class="px-3 py-1 text-[10px] font-mono rounded bg-gold-500/20 text-gold-400 font-bold transition-all" onclick="setTimeframe('15m')">15 MIN</button>
+                <button id="btnMax" class="px-3 py-1 text-[10px] font-mono rounded text-gray-500 hover:text-gray-300 transition-all" onclick="setTimeframe('max')">24 STD</button>
+            </div>
+        </div>
+
+        <!-- ── Main Grid: Ticker Feed + Alerts ── -->
+        <div class="main-grid grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-5">
+
+            <!-- LEFT: Ticker Leaderboard -->
+            <div class="widget-card">
+                <div class="widget-header flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 17V13" stroke-linecap="round" stroke-width="2.5"/><path d="M11 17V9" stroke-linecap="round" stroke-width="2.5"/><path d="M15 17V5" stroke-linecap="round" stroke-width="2.5"/><path d="M19 17V11" stroke-linecap="round" stroke-width="2.5"/></svg>
+                        <span class="data-label">Ticker Leaderboard</span>
+                    </div>
+                    <span class="text-[9px] font-mono text-gray-600" id="tickerCount">0 active</span>
+                </div>
+
+                <div class="p-3 space-y-2 max-h-[calc(100vh-320px)] overflow-y-auto" id="tickerList">
+                    <div class="text-center py-16">
+                        <svg class="w-10 h-10 mx-auto text-gray-700 mb-3" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3" stroke-linecap="round"/></svg>
+                        <p class="text-xs text-gray-600 font-mono">Waiting for data feed...</p>
+                        <p class="text-[9px] text-gray-700 font-mono mt-1">python main.py</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Alert Feed -->
+            <div class="widget-card">
+                <div class="widget-header flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                        <span class="data-label">Signal Feed</span>
+                    </div>
+                    <span class="text-[9px] font-mono text-gray-600" id="alertCount">0 signals</span>
+                </div>
+                <div class="p-3 space-y-2 max-h-[calc(100vh-320px)] overflow-y-auto" id="alertList">
+                    <div class="text-center py-16">
+                        <p class="text-xs text-gray-600 font-mono">No signals triggered</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ── Footer ── -->
+        <div class="text-center mt-8 mb-4">
+            <span class="text-[9px] font-mono text-gray-700 uppercase tracking-[0.2em]">Abrakadabra Hype-Barometer &middot; Reddit &times; VADER NLP Engine</span>
+        </div>
+    </main>
+
+    <!-- ═══ JAVASCRIPT ═══ -->
+    <script>
+        let DATA_URL = 'hype_data.json';
+        const REFRESH_MS = 8000;
+        let failCount = 0;
+        let isInitialLoad = true;
+
+
+        // ── Timeframe Toggle ──
+        function setTimeframe(tf) {
+            const btn15 = document.getElementById('btn15m');
+            const btnMax = document.getElementById('btnMax');
+            isInitialLoad = true; // reset animation for new view
+            
+            if (tf === '15m') {
+                DATA_URL = 'hype_data.json';
+                btn15.className = "px-3 py-1 text-[10px] font-mono rounded bg-gold-500/20 text-gold-400 font-bold transition-all";
+                btnMax.className = "px-3 py-1 text-[10px] font-mono rounded text-gray-500 hover:text-gray-300 transition-all";
+            } else {
+                DATA_URL = 'hype_data_max.json';
+                btnMax.className = "px-3 py-1 text-[10px] font-mono rounded bg-gold-500/20 text-gold-400 font-bold transition-all";
+                btn15.className = "px-3 py-1 text-[10px] font-mono rounded text-gray-500 hover:text-gray-300 transition-all";
+            }
+            
+            // Sofort neues Fetch triggern
+            fetchData();
+        }
+
+
+
+        // ── Fetch Loop ──
+        async function fetchData() {
+            try {
+                const r = await fetch(DATA_URL + '?_=' + Date.now());
+                if (!r.ok) throw new Error(r.status);
+                const d = await r.json();
+                cachedData = d;
+                failCount = 0;
+                setStatus(true);
+                render(d);
+                isInitialLoad = false;
+            } catch (e) {
+                failCount++;
+                if (failCount > 3) setStatus(false);
+            }
+        }
+
+        function setStatus(online) {
+            const dot = document.getElementById('statusDot');
+            const lbl = document.getElementById('statusLabel');
+            dot.className = online ? 'status-live' : 'status-offline';
+            lbl.textContent = online ? 'Live' : 'Offline';
+            lbl.style.color = online ? '#22c55e' : '#ef4444';
+        }
+
+        // ── Main Render ──
+        function render(d) {
+            const m = d.meta;
+            document.getElementById('lastUpdate').textContent = new Date(m.last_updated).toLocaleTimeString('de-DE');
+            document.getElementById('mTickers').textContent = m.total_active_tickers;
+            document.getElementById('mMentions').textContent = m.total_mentions;
+            document.getElementById('mAlerts').textContent = d.alerts.length;
+            
+            let winText = m.window_minutes + ' min';
+            if (m.window_minutes === 1440) winText = '24 hours';
+            document.getElementById('mWindow').textContent = winText;
+            
+            renderSubs(m.subreddits_monitored);
+            renderTickers(d.tickers);
+            renderAlerts(d.alerts);
+        }
+
+        // ── Subreddits ──
+        function renderSubs(str) {
+            const el = document.getElementById('subTags');
+            el.innerHTML = str.split('+').map(s =>
+                `<span class="text-[10px] font-mono px-2 py-0.5 rounded border border-white/[0.06] text-gray-500">r/${s}</span>`
+            ).join('');
+        }
+
+        // ── Ticker Leaderboard ──
+        function renderTickers(tickers) {
+            const el = document.getElementById('tickerList');
+            const currentScroll = el.scrollTop; // Scroll-Position merken
+            
+            // Kopie anlegen und hart sortieren nach Mentions (primär) und Sentiment (sekundär)
+            let sortedTickers = [...tickers];
+            sortedTickers.sort((a, b) => {
+                if (b.mentions !== a.mentions) {
+                    return b.mentions - a.mentions;
+                }
+                return b.avg_sentiment - a.avg_sentiment;
+            });
+            
+            document.getElementById('tickerCount').textContent = sortedTickers.length + ' active';
+            if (!sortedTickers.length) {
+                el.innerHTML = '<div class="text-center py-16"><p class="text-xs text-gray-600 font-mono">No active tickers</p></div>';
+                return;
+            }
+            el.innerHTML = '';
+            sortedTickers.forEach((t, i) => {
+                const row = document.createElement('div');
+                const fadeClass = isInitialLoad ? ' fade-up' : '';
+                row.className = 'ticker-row' + fadeClass + (t.is_hype ? ' is-hype' : '');
+                row.style.animationDelay = (i * 40) + 'ms';
+
+                const pct = Math.round(((t.avg_sentiment + 1) / 2) * 100);
+                const color = sentimentColor(t.avg_sentiment);
+                const badgeClass = t.is_hype ? 'badge-hype' : sentimentBadge(t.avg_sentiment);
+                const badgeText = t.is_hype ? 'HYPE' : t.sentiment_level;
+                const rank = i + 1;
+                const subs = t.subreddits.map(s => 'r/' + s).join(', ');
+
+                row.innerHTML = `
+                    <div class="flex items-center justify-between mb-2.5">
+                        <div class="flex items-center gap-3">
+                            <span class="text-[10px] font-mono text-gray-600 w-4 text-right">${rank}</span>
+                            <span class="font-mono font-bold text-[15px] text-gold-400">$${t.ticker}</span>
+                            <span class="badge ${badgeClass}">${badgeText}</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="font-mono font-bold text-lg text-white">${t.mentions}</span>
+                            <span class="text-[9px] font-mono text-gray-600 uppercase">mentions</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="flex-1 gauge-track">
+                            <div class="gauge-fill" style="width:${pct}%;background:${color}"></div>
+                        </div>
+                        <span class="font-mono text-[11px] font-bold w-14 text-right" style="color:${color}">${t.avg_sentiment > 0 ? '+' : ''}${t.avg_sentiment.toFixed(3)}</span>
+                    </div>
+                    <div class="text-[9px] font-mono text-gray-600 mt-2">${subs}</div>
+                `;
+                el.appendChild(row);
+            });
+            
+            el.scrollTop = currentScroll; // Scroll-Position wiederherstellen
+        }
+
+        // ── Alert Feed ──
+        function renderAlerts(alerts) {
+            const el = document.getElementById('alertList');
+            const currentScroll = el.scrollTop; // Scroll-Position merken
+            
+            document.getElementById('alertCount').textContent = alerts.length + ' signals';
+            if (!alerts.length) {
+                el.innerHTML = '<div class="text-center py-16"><p class="text-xs text-gray-600 font-mono">No signals triggered</p></div>';
+                return;
+            }
+            el.innerHTML = '';
+            alerts.slice(0, 25).forEach((a, i) => {
+                const item = document.createElement('div');
+                const fadeClass = isInitialLoad ? ' fade-up' : '';
+                item.className = 'alert-item' + fadeClass;
+                item.style.animationDelay = (i * 50) + 'ms';
+                const time = a.triggered_at ? new Date(a.triggered_at).toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit'}) : '--:--';
+                const color = sentimentColor(a.avg_sentiment);
+                const subs = a.subreddits.map(s => 'r/' + s).join(', ');
+
+                item.innerHTML = `
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="font-mono font-bold text-xs text-gold-400">$${a.ticker}</span>
+                        <span class="text-[9px] font-mono text-gray-600">${time}</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-[10px] font-mono text-gray-400">
+                        <span>${a.mentions}x mentions</span>
+                        <span class="text-gray-700">&middot;</span>
+                        <span style="color:${color}">${a.avg_sentiment > 0 ? '+' : ''}${a.avg_sentiment}</span>
+                    </div>
+                    <div class="text-[9px] font-mono text-gray-700 mt-1">${subs}</div>
+                `;
+                el.appendChild(item);
+            });
+            
+            el.scrollTop = currentScroll; // Scroll-Position wiederherstellen
+        }
+
+        // ── Helpers ──
+        function sentimentColor(s) {
+            if (s >= 0.4) return '#22c55e';
+            if (s >= 0.1) return '#d4af37';
+            if (s >= -0.1) return '#64748b';
+            return '#ef4444';
+        }
+        function sentimentBadge(s) {
+            if (s >= 0.4) return 'badge-bullish';
+            if (s >= 0.1) return 'badge-hype';
+            if (s >= -0.1) return 'badge-neutral';
+            return 'badge-bearish';
+        }
+
+        // ── Init ──
+        fetchData();
+        setInterval(fetchData, REFRESH_MS);
+    </script>
+</body>
+</html>
