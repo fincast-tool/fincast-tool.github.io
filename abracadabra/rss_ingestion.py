@@ -75,12 +75,28 @@ def stream_rss_submissions(subreddits: str) -> Generator[Dict[str, Any], None, N
                         
                         full_text = f"{title}\n\n{content}"
                         
+                        # Zeitstempel extrahieren
+                        pub_time = time.time()
+                        if hasattr(entry, 'published_parsed') and entry.published_parsed:
+                            try:
+                                import calendar
+                                pub_time = calendar.timegm(entry.published_parsed)  # type: ignore
+                            except Exception:
+                                pub_time = time.time()
+                        elif hasattr(entry, 'updated_parsed') and entry.updated_parsed:
+                            try:
+                                import calendar
+                                pub_time = calendar.timegm(entry.updated_parsed)  # type: ignore
+                            except Exception:
+                                pub_time = time.time()
+                        
                         yield {
                             "subreddit": sub_name,
                             "type": "submission",
                             "text": full_text,
                             "title": title,
-                            "author": entry.author if hasattr(entry, 'author') else "unknown"
+                            "author": entry.author if hasattr(entry, 'author') else "unknown",
+                            "created_utc": pub_time
                         }
                         
             time.sleep(poll_interval)

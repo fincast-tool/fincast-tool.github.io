@@ -151,6 +151,28 @@ module.exports = async function handler(req, res) {
             return res.status(200).json(JSON.parse(report));
         }
 
+        // --- HYPE BAROMETER LOGIC ---
+        if (action === 'save_hype') {
+            const { timeframe, data: hypeData } = req.body;
+            if (!timeframe || !hypeData) {
+                return res.status(400).json({ error: 'Missing timeframe or data' });
+            }
+            await redis.set(`hype:${timeframe}`, JSON.stringify(hypeData));
+            return res.status(200).json({ success: true });
+        }
+
+        if (action === 'get_hype') {
+            const { timeframe } = req.body;
+            if (!timeframe) {
+                return res.status(400).json({ error: 'Missing timeframe' });
+            }
+            const hypeData = await redis.get(`hype:${timeframe}`);
+            if (!hypeData) {
+                return res.status(404).json({ error: 'No data found' });
+            }
+            return res.status(200).json(JSON.parse(hypeData));
+        }
+
         res.status(400).json({ error: 'Unknown action: ' + action });
     } catch (error) {
         console.error('Storage API Error:', error);

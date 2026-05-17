@@ -946,25 +946,16 @@
             updatePushUI();
         });
 
-        // Wenn wir auf Vercel gehostet sind, leiten wir API-Anfragen an das Render-Backend weiter
+        // Umgebungserkennung (Lokal vs. Vercel)
         const host = window.location.hostname;
-        const isLocal = host === 'localhost' || host === '127.0.0.1';
-        const isRender = host.includes('onrender.com');
-
-        // Trage hier spaeter deine tatsaechliche Render-App-URL ein!
-        const RENDER_BACKEND_URL = 'https://fincast-hype-barometer.onrender.com';
-
-        function getFetchUrl() {
-            if (isLocal || isRender) {
-                // Lokal oder direkt auf Render gehostet -> Relative Pfade nutzen
-                return currentTF === '15m' ? 'hype_data.json' : 'hype_data_max.json';
-            } else {
-                // Auf Vercel gehostet -> Absolute Endpunkte des Render-Backends nutzen
-                return currentTF === '15m'
-                    ? RENDER_BACKEND_URL + '/api/hype'
-                    : RENDER_BACKEND_URL + '/api/hype-max';
-            }
-        }
+        const protocol = window.location.protocol;
+        const isLocal = host === 'localhost' || 
+                        host === '127.0.0.1' || 
+                        host === '[::1]' || 
+                        protocol === 'file:' || 
+                        host.startsWith('192.168.') || 
+                        host.startsWith('10.') || 
+                        host.startsWith('172.');
 
         // ── Timeframe Toggle ──
         function setTimeframe(tf) {
@@ -988,15 +979,25 @@
         // ── Fetch Loop ──
         async function fetchData() {
             try {
-                const url = getFetchUrl();
-                const r = await fetch(url + (url.includes('?') ? '&' : '?') + '_=' + Date.now());
-                if (!r.ok) throw new Error(r.status);
-                const d = await r.json();
+                let d;
+                if (isLocal) {
+                    // Lokal -> Lese relative JSON-Dateien
+                    const url = currentTF === '15m' ? 'hype_data.json' : 'hype_data_max.json';
+                    const r = await fetch(url + '?_=' + Date.now());
+                    if (!r.ok) throw new Error(r.status);
+                    d = await r.json();
+                } else {
+                    // Auf Vercel gehostet -> Hole Daten direkt aus Redis via Serverless Function
+                    const timeframe = currentTF === '15m' ? '15m' : 'max';
+                    d = await apiCall('get_hype', { timeframe });
+                    if (d && d.error) throw new Error(d.error);
+                }
                 failCount = 0;
                 setStatus(true);
                 render(d);
                 isInitialLoad = false;
             } catch (e) {
+                console.error("fetchData failed:", e);
                 failCount++;
                 if (failCount > 3) setStatus(false);
             }

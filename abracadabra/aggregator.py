@@ -11,7 +11,7 @@ import time
 import logging
 from datetime import datetime, timezone
 from collections import defaultdict
-from typing import Dict, List
+from typing import Dict, List, Optional
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -100,13 +100,13 @@ class HypeAggregator:
         )
 
     def add_mention(self, ticker: str, sentiment: float, subreddit: str,
-                    source_type: str = "unknown"):
+                    source_type: str = "unknown", timestamp: Optional[float] = None):
         """Fuegt eine neue Ticker-Erwaehnung hinzu."""
         mention = TickerMention(
             ticker=ticker,
             sentiment=sentiment,
             subreddit=subreddit,
-            timestamp=time.time(),
+            timestamp=timestamp if timestamp is not None else time.time(),
             source_type=source_type,
         )
 
@@ -337,6 +337,45 @@ class HypeAggregator:
 
 # ─── JSON-Export Funktionen ─────────────────────────────────
 
+def push_to_vercel(data: dict, timeframe: str):
+    """Sendet die Hype-Barometer-Daten per POST-Request an Vercel-Storage."""
+    import urllib.request
+    import json
+    
+    url = config.VERCEL_STORAGE_URL
+    if not url:
+        logger.warning("VERCEL_STORAGE_URL ist nicht konfiguriert. Uebertrage keine Daten nach Vercel.")
+        return
+        
+    payload = {
+        "action": "save_hype",
+        "timeframe": timeframe,
+        "data": data
+    }
+    
+    headers = {
+        "Content-Type": "application/json",
+        "User-Agent": "Abracadabra-Uploader/1.0"
+    }
+    
+    try:
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers=headers,
+            method="POST"
+        )
+        
+        # Timeout von 10s, um den Background-Thread nicht zu blockieren bei Netzwerkfehlern
+        with urllib.request.urlopen(req, timeout=10) as response:
+            res_data = json.loads(response.read().decode("utf-8"))
+            if not res_data.get("success"):
+                raise Exception(res_data.get("error", "Vercel returned success=False"))
+            logger.info(f"Hype-Daten ({timeframe}) erfolgreich nach Vercel-Redis uebertragen!")
+    except Exception as e:
+        logger.error(f"Fehler beim Uebertragen der Hype-Daten ({timeframe}) nach Vercel: {e}")
+
+
 def export_dashboard_json(aggregator: HypeAggregator, filename: str = "hype_data.json"):
     """
     Exportiert die aktuellen Dashboard-Daten als JSON-Datei.
@@ -359,6 +398,10 @@ def export_dashboard_json(aggregator: HypeAggregator, filename: str = "hype_data
             f"Dashboard-JSON exportiert: {ticker_count} Ticker, "
             f"{mention_count} Erwaehnungen -> {output_path.name}"
         )
+
+        # Automatisch an Vercel-Redis KV uebertragen
+        timeframe = "15m" if filename == "hype_data.json" else "max"
+        push_to_vercel(data, timeframe)
 
     except Exception as e:
         logger.error(f"JSON-Export fehlgeschlagen: {e}")

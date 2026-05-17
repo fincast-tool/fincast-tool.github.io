@@ -62,3 +62,6 @@ MIN_ACCOUNT_AGE_DAYS: int = int(os.getenv("MIN_ACCOUNT_AGE_DAYS", "30"))
 
 # ─── Timing ─────────────────────────────────────────────────
 ALERT_CHECK_INTERVAL_SECONDS: int = int(os.getenv("ALERT_CHECK_INTERVAL_SECONDS", "60"))
+
+# ─── Vercel Integration ──────────────────────────────────────
+VERCEL_STORAGE_URL: str = os.getenv("VERCEL_STORAGE_URL", "https://fincast-tool.vercel.app/api/storage")

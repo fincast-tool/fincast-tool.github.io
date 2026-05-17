@@ -110,6 +110,7 @@ def _process_item(item: dict, aggregator_15m: HypeAggregator, aggregator_24h: Hy
 
     # Ticker & Sentiment extrahieren
     results = process_text(text)
+    timestamp = item.get("created_utc")
 
     for ticker, sentiment in results:
         aggregator_15m.add_mention(
@@ -117,12 +118,14 @@ def _process_item(item: dict, aggregator_15m: HypeAggregator, aggregator_24h: Hy
             sentiment=sentiment,
             subreddit=item.get("subreddit", "unknown"),
             source_type=item.get("type", "unknown"),
+            timestamp=timestamp,
         )
         aggregator_24h.add_mention(
             ticker=ticker,
             sentiment=sentiment,
             subreddit=item.get("subreddit", "unknown"),
             source_type=item.get("type", "unknown"),
+            timestamp=timestamp,
         )
 
 
@@ -161,18 +164,21 @@ def _rss_worker(aggregator_15m: HypeAggregator, aggregator_24h: HypeAggregator):
                 break
 
             results = process_text(item["text"])
+            timestamp = item.get("created_utc")
             for ticker, sentiment in results:
                 aggregator_15m.add_mention(
                     ticker=ticker,
                     sentiment=sentiment,
                     subreddit=item["subreddit"],
                     source_type=item["type"],
+                    timestamp=timestamp,
                 )
                 aggregator_24h.add_mention(
                     ticker=ticker,
                     sentiment=sentiment,
                     subreddit=item["subreddit"],
                     source_type=item["type"],
+                    timestamp=timestamp,
                 )
     except Exception as e:
         logger.error(f"RSS-Worker abgestuerzt: {e}")

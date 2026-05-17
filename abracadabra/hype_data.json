@@ -1,21 +1,52 @@
 {
   "meta": {
-    "last_updated": "2026-05-17T17:24:58.802274+00:00",
+    "last_updated": "2026-05-17T22:47:23.977588+00:00",
     "window_minutes": 15,
     "min_mentions": 4,
     "min_sentiment": 0.6,
     "subreddits_monitored": "wallstreetbets+CryptoCurrency+stocks+pennystocks+SatoshiStreetBets",
-    "total_active_tickers": 1,
-    "total_mentions": 1
+    "total_active_tickers": 4,
+    "total_mentions": 10
   },
   "tickers": [
     {
+      "ticker": "NVDA",
+      "mentions": 6,
+      "avg_sentiment": 0.299,
+      "sentiment_level": "POSITIV",
+      "subreddits": [
+        "stocks",
+        "wallstreetbets"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "BTC",
+      "mentions": 2,
+      "avg_sentiment": 0.101,
+      "sentiment_level": "NEUTRAL",
+      "subreddits": [
+        "CryptoCurrency"
+      ],
+      "is_hype": false
+    },
+    {
       "ticker": "AMD",
       "mentions": 1,
-      "avg_sentiment": -0.966,
-      "sentiment_level": "NEGATIV",
+      "avg_sentiment": 0.511,
+      "sentiment_level": "SEHR POSITIV",
       "subreddits": [
         "wallstreetbets"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "SOL",
+      "mentions": 1,
+      "avg_sentiment": 0.178,
+      "sentiment_level": "NEUTRAL",
+      "subreddits": [
+        "CryptoCurrency"
       ],
       "is_hype": false
     }
