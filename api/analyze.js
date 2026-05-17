@@ -48,6 +48,14 @@ module.exports = async function handler(req, res) {
                         symbol = (searchData && searchData[0]) ? searchData[0].symbol : ticker.trim().toUpperCase();
                         console.log(`[Backend] Search result: ${symbol}`);
                     }
+
+                    // Auto-map common cryptocurrencies to FMP-compliant tickers (e.g. BTC -> BTCUSD, SOL -> SOLUSD)
+                    const cryptoTickers = ['BTC', 'ETH', 'SOL', 'ADA', 'DOT', 'DOGE', 'SHIB', 'XRP', 'AVAX', 'LINK', 'LTC', 'BCH', 'UNI', 'ATOM', 'ETC', 'ALGO', 'XLM', 'NEAR', 'ICP', 'FIL', 'LDO', 'GRT', 'FTM', 'RNDR', 'CRO', 'OP', 'ARB', 'TON', 'PEPE', 'WIF', 'BONK', 'FLOKI', 'SUI', 'APT', 'TIA'];
+                    if (symbol && cryptoTickers.includes(symbol)) {
+                        symbol = symbol + 'USD';
+                        fmpDetails += "Mapped crypto ticker to USD pair. ";
+                    }
+
                     fmpDetails += `Using Symbol: ${symbol}. `;
 
                     console.log(`[Backend] Starting fetches for ${symbol}...`);
@@ -90,12 +98,23 @@ module.exports = async function handler(req, res) {
                 const hasProfile = Array.isArray(profileData) && profileData.length > 0;
                 const hasQuote = Array.isArray(quoteData) && quoteData.length > 0;
 
-                if (hasProfile) {
-                    systemStatus += ` | Profile: OK | Symbol: ${symbol}`;
+                if (hasProfile || hasQuote) {
+                    systemStatus += ` | Profile: ${hasProfile ? 'OK' : 'N/A'} | Quote: ${hasQuote ? 'OK' : 'N/A'} | Symbol: ${symbol}`;
 
                     const profile = profileData[0] || {};
                     const quote = quoteData[0] || {};
                     const ttm = ttmData[0] || {};
+
+                    // Auto-generate name/industry for cryptos or custom assets
+                    if (!profile.companyName) {
+                        if (symbol.endsWith('USD')) {
+                            profile.companyName = symbol.replace('USD', '') + ' (Cryptocurrency)';
+                            profile.sector = 'Cryptocurrency';
+                            profile.industry = 'Digital Asset';
+                        } else {
+                            profile.companyName = symbol;
+                        }
+                    }
 
                     const rsiData = (rsiDataRaw && rsiDataRaw.length > 0 && rsiDataRaw[0].rsi != null) ? rsiDataRaw[0].rsi : 'N/A';
                     const macdData = (macdDataRaw && macdDataRaw.length > 0 && macdDataRaw[0].macd != null) ? macdDataRaw[0].macd : 'N/A';
