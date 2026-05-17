@@ -242,7 +242,10 @@ def main():
 
     # Zwei Aggregatoren initialisieren: 15 Minuten und 24 Stunden (1440 min)
     aggregator_15m = HypeAggregator(window_minutes=15)
+    aggregator_15m.load_state("hype_data_state.json")
+
     aggregator_24h = HypeAggregator(window_minutes=1440)
+    aggregator_24h.load_state("hype_data_max_state.json")
 
     # Worker-Threads starten
     threads = []

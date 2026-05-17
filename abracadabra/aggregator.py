@@ -160,6 +160,77 @@ class HypeAggregator:
 
         return alerts
 
+    def save_state(self, filename: str):
+        """Sichert den aktuellen internen Zustand (Erwaehnungen und Historie) in einer JSON-Datei."""
+        try:
+            output_dir = Path(config.OUTPUT_JSON_PATH).parent
+            state_path = output_dir / filename
+            
+            serialized_data = {}
+            for ticker, agg in self._data.items():
+                serialized_mentions = []
+                for m in agg.mentions:
+                    serialized_mentions.append({
+                        "ticker": m.ticker,
+                        "sentiment": m.sentiment,
+                        "subreddit": m.subreddit,
+                        "timestamp": m.timestamp,
+                        "source_type": m.source_type
+                    })
+                serialized_data[ticker] = {
+                    "ticker": agg.ticker,
+                    "last_alert_time": agg.last_alert_time,
+                    "mentions": serialized_mentions
+                }
+            
+            state = {
+                "alert_history": self._alert_history,
+                "data": serialized_data
+            }
+            
+            temp_path = state_path.with_suffix(".tmp")
+            with open(temp_path, "w", encoding="utf-8") as f:
+                json.dump(state, f, ensure_ascii=False, indent=2)
+            temp_path.replace(state_path)
+            logger.info(f"Aggregator-State erfolgreich gesichert: {state_path.name}")
+        except Exception as e:
+            logger.error(f"Fehler beim Sichern des Aggregator-States: {e}")
+
+    def load_state(self, filename: str):
+        """Laedt den Zustand aus einer JSON-Datei, falls vorhanden."""
+        try:
+            output_dir = Path(config.OUTPUT_JSON_PATH).parent
+            state_path = output_dir / filename
+            if not state_path.exists():
+                logger.info(f"Keine State-Datei gefunden: {state_path.name}. Starte frisch.")
+                return
+            
+            with open(state_path, "r", encoding="utf-8") as f:
+                state = json.load(f)
+            
+            self._alert_history = state.get("alert_history", [])
+            serialized_data = state.get("data", {})
+            
+            for ticker, data in serialized_data.items():
+                agg = TickerAggregation(
+                    ticker=data.get("ticker", ticker),
+                    last_alert_time=data.get("last_alert_time", 0.0)
+                )
+                for m in data.get("mentions", []):
+                    agg.mentions.append(TickerMention(
+                        ticker=m.get("ticker", ticker),
+                        sentiment=m.get("sentiment", 0.0),
+                        subreddit=m.get("subreddit", "unknown"),
+                        timestamp=m.get("timestamp", time.time()),
+                        source_type=m.get("source_type", "unknown")
+                    ))
+                self._data[ticker] = agg
+                
+            logger.info(f"Aggregator-State erfolgreich geladen: {state_path.name} ({len(self._data)} Ticker rekonstruiert)")
+        except Exception as e:
+            logger.error(f"Fehler beim Laden des Aggregator-States: {e}")
+
+
     def get_stats(self) -> Dict[str, dict]:
         """Gibt aktuelle Statistiken aller Ticker zurueck."""
         stats = {}
@@ -270,5 +341,9 @@ def process_and_export(aggregator: HypeAggregator, filename: str = "hype_data.js
 
     # Dashboard-JSON immer aktualisieren (auch ohne neue Alerts)
     export_dashboard_json(aggregator, filename)
+
+    # State sichern
+    state_filename = filename.replace(".json", "_state.json")
+    aggregator.save_state(state_filename)
 
     return alerts
