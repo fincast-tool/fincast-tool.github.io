@@ -240,24 +240,42 @@
 
     <!-- ═══ JAVASCRIPT ═══ -->
     <script>
-        let DATA_URL = 'hype_data.json';
+        let currentTF = '15m'; // '15m' oder 'max'
         const REFRESH_MS = 8000;
         let failCount = 0;
         let isInitialLoad = true;
 
+        // Wenn wir auf Vercel gehostet sind, leiten wir API-Anfragen an das Render-Backend weiter
+        const host = window.location.hostname;
+        const isLocal = host === 'localhost' || host === '127.0.0.1';
+        const isRender = host.includes('onrender.com');
+        
+        // Trage hier spaeter deine tatsaechliche Render-App-URL ein!
+        const RENDER_BACKEND_URL = 'https://fincast-hype-barometer.onrender.com';
+
+        function getFetchUrl() {
+            if (isLocal || isRender) {
+                // Lokal oder direkt auf Render gehostet -> Relative Pfade nutzen
+                return currentTF === '15m' ? 'hype_data.json' : 'hype_data_max.json';
+            } else {
+                // Auf Vercel gehostet -> Absolute Endpunkte des Render-Backends nutzen
+                return currentTF === '15m' 
+                    ? RENDER_BACKEND_URL + '/api/hype' 
+                    : RENDER_BACKEND_URL + '/api/hype-max';
+            }
+        }
 
         // ── Timeframe Toggle ──
         function setTimeframe(tf) {
             const btn15 = document.getElementById('btn15m');
             const btnMax = document.getElementById('btnMax');
             isInitialLoad = true; // reset animation for new view
+            currentTF = tf;
             
             if (tf === '15m') {
-                DATA_URL = 'hype_data.json';
                 btn15.className = "px-3 py-1 text-[10px] font-mono rounded bg-gold-500/20 text-gold-400 font-bold transition-all";
                 btnMax.className = "px-3 py-1 text-[10px] font-mono rounded text-gray-500 hover:text-gray-300 transition-all";
             } else {
-                DATA_URL = 'hype_data_max.json';
                 btnMax.className = "px-3 py-1 text-[10px] font-mono rounded bg-gold-500/20 text-gold-400 font-bold transition-all";
                 btn15.className = "px-3 py-1 text-[10px] font-mono rounded text-gray-500 hover:text-gray-300 transition-all";
             }
@@ -266,15 +284,13 @@
             fetchData();
         }
 
-
-
         // ── Fetch Loop ──
         async function fetchData() {
             try {
-                const r = await fetch(DATA_URL + '?_=' + Date.now());
+                const url = getFetchUrl();
+                const r = await fetch(url + (url.includes('?') ? '&' : '?') + '_=' + Date.now());
                 if (!r.ok) throw new Error(r.status);
                 const d = await r.json();
-                cachedData = d;
                 failCount = 0;
                 setStatus(true);
                 render(d);
