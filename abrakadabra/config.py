@@ -12,15 +12,15 @@ from dotenv import load_dotenv
 
 # .env-Datei laden (sucht im aktuellen Verzeichnis)
 _env_path = Path(__file__).resolve().parent / ".env"
-if not _env_path.exists():
-    print("=" * 60)
-    print("FEHLER: Keine .env-Datei gefunden!")
-    print(f"Erwartet unter: {_env_path}")
-    print("Kopiere '.env.example' nach '.env' und trage deine Keys ein.")
-    print("=" * 60)
-    sys.exit(1)
-
-load_dotenv(dotenv_path=_env_path)
+if _env_path.exists():
+    load_dotenv(dotenv_path=_env_path)
+else:
+    # Auf Cloud-Servern wie Render/Railway existiert oft keine .env-Datei,
+    # da die Variablen direkt im Dashboard eingetragen werden. 
+    # Wir laden .env.example als Fallback fuer Default-Werte.
+    _example_path = Path(__file__).resolve().parent / ".env.example"
+    if _example_path.exists():
+        load_dotenv(dotenv_path=_example_path)
 
 
 def _require(key: str) -> str:
