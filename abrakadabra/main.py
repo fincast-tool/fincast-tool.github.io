@@ -79,6 +79,11 @@ def get_hype_max_data():
     except Exception as e:
         return {"error": str(e)}
 
+@app.get("/")
+def read_root():
+    # Render Health-Check-Sicherung: Gibt 200 OK zurueck, damit der Dienst online bleibt
+    return {"status": "ok", "message": "Abrakadabra API is running. Go to /hype.html for the dashboard."}
+
 # Statische Dateien mounten, damit das Dashboard (hype.html) direkt vom API-Port geladen werden kann.
 # Muss als letztes gemountet werden, da es alle Pfade faengt.
 app.mount("/", StaticFiles(directory=".", html=True), name="static")

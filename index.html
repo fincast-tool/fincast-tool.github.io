@@ -46,6 +46,11 @@
             --gold-500: #eab308;
             --gold-400: #facc15;
             --gold-glow: rgba(234, 179, 8, 0.15);
+            --bg: #f8fafc;
+            --primary: #0f172a;
+            --accent: #27ae60;
+            --terminal-bg: #0f172a;
+            --terminal-gold: #facc15;
         }
 
         body {
@@ -230,9 +235,16 @@
         }
 
         .tool-desc {
-            font-size: 1rem;
+            font-size: 0.95rem;
             line-height: 1.5;
-            color: #64748b;
+        }
+
+        .card-terminal .tool-desc {
+            color: #cbd5e1; /* Leichtes Hellgrau für perfekte Lesbarkeit auf dunklem Hintergrund */
+        }
+
+        .card-calculator .tool-desc {
+            color: #475569; /* Dunkleres Graublau für perfekten Kontrast auf hellem Hintergrund */
         }
 
         .tool-image-preview {
@@ -303,13 +315,22 @@
                 </div>
             </a>
 
+            <!-- Hype-Barometer Tool (Abrakadabra) -->
+            <a href="abrakadabra/hype.html" class="tool-card card-terminal">
+                <img src="theme-toggle-portfoliomanager.png" alt="Hype-Barometer Preview" class="tool-image-preview">
+                <div class="card-content">
+                    <span class="tool-tag" id="t-hype-tag">Sentiment Analysis</span>
+                    <h2 class="tool-name">Abrakadabra<br><span style="color: var(--terminal-gold)">Hype-Barometer</span></h2>
+                    <p class="tool-desc" id="t-hype-desc">Echtzeit Reddit Sentiment-Tracker & Ticker-Extraktion. Erkenne Hype-Aktien und Krypto-Trends, bevor sie explodieren.</p>
+                </div>
+            </a>
+
             <!-- Calculator Tool -->
-            <a href="calculator.html" class="tool-card card-calculator">
+            <a href="calculator.html" class="tool-card card-terminal">
                 <img src="theme-toggle-portfoliomanager.png" alt="Calculator Preview" class="tool-image-preview">
                 <div class="card-content">
                     <span class="tool-tag" id="t-calc-tag">Wealth Simulation</span>
-                    <h2 class="tool-name">Zinseszins &<br><span style="color: var(--accent)">Dividenden</span> Simulator
-                    </h2>
+                    <h2 class="tool-name">Zinseszins &<br><span style="color: var(--terminal-gold)">Dividenden</span> Simulator</h2>
                     <p class="tool-desc" id="t-calc-desc">Präzise Berechnung deines Vermögensaufbaus unter
                         Berücksichtigung von Steuern und Inflation.</p>
                 </div>
@@ -327,11 +348,11 @@
             </div>
 
             <!-- Ebook Tool -->
-            <div onclick="openPresentationModal()" class="tool-card card-terminal" style="cursor: pointer;">
+            <div onclick="openPresentationModal()" class="tool-card card-calculator" style="cursor: pointer;">
                 <img src="theme-toggle-portfoliomanager.png" alt="Ebook Preview" class="tool-image-preview">
                 <div class="card-content">
                     <span class="tool-tag" id="t-pres-tag">Ebook</span>
-                    <h2 class="tool-name">The Vibe of<br><span style="color: var(--terminal-gold)">Wealth</span></h2>
+                    <h2 class="tool-name">The Vibe of<br><span style="color: var(--accent)">Wealth</span></h2>
                     <p class="tool-desc" id="t-pres-desc">Mein exklusives Mentoring-Ebook von Nikolai Bretthauer für
                         deinen Weg in die finanzielle Flexibilität.</p>
                     <div class="flex items-center gap-1.5 mt-3 text-xs font-medium text-slate-400">
@@ -433,13 +454,18 @@
                         nachhaltigen Vermögensaufbau legen.
                     </p>
                 </div>
-                <div class="md:col-span-2 max-w-xl mx-auto mt-4 text-center md:text-left">
-                    <h3 class="text-lg font-bold text-slate-800 mb-3" id="t-seo-podcast-h">The Vibe of Wealth Podcast
-                    </h3>
+                <div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-3" id="t-seo-podcast-h">The Vibe of Wealth Podcast</h3>
                     <p class="text-sm text-slate-500 leading-relaxed" id="t-seo-podcast-p">
                         Höre dir die Inhalte des Ebooks bequem unterwegs als Podcast an. Mit dem integrierten
                         Audio-Player kannst du die Abspielgeschwindigkeit anpassen und tief in die Materie eintauchen,
                         wann immer es dir passt.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-3" id="t-seo-hype-h">Abrakadabra Hype-Barometer</h3>
+                    <p class="text-sm text-slate-500 leading-relaxed" id="t-seo-hype-p">
+                        Mein Echtzeit Sentiment-Tracker analysiert kontinuierlich soziale Medien wie Reddit und filtert das Rauschen heraus, um virale Trends bei Aktien und Kryptowährungen im Sekundentakt zu erfassen. Durch fortschrittliche VADER-NLP-Sentimentanalyse und intelligente Spam-Filterung erhältst du ein unbestechliches Barometer dafür, wo gerade das echte Interesse der Swarm Intelligence liegt.
                     </p>
                 </div>
             </div>
@@ -478,12 +504,16 @@
                 presDesc: "Mein exklusives Mentoring-Ebook von Nikolai Bretthauer für deinen Weg in die finanzielle Unabhängigkeit.",
                 podcastTag: "Podcast | The Vibe of Wealth",
                 podcastDesc: "Höre dir das Buch The Vibe of Wealth direkt als Procast an.",
+                hypeTag: "Sentiment Analysis",
+                hypeDesc: "Echtzeit Reddit Sentiment-Tracker & Ticker-Extraktion. Erkenne Hype-Aktien und Krypto-Trends, bevor sie explodieren.",
                 seoVideoH: "Erste Schritte an der Börse",
                 seoVideoP: "Ein fundiertes Erklärvideo, das dir die grundlegenden Mechanismen der Aktienmärkte näherbringt. Ideal für den Start, um typische Anfängerfehler zu vermeiden und ein solides Fundament für deine Investments aufzubauen.",
                 seoEbookH: "The Vibe of Wealth Ebook",
                 seoEbookP: "Mein exklusives Mentoring-Ebook liefert dir auf komprimierten Seiten die Essenz für finanzielle Flexibilität. Lerne die Mindsets und Strategien kennen, die den Grundstein für echten, nachhaltigen Vermögensaufbau legen.",
                 seoPodcastH: "The Vibe of Wealth Podcast",
                 seoPodcastP: "Höre dir die Inhalte des Ebooks bequem unterwegs als Podcast an. Mit dem integrierten Audio-Player kannst du die Abspielgeschwindigkeit anpassen und tief in die Materie eintauchen, wann immer es dir passt.",
+                seoHypeH: "Abrakadabra Hype-Barometer",
+                seoHypeP: "Mein Echtzeit Sentiment-Tracker analysiert kontinuierlich soziale Medien wie Reddit und filtert das Rauschen heraus, um virale Trends bei Aktien und Kryptowährungen im Sekundentakt zu erfassen. Durch VADER-NLP-Sentimentanalyse und intelligente Spam-Filterung erhältst du ein unbestechliches Barometer dafür, wo gerade das echte Interesse der Swarm Intelligence liegt.",
                 adsTitle: "Empfohlene Partner & Support"
             },
             EN: {
@@ -506,12 +536,16 @@
                 presDesc: "My exclusive mentoring ebook by Nikolai Bretthauer for your journey to financial independance.",
                 podcastTag: "Podcast | The Vibe of Wealth",
                 podcastDesc: "Listen to the book The Vibe of Wealth directly as a podcast.",
+                hypeTag: "Sentiment Analysis",
+                hypeDesc: "Real-time Reddit Sentiment Tracker & Ticker Extraction. Spot meme stocks and crypto hypes before they explode.",
                 seoVideoH: "First Steps in the Stock Market",
                 seoVideoP: "A well-founded explainer video that introduces you to the basic mechanisms of the stock markets. Ideal for getting started to avoid typical beginner mistakes and build a solid foundation for your investments.",
                 seoEbookH: "The Vibe of Wealth Ebook",
                 seoEbookP: "My exclusive mentoring ebook provides you with the essence of financial flexibility on compressed pages. Learn the mindsets and strategies that lay the foundation for true, sustainable wealth building.",
                 seoPodcastH: "The Vibe of Wealth Podcast",
                 seoPodcastP: "Listen to the contents of the ebook comfortably on the go as a podcast. With the integrated audio player, you can adjust the playback speed and dive deep into the subject matter whenever it suits you.",
+                seoHypeH: "Abrakadabra Hype Barometer",
+                seoHypeP: "My real-time sentiment tracker continuously analyzes social media like Reddit, filtering out the noise to capture viral trends in stocks and cryptocurrencies in seconds. Through VADER-NLP sentiment analysis and smart spam filtering, you get an unyielding barometer of where the real interest of the swarm intelligence lies.",
                 adsTitle: "Recommended Partners & Support"
             }
         };
@@ -621,12 +655,16 @@
             document.getElementById('t-seo-ebook-p').innerHTML = l.seoEbookP;
             document.getElementById('t-seo-podcast-h').innerText = l.seoPodcastH;
             document.getElementById('t-seo-podcast-p').innerHTML = l.seoPodcastP;
+            document.getElementById('t-seo-hype-h').innerText = l.seoHypeH;
+            document.getElementById('t-seo-hype-p').innerHTML = l.seoHypeP;
             document.getElementById('t-video-tag').innerText = l.videoTag;
             document.getElementById('t-video-desc').innerText = l.videoDesc;
             document.getElementById('t-pres-tag').innerText = l.presTag;
             document.getElementById('t-pres-desc').innerText = l.presDesc;
             document.getElementById('t-podcast-tag').innerText = l.podcastTag;
             document.getElementById('t-podcast-desc').innerText = l.podcastDesc;
+            document.getElementById('t-hype-tag').innerText = l.hypeTag;
+            document.getElementById('t-hype-desc').innerText = l.hypeDesc;
             document.getElementById('t-ads-title').innerText = l.adsTitle;
             renderAds();
         }
