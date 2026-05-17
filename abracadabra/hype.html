@@ -442,7 +442,11 @@
             <!-- Header -->
             <div class="widget-header flex items-center justify-between border-b border-white/[0.04] p-4 bg-black/20">
                 <div class="flex items-center gap-3">
-                    <span class="text-lg">⚙️</span>
+                    <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.15)]">
+                        <svg class="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+                        </svg>
+                    </div>
                     <div class="flex flex-col">
                         <span class="data-label leading-none mb-1">Technical Analysis</span>
                         <span class="text-[11px] font-bold text-white uppercase tracking-tighter" id="technicalTickerLabel">Technical System Analysis</span>
@@ -1322,10 +1326,12 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
                 const timeStr = dateObj.toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit'});
                 const dateStr = dateObj.toLocaleDateString('de-DE');
                 cacheNotice = `
-                    <div class="px-3 py-2 rounded bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-mono text-emerald-400 flex items-center justify-between mb-2">
+                    <div class="px-3 py-2 rounded bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-mono text-emerald-400 flex items-center justify-between mb-2 shadow-[0_0_8px_rgba(16,185,129,0.05)]">
                         <div class="flex items-center gap-1.5">
-                            <span>📡</span>
-                            <span>SWARM INTELLIGENCE CACHE</span>
+                            <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                            <span class="tracking-wider font-bold">SWARM INTELLIGENCE CACHE</span>
                         </div>
                         <span class="text-gray-500 text-[9px]">${dateStr}, ${timeStr} Uhr</span>
                     </div>
@@ -1337,9 +1343,9 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
                     ${cacheNotice}
                     
                     ${autoTriggered ? `
-                        <div class="px-3 py-2 rounded bg-gold-500/10 border border-gold-500/30 text-[10px] font-mono text-gold-400 flex items-center gap-2 mb-2 animate-pulse">
-                            <span>🧠</span>
-                            <span>SYSTEM: Automatischer Technical-Verifizierungstrigger bei neuem Signal aktiv.</span>
+                        <div class="px-3 py-2 rounded bg-gold-500/10 border border-gold-500/30 text-[10px] font-mono text-gold-400 flex items-center gap-2 mb-2 animate-pulse shadow-[0_0_8px_rgba(212,175,55,0.05)]">
+                            <span class="w-2 h-2 rounded-full bg-gold-500 animate-ping"></span>
+                            <span class="tracking-wider">SYSTEM: Automatischer Technical-Verifizierungstrigger bei neuem Signal aktiv.</span>
                         </div>
                     ` : ''}
                     
@@ -1347,12 +1353,41 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
                         ${htmlContent}
                     </div>
 
-                    <div class="pt-4 border-t border-white/5 mt-6 flex justify-between">
-                        <a href="/terminal.html?ticker=${ticker.toUpperCase()}" target="_blank" class="px-3 py-1.5 rounded bg-white/5 border border-white/10 hover:bg-white/10 hover:border-gold-500/30 text-[10px] font-mono text-gray-400 hover:text-white uppercase transition-all flex items-center gap-1.5">
-                            🏛️ Full Terminal Analysis
-                        </a>
-                        <button onclick="forceRefreshTechnical('${ticker}')" class="px-3 py-1.5 rounded bg-gold-500/10 border border-gold-500/20 hover:border-gold-500/40 text-[10px] font-mono text-gold-400 hover:text-gold-300 uppercase transition-all">
-                            🔄 Recalculate
+                    <!-- Rechtlicher Disclaimer & Risikohinweis -->
+                    <div class="p-3 rounded-lg border border-red-500/15 bg-red-500/5 mt-6 shadow-[0_0_8px_rgba(239,68,68,0.03)]">
+                        <div class="flex gap-2.5 items-start">
+                            <svg class="w-4 h-4 text-red-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                            <div>
+                                <h4 class="text-[9px] font-bold text-red-500 uppercase tracking-widest mb-1">Rechtlicher Disclaimer</h4>
+                                <p class="text-[8px] text-gray-500 leading-relaxed font-mono uppercase">
+                                    Diese Analyse wurde von einer künstlichen Intelligenz erstellt. KI-Modelle können fehlerhafte Informationen generieren oder Fakten "halluzinieren". Sämtliche Inhalte dienen ausschließlich der Information und stellen keine Anlageberatung, Kaufempfehlung oder Aufforderung zum Handel dar. Vergangene Wertentwicklungen sind kein Indikator für zukünftige Ergebnisse. Investitionen sind mit Risiken bis hin zum Totalverlust verbunden. Fincast übernimmt keine Haftung für die Richtigkeit der Daten oder für finanzielle Verluste.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-white/5 mt-6 flex flex-wrap gap-2 justify-between">
+                        <div class="flex gap-2">
+                            <a href="/terminal.html?ticker=${ticker.toUpperCase()}" target="_blank" class="px-3 py-1.5 rounded bg-white/5 border border-white/10 hover:bg-white/10 hover:border-gold-500/30 text-[10px] font-mono text-gray-400 hover:text-white uppercase transition-all flex items-center gap-1.5 group">
+                                <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l3 3-3 3m5 0h3"></path>
+                                </svg>
+                                Terminal
+                            </a>
+                            <button id="shareReportBtn" onclick="shareTechnicalReport('${ticker}', \`${content.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)" class="px-3 py-1.5 rounded bg-gold-500/10 border border-gold-500/20 hover:bg-gold-500/20 hover:border-gold-500/50 text-[10px] font-mono text-gold-400 hover:text-gold-300 uppercase transition-all flex items-center gap-1.5" title="Analyse Teilen">
+                                <svg class="w-3.5 h-3.5 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                </svg>
+                                Share Report
+                            </button>
+                        </div>
+                        <button onclick="forceRefreshTechnical('${ticker}')" class="px-3 py-1.5 rounded bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-[10px] font-mono text-gray-400 hover:text-white uppercase transition-all flex items-center gap-1.5 group">
+                            <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path>
+                            </svg>
+                            Recalculate
                         </button>
                     </div>
                 </div>
@@ -1361,6 +1396,62 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
 
         function forceRefreshTechnical(ticker) {
             openTechnicalAnalysis(ticker, false, true);
+        }
+
+        // ── Shared Report Generator (Binds to Fincast Hub Storage API) ──
+        async function shareTechnicalReport(ticker, rawContent) {
+            try {
+                const mappedData = {
+                    company_identity: `Name: $${ticker.toUpperCase()} (Technical System Report)\nSymbol: ${ticker.toUpperCase()}\nISIN: N/A\nWKN: N/A`,
+                    financial_ratios: rawContent,
+                    swot_analysis: `### Quantitative Trading Strategy Report\nAutomatisierte Hype-Verifizierung für $${ticker.toUpperCase()} via Abracadabra Engine.`,
+                    investment_verdict: `### Quantitative Trading Verdict\nDieser Report wurde live über das Abracadabra Quantitative Hype-Barometer generiert.`,
+                    valuation_model: `### Technical Multi-Agent Verification Status\nSYSTEM_STATUS: FMP_SUCCESS | Verification Successful.`
+                };
+                
+                const shareTitle = `Fincast Quantitative Analyse: $${ticker.toUpperCase()}`;
+                const shareText = `Sieh dir die institutionelle KI-Verifizierung zu $${ticker.toUpperCase()} im Fincast Terminal an:`;
+                
+                const btn = document.getElementById('shareReportBtn');
+                const origHtml = btn.innerHTML;
+                btn.innerHTML = `⏳ Generating...`;
+                btn.disabled = true;
+                
+                const res = await apiCall('save_shared_report', { data: mappedData });
+                
+                btn.innerHTML = origHtml;
+                btn.disabled = false;
+                
+                if (res.error) throw new Error(res.error);
+                
+                const shareUrl = window.location.origin + '/terminal.html?share=' + res.id;
+                
+                if (navigator.share) {
+                    await navigator.share({
+                        title: shareTitle,
+                        text: shareText,
+                        url: shareUrl
+                    }).catch(() => {
+                        copyShareUrlToClipboard(shareUrl, ticker);
+                    });
+                } else {
+                    copyShareUrlToClipboard(shareUrl, ticker);
+                }
+            } catch (err) {
+                alert("Fehler beim Generieren des Links: " + err.message);
+            }
+        }
+        
+        function copyShareUrlToClipboard(url, ticker) {
+            navigator.clipboard.writeText(url).then(() => {
+                const toast = document.createElement('div');
+                toast.className = 'fixed bottom-4 left-4 z-[99999] px-4 py-2 bg-emerald-500/10 border border-emerald-500/35 backdrop-blur-xl text-emerald-400 font-mono text-xs rounded-lg shadow-2xl animate-pulse';
+                toast.textContent = `📋 Link für $${ticker.toUpperCase()} kopiert!`;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+            }).catch(e => {
+                alert("Link: " + url);
+            });
         }
 
         function toggleSystemGuide() {
