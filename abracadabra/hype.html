@@ -525,6 +525,110 @@
             }
         }
 
+        // ── In-App Audio Chime via Web Audio API ──
+        function playChime(isShort = false) {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                const ctx = new AudioContext();
+                
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                
+                if (isShort) {
+                    // Minor Alert für Short-Signale (Alarm-Chime)
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(520, ctx.currentTime); // C5
+                    osc.frequency.exponentialRampToValueAtTime(392, ctx.currentTime + 0.15); // G4
+                } else {
+                    // Sweet major synth chime für bullische Hypes
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+                    osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.1); // A5
+                    osc.frequency.exponentialRampToValueAtTime(1174.66, ctx.currentTime + 0.25); // D6
+                }
+                
+                gain.gain.setValueAtTime(0.12, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.45);
+                
+                osc.start();
+                osc.stop(ctx.currentTime + 0.5);
+            } catch (e) {
+                console.warn("Web Audio Chime failed:", e);
+            }
+        }
+
+        // In-App Toast Container initialisieren
+        const toastContainer = document.createElement('div');
+        toastContainer.id = 'toastContainer';
+        toastContainer.className = 'fixed top-4 right-4 z-[9999] flex flex-col gap-3 max-w-sm w-full pointer-events-none';
+        document.body.appendChild(toastContainer);
+
+        // ── Glassmorphic In-App Toast Notification Banner ──
+        function showInAppToast(ticker, mentions, sentiment, isShort, subreddits) {
+            const toast = document.createElement('div');
+            toast.className = `pointer-events-auto flex flex-col p-4 rounded-xl border backdrop-blur-xl shadow-2xl transition-all duration-500 transform translate-x-12 opacity-0 cursor-pointer ${
+                isShort 
+                    ? 'bg-red-500/10 border-red-500/20 shadow-red-500/5 hover:bg-red-500/15' 
+                    : 'bg-emerald-500/10 border-emerald-500/20 shadow-emerald-500/5 hover:bg-emerald-500/15'
+            }`;
+            
+            const badgeClass = isShort ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+            const iconSymbol = isShort ? '🚨' : '🎩';
+            const alertText = isShort ? 'Short-Signal' : 'Hype-Alarm';
+            
+            toast.innerHTML = `
+                <div class="flex items-center justify-between gap-3 mb-2">
+                    <span class="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider ${isShort ? 'text-red-400' : 'text-emerald-400'}">
+                        <span>${iconSymbol}</span> ${alertText}
+                    </span>
+                    <span class="text-[9px] font-mono text-gray-500">gerade eben</span>
+                </div>
+                <div class="flex items-baseline justify-between mb-1.5">
+                    <h4 class="text-base font-bold text-white tracking-wide">$${ticker}</h4>
+                    <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border ${badgeClass}">
+                        ${sentiment > 0 ? '+' : ''}${sentiment.toFixed(3)}
+                    </span>
+                </div>
+                <p class="text-xs text-gray-400 leading-relaxed mb-2 font-mono">
+                    ${mentions} Erwähnungen in ${subreddits.map(s => 'r/' + s).join(', ')}
+                </p>
+                <div class="text-[10px] font-bold text-amber-400 flex items-center gap-1 group">
+                    <span>⚡ Klicke für Live AI-Analyse</span>
+                    <span class="transition-transform group-hover:translate-x-1">→</span>
+                </div>
+            `;
+            
+            // Audio-Chime abspielen
+            playChime(isShort);
+            
+            // Klick-Action zum Oeffnen des AI-Drawers
+            toast.onclick = () => {
+                openTechnicalAnalysis(ticker, true);
+                toast.classList.add('translate-x-12', 'opacity-0');
+                setTimeout(() => toast.remove(), 500);
+            };
+            
+            document.getElementById('toastContainer').appendChild(toast);
+            
+            // Einblenden
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-x-12', 'opacity-0');
+                toast.classList.add('translate-x-0', 'opacity-100');
+            });
+            
+            // Auto-Schliessen nach 8 Sekunden
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.classList.add('translate-x-12', 'opacity-0');
+                    setTimeout(() => toast.remove(), 500);
+                }
+            }, 8000);
+        }
+
         // Bei Laden initialisieren
         window.addEventListener('DOMContentLoaded', () => {
             if ("Notification" in window && Notification.permission === "granted") {
@@ -795,16 +899,24 @@
                         // 1. Es kein Initial-Load ist ODER
                         // 2. Es ein Initial-Load ist, der Alert aber jünger als 15 Minuten ist (sehr frisch!)
                         const isVeryRecent = ageMinutes < 15;
-                        
-                        if (pushEnabled && Notification.permission === "granted") {
-                            if (!isInitialLoad || isVeryRecent) {
-                                const isShort = a.avg_sentiment < 0 || a.alert_type === 'negative';
+                        const isShort = a.avg_sentiment < 0 || a.alert_type === 'negative';
+
+                        if (!isInitialLoad || isVeryRecent) {
+                            // 1. In-App Glassmorphic Toast & Synth Audio abspielen (100% zuverlässig)
+                            showInAppToast(a.ticker, a.mentions, a.avg_sentiment, isShort, a.subreddits);
+
+                            // 2. System-Push Notification (falls vom User & Browser genehmigt)
+                            if (pushEnabled && Notification.permission === "granted") {
                                 const nTitle = isShort ? `🚨 Short-Signal: $${a.ticker}!` : `🎩 Hype-Alarm: $${a.ticker}!`;
-                                new Notification(nTitle, {
-                                    body: `${a.mentions} Erwähnungen | Sentiment: ${a.avg_sentiment > 0 ? '+' : ''}${a.avg_sentiment.toFixed(3)}\nQuellen: ${a.subreddits.map(s => 'r/' + s).join(', ')}`,
-                                    icon: '../portfoliomanager - Symbol.png',
-                                    vibrate: [200, 100, 200]
-                                });
+                                try {
+                                    new Notification(nTitle, {
+                                        body: `${a.mentions} Erwähnungen | Sentiment: ${a.avg_sentiment > 0 ? '+' : ''}${a.avg_sentiment.toFixed(3)}\nQuellen: ${a.subreddits.map(s => 'r/' + s).join(', ')}`,
+                                        icon: '../portfoliomanager - Symbol.png',
+                                        vibrate: [200, 100, 200]
+                                    });
+                                } catch (err) {
+                                    console.error("System Push Notification failed:", err);
+                                }
                             }
                         }
                     }
