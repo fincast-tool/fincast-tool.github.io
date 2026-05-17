@@ -73,6 +73,7 @@ class HypeAggregator:
         self._window_seconds = window_minutes * 60
         self._min_mentions = config.MIN_MENTIONS_FOR_ALERT
         self._min_sentiment = config.MIN_SENTIMENT_SCORE
+        self._min_neg_sentiment = config.MIN_NEG_SENTIMENT_SCORE
 
         # Cooldown: Kein doppelter Alert fuer denselben Ticker innerhalb des Fensters
         self._alert_cooldown_seconds = self._window_seconds
@@ -83,7 +84,8 @@ class HypeAggregator:
 
         logger.info(
             f"Aggregator initialisiert: Fenster={self.window_minutes}min, "
-            f"Min-Erwaehnungen={self._min_mentions}, Min-Sentiment={self._min_sentiment}"
+            f"Min-Erwaehnungen={self._min_mentions}, Min-Sentiment={self._min_sentiment}, "
+            f"Min-Neg-Sentiment={self._min_neg_sentiment}"
         )
 
     def add_mention(self, ticker: str, sentiment: float, subreddit: str,
@@ -127,19 +129,24 @@ class HypeAggregator:
             if agg.count == 0:
                 continue
 
-            # Hype-Bedingungen pruefen
-            if agg.count >= self._min_mentions and agg.avg_sentiment >= self._min_sentiment:
+            # Hype-Bedingungen pruefen (sowohl positive Hypes als auch extrem negative Panik/Short Hypes)
+            is_positive_hype = agg.count >= self._min_mentions and agg.avg_sentiment >= self._min_sentiment
+            is_negative_hype = agg.count >= self._min_mentions and agg.avg_sentiment <= self._min_neg_sentiment
+
+            if is_positive_hype or is_negative_hype:
                 # Cooldown-Check: Nicht erneut alerten
                 if (now - agg.last_alert_time) < self._alert_cooldown_seconds:
                     logger.debug(
-                        f"Ticker {ticker}: Hype erkannt, aber Cooldown aktiv. Uebersprungen."
+                        f"Ticker {ticker}: Hype/Panik erkannt, aber Cooldown aktiv. Uebersprungen."
                     )
                     continue
 
+                alert_type = "positive" if agg.avg_sentiment >= 0 else "negative"
                 alert = {
                     "ticker": ticker,
                     "mentions": agg.count,
                     "avg_sentiment": round(agg.avg_sentiment, 3),
+                    "alert_type": alert_type,
                     "subreddits": sorted(agg.subreddits),
                     "window_minutes": self.window_minutes,
                     "triggered_at": datetime.now(tz=timezone.utc).isoformat(),
@@ -153,7 +160,7 @@ class HypeAggregator:
                     self._alert_history = self._alert_history[:self._max_history]
 
                 logger.info(
-                    f"HYPE ALERT: {ticker} | {agg.count} Erwaehnungen | "
+                    f"HYPE ALERT ({alert_type.upper()}): {ticker} | {agg.count} Erwaehnungen | "
                     f"Sentiment: {agg.avg_sentiment:.3f} | "
                     f"Subreddits: {', '.join(alert['subreddits'])}"
                 )
@@ -264,13 +271,17 @@ class HypeAggregator:
                 level = "POSITIV"
             elif s >= -0.2:
                 level = "NEUTRAL"
-            else:
+            elif s >= -0.4:
                 level = "NEGATIV"
+            else:
+                level = "EXTREM NEGATIV"
 
-            # Hype-Status: erfuellt der Ticker die Alert-Bedingungen?
+            # Hype-Status: erfuellt der Ticker die Alert-Bedingungen (sowohl positive als auch negative)?
             is_hype = (
-                data["count"] >= self._min_mentions and
-                data["avg_sentiment"] >= self._min_sentiment
+                data["count"] >= self._min_mentions and (
+                    data["avg_sentiment"] >= self._min_sentiment or
+                    data["avg_sentiment"] <= self._min_neg_sentiment
+                )
             )
 
             ranked_tickers.append({

@@ -472,6 +472,7 @@
         const REFRESH_MS = 600000; // 10 Minuten in Millisekunden (schont Akku und Datenvolumen)
         let failCount = 0;
         let isInitialLoad = true;
+        let latestData = null;
 
         let pushEnabled = localStorage.getItem('abracadabra_push_enabled') === 'true';
         let seenAlerts = new Set(JSON.parse(localStorage.getItem('abracadabra_seen_alerts') || '[]'));
@@ -607,6 +608,7 @@
 
         // ── Main Render ──
         function render(d) {
+            latestData = d;
             if (d && d.error) {
                 document.getElementById('lastUpdate').textContent = '--:--:--';
                 document.getElementById('mTickers').textContent = '-';
@@ -728,8 +730,17 @@
 
             const pct = Math.round(((t.avg_sentiment + 1) / 2) * 100);
             const color = sentimentColor(t.avg_sentiment);
-            const badgeClass = t.is_hype ? 'badge-hype' : sentimentBadge(t.avg_sentiment);
-            const badgeText = t.is_hype ? 'HYPE' : t.sentiment_level;
+            let badgeClass = sentimentBadge(t.avg_sentiment);
+            let badgeText = t.sentiment_level;
+            if (t.is_hype) {
+                if (t.avg_sentiment >= 0) {
+                    badgeClass = 'badge-hype';
+                    badgeText = 'HYPE';
+                } else {
+                    badgeClass = 'badge-bearish';
+                    badgeText = 'PANIK';
+                }
+            }
             const subs = t.subreddits.map(s => 'r/' + s).join(', ');
 
             row.innerHTML = `
@@ -787,7 +798,9 @@
                         
                         if (pushEnabled && Notification.permission === "granted") {
                             if (!isInitialLoad || isVeryRecent) {
-                                new Notification(`🎩 Hype-Alarm: $${a.ticker}!`, {
+                                const isShort = a.avg_sentiment < 0 || a.alert_type === 'negative';
+                                const nTitle = isShort ? `🚨 Short-Signal: $${a.ticker}!` : `🎩 Hype-Alarm: $${a.ticker}!`;
+                                new Notification(nTitle, {
                                     body: `${a.mentions} Erwähnungen | Sentiment: ${a.avg_sentiment > 0 ? '+' : ''}${a.avg_sentiment.toFixed(3)}\nQuellen: ${a.subreddits.map(s => 'r/' + s).join(', ')}`,
                                     icon: '../portfoliomanager - Symbol.png',
                                     vibrate: [200, 100, 200]
@@ -824,10 +837,16 @@
                 const color = sentimentColor(a.avg_sentiment);
                 const subs = a.subreddits.map(s => 'r/' + s).join(', ');
 
+                const isShort = a.avg_sentiment < 0 || a.alert_type === 'negative';
+                const badgeHtml = isShort 
+                    ? `<span class="text-[8px] font-mono px-1.5 py-0.5 rounded font-bold bg-rose-500/10 text-rose-500 border border-rose-500/20 uppercase tracking-wide">SHORT</span>`
+                    : `<span class="text-[8px] font-mono px-1.5 py-0.5 rounded font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 uppercase tracking-wide">LONG</span>`;
+
                 item.innerHTML = `
                     <div class="flex items-center justify-between mb-1">
                         <div class="flex items-center gap-1.5">
                             <span class="font-mono font-bold text-xs text-gold-400">$${a.ticker}</span>
+                            ${badgeHtml}
                             <span class="text-[7px] font-mono px-1 py-0.2 rounded border border-gold-500/10 text-gold-500/50 uppercase">TECHNICAL</span>
                         </div>
                         <span class="text-[9px] font-mono text-gray-600">${time}</span>
@@ -835,7 +854,7 @@
                     <div class="flex items-center gap-2 text-[10px] font-mono text-gray-400">
                         <span>${a.mentions}x mentions</span>
                         <span class="text-gray-700">&middot;</span>
-                        <span style="color:${color}">${a.avg_sentiment > 0 ? '+' : ''}${a.avg_sentiment}</span>
+                        <span style="color:${color}">${a.avg_sentiment > 0 ? '+' : ''}${a.avg_sentiment.toFixed(3)}</span>
                     </div>
                     <div class="text-[9px] font-mono text-gray-700 mt-1">${subs}</div>
                 `;
@@ -933,14 +952,21 @@
             isDrawerOpen = false;
         }
 
-        function getTechnicalPrompt(query, lang) {
+        function getTechnicalPrompt(query, lang, sentiment) {
             const today = new Date().toLocaleDateString();
+            const sentimentStr = (sentiment !== undefined && sentiment !== null) ? ` (Live Social Sentiment Score: ${sentiment > 0 ? '+' : ''}${sentiment.toFixed(3)})` : '';
+            const directionStr = (sentiment !== undefined && sentiment !== null && sentiment < 0)
+                ? "Der Social-Sentiment-Trend ist NEGATIV. Identifiziere primär bärische Zielmarken für fallende Kurse (Short-Setup)." 
+                : "Der Social-Sentiment-Trend ist POSITIV. Identifiziere primär bullische Zielmarken für steigende Kurse (Long-Setup).";
+            const setupType = (sentiment !== undefined && sentiment !== null && sentiment < 0) ? 'SHORT' : 'LONG';
+            
             return `CURRENT DATE: ${today}
 LANGUAGE: Respond EXCLUSIVELY in ${lang}.
-TASK: Deep-Dive Technical Quantitative Analysis for "${query}". \n\n
+TASK: Deep-Dive Technical Quantitative Analysis for "${query}"${sentimentStr}. \n\n
 STRICT INSTRUCTIONS (NO NOVELS, NO FLUFF):
 - Use the provided [FMP API BLOCK] as your primary and absolute source of truth for all financial data, moving averages, volume, and indicators.
 - Use the google_search tool ONLY to supplement the analysis with very recent news (last 24-48h), current market sentiment, or specific technical breakout patterns.
+- ${directionStr}
 - Output MUST be strictly formatted as short bullet points.
 - Maximum 1 line per data point.
 - Be extremely concise. Efficiency is key.
@@ -961,7 +987,7 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
 - Volume & Strength: [Volume trend analysis & Buyer vs Seller strength]
 - Chart Patterns: [Identify potential patterns like Head & Shoulders, Cup & Handle, etc.]
 - Fibonacci & Levels: [Key Support/Resistance & Fibonacci retracement bounce zones]
-- Trade Execution: [Ideal Entry, Stop-Loss, and Profit Target price points]
+- Trade Execution: [Ideal Entry, Stop-Loss, and Profit Target price points adjusted for the ${setupType} setup]
 - Risk Management: [Calculate Risk-to-Reward Ratio for this setup]
 </technical>\n\n`;
         }
@@ -1057,7 +1083,16 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
                 const langNames = { 'de-DE': 'DEUTSCH', 'en-US': 'ENGLISH', 'fr-FR': 'FRANÇAIS', 'es-ES': 'ESPAÑOL' };
                 const currentLangName = langNames[USER_LANG] || 'DEUTSCH';
 
-                const prompt = getTechnicalPrompt(ticker, currentLangName);
+                // Sentiment aus den Leaderboard-Daten ermitteln
+                let sentimentVal = null;
+                if (latestData && latestData.tickers) {
+                    const found = latestData.tickers.find(t => t.ticker.toUpperCase() === ticker.toUpperCase());
+                    if (found) {
+                        sentimentVal = found.avg_sentiment;
+                    }
+                }
+
+                const prompt = getTechnicalPrompt(ticker, currentLangName, sentimentVal);
 
                 const geminiBody = {
                     contents: [{ parts: [{ text: prompt }] }],
