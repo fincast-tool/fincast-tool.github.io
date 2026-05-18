@@ -1445,6 +1445,35 @@
                         : `<span class="text-[8px] font-mono px-1.5 py-0.5 rounded font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 uppercase tracking-wide">LONG</span>`;
                 }
 
+                // TA-Indikatoren für diesen Ticker ermitteln
+                const tickerData = latestData && latestData.tickers ? latestData.tickers.find(t => t.ticker === a.ticker) : null;
+                const ta = tickerData ? tickerData.ta : null;
+                let taHtml = '';
+                if (ta) {
+                    taHtml = `
+                        <div class="mt-2 pt-2 border-t border-white/[0.03] grid grid-cols-2 gap-1.5 text-[9px] font-mono">
+                            <div class="flex items-center justify-between px-1.5 py-0.5 rounded bg-black/10 border border-white/[0.02]">
+                                <span class="text-gray-500">Preis:</span>
+                                <span class="text-white font-bold">${ta.current_price}</span>
+                            </div>
+                            <div class="flex items-center justify-between px-1.5 py-0.5 rounded bg-black/10 border border-white/[0.02]">
+                                <span class="text-gray-500">RSI (14):</span>
+                                <span class="${ta.rsi_value > 70 ? 'text-rose-400' : ta.rsi_value < 30 ? 'text-emerald-400' : 'text-gray-300'} font-bold">${ta.rsi_value}</span>
+                            </div>
+                            <div class="flex items-center justify-between px-1.5 py-0.5 rounded bg-black/10 border border-white/[0.02]">
+                                <span class="text-gray-500">Vol-Spike:</span>
+                                <span class="${ta.volume_spike_factor > 1.5 ? 'text-amber-400' : 'text-gray-400'} font-bold">${ta.volume_spike_factor}x</span>
+                            </div>
+                            <div class="flex items-center justify-between px-1.5 py-0.5 rounded bg-black/10 border border-white/[0.02]">
+                                <span class="text-gray-500">Dist. LH:</span>
+                                <span class="${ta.distance_to_local_ath_pct <= 0.01 ? 'text-emerald-400' : 'text-rose-400'} font-bold">
+                                    ${ta.distance_to_local_ath_pct <= 0.01 ? 'Breakout' : `-${ta.distance_to_local_ath_pct}%`}
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                }
+
                 item.innerHTML = `
                     <div class="flex items-center justify-between mb-1">
                         <div class="flex items-center gap-1.5">
@@ -1459,6 +1488,7 @@
                         <span class="text-gray-700">&middot;</span>
                         <span style="color:${color}">${a.avg_sentiment > 0 ? '+' : ''}${a.avg_sentiment.toFixed(3)}</span>
                     </div>
+                    ${taHtml}
                     <div class="text-[9px] font-mono text-gray-700 mt-1">${subs}</div>
                 `;
                 el.appendChild(item);
