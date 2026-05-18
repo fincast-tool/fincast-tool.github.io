@@ -1,7 +1,7 @@
 {
   "meta": {
-    "last_updated": "2026-05-18T18:25:49.118106+00:00",
-    "window_minutes": 15,
+    "last_updated": "2026-05-18T18:47:56.677744+00:00",
+    "window_minutes": 480,
     "min_mentions": 4,
     "min_sentiment": 0.6,
     "subreddits_monitored": "wallstreetbets+CryptoCurrency+stocks+pennystocks+SatoshiStreetBets",
@@ -22,12 +22,12 @@
       "ta": {
         "ticker": "NVDA",
         "asset_type": "stock",
-        "current_price": 219.51,
-        "rsi_value": 31.4,
-        "volume_spike_factor": 0.53,
-        "distance_to_local_ath_pct": 7.02,
-        "ema_9": 221.05,
-        "ema_20": 222.46,
+        "current_price": 219.36,
+        "rsi_value": 30.82,
+        "volume_spike_factor": 0.1,
+        "distance_to_local_ath_pct": 7.09,
+        "ema_9": 220.52,
+        "ema_20": 221.94,
         "setup_label": "NEUTRAL"
       }
     },
@@ -43,12 +43,12 @@
       "ta": {
         "ticker": "BTC",
         "asset_type": "crypto",
-        "current_price": 76267.6,
-        "rsi_value": 39.66,
-        "volume_spike_factor": 0.4,
-        "distance_to_local_ath_pct": 2.76,
-        "ema_9": 76490.4061,
-        "ema_20": 76581.594,
+        "current_price": 76373.46,
+        "rsi_value": 42.49,
+        "volume_spike_factor": 0.06,
+        "distance_to_local_ath_pct": 2.62,
+        "ema_9": 76452.229,
+        "ema_20": 76546.7491,
         "setup_label": "NEUTRAL"
       }
     },
@@ -64,12 +64,12 @@
       "ta": {
         "ticker": "AMD",
         "asset_type": "stock",
-        "current_price": 411.54,
-        "rsi_value": 32.63,
-        "volume_spike_factor": 0.96,
-        "distance_to_local_ath_pct": 10.1,
-        "ema_9": 415.88,
-        "ema_20": 419.02,
+        "current_price": 412.58,
+        "rsi_value": 34.34,
+        "volume_spike_factor": 0.08,
+        "distance_to_local_ath_pct": 9.88,
+        "ema_9": 414.74,
+        "ema_20": 417.88,
         "setup_label": "NEUTRAL"
       }
     },
@@ -85,12 +85,12 @@
       "ta": {
         "ticker": "SOL",
         "asset_type": "crypto",
-        "current_price": 83.75,
-        "rsi_value": 36.89,
-        "volume_spike_factor": 0.4,
-        "distance_to_local_ath_pct": 3.67,
-        "ema_9": 84.1754,
-        "ema_20": 84.3064,
+        "current_price": 83.95,
+        "rsi_value": 41.22,
+        "volume_spike_factor": 0.07,
+        "distance_to_local_ath_pct": 3.44,
+        "ema_9": 84.0965,
+        "ema_20": 84.2437,
         "setup_label": "NEUTRAL"
       }
     }

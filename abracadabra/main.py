@@ -64,7 +64,7 @@ def get_hype_data():
         if p.exists():
             with open(p, "r", encoding="utf-8") as f:
                 return json.load(f)
-        return {"error": "No 15m data generated yet"}
+        return {"error": "No 8h data generated yet"}
     except Exception as e:
         return {"error": str(e)}
 
@@ -99,7 +99,7 @@ signal.signal(signal.SIGINT, _signal_handler)
 signal.signal(signal.SIGTERM, _signal_handler)
 
 
-def _process_item(item: dict, aggregator_15m: HypeAggregator, aggregator_24h: HypeAggregator):
+def _process_item(item: dict, aggregator_8h: HypeAggregator, aggregator_24h: HypeAggregator):
     """
     Verarbeitet ein einzelnes Reddit-Item (Submission oder Comment).
     Extrahiert Ticker, berechnet Sentiment und fuegt zum Aggregator hinzu.
@@ -113,7 +113,7 @@ def _process_item(item: dict, aggregator_15m: HypeAggregator, aggregator_24h: Hy
     timestamp = item.get("created_utc")
 
     for ticker, sentiment in results:
-        aggregator_15m.add_mention(
+        aggregator_8h.add_mention(
             ticker=ticker,
             sentiment=sentiment,
             subreddit=item.get("subreddit", "unknown"),
@@ -129,31 +129,31 @@ def _process_item(item: dict, aggregator_15m: HypeAggregator, aggregator_24h: Hy
         )
 
 
-def _submission_worker(reddit, aggregator_15m: HypeAggregator, aggregator_24h: HypeAggregator):
+def _submission_worker(reddit, aggregator_8h: HypeAggregator, aggregator_24h: HypeAggregator):
     """Worker-Thread: Streamt Submissions und verarbeitet sie."""
     logger.info("Submission-Worker gestartet.")
     try:
         for item in stream_submissions(reddit):
             if _shutdown_event.is_set():
                 break
-            _process_item(item, aggregator_15m, aggregator_24h)
+            _process_item(item, aggregator_8h, aggregator_24h)
     except Exception as e:
         logger.error(f"Submission-Worker Fehler: {e}")
 
 
-def _comment_worker(reddit, aggregator_15m: HypeAggregator, aggregator_24h: HypeAggregator):
+def _comment_worker(reddit, aggregator_8h: HypeAggregator, aggregator_24h: HypeAggregator):
     """Worker-Thread: Streamt Kommentare und verarbeitet sie."""
     logger.info("Comment-Worker gestartet.")
     try:
         for item in stream_comments(reddit):
             if _shutdown_event.is_set():
                 break
-            _process_item(item, aggregator_15m, aggregator_24h)
+            _process_item(item, aggregator_8h, aggregator_24h)
     except Exception as e:
         logger.error(f"Comment-Worker Fehler: {e}")
 
 
-def _rss_worker(aggregator_15m: HypeAggregator, aggregator_24h: HypeAggregator):
+def _rss_worker(aggregator_8h: HypeAggregator, aggregator_24h: HypeAggregator):
     """
     Worker-Thread: Streamt Posts ueber oeffentliche RSS-Feeds (Fallback).
     """
@@ -166,7 +166,7 @@ def _rss_worker(aggregator_15m: HypeAggregator, aggregator_24h: HypeAggregator):
             results = process_text(item["text"])
             timestamp = item.get("created_utc")
             for ticker, sentiment in results:
-                aggregator_15m.add_mention(
+                aggregator_8h.add_mention(
                     ticker=ticker,
                     sentiment=sentiment,
                     subreddit=item["subreddit"],
@@ -183,7 +183,7 @@ def _rss_worker(aggregator_15m: HypeAggregator, aggregator_24h: HypeAggregator):
     except Exception as e:
         logger.error(f"RSS-Worker abgestuerzt: {e}")
 
-def _alert_worker(aggregator_15m: HypeAggregator, aggregator_24h: HypeAggregator):
+def _alert_worker(aggregator_8h: HypeAggregator, aggregator_24h: HypeAggregator):
     """
     Worker-Thread: Prueft periodisch auf Hype-Bedingungen
     und exportiert Dashboard-Daten als JSON.
@@ -195,7 +195,7 @@ def _alert_worker(aggregator_15m: HypeAggregator, aggregator_24h: HypeAggregator
     while not _shutdown_event.is_set():
         try:
             # Alerts pruefen und Dashboard-JSON exportieren fuer beide Zeiteinheiten
-            process_and_export(aggregator_15m, "hype_data.json")
+            process_and_export(aggregator_8h, "hype_data.json")
             process_and_export(aggregator_24h, "hype_data_max.json")
 
         except Exception as e:
@@ -246,9 +246,9 @@ def main():
                 f"Karma >= {config.MIN_ACCOUNT_KARMA}")
     logger.info("=" * 55)
 
-    # Zwei Aggregatoren initialisieren: 15 Minuten und 24 Stunden (1440 min)
-    aggregator_15m = HypeAggregator(window_minutes=15)
-    aggregator_15m.load_state("hype_data_state.json")
+    # Zwei Aggregatoren initialisieren: 8 Stunden (480 min) und 24 Stunden (1440 min)
+    aggregator_8h = HypeAggregator(window_minutes=480)
+    aggregator_8h.load_state("hype_data_state.json")
 
     aggregator_24h = HypeAggregator(window_minutes=1440)
     aggregator_24h.load_state("hype_data_max_state.json")
@@ -267,7 +267,7 @@ def main():
 
         submission_thread = threading.Thread(
             target=_submission_worker,
-            args=(reddit, aggregator_15m, aggregator_24h),
+            args=(reddit, aggregator_8h, aggregator_24h),
             name="SubmissionWorker",
             daemon=True,
         )
@@ -275,7 +275,7 @@ def main():
 
         comment_thread = threading.Thread(
             target=_comment_worker,
-            args=(reddit, aggregator_15m, aggregator_24h),
+            args=(reddit, aggregator_8h, aggregator_24h),
             name="CommentWorker",
             daemon=True,
         )
@@ -284,7 +284,7 @@ def main():
         logger.warning("STARTE IM [RSS-MODUS] (Keine API-Keys, Fallback auf öffentliche Feeds)")
         rss_thread = threading.Thread(
             target=_rss_worker,
-            args=(aggregator_15m, aggregator_24h),
+            args=(aggregator_8h, aggregator_24h),
             name="RssWorker",
             daemon=True,
         )
@@ -292,7 +292,7 @@ def main():
 
     alert_thread = threading.Thread(
         target=_alert_worker,
-        args=(aggregator_15m, aggregator_24h),
+        args=(aggregator_8h, aggregator_24h),
         name="AlertWorker",
         daemon=True,
     )

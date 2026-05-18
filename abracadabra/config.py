@@ -51,7 +51,7 @@ SUBREDDITS: str = os.getenv(
 )
 
 # ─── Aggregations-Einstellungen ─────────────────────────────
-AGGREGATION_WINDOW_MINUTES: int = int(os.getenv("AGGREGATION_WINDOW_MINUTES", "15"))
+AGGREGATION_WINDOW_MINUTES: int = int(os.getenv("AGGREGATION_WINDOW_MINUTES", "480"))
 MIN_MENTIONS_FOR_ALERT: int = int(os.getenv("MIN_MENTIONS_FOR_ALERT", "4"))
 MIN_SENTIMENT_SCORE: float = float(os.getenv("MIN_SENTIMENT_SCORE", "0.6"))
 MIN_NEG_SENTIMENT_SCORE: float = float(os.getenv("MIN_NEG_SENTIMENT_SCORE", "-0.4"))

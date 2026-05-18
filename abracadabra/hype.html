@@ -586,7 +586,7 @@
                                     <span class="badge badge-hype animate-pulse">PRE-BREAKOUT</span>
                                 </td>
                                 <td class="py-3 px-3 text-gray-300">
-                                    EMA 9 > EMA 20 (Golden Cross) &middot; RSI [53, 75] &middot; Vol-Spike > 1.5x &middot; Dist. ATH &le; 3.0%
+                                    EMA 9 > EMA 20 (Golden Cross) &middot; RSI [53, 75] &middot; Vol-Spike > 1.5x &middot; Dist. LH &le; 3.0%
                                 </td>
                                 <td class="py-3 px-3 text-gray-400">
                                     <strong class="text-amber-400">Ausbruch bevorstehend (Profi-Uptrend):</strong> Starker, volumenbestätigter Aufwärtstrend drückt unmittelbar gegen den lokalen Widerstand. Hochpräziser Momentum-Ausbruchseinstieg unter Ausschluss von Fehlsignalen (Falling Knives).
@@ -647,7 +647,7 @@
                                 <strong class="text-white font-mono">Vol-Spike:</strong> Berechnet das aktuelle Kerzenvolumen im Verhältnis zum gleitenden Durchschnitt der letzten 20 Kerzen (MA 20). Werte über 1.5x zeigen signifikant erhöhtes Handelsinteresse.
                             </li>
                             <li class="border-l border-white/[0.06] pl-3">
-                                <strong class="text-white font-mono">Distanz ATH:</strong> Zeigt prozentual an, wie weit der aktuelle Kurs unter dem höchsten Schlusskurs (Allzeithoch/ATH) des abgerufenen historischen Zeitfensters liegt.
+                                <strong class="text-white font-mono">Distanz LH (Local High):</strong> Zeigt prozentual an, wie weit der aktuelle Kurs unter dem höchsten Schlusskurs (Lokales Hoch / Widerstandslinie) des abgerufenen historischen Zeitfensters liegt (5 Tage bei Aktien, 100 Kerzen bei Krypto). Dies ist die taktische Breakout-Schwelle.
                             </li>
                         </ul>
                     </div>
@@ -728,7 +728,7 @@
             <div class="flex items-center gap-1 bg-[#0f1420] p-1 rounded-md border border-white/[0.04]">
                 <button id="btn15m"
                     class="px-3 py-1 text-[10px] font-mono rounded text-gray-500 hover:text-gray-300 transition-all"
-                    onclick="setTimeframe('15m')">15 MIN</button>
+                    onclick="setTimeframe('15m')">8 STD</button>
                 <button id="btnMax"
                     class="px-3 py-1 text-[10px] font-mono rounded bg-gold-500/20 text-gold-400 font-bold transition-all"
                     onclick="setTimeframe('max')">24 STD</button>
@@ -1180,7 +1180,8 @@
             document.getElementById('mAlerts').textContent = d.alerts.length;
 
             let winText = m.window_minutes + ' min';
-            if (m.window_minutes === 1440) winText = '24 hours';
+            if (m.window_minutes === 480) winText = '8 Stunden';
+            if (m.window_minutes === 1440) winText = '24 Stunden';
             document.getElementById('mWindow').textContent = winText;
 
             renderSubs(m.subreddits_monitored);
@@ -1313,9 +1314,9 @@
                             <span class="${ta.volume_spike_factor > 1.5 ? 'text-amber-400 font-bold' : 'text-gray-400'}">${ta.volume_spike_factor}x</span>
                         </div>
                         <div class="flex items-center justify-between px-2 py-1 rounded bg-black/10 border border-white/[0.02]">
-                            <span class="text-gray-500">Dist. ATH:</span>
+                            <span class="text-gray-500">Dist. LH:</span>
                             <span class="${ta.distance_to_local_ath_pct <= 0.01 ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold'} font-mono">
-                                ${ta.distance_to_local_ath_pct <= 0.01 ? 'ATH' : `-${ta.distance_to_local_ath_pct}%`}
+                                ${ta.distance_to_local_ath_pct <= 0.01 ? 'Breakout' : `-${ta.distance_to_local_ath_pct}%`}
                             </span>
                         </div>
                         <div class="col-span-2 mt-1 flex items-center justify-between px-2 py-1 rounded bg-white/[0.02] border border-white/[0.04]">
