@@ -558,6 +558,135 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- Divider -->
+                <div class="w-full h-px bg-white/[0.04] my-6"></div>
+                
+                <!-- Quantitative Setup & Indicators Section -->
+                <div class="flex items-center gap-2.5 border-b border-white/5 pb-2.5 mb-5">
+                    <svg class="w-4 h-4 text-gold-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
+                    </svg>
+                    <h4 class="font-mono text-xs font-bold text-gold-500 uppercase tracking-wider">QUANTITATIVES TRADING SETUP & INDIKATOREN</h4>
+                </div>
+
+                <!-- Setup Table -->
+                <div class="overflow-x-auto mb-6 bg-black/10 rounded-lg border border-white/[0.03] p-4">
+                    <table class="w-full text-left border-collapse text-xs font-mono">
+                        <thead>
+                            <tr class="border-b border-white/[0.06] text-gray-500 text-[10px] uppercase tracking-wider">
+                                <th class="py-2.5 px-3">Setup</th>
+                                <th class="py-2.5 px-3">Bedingungen (Mathematisch)</th>
+                                <th class="py-2.5 px-3">Interpretation & Signal</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/[0.03]">
+                            <tr>
+                                <td class="py-3 px-3">
+                                    <span class="badge badge-hype animate-pulse">PRE-BREAKOUT</span>
+                                </td>
+                                <td class="py-3 px-3 text-gray-300">
+                                    EMA 9 > EMA 20 (Golden Cross) &middot; RSI [53, 75] &middot; Vol-Spike > 1.5x &middot; Dist. ATH &le; 3.0%
+                                </td>
+                                <td class="py-3 px-3 text-gray-400">
+                                    <strong class="text-amber-400">Ausbruch bevorstehend (Profi-Uptrend):</strong> Starker, volumenbestätigter Aufwärtstrend drückt unmittelbar gegen den lokalen Widerstand. Hochpräziser Momentum-Ausbruchseinstieg unter Ausschluss von Fehlsignalen (Falling Knives).
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-3">
+                                    <span class="badge badge-bearish">OVERBOUGHT</span>
+                                </td>
+                                <td class="py-3 px-3 text-gray-300">
+                                    RSI > 78
+                                </td>
+                                <td class="py-3 px-3 text-gray-400">
+                                    <strong class="text-rose-400">Überkauft / FOMO:</strong> Extrem heißgelaufen. Sehr hohe Wahrscheinlichkeit für baldige Gewinnmitnahmen. Keine Einstiege jagen.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-3">
+                                    <span class="badge bg-sky-500/20 text-sky-300 border border-sky-500/30">CONSOLIDATION</span>
+                                </td>
+                                <td class="py-3 px-3 text-gray-300">
+                                    RSI [45, 55] &middot; EMA-Abweichung &le; 1.5% &middot; Vol-Spike &le; 1.2x
+                                </td>
+                                <td class="py-3 px-3 text-gray-400">
+                                    <strong class="text-sky-400">Bodenbildung:</strong> Kurs komprimiert eng an EMA 9 & EMA 20 bei abnehmendem Volumen. Häufig Startpunkt für neue Zyklen.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-3">
+                                    <span class="badge badge-neutral">NEUTRAL</span>
+                                </td>
+                                <td class="py-3 px-3 text-gray-300">
+                                    Keine Sonderbedingung erfüllt
+                                </td>
+                                <td class="py-3 px-3 text-gray-400">
+                                    <strong class="text-gray-400">Rauschen:</strong> Ticker verhält sich unauffällig innerhalb der statistischen Bandbreiten.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Indicator Explanations -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-[11px] leading-relaxed text-gray-400">
+                    <div>
+                        <h5 class="font-mono font-bold text-white uppercase tracking-wider text-[10px] mb-2">ERKLÄRUNG DER TA-INDIKATOREN</h5>
+                        <ul class="space-y-3">
+                            <li class="border-l border-white/[0.06] pl-3">
+                                <strong class="text-white font-mono">Preis:</strong> Der aktuellste Schlusskurs der letzten abgeschlossenen 15-Minuten-Kerze.
+                            </li>
+                            <li class="border-l border-white/[0.06] pl-3">
+                                <strong class="text-white font-mono">RSI (14):</strong> Der Relative Strength Index misst die Geschwindigkeit und Veränderung von Kursbewegungen auf einer Skala von 0 bis 100, um überkaufte oder überverkaufte Zustände zu bestimmen.
+                            </li>
+                            <li class="border-l border-white/[0.06] pl-3">
+                                <strong class="text-white font-mono">EMA 9 & 20:</strong> Die exponentiell gewichteten gleitenden Durchschnitte reagieren schneller auf jüngste Preisänderungen. Sie dienen als dynamischer Support/Widerstand. Eine Annäherung zeigt Trendberuhigung.
+                            </li>
+                            <li class="border-l border-white/[0.06] pl-3">
+                                <strong class="text-white font-mono">Vol-Spike:</strong> Berechnet das aktuelle Kerzenvolumen im Verhältnis zum gleitenden Durchschnitt der letzten 20 Kerzen (MA 20). Werte über 1.5x zeigen signifikant erhöhtes Handelsinteresse.
+                            </li>
+                            <li class="border-l border-white/[0.06] pl-3">
+                                <strong class="text-white font-mono">Distanz ATH:</strong> Zeigt prozentual an, wie weit der aktuelle Kurs unter dem höchsten Schlusskurs (Allzeithoch/ATH) des abgerufenen historischen Zeitfensters liegt.
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h5 class="font-mono font-bold text-white uppercase tracking-wider text-[10px] mb-2">ZEITHORIZONT & ANALYSE-TIMEPLANE</h5>
+                        <div class="space-y-3">
+                            <div class="p-3 rounded bg-black/10 border border-white/[0.03]">
+                                <strong class="text-gold-500 font-mono flex items-center gap-1.5 text-[10px] uppercase mb-1">
+                                    <svg class="w-3.5 h-3.5 text-gold-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                    </svg>
+                                    <span>15-MINUTEN-KERZEN (TIMEFRAME)</span>
+                                </strong>
+                                Alle Indikatoren werden on-demand auf Basis von 15-Minuten-Kerzen berechnet. Dies ist das optimale Intervall, um Hype-Zyklen innerhalb weniger Stunden zu lokalisieren.
+                            </div>
+                            <div class="p-3 rounded bg-black/10 border border-white/[0.03]">
+                                <strong class="text-gold-500 font-mono flex items-center gap-1.5 text-[10px] uppercase mb-1">
+                                    <svg class="w-3.5 h-3.5 text-gold-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
+                                    </svg>
+                                    <span>HISTORISCHES ANALYSEFENSTER</span>
+                                </strong>
+                                <ul class="list-disc list-inside space-y-1 mt-1 text-gray-500">
+                                    <li><strong class="text-white">Aktien:</strong> Letzte 5 Tage im 15-Minuten-Intervall über yfinance.</li>
+                                    <li><strong class="text-white">Krypto:</strong> Letzte 100 Kerzen im 15-Minuten-Intervall über Binance API.</li>
+                                </ul>
+                            </div>
+                            <div class="p-3 rounded bg-black/10 border border-white/[0.03] text-gray-500">
+                                <strong class="text-gold-500 font-mono flex items-center gap-1.5 text-[10px] uppercase mb-1">
+                                    <svg class="w-3.5 h-3.5 text-gold-500 animate-pulse" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25" />
+                                    </svg>
+                                    <span>AI DEEP-DIVE INTERAKTIV</span>
+                                </strong>
+                                Klicken Sie auf ein Ticker-Widget, um in der Sidebar die tiefe, fortlaufende technische AI-Analyse auf Tages-, Wochen- und Monats-Candles zu aktivieren.
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -810,7 +939,7 @@
 
             if (pushEnabled) {
                 // Test-Benachrichtigung senden
-                new Notification("🎩 Abracadabra Live!", {
+                new Notification("Fincast Hype Hub Live!", {
                     body: "Push-Benachrichtigungen wurden erfolgreich für dein Smartphone aktiviert!",
                     icon: '../portfoliomanager - Symbol.png'
                 });
@@ -1022,7 +1151,14 @@
 
                 const errHtml = `
                     <div class="text-center py-20 text-gray-500 font-mono text-xs">
-                        <span class="animate-pulse">⏳ Warte auf erste Analyse...</span><br>
+                        <span class="flex items-center justify-center gap-2 animate-pulse mb-1">
+                            <svg class="animate-spin h-3.5 w-3.5 text-gold-500" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span>Warte auf erste Analyse...</span>
+                        </span>
+                        <br>
                         <span class="text-[10px] text-gray-600 mt-2 block">(Dies kann nach Server-Start bis zu 60s dauern)</span>
                     </div>
                 `;
@@ -1178,7 +1314,9 @@
                         </div>
                         <div class="flex items-center justify-between px-2 py-1 rounded bg-black/10 border border-white/[0.02]">
                             <span class="text-gray-500">Dist. ATH:</span>
-                            <span class="text-gray-300">${ta.distance_to_local_ath_pct}%</span>
+                            <span class="${ta.distance_to_local_ath_pct <= 0.01 ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold'} font-mono">
+                                ${ta.distance_to_local_ath_pct <= 0.01 ? 'ATH' : `-${ta.distance_to_local_ath_pct}%`}
+                            </span>
                         </div>
                         <div class="col-span-2 mt-1 flex items-center justify-between px-2 py-1 rounded bg-white/[0.02] border border-white/[0.04]">
                             <span class="text-gray-500 uppercase tracking-wider text-[8px]">Trading Setup:</span>
@@ -1249,7 +1387,12 @@
 
                             // 2. System-Push Notification (falls vom User & Browser genehmigt)
                             if (pushEnabled && Notification.permission === "granted") {
-                                const nTitle = isShort ? `🚨 Short-Signal: $${a.ticker}!` : `🎩 Hype-Alarm: $${a.ticker}!`;
+                                let nTitle = '';
+                                if (a.alert_type === 'pre-breakout') {
+                                    nTitle = `[PRE-BREAKOUT] $${a.ticker}!`;
+                                } else {
+                                    nTitle = isShort ? `[SHORT-SIGNAL] $${a.ticker}!` : `[HYPE-ALARM] $${a.ticker}!`;
+                                }
                                 try {
                                     new Notification(nTitle, {
                                         body: `${a.mentions} Erwähnungen | Sentiment: ${a.avg_sentiment > 0 ? '+' : ''}${a.avg_sentiment.toFixed(3)}\nQuellen: ${a.subreddits.map(s => 'r/' + s).join(', ')}`,
@@ -1291,10 +1434,15 @@
                 const color = sentimentColor(a.avg_sentiment);
                 const subs = a.subreddits.map(s => 'r/' + s).join(', ');
 
-                const isShort = a.avg_sentiment < 0 || a.alert_type === 'negative';
-                const badgeHtml = isShort
-                    ? `<span class="text-[8px] font-mono px-1.5 py-0.5 rounded font-bold bg-rose-500/10 text-rose-500 border border-rose-500/20 uppercase tracking-wide">SHORT</span>`
-                    : `<span class="text-[8px] font-mono px-1.5 py-0.5 rounded font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 uppercase tracking-wide">LONG</span>`;
+                let badgeHtml = '';
+                if (a.alert_type === 'pre-breakout') {
+                    badgeHtml = `<span class="text-[8px] font-mono px-1.5 py-0.5 rounded font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase tracking-wide animate-pulse">PRE-BREAKOUT</span>`;
+                } else {
+                    const isShort = a.avg_sentiment < 0 || a.alert_type === 'negative';
+                    badgeHtml = isShort
+                        ? `<span class="text-[8px] font-mono px-1.5 py-0.5 rounded font-bold bg-rose-500/10 text-rose-500 border border-rose-500/20 uppercase tracking-wide">SHORT</span>`
+                        : `<span class="text-[8px] font-mono px-1.5 py-0.5 rounded font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 uppercase tracking-wide">LONG</span>`;
+                }
 
                 item.innerHTML = `
                     <div class="flex items-center justify-between mb-1">
@@ -1522,7 +1670,12 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
                     if (used >= limit) {
                         bodyEl.innerHTML = `
                             <div class="p-4 rounded border border-yellow-500/20 bg-yellow-500/5 text-xs text-yellow-400 font-mono leading-relaxed">
-                                <span class="font-bold text-sm block mb-1">⚠️ TAGESLIMIT ERREICHT</span>
+                                <span class="font-bold text-sm flex items-center gap-1.5 mb-1">
+                                    <svg class="w-4 h-4 text-yellow-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3Z" />
+                                    </svg>
+                                    <span>TAGESLIMIT ERREICHT</span>
+                                </span>
                                 Tageslimit für Modell ${modelId.toUpperCase()} erreicht (${used}/${limit} Anfragen).<br><br>
                                 Bitte wechsle im <a href="/terminal.html" class="underline text-gold-500 hover:text-gold-400 font-bold">Institutional Terminal</a> das Modell (unten links) oder warte bis morgen.
                             </div>
@@ -1614,7 +1767,12 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
                 console.error("Technical Analysis Error:", err);
                 bodyEl.innerHTML = `
                     <div class="p-4 rounded border border-red-500/20 bg-red-500/5 text-xs text-red-400 font-mono leading-relaxed">
-                        <span class="font-bold text-sm block mb-1">❌ PROTOKOLLFEHLER</span>
+                        <span class="font-bold text-sm flex items-center gap-1.5 mb-1">
+                            <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                            </svg>
+                            <span>PROTOKOLLFEHLER</span>
+                        </span>
                         Fehler beim Einholen der technischen Analyse:<br>
                         ${err.message}<br><br>
                         <button onclick="openTechnicalAnalysis('${ticker}', false, true)" class="px-3 py-1 bg-red-500/20 border border-red-500/40 hover:bg-red-500/35 rounded text-[10px] text-red-300 uppercase transition-all mt-1">
@@ -1870,7 +2028,12 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
                 } catch (err) {
                     bodyEl.innerHTML = `
                         <div class="p-4 rounded border border-red-500/20 bg-red-500/5 text-xs text-red-400 font-mono leading-relaxed">
-                            <span class="font-bold text-sm block mb-1">❌ PROTOKOLLFEHLER</span>
+                            <span class="font-bold text-sm flex items-center gap-1.5 mb-1">
+                                <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                                </svg>
+                                <span>PROTOKOLLFEHLER</span>
+                            </span>
                             Fehler beim Laden des geteilten Reports:<br>
                             ${err.message}
                         </div>

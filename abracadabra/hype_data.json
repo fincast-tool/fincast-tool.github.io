@@ -1,6 +1,6 @@
 {
   "meta": {
-    "last_updated": "2026-05-18T16:30:06.903748+00:00",
+    "last_updated": "2026-05-18T18:25:49.118106+00:00",
     "window_minutes": 15,
     "min_mentions": 4,
     "min_sentiment": 0.6,
@@ -22,12 +22,12 @@
       "ta": {
         "ticker": "NVDA",
         "asset_type": "stock",
-        "current_price": 220.2,
-        "rsi_value": 28.99,
-        "volume_spike_factor": 0.0,
-        "distance_to_local_ath_pct": 6.73,
-        "ema_9": 222.06,
-        "ema_20": 223.93,
+        "current_price": 219.51,
+        "rsi_value": 31.4,
+        "volume_spike_factor": 0.53,
+        "distance_to_local_ath_pct": 7.02,
+        "ema_9": 221.05,
+        "ema_20": 222.46,
         "setup_label": "NEUTRAL"
       }
     },
@@ -43,12 +43,12 @@
       "ta": {
         "ticker": "BTC",
         "asset_type": "crypto",
-        "current_price": 76276.31,
-        "rsi_value": 38.03,
-        "volume_spike_factor": 0.01,
-        "distance_to_local_ath_pct": 2.75,
-        "ema_9": 76420.393,
-        "ema_20": 76627.9039,
+        "current_price": 76267.6,
+        "rsi_value": 39.66,
+        "volume_spike_factor": 0.4,
+        "distance_to_local_ath_pct": 2.76,
+        "ema_9": 76490.4061,
+        "ema_20": 76581.594,
         "setup_label": "NEUTRAL"
       }
     },
@@ -61,7 +61,17 @@
         "wallstreetbets"
       ],
       "is_hype": false,
-      "ta": null
+      "ta": {
+        "ticker": "AMD",
+        "asset_type": "stock",
+        "current_price": 411.54,
+        "rsi_value": 32.63,
+        "volume_spike_factor": 0.96,
+        "distance_to_local_ath_pct": 10.1,
+        "ema_9": 415.88,
+        "ema_20": 419.02,
+        "setup_label": "NEUTRAL"
+      }
     },
     {
       "ticker": "SOL",
@@ -72,7 +82,17 @@
         "CryptoCurrency"
       ],
       "is_hype": false,
-      "ta": null
+      "ta": {
+        "ticker": "SOL",
+        "asset_type": "crypto",
+        "current_price": 83.75,
+        "rsi_value": 36.89,
+        "volume_spike_factor": 0.4,
+        "distance_to_local_ath_pct": 3.67,
+        "ema_9": 84.1754,
+        "ema_20": 84.3064,
+        "setup_label": "NEUTRAL"
+      }
     }
   ],
   "alerts": []

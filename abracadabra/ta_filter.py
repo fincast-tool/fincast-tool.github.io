@@ -16,6 +16,13 @@ import pandas as pd
 import pandas_ta_classic as ta
 import yfinance as yf
 from typing import Optional, Dict, Any
+import time
+import threading
+
+# Thread-safe in-memory cache für technische Analysen (10 Min. TTL)
+_ta_cache_lock = threading.Lock()
+_ta_cache: Dict[str, Dict[str, Any]] = {}
+CACHE_DURATION_SECONDS = 600  # 10 Minuten in Sekunden
 
 # Logger-Konfiguration für das TA-Modul
 logger = logging.getLogger("abracadabra.ta_filter")
@@ -101,6 +108,15 @@ def analyze_ticker_trading_setup(ticker: str, asset_type: str) -> Optional[Dict[
     """
     ticker = ticker.upper().strip()
     asset_type = asset_type.lower().strip()
+    cache_key = f"{ticker}_{asset_type}"
+
+    # 0. Cache-Lookup (API-schonend und extrem performant)
+    with _ta_cache_lock:
+        if cache_key in _ta_cache:
+            cached = _ta_cache[cache_key]
+            if time.time() - cached["timestamp"] < CACHE_DURATION_SECONDS:
+                logger.info(f"Cache-Hit für {ticker} ({asset_type.upper()}). Verwende in-memory TA-Daten.")
+                return cached["data"]
     
     # 1. On-Demand Datenbeschaffung
     if asset_type == "stock":
@@ -166,16 +182,17 @@ def analyze_ticker_trading_setup(ticker: str, asset_type: str) -> Optional[Dict[
         dist_to_ema9_pct = (abs(current_price - ema9_val) / ema9_val) * 100.0
         dist_to_ema20_pct = (abs(current_price - ema20_val) / ema20_val) * 100.0
         
-        # Klassifizierungslogik:
-        # - PRE-BREAKOUT: RSI zw. 55 und 72, deutlicher Volume Spike (> 1.5) und sehr nah am lokalen ATH (< 2.5%)
+        # Klassifizierungslogik (Optimiert für Profi-Breakout-Trading):
+        # - PRE-BREAKOUT: Aufwärtstrend (EMA 9 > EMA 20), RSI in Momentum-Zone (53-75), deutlicher Volume Spike (> 1.5) und sehr nah am lokalen ATH (< 3.0%)
         # - OVERBOUGHT: RSI über 78 (Gefahr von FOMO)
         # - CONSOLIDATION: Neutraler RSI (45-55), Kurs dicht an den EMAs (< 1.5% Abweichung), unauffälliges Volumen (<= 1.2)
         # - NEUTRAL: Kein klares Muster erfüllt
         
         is_pre_breakout = (
-            (55.0 <= rsi_val <= 72.0) and
+            (ema9_val > ema20_val) and
+            (53.0 <= rsi_val <= 75.0) and
             (volume_spike > 1.5) and
-            (ath_dist_pct < 2.5)
+            (ath_dist_pct < 3.0)
         )
         
         is_overbought = (rsi_val > 78.0)
@@ -209,12 +226,13 @@ def analyze_ticker_trading_setup(ticker: str, asset_type: str) -> Optional[Dict[
             "setup_label": setup_label
         }
         
-        logger.info(
-            f"TA-Setup-Analyse erfolgreich für {ticker} ({asset_type.upper()}): "
-            f"Preis={result['current_price']} | RSI={result['rsi_value']} | "
-            f"VolSpike={result['volume_spike_factor']}x | AthDist={result['distance_to_local_ath_pct']}% | "
-            f"Label={setup_label}"
-        )
+        # In Cache sichern
+        with _ta_cache_lock:
+            _ta_cache[cache_key] = {
+                "timestamp": time.time(),
+                "data": result
+            }
+
         return result
         
     except Exception as e:

@@ -92,6 +92,7 @@ class HypeAggregator:
         # Alert-Historie fuer das Dashboard (letzte 50 Alerts)
         self._alert_history: List[dict] = []
         self._max_history = 50
+        self._last_ta_alert_times: Dict[str, float] = defaultdict(float)
 
         logger.info(
             f"Aggregator initialisiert: Fenster={self.window_minutes}min, "
@@ -277,9 +278,6 @@ class HypeAggregator:
 
         # Ticker nach Erwaehnungen sortiert
         ranked_tickers = []
-        ta_stocks_count = 0
-        ta_cryptos_count = 0
-        max_ta_per_asset = 8
         for ticker, data in sorted(stats.items(), key=lambda x: x[1]["count"], reverse=True):
             # Sentiment-Level bestimmen
             s = data["avg_sentiment"]
@@ -311,21 +309,31 @@ class HypeAggregator:
                 )
             )
 
-            # Technische Analyse On-Demand für aktive Ticker (API-schonend begrenzt auf Top 8)
+            # Technische Analyse On-Demand für alle aktiven Ticker (API-schonend dank In-Memory TTL Cache in ta_filter)
             ta_data = None
             try:
-                if is_crypto:
-                    if ta_cryptos_count < max_ta_per_asset and (is_hype or data["count"] >= 2):
-                        from ta_filter import analyze_ticker_trading_setup
-                        ta_data = analyze_ticker_trading_setup(ticker, "crypto")
-                        if ta_data:
-                            ta_cryptos_count += 1
-                else:
-                    if ta_stocks_count < max_ta_per_asset and (is_hype or data["count"] >= 2):
-                        from ta_filter import analyze_ticker_trading_setup
-                        ta_data = analyze_ticker_trading_setup(ticker, "stock")
-                        if ta_data:
-                            ta_stocks_count += 1
+                asset_type = "crypto" if is_crypto else "stock"
+                from ta_filter import analyze_ticker_trading_setup
+                ta_data = analyze_ticker_trading_setup(ticker, asset_type)
+                
+                # PRE-BREAKOUT Signale ebenfalls im Signal-Feed triggern
+                if ta_data and ta_data.get("setup_label") == "PRE-BREAKOUT":
+                    now = time.time()
+                    if (now - self._last_ta_alert_times[ticker]) >= self._alert_cooldown_seconds:
+                        self._last_ta_alert_times[ticker] = now
+                        ta_alert = {
+                            "ticker": ticker,
+                            "mentions": data["count"],
+                            "avg_sentiment": round(data["avg_sentiment"], 3),
+                            "alert_type": "pre-breakout",
+                            "subreddits": sorted(data["subreddits"]),
+                            "window_minutes": self.window_minutes,
+                            "triggered_at": datetime.now(tz=timezone.utc).isoformat(),
+                        }
+                        self._alert_history.insert(0, ta_alert)
+                        if len(self._alert_history) > self._max_history:
+                            self._alert_history = self._alert_history[:self._max_history]
+                        logger.info(f"QUANTITATIVE PRE-BREAKOUT ALERT TRIGGERED: ${ticker}")
             except Exception as ta_err:
                 logger.error(f"Fehler bei TA-Kalkulation für Ticker {ticker}: {ta_err}")
 
