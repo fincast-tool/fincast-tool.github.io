@@ -1613,15 +1613,15 @@ STRICT INSTRUCTIONS (NO NOVELS, NO FLUFF):
 Generate the following section with EXACT tags. Output ONLY the data inside the tags.
 
 <technical>
-ROLE: Senior Quantitative Trader (Market Microstructure)
-- Trend Analysis: [Current direction on Daily, Weekly, Monthly timeframes]
-- Moving Averages: [Use '50-DMA' and '200-DMA' from FMP API BLOCK; include 100-day estimate & crossover signals]
-- Technical Indicators: [Use '14-Day RSI' and 'MACD' from FMP API BLOCK; add Bollinger Band interpretation]
-- Volume & Strength: [Volume trend analysis & Buyer vs Seller strength]
-- Chart Patterns: [Identify potential patterns like Head & Shoulders, Cup & Handle, etc.]
-- Fibonacci & Levels: [Key Support/Resistance & Fibonacci retracement bounce zones]
-- Trade Execution: [Ideal Entry, Stop-Loss, and Profit Target price points adjusted for the ${setupType} setup]
-- Risk Management: [Calculate Risk-to-Reward Ratio for this setup]
+ROLE: Senior Quantitative Breakout Trader & Market Microstructure Expert
+- Trend & EMA Alignment: [Evaluate trend direction via EMA 9 vs EMA 20 crossover and 50/200-DMA alignment]
+- Resistance & Local High (LH): [Identify the precise local resistance/LH level and current distance to breakout in %]
+- RSI Momentum Check: [Analyze if 14-Day RSI is in the tactical 53-75 momentum zone or entering overbought/FOMO > 78]
+- Volume Validation: [Assess volume spike strength to confirm institutional accumulation at the breakout threshold]
+- Chart Patterns: [Identify breakout-specific patterns like Bull Flag, Flat Base, Cup & Handle, or Ascending Triangle]
+- Key Trading Levels: [Support/Resistance levels & Fibonacci extension targets above the breakout level]
+- Trade Execution: [Ideal Trigger Entry (breakout price), tight Stop-Loss (e.g. below EMA 20/9), and Profit Targets adjusted for ${setupType} setup]
+- Risk Management: [Calculate Risk-to-Reward Ratio specifically optimized for breakout volatility]
 </technical>\n\n`;
         }
 
