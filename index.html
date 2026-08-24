@@ -1,119 +1,143 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" class="dark">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>fincast | Strategic Intelligence Hub</title>
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>fincast Hub | Smarte Tools für kluge Anleger</title>
+    <title>fincast Hub | Smarte KI-Tools &amp; Analysen für Anleger</title>
 
     <!-- SEO Meta Tags -->
     <meta name="description"
-        content="fincast Hub ist eine Sammlung von smarten Tools & Wissen für Börsenorientierte Anleger.">
+        content="fincast Hub: KI-Aktienanalyse, Terminal, Zinseszins- &amp; Dividendenrechner und Social-Sentiment. Jetzt smarte Investment-Tools kostenlos nutzen!">
     <meta name="keywords"
-        content="Aktienanalyse, KI Investment, Finanzterminal, DCF Modell, Börsenanalyse, Fincast, Aktienbewertung, Investment Strategie">
+        content="Aktienanalyse, KI Investment, Finanzterminal, DCF Modell, Börsenanalyse, fincast, Zinseszinsrechner, Dividendenrechner, Aktienbewertung, Hype Barometer">
+    <meta name="author" content="Nikolai Bretthauer">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="https://fincast-tool.vercel.app/">
 
     <!-- Open Graph / Social Media Meta Tags -->
     <meta property="og:type" content="website">
+    <meta property="og:site_name" content="fincast Hub">
     <meta property="og:url" content="https://fincast-tool.vercel.app/">
-    <meta property="og:title" content="fincast Hub | Smarte Tools für kluge Anleger">
+    <meta property="og:title" content="fincast Hub | Smarte KI-Tools &amp; Analysen für Anleger">
     <meta property="og:description"
-        content="fincast Hub ist eine Sammlung von smarten Tools & Wissen für Börsenorientierte Anleger.">
+        content="fincast Hub bietet hochpräzise Finanztools: Strategic Terminal, DCF-Modelle, Zinseszins- und Dividendenrechner sowie Sentiment-Tracking für kluge Anleger.">
     <meta property="og:image" content="https://fincast-tool.vercel.app/theme-toggle-portfoliomanager.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:locale" content="de_DE">
 
+    <!-- Twitter / X Cards -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="fincast Hub | Smarte Tools für kluge Anleger">
+    <meta name="twitter:title" content="fincast Hub | Smarte KI-Tools &amp; Analysen für Anleger">
     <meta name="twitter:description"
-        content="fincast Hub ist eine Sammlung von smarten Tools & Wissen für Börsenorientierte Anleger.">
+        content="fincast Hub bietet hochpräzise Finanztools: Strategic Terminal, DCF-Modelle, Zinseszins- und Dividendenrechner sowie Sentiment-Tracking für kluge Anleger.">
     <meta name="twitter:image" content="https://fincast-tool.vercel.app/theme-toggle-portfoliomanager.png">
-    <link rel="canonical" href="https://fincast-tool.vercel.app/">
     <link rel="icon" type="image/png" href="portfoliomanager%20-%20Symbol.png">
     <link rel="shortcut icon" href="portfoliomanager%20-%20Symbol.png">
     <link rel="apple-touch-icon" href="portfoliomanager%20-%20Symbol.png">
+    <link rel="manifest" href="manifest.json">
 
-    <!-- Font & Tailwind -->
+    <!-- Structured Data / JSON-LD -->
+    <script type="application/ld+json">
+    [
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "fincast Hub",
+        "url": "https://fincast-tool.vercel.app/",
+        "description": "Smarte KI-Tools, Strategic Terminal, Zinseszins- und Dividendenrechner für rationale Anleger.",
+        "inLanguage": "de",
+        "publisher": {
+          "@type": "Organization",
+          "name": "fincast",
+          "url": "https://fincast-tool.vercel.app/",
+          "logo": "https://fincast-tool.vercel.app/portfoliomanager%20-%20Symbol.png"
+        }
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "fincast Hub",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "All",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "EUR"
+        },
+        "description": "Finanzanalyse-Suite mit Aktien-Terminal, DCF-Bewertung, Hype-Barometer und Zinseszins-Simulator."
+      }
+    ]
+    </script>
+
+    <!-- Fonts & Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
         rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    },
+                    colors: {
+                        obsidian: {
+                            700: '#23293a',
+                            800: '#1a1f2e',
+                            850: '#141926',
+                            900: '#0f1420',
+                            950: '#0a0d14'
+                        },
+                        gold: {
+                            400: '#facc15',
+                            500: '#d4af37',
+                            600: '#b08d2b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 
     <style>
         :root {
-            --obsidian-950: #020617;
-            --obsidian-900: #0f172a;
-            --gold-500: #eab308;
+            --obsidian-950: #0a0d14;
+            --obsidian-900: #0f1420;
+            --obsidian-800: #1a1f2e;
+            --gold-500: #d4af37;
             --gold-400: #facc15;
-            --gold-glow: rgba(234, 179, 8, 0.15);
-            --bg: #f8fafc;
-            --primary: #0f172a;
-            --accent: #27ae60;
-            --terminal-bg: #0f172a;
-            --terminal-gold: #facc15;
+            --gold-glow: rgba(212, 175, 55, 0.15);
+            --accent: #22c55e;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg);
+            background-color: var(--obsidian-950);
+            color: #e2e8f0;
             margin: 0;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background-image: radial-gradient(circle at 50% 50%, rgba(39, 174, 96, 0.05) 0%, transparent 100%);
-            transition: background-color 0.3s;
+            background-image:
+                radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.08) 0%, transparent 60%),
+                radial-gradient(circle at 10% 40%, rgba(34, 197, 94, 0.04) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.03) 0%, transparent 40%);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        .top-nav {
-            position: fixed;
-            top: 2rem;
-            right: 2rem;
-            z-index: 100;
-        }
-
-        .toggle-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-            background: white;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        .toggle-btn:hover {
-            transform: translateY(-2px);
-            border-color: var(--accent);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .toggle-btn img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        body.lang-en .toggle-btn img {
-            transform: rotate(180deg);
-        }
-
-        .hub-container {
-            width: 100%;
-            max-width: 1100px;
-            padding: 2rem;
-            text-align: center;
-            margin-top: 4rem;
-        }
-
-        /* ... (rest of CSS remains same) */
         .hide-scrollbar::-webkit-scrollbar {
             display: none;
         }
@@ -123,361 +147,692 @@
             scrollbar-width: none;
         }
 
-        .hub-title {
-            font-size: 3.5rem;
-            font-weight: 800;
-            letter-spacing: -0.05em;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-        }
-
-        .hub-subtitle {
-            color: #7f8c8d;
-            font-size: 1.1rem;
-            margin-bottom: 4rem;
-            text-transform: uppercase;
-            letter-spacing: 0.2em;
-        }
-
-        .tool-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 2rem;
-        }
-
-        .tool-card {
+        .hub-card {
             position: relative;
-            height: 450px;
-            border-radius: 24px;
+            background: #0f1420;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 20px;
             overflow: hidden;
-            cursor: pointer;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            text-decoration: none;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             display: flex;
             flex-direction: column;
-            justify-content: flex-end;
-            padding: 3rem;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+            justify-content: space-between;
+            min-height: 380px;
+            padding: 2rem;
+            text-decoration: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
-        .tool-card:hover {
-            transform: translateY(-12px) scale(1.02);
-            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.2);
+        .hub-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(212, 175, 55, 0.35);
+            background: #141926;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5), 0 0 30px rgba(212, 175, 55, 0.08);
         }
 
-        .card-terminal {
-            background-color: var(--terminal-bg);
-            border: 1px solid rgba(212, 175, 55, 0.2);
-        }
-
-        .card-terminal::before {
+        .hub-card::before {
             content: "";
             position: absolute;
             inset: 0;
-            background: linear-gradient(180deg, transparent 0%, rgba(10, 13, 20, 0.95) 100%);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.01) 0%, rgba(10, 13, 20, 0.85) 100%);
             z-index: 1;
+            pointer-events: none;
         }
 
-        .card-calculator {
-            background-color: white;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
-        .card-calculator::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.9) 100%);
-            z-index: 1;
-        }
-
-        .card-content {
+        .hub-card-content {
             position: relative;
             z-index: 2;
-            text-align: left;
         }
 
-        .tool-tag {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.7rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: 1rem;
-            display: inline-block;
-            padding: 0.4rem 0.8rem;
-            border-radius: 6px;
-        }
-
-        .card-terminal .tool-tag {
-            background: rgba(212, 175, 55, 0.1);
-            color: var(--terminal-gold);
-        }
-
-        .card-calculator .tool-tag {
-            background: rgba(39, 174, 96, 0.1);
-            color: var(--accent);
-        }
-
-        .tool-name {
-            font-size: 2rem;
-            font-weight: 800;
-            line-height: 1.1;
-            margin-bottom: 1rem;
-        }
-
-        .card-terminal .tool-name {
-            color: white;
-        }
-
-        .card-calculator .tool-name {
-            color: var(--primary);
-        }
-
-        .tool-desc {
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-
-        .card-terminal .tool-desc {
-            color: #cbd5e1; /* Leichtes Hellgrau für perfekte Lesbarkeit auf dunklem Hintergrund */
-        }
-
-        .card-calculator .tool-desc {
-            color: #475569; /* Dunkleres Graublau für perfekten Kontrast auf hellem Hintergrund */
-        }
-
-        .tool-image-preview {
+        .tool-image-bg {
             position: absolute;
-            top: 2rem;
-            left: 2rem;
-            right: 2rem;
-            height: 200px;
-            opacity: 0.3;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 180px;
+            opacity: 0.15;
             filter: grayscale(100%);
-            transition: all 0.5s ease;
+            transition: all 0.4s ease;
             z-index: 0;
             object-fit: cover;
-            border-radius: 12px;
+            width: 100%;
         }
 
-        .tool-card:hover .tool-image-preview {
-            opacity: 0.6;
-            filter: grayscale(0%);
-            transform: scale(1.05);
+        .hub-card:hover .tool-image-bg {
+            opacity: 0.3;
+            filter: grayscale(30%);
+            transform: scale(1.03);
         }
 
-        @media (max-width: 850px) {
-            .tool-grid {
-                grid-template-columns: 1fr;
-            }
+        .hub-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1.25rem;
+        }
 
-            .hub-title {
-                font-size: 2.5rem;
-            }
+        .tag-gold {
+            background: rgba(212, 175, 55, 0.12);
+            color: #d4af37;
+            border: 1px solid rgba(212, 175, 55, 0.25);
+        }
 
-            .tool-card {
-                height: 350px;
-                padding: 2rem;
-            }
+        .tag-emerald {
+            background: rgba(34, 197, 94, 0.12);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.25);
+        }
 
-            .top-nav {
-                top: 1rem;
-                right: 1rem;
-            }
+        .tag-blue {
+            background: rgba(59, 130, 246, 0.12);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.25);
+        }
+
+        .logo-box {
+            position: relative;
+            background: radial-gradient(circle at center, rgba(212, 175, 55, 0.2), rgba(10, 13, 20, 0.6));
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
+            overflow: hidden;
+        }
+
+        .logo-box::after {
+            content: "";
+            position: absolute;
+            top: -150%;
+            left: -150%;
+            width: 400%;
+            height: 400%;
+            background: linear-gradient(45deg, transparent, rgba(212, 175, 55, 0.1), rgba(255, 255, 255, 0.2), rgba(212, 175, 55, 0.1), transparent);
+            transform: rotate(-45deg);
+            animation: logo-shimmer 6s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes logo-shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(-45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(-45deg); }
+        }
+
+        @keyframes pulse-live {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.9); }
+        }
+
+        .pulse-live {
+            animation: pulse-live 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
     </style>
 </head>
 
-<body>
+<body class="flex flex-col min-h-screen">
 
-    <nav class="top-nav">
-        <div class="toggle-btn" onclick="toggleLanguage()" id="lang-toggle">
-            <img src="theme-toggle-language.png" alt="Language Toggle">
-        </div>
-    </nav>
-
-    <div class="hub-container">
-        <h1 class="hub-title" id="t-hub-title">fincast Hub</h1>
-        <p class="hub-subtitle" id="t-hub-subtitle">Smarte Tools für kluge Anleger</p>
-
-        <div class="tool-grid">
-            <!-- Terminal Tool -->
-            <a href="terminal.html" class="tool-card card-terminal">
-                <img src="theme-toggle-portfoliomanager.png" alt="Terminal Preview" class="tool-image-preview">
-                <div class="card-content">
-                    <span class="tool-tag" id="t-term-tag">Multi-Agent AI Analysis</span>
-                    <h2 class="tool-name">Strategic<br><span style="color: var(--terminal-gold)">Intelligence</span>
-                        Terminal</h2>
-                    <p class="tool-desc" id="t-term-desc">Tiefgreifende Aktienanalysen basierend auf den KI-Frameworks
-                        von
-                        Goldman Sachs, JPMorgan & Citadel.</p>
-                </div>
-            </a>
-
-            <!-- Hype-Barometer Tool (Abracadabra) -->
-            <a href="abracadabra/hype.html" class="tool-card card-terminal">
-                <img src="theme-toggle-portfoliomanager.png" alt="Hype-Barometer Preview" class="tool-image-preview">
-                <div class="card-content">
-                    <span class="tool-tag" id="t-hype-tag">Sentiment Analysis</span>
-                    <h2 class="tool-name">Abracadabra<br><span style="color: var(--terminal-gold)">Hype-Barometer</span></h2>
-                    <p class="tool-desc" id="t-hype-desc">Professionelles Hype-Barometer mit on-demand Trading-Setups & optionaler KI-Report-Generierung. Identifiziere volumenbestätigte Breakouts vor allen anderen.</p>
-                </div>
-            </a>
-
-            <!-- Calculator Tool -->
-            <a href="calculator.html" class="tool-card card-terminal">
-                <img src="theme-toggle-portfoliomanager.png" alt="Calculator Preview" class="tool-image-preview">
-                <div class="card-content">
-                    <span class="tool-tag" id="t-calc-tag">Wealth Simulation</span>
-                    <h2 class="tool-name">Zinseszins &<br><span style="color: var(--terminal-gold)">Dividenden</span> Simulator</h2>
-                    <p class="tool-desc" id="t-calc-desc">Präzise Berechnung deines Vermögensaufbaus unter
-                        Berücksichtigung von Steuern und Inflation.</p>
-                </div>
-            </a>
-
-            <!-- Video Tool -->
-            <div onclick="openVideoModal()" class="tool-card card-calculator" style="cursor: pointer;">
-                <img src="theme-toggle-portfoliomanager.png" alt="Video Preview" class="tool-image-preview">
-                <div class="card-content">
-                    <span class="tool-tag" id="t-video-tag">Erklärvideo</span>
-                    <h2 class="tool-name">Erste Schritte<br><span style="color: var(--accent)">an der Börse</span></h2>
-                    <p class="tool-desc" id="t-video-desc">Ein umfassender Einstieg und Leitfaden für neue Investoren in
-                        die Welt der Aktien.</p>
-                </div>
-            </div>
-
-            <!-- Ebook Tool -->
-            <div onclick="openPresentationModal()" class="tool-card card-calculator" style="cursor: pointer;">
-                <img src="theme-toggle-portfoliomanager.png" alt="Ebook Preview" class="tool-image-preview">
-                <div class="card-content">
-                    <span class="tool-tag" id="t-pres-tag">Ebook</span>
-                    <h2 class="tool-name">The Vibe of<br><span style="color: var(--accent)">Wealth</span></h2>
-                    <p class="tool-desc" id="t-pres-desc">Mein exklusives Mentoring-Ebook von Nikolai Bretthauer für
-                        deinen Weg in die finanzielle Flexibilität.</p>
-                    <div class="flex items-center gap-1.5 mt-3 text-xs font-medium text-slate-400">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-                        </svg>
-                        <span>25 Min Lesezeit</span>
+    <header class="sticky top-0 z-50 w-full border-b border-white/[0.06] bg-[#0a0d14]/90 backdrop-blur-xl transition-all">
+        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+            
+            <div class="flex items-center gap-3">
+                <a href="index.html" class="flex items-center gap-3 group focus:outline-none">
+                    <div class="w-9 h-9 rounded-xl logo-box flex items-center justify-center shadow-lg transition-transform group-hover:scale-105">
+                        <img src="portfoliomanager%20-%20Symbol.png" class="w-7 h-7 object-contain opacity-90" alt="fincast logo">
                     </div>
-                </div>
-            </div>
-
-            <!-- Podcast Tool -->
-            <div onclick="openPodcastModal()" class="tool-card card-calculator" style="cursor: pointer;">
-                <img src="theme-toggle-portfoliomanager.png" alt="Podcast Preview" class="tool-image-preview">
-                <div class="card-content">
-                    <span class="tool-tag" id="t-podcast-tag">Podcast</span>
-                    <h2 class="tool-name">The Vibe of<br><span style="color: var(--accent)">Wealth Podcast</span></h2>
-                    <p class="tool-desc" id="t-podcast-desc">Höre dir die neuesten Einsichten und Strategien für deinen
-                        finanziellen Erfolg an.</p>
-                    <div class="flex items-center gap-1.5 mt-3 text-xs font-medium text-slate-400">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
-                        </svg>
-                        <span>Audio Stream</span>
+                    <div class="flex flex-col">
+                        <div class="flex items-center gap-1.5 leading-none">
+                            <span class="text-base font-extrabold tracking-tight text-white">fincast</span>
+                            <span class="text-[10px] font-mono uppercase tracking-widest text-gold-500 font-bold px-1.5 py-0.5 rounded bg-gold-500/10 border border-gold-500/20">Hub</span>
+                        </div>
+                        <span class="text-[9px] font-mono text-slate-500 uppercase tracking-widest mt-0.5 hidden sm:inline">Strategic Intelligence</span>
                     </div>
+                </a>
+            </div>
+
+            <nav class="hidden md:flex items-center gap-1.5 bg-obsidian-900/80 p-1 rounded-xl border border-white/[0.06]">
+                <a href="index.html" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gold-500/10 border border-gold-500/30 text-gold-400 font-mono text-xs font-semibold shadow-sm">
+                    <svg class="w-3.5 h-3.5 text-gold-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                    </svg>
+                    <span>Hub</span>
+                </a>
+                <a href="terminal.html" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white font-mono text-xs font-medium transition-all">
+                    <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5" />
+                    </svg>
+                    <span>Terminal</span>
+                </a>
+                <a href="abracadabra/hype.html" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white font-mono text-xs font-medium transition-all">
+                    <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z" />
+                    </svg>
+                    <span>Hype-Barometer</span>
+                </a>
+                <a href="calculator.html" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white font-mono text-xs font-medium transition-all">
+                    <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                    <span>Zins-Simulator</span>
+                </a>
+            </nav>
+
+            <div class="flex items-center gap-3">
+                <div class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-obsidian-900 border border-white/[0.06] text-xs font-mono">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-live"></span>
+                    <span class="text-slate-400 text-[11px] uppercase tracking-wider">System Live</span>
+                </div>
+
+                <button onclick="shareHub()" id="hub-share-btn"
+                    class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-obsidian-900 hover:bg-obsidian-800 border border-white/[0.08] hover:border-gold-500/40 text-slate-300 hover:text-gold-400 transition-all text-xs font-mono cursor-pointer"
+                    title="fincast Hub teilen" aria-label="fincast Hub teilen">
+                    <svg class="w-4 h-4 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span id="t-share-header" class="hidden sm:inline font-medium">Teilen</span>
+                </button>
+
+                <button onclick="toggleLanguage()" id="lang-toggle-btn"
+                    class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-obsidian-900 hover:bg-obsidian-800 border border-white/[0.08] hover:border-gold-500/40 text-slate-300 hover:text-gold-400 transition-all text-xs font-mono cursor-pointer"
+                    title="Sprache wechseln / Switch Language">
+                    <svg class="w-4 h-4 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 2a14.5 14.5 0 0 0 0 20M12 2a14.5 14.5 0 0 1 0 20M2 12h20" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span id="lang-label" class="font-bold tracking-wider">DE</span>
+                </button>
+
+                <button onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-xl bg-obsidian-900 border border-white/[0.08] text-slate-400 hover:text-white focus:outline-none" aria-label="Menu">
+                    <svg id="menu-icon-open" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                    </svg>
+                    <svg id="menu-icon-close" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div id="mobile-menu" class="hidden md:hidden border-t border-white/[0.06] bg-obsidian-950/98 px-4 py-4 transition-all">
+            <div class="flex flex-col gap-2">
+                <a href="index.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-gold-500/10 border border-gold-500/30 text-gold-400 font-mono text-sm font-semibold">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                    </svg>
+                    <span>fincast Hub</span>
+                </a>
+                <a href="terminal.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5 text-slate-300 font-mono text-sm">
+                    <svg class="w-4 h-4 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5" />
+                    </svg>
+                    <span>Strategic Intelligence Terminal</span>
+                </a>
+                <a href="abracadabra/hype.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5 text-slate-300 font-mono text-sm">
+                    <svg class="w-4 h-4 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z" />
+                    </svg>
+                    <span>Abracadabra Hype-Barometer</span>
+                </a>
+                <a href="calculator.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5 text-slate-300 font-mono text-sm">
+                    <svg class="w-4 h-4 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                    <span>Zinseszins & Dividenden Simulator</span>
+                </a>
+                <button onclick="shareHub()" class="flex items-center justify-between w-full px-3 py-2.5 rounded-lg bg-gold-500/5 hover:bg-gold-500/10 border border-gold-500/20 text-gold-400 font-mono text-sm transition-all cursor-pointer text-left">
+                    <div class="flex items-center gap-3">
+                        <svg class="w-4 h-4 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <span id="t-mobile-share">App & Webseite teilen</span>
+                    </div>
+                    <span class="text-[10px] font-mono uppercase tracking-widest text-gold-400 bg-gold-500/10 px-2 py-0.5 rounded border border-gold-500/20">Share</span>
+                </button>
+                <div class="pt-2 mt-2 border-t border-white/[0.06] flex items-center justify-between text-xs text-slate-500 font-mono px-3">
+                    <a href="FAQ.html" class="hover:text-gold-400">FAQ</a>
+                    <a href="Impressum.html" class="hover:text-gold-400">Impressum & Datenschutz</a>
                 </div>
             </div>
         </div>
+    </header>
 
-        <!-- Partner / Offers Section -->
-        <div class="mt-20 w-full text-left" id="partner-section">
-            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-6 px-4" id="t-ads-title">
-                Empfohlene Partner</h3>
-            <div class="flex overflow-x-auto gap-4 pb-8 px-4 hide-scrollbar" id="ads-container">
-                <!-- Ads injected via JS -->
+    <main class="flex-1 w-full max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+
+        <section class="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-400 font-mono text-[11px] uppercase tracking-widest mb-4">
+                <span class="w-1.5 h-1.5 rounded-full bg-gold-500"></span>
+                <span>Institutional Grade Financial Ecosystem</span>
             </div>
-        </div>
-
-        <div id="t-version"
-            style="margin-top: 5rem; font-family: 'JetBrains Mono'; font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.2em;">
-            Institutional Grade Financial Software • v3.5
-        </div>
-
-        <!-- SEO Content Section -->
-        <section class="mt-20 text-left max-w-4xl mx-auto border-t border-gray-200 pt-12">
-            <h2 class="text-2xl font-extrabold text-slate-800 mb-6" id="t-seo-title">Fincast | Meine Plattform für
-                professionelle Finanzanalyse</h2>
-            <p class="text-slate-600 leading-relaxed mb-8" id="t-seo-intro">
-                Willkommen bei <strong>Fincast</strong>, dem fortschrittlichen Hub, den ich für moderne und
-                anspruchsvolle Anleger entwickelt habe. Mein Ziel war es, hochkomplexe Datenanalyse mit einer intuitiven
-                Bedienbarkeit zu vereinen, um dir Werkzeuge an die Hand zu geben, die sonst fast ausschließlich
-                institutionellen Investoren vorbehalten sind. Ob du tiefgreifende Aktienrecherchen auf Profi-Niveau
-                durchführen oder deinen langfristigen Vermögensaufbau mit höchster Präzision simulieren möchtest –
-                Fincast bietet dir die Tiefe, die du für wirklich fundierte Entscheidungen an den Märkten brauchst.
+            <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight mb-4" id="t-hub-title">
+                fincast <span class="text-gold-500">Hub</span>
+            </h1>
+            <p class="text-sm sm:text-base lg:text-lg text-slate-400 font-normal leading-relaxed" id="t-hub-subtitle">
+                Smarte Algorithmen, Multi-Agenten-KI und fundiertes Börsenwissen für kluge Investoren.
             </p>
+        </section>
 
-            <div class="grid md:grid-cols-2 gap-12">
-                <div>
-                    <h3 class="text-lg font-bold text-slate-800 mb-3" id="t-seo-term-h">Strategic Intelligence Terminal
-                    </h3>
-                    <p class="text-sm text-slate-500 leading-relaxed" id="t-seo-term-p">
-                        Mein Flaggschiff-Tool nutzt modernste KI-Modelle und Multi-Agenten-Systeme, um Aktien nach den
-                        strengen KI-Frameworks führender Investmentbanken wie <strong>Goldman Sachs, Morgan Stanley und
-                            Citadel</strong> zu analysieren. Dabei geht die Analyse weit über Standard-Kennzahlen
-                        hinaus: Erhalte exklusive Einblicke in Seasonal Patterns, Institutional Ownership und komplexe
-                        statistische Edges, die dir einen echten Informationsvorsprung verschaffen.
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-16">
+
+            <a href="terminal.html" class="hub-card group">
+                <img src="theme-toggle-portfoliomanager.png" alt="Terminal Preview" class="tool-image-bg">
+                <div class="hub-card-content">
+                    <span class="hub-tag tag-gold" id="t-term-tag">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5" />
+                        </svg>
+                        Multi-Agent AI Analysis
+                    </span>
+                    <h2 class="text-xl sm:text-2xl font-black text-white mb-2 leading-tight">
+                        Strategic <span class="text-gold-500">Intelligence</span> Terminal
+                    </h2>
+                    <p class="text-sm text-slate-400 leading-relaxed" id="t-term-desc">
+                        Tiefgreifende Aktienanalysen basierend auf den KI-Frameworks führender Investmentbanken wie Goldman Sachs, Morgan Stanley & Citadel.
                     </p>
                 </div>
-                <div>
-                    <h3 class="text-lg font-bold text-slate-800 mb-3" id="t-seo-calc-h">Zinseszins & Dividenden
-                        Simulator</h3>
-                    <p class="text-sm text-slate-500 leading-relaxed" id="t-seo-calc-p">
-                        Mein Simulator ist weit mehr als ein einfacher Zinsrechner. Ich habe ihn entwickelt, um dein
-                        Portfolio-Wachstum unter realistischen Bedingungen abzubilden. Er berücksichtigt
-                        <strong>Dividenden-Wachstum (Dividend Growth), Inflation, Kapitalertragsteuern und individuelle
-                            Freibeträge</strong>. So erkennst du auf den Monat genau den Zeitpunkt, an dem deine
-                        passiven Einkünfte deine Sparraten übersteigen oder deine Lebenshaltungskosten decken können.
+                <div class="hub-card-content pt-6 flex items-center justify-between border-t border-white/[0.06] mt-6">
+                    <span class="text-xs font-mono text-gold-400 font-semibold uppercase tracking-wider group-hover:translate-x-1 transition-transform inline-flex items-center gap-1.5">
+                        Terminal öffnen
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                        </svg>
+                    </span>
+                    <span class="text-[10px] font-mono text-slate-500 uppercase tracking-widest">v3.5 Live</span>
+                </div>
+            </a>
+
+            <a href="abracadabra/hype.html" class="hub-card group">
+                <img src="theme-toggle-portfoliomanager.png" alt="Hype-Barometer Preview" class="tool-image-bg">
+                <div class="hub-card-content">
+                    <span class="hub-tag tag-gold" id="t-hype-tag">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z" />
+                        </svg>
+                        Sentiment Analysis
+                    </span>
+                    <h2 class="text-xl sm:text-2xl font-black text-white mb-2 leading-tight">
+                        Abracadabra <span class="text-gold-500">Hype-Barometer</span>
+                    </h2>
+                    <p class="text-sm text-slate-400 leading-relaxed" id="t-hype-desc">
+                        Echtzeit-Sentiment, quantitative Pre-Breakout Setups & KI-Report-Generierung. Identifiziere volumenbestätigte Marktbewegungen.
                     </p>
                 </div>
-                <div>
-                    <h3 class="text-lg font-bold text-slate-800 mb-3" id="t-seo-video-h">Erste Schritte an der Börse
-                    </h3>
-                    <p class="text-sm text-slate-500 leading-relaxed" id="t-seo-video-p">
-                        Ein fundiertes Erklärvideo, das dir die grundlegenden Mechanismen der Aktienmärkte näherbringt.
-                        Ideal für den Start, um typische Anfängerfehler zu vermeiden und ein solides Fundament für deine
-                        Investments aufzubauen.
+                <div class="hub-card-content pt-6 flex items-center justify-between border-t border-white/[0.06] mt-6">
+                    <span class="text-xs font-mono text-gold-400 font-semibold uppercase tracking-wider group-hover:translate-x-1 transition-transform inline-flex items-center gap-1.5">
+                        Barometer starten
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                        </svg>
+                    </span>
+                    <span class="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Realtime</span>
+                </div>
+            </a>
+
+            <a href="calculator.html" class="hub-card group">
+                <img src="theme-toggle-portfoliomanager.png" alt="Calculator Preview" class="tool-image-bg">
+                <div class="hub-card-content">
+                    <span class="hub-tag tag-emerald" id="t-calc-tag">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                        </svg>
+                        Wealth Simulation
+                    </span>
+                    <h2 class="text-xl sm:text-2xl font-black text-white mb-2 leading-tight">
+                        Zinseszins & <span class="text-emerald-400">Dividenden</span>
+                    </h2>
+                    <p class="text-sm text-slate-400 leading-relaxed" id="t-calc-desc">
+                        Präzise Berechnung deines langfristigen Vermögensaufbaus unter Berücksichtigung von Dividendenwachstum, Steuern und Inflation.
                     </p>
                 </div>
-                <div>
-                    <h3 class="text-lg font-bold text-slate-800 mb-3" id="t-seo-ebook-h">The Vibe of Wealth Ebook</h3>
-                    <p class="text-sm text-slate-500 leading-relaxed" id="t-seo-ebook-p">
-                        Mein exklusives Mentoring-Ebook liefert dir auf komprimierten Seiten die Essenz für finanzielle
-                        Flexibilität. Lerne die Mindsets und Strategien kennen, die den Grundstein für echten,
-                        nachhaltigen Vermögensaufbau legen.
+                <div class="hub-card-content pt-6 flex items-center justify-between border-t border-white/[0.06] mt-6">
+                    <span class="text-xs font-mono text-emerald-400 font-semibold uppercase tracking-wider group-hover:translate-x-1 transition-transform inline-flex items-center gap-1.5">
+                        Simulator öffnen
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                        </svg>
+                    </span>
+                    <span class="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Interactive</span>
+                </div>
+            </a>
+
+            <div onclick="openVideoModal()" class="hub-card group cursor-pointer">
+                <img src="theme-toggle-portfoliomanager.png" alt="Video Preview" class="tool-image-bg">
+                <div class="hub-card-content">
+                    <span class="hub-tag tag-blue" id="t-video-tag">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z" />
+                        </svg>
+                        Erklärvideo
+                    </span>
+                    <h2 class="text-xl sm:text-2xl font-black text-white mb-2 leading-tight">
+                        Erste Schritte <span class="text-blue-400">an der Börse</span>
+                    </h2>
+                    <p class="text-sm text-slate-400 leading-relaxed" id="t-video-desc">
+                        Ein fundierter Einstieg und Leitfaden für neue Investoren in die Welt der Aktien & ETFs.
                     </p>
                 </div>
-                <div>
-                    <h3 class="text-lg font-bold text-slate-800 mb-3" id="t-seo-podcast-h">The Vibe of Wealth Podcast</h3>
-                    <p class="text-sm text-slate-500 leading-relaxed" id="t-seo-podcast-p">
-                        Höre dir die Inhalte des Ebooks bequem unterwegs als Podcast an. Mit dem integrierten
-                        Audio-Player kannst du die Abspielgeschwindigkeit anpassen und tief in die Materie eintauchen,
-                        wann immer es dir passt.
-                    </p>
-                </div>
-                <div>
-                    <h3 class="text-lg font-bold text-slate-800 mb-3" id="t-seo-hype-h">Abracadabra Hype-Barometer</h3>
-                    <p class="text-sm text-slate-500 leading-relaxed" id="t-seo-hype-p">
-                        Mein Echtzeit Hype-Barometer analysiert kontinuierlich soziale Kanäle, um verlässliche Hype-Strömungen zu identifizieren. Durch die zuschaltbare quantitative Trading-Engine werden on-demand technische Indikatoren (EMA 9/20 Crossover, RSI-Momentum-Filter und Volume-Spikes) berechnet. Sie ermittelt hochpräzise Pre-Breakout-Signale an lokalen Widerstandslinien (LH) – vollständig abgesichert durch einen speichereffizienten Cache. Zudem lässt sich optional ein vollautomatisierter KI-Trading-Setup-Report generieren.
-                    </p>
+                <div class="hub-card-content pt-6 flex items-center justify-between border-t border-white/[0.06] mt-6">
+                    <span class="text-xs font-mono text-blue-400 font-semibold uppercase tracking-wider group-hover:translate-x-1 transition-transform inline-flex items-center gap-1.5">
+                        Video ansehen
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polygon points="6 3 20 12 6 21 6 3" fill="currentColor" />
+                        </svg>
+                    </span>
+                    <span class="text-[10px] font-mono text-slate-500 uppercase tracking-widest">HD Video</span>
                 </div>
             </div>
 
+            <div onclick="openPresentationModal()" class="hub-card group cursor-pointer">
+                <img src="Wealth_Titel.png" alt="Ebook Preview" class="tool-image-bg">
+                <div class="hub-card-content">
+                    <span class="hub-tag tag-gold" id="t-pres-tag">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+                        </svg>
+                        Mentoring Ebook
+                    </span>
+                    <h2 class="text-xl sm:text-2xl font-black text-white mb-2 leading-tight">
+                        The Vibe of <span class="text-gold-500">Wealth</span>
+                    </h2>
+                    <p class="text-sm text-slate-400 leading-relaxed" id="t-pres-desc">
+                        Mein exklusives Mentoring-Ebook von Nikolai Bretthauer für deinen Weg in die finanzielle Flexibilität.
+                    </p>
+                </div>
+                <div class="hub-card-content pt-6 flex items-center justify-between border-t border-white/[0.06] mt-6">
+                    <span class="text-xs font-mono text-gold-400 font-semibold uppercase tracking-wider group-hover:translate-x-1 transition-transform inline-flex items-center gap-1.5">
+                        Ebook öffnen
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                        </svg>
+                    </span>
+                    <span class="text-[10px] font-mono text-slate-500 uppercase tracking-widest">25 Min Lesezeit</span>
+                </div>
+            </div>
+
+            <div onclick="openPodcastModal()" class="hub-card group cursor-pointer">
+                <img src="Wealth_Titel.png" alt="Podcast Preview" class="tool-image-bg">
+                <div class="hub-card-content">
+                    <span class="hub-tag tag-emerald" id="t-podcast-tag">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 0 1 0 12.728M16.463 8.288a5.25 5.25 0 0 1 0 7.424M6.75 8.25l4.72-4.72a.75.75 0 0 1 1.28.53v15.88a.75.75 0 0 1-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.009 9.009 0 0 1 2.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75Z" />
+                        </svg>
+                        Audio Podcast
+                    </span>
+                    <h2 class="text-xl sm:text-2xl font-black text-white mb-2 leading-tight">
+                        The Vibe of <span class="text-emerald-400">Wealth Podcast</span>
+                    </h2>
+                    <p class="text-sm text-slate-400 leading-relaxed" id="t-podcast-desc">
+                        Höre dir die neuesten Einsichten und Strategien für deinen finanziellen Erfolg direkt als Podcast an.
+                    </p>
+                </div>
+                <div class="hub-card-content pt-6 flex items-center justify-between border-t border-white/[0.06] mt-6">
+                    <span class="text-xs font-mono text-emerald-400 font-semibold uppercase tracking-wider group-hover:translate-x-1 transition-transform inline-flex items-center gap-1.5">
+                        Audio anhören
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polygon points="6 3 20 12 6 21 6 3" fill="currentColor" />
+                        </svg>
+                    </span>
+                    <span class="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Audio Stream</span>
+                </div>
+            </div>
 
         </section>
 
-        <div
-            style="margin-top: 4rem; display: flex; justify-content: center; gap: 2rem; font-family: 'JetBrains Mono'; font-size: 0.65rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em;">
-            <a href="FAQ.html" class="hover:text-gold-500 transition-colors">FAQ</a>
-            <a href="Impressum.html" class="hover:text-gold-500 transition-colors">Impressum</a>
+        <section class="mt-8 mb-16 w-full text-left" id="partner-section">
+            <div class="flex items-center justify-between mb-6 px-1">
+                <h3 class="text-xs font-bold text-slate-400 font-mono uppercase tracking-[0.2em]" id="t-ads-title">
+                    Empfohlene Partner & Broker
+                </h3>
+                <span class="text-[10px] font-mono text-slate-600 uppercase tracking-wider">Verifizierte Angebote</span>
+            </div>
+            <div class="flex overflow-x-auto gap-4 pb-6 px-1 hide-scrollbar" id="ads-container">
+            </div>
+        </section>
+
+        <section class="mt-12 text-left max-w-4xl mx-auto border-t border-white/[0.08] pt-12">
+            <h2 class="text-xl sm:text-2xl font-black text-white mb-4" id="t-seo-title">
+                fincast | Meine Plattform für professionelle Finanzanalyse
+            </h2>
+            <p class="text-sm text-slate-400 leading-relaxed mb-8" id="t-seo-intro">
+                Willkommen bei <strong>fincast</strong>, dem fortschrittlichen Hub, den ich für moderne und anspruchsvolle Anleger entwickelt habe. Mein Ziel war es, hochkomplexe Datenanalyse mit einer intuitiven Bedienbarkeit zu vereinen, um dir Werkzeuge an die Hand zu geben, die sonst fast ausschließlich institutionellen Investoren vorbehalten sind.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="p-5 rounded-xl bg-obsidian-900/60 border border-white/[0.04]">
+                    <h3 class="text-base font-bold text-white mb-2" id="t-seo-term-h">Strategic Intelligence Terminal</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed" id="t-seo-term-p">
+                        Mein Flaggschiff-Tool nutzt modernste KI-Modelle und Multi-Agenten-Systeme, um Aktien nach den strengen KI-Frameworks führender Investmentbanken wie <strong>Goldman Sachs, Morgan Stanley und Citadel</strong> zu analysieren.
+                    </p>
+                </div>
+                <div class="p-5 rounded-xl bg-obsidian-900/60 border border-white/[0.04]">
+                    <h3 class="text-base font-bold text-white mb-2" id="t-seo-calc-h">Zinseszins & Dividenden Simulator</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed" id="t-seo-calc-p">
+                        Mein Simulator bildet Portfolio-Wachstum unter realistischen Bedingungen ab: <strong>Dividenden-Wachstum, Inflation, Kapitalertragsteuern und Freibeträge</strong>.
+                    </p>
+                </div>
+                <div class="p-5 rounded-xl bg-obsidian-900/60 border border-white/[0.04]">
+                    <h3 class="text-base font-bold text-white mb-2" id="t-seo-hype-h">Abracadabra Hype-Barometer</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed" id="t-seo-hype-p">
+                        Echtzeit-Hype-Barometer scannt soziale Kanäle, filtert quantitative Trading-Setups (EMA 9/20, RSI Momentum) und generiert automatisierte KI-Reports für Pre-Breakout Signale.
+                    </p>
+                </div>
+                <div class="p-5 rounded-xl bg-obsidian-900/60 border border-white/[0.04]">
+                    <h3 class="text-base font-bold text-white mb-2" id="t-seo-ebook-h">The Vibe of Wealth Ebook & Podcast</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed" id="t-seo-ebook-p">
+                        Exklusives Mentoring-Wissen für deinen Weg in die finanzielle Flexibilität – wahlweise zum Lesen oder direkt als Audio-Podcast.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="w-full border-t border-white/[0.06] bg-obsidian-950/95 py-8 mt-auto">
+        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-6">
+            
+            <div class="flex items-center gap-3 text-center md:text-left">
+                <img src="portfoliomanager%20-%20Symbol.png" class="w-6 h-6 object-contain opacity-80" alt="fincast symbol">
+                <div>
+                    <p class="text-xs font-mono text-slate-400 font-bold uppercase tracking-wider" id="t-version">
+                        fincast Institutional Grade Financial Software • v3.5
+                    </p>
+                    <p class="text-[11px] text-slate-600 mt-0.5">
+                        © 2026 Nikolai Bretthauer. Alle Rechte vorbehalten.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-6 text-xs font-mono uppercase tracking-wider text-slate-400">
+                <a href="FAQ.html" class="hover:text-gold-400 transition-colors flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span>FAQ</span>
+                </a>
+                <span class="text-slate-700">•</span>
+                <a href="Impressum.html" class="hover:text-gold-400 transition-colors flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                    </svg>
+                    <span>Impressum & Datenschutz</span>
+                </a>
+            </div>
         </div>
+    </footer>
+
+    <div id="videoModal" onclick="if(event.target === this) closeVideoModal()"
+        class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/90 backdrop-blur-md p-2 sm:p-4 opacity-0 transition-opacity duration-300">
+        <div class="relative w-full max-w-5xl flex flex-col bg-obsidian-900 rounded-2xl overflow-hidden shadow-2xl border border-white/10 transform scale-95 transition-transform duration-300 max-h-[90dvh]"
+            id="videoModalContent">
+            <div class="flex justify-between items-center p-3 sm:p-4 border-b border-white/10 shrink-0 bg-obsidian-850">
+                <div class="flex items-center gap-2 min-w-0 pr-2">
+                    <span class="w-2 h-2 rounded-full bg-blue-500 shrink-0"></span>
+                    <h3 class="text-white font-bold text-xs sm:text-base truncate">Erklärvideo: Erste Schritte an der Börse</h3>
+                </div>
+                <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                    <a href="https://drive.google.com/file/d/193X6xhdz5Kj4ANxUPl4jISnNPpINewp4/view"
+                        target="_blank" rel="noopener noreferrer"
+                        class="text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 px-2.5 sm:px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 text-xs font-mono font-semibold"
+                        title="Video im Vollbild / separaten Tab abspielen">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <span class="hidden sm:inline">Vollbild</span>
+                    </a>
+                    <button onclick="shareVideo()"
+                        class="text-slate-400 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/5 flex items-center gap-1.5 text-xs font-mono"
+                        title="Video teilen">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <span class="hidden sm:inline">Teilen</span>
+                    </button>
+                    <button onclick="closeVideoModal()"
+                        class="text-slate-400 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/5"
+                        title="Schließen">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="relative w-full bg-black shrink-0 flex items-center justify-center"
+                style="aspect-ratio: 16/9; max-height: calc(90dvh - 110px);">
+                <div class="absolute text-slate-500 font-mono text-xs flex items-center gap-2">
+                    <div class="w-3.5 h-3.5 border-2 border-blue-400/30 border-t-blue-400 rounded-full animate-spin"></div>
+                    Lade Video Stream...
+                </div>
+                <iframe id="videoIframe" class="absolute top-0 left-0 w-full h-full z-10 border-0" src=""
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+                    allowfullscreen="true"
+                    webkitallowfullscreen="true"
+                    mozallowfullscreen="true"
+                    loading="eager"
+                    playsinline="1"></iframe>
+            </div>
+            <div class="px-3 py-2 sm:px-4 sm:py-2.5 bg-obsidian-850/90 border-t border-white/[0.06] flex items-center justify-between text-xs text-slate-400">
+                <div class="flex items-center gap-2 min-w-0">
+                    <svg class="w-3.5 h-3.5 text-blue-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 16v-4M12 8h.01" stroke-linecap="round" />
+                    </svg>
+                    <span class="text-[11px] sm:text-xs text-slate-400 truncate">Für beste Smartphone-Wiedergabe kannst du das Video auch direkt im Vollbildmodus starten.</span>
+                </div>
+                <a href="https://drive.google.com/file/d/193X6xhdz5Kj4ANxUPl4jISnNPpINewp4/view"
+                    target="_blank" rel="noopener noreferrer"
+                    class="text-blue-400 hover:text-blue-300 font-mono text-[11px] font-semibold uppercase tracking-wider shrink-0 ml-2 hover:underline">
+                    Direkt öffnen &nearr;
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div id="podcastModal" onclick="if(event.target === this) closePodcastModal()"
+        class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/90 backdrop-blur-md p-2 sm:p-4 opacity-0 transition-opacity duration-300">
+        <div class="relative w-full max-w-md flex flex-col bg-obsidian-900 rounded-2xl overflow-hidden shadow-2xl border border-white/10 transform scale-95 transition-transform duration-300 max-h-[90dvh]"
+            id="podcastModalContent">
+            <div class="flex justify-between items-center p-4 border-b border-white/10 shrink-0 relative z-20 bg-obsidian-850">
+                <div class="flex items-center gap-2 min-w-0 pr-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-live shrink-0"></span>
+                    <h3 class="text-white font-bold text-sm sm:text-base truncate">Podcast: The Vibe of Wealth</h3>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <select id="playbackSpeed" onchange="changePodcastSpeed()"
+                        class="bg-obsidian-800 text-white border border-white/20 rounded-lg px-2 py-1 text-xs font-mono focus:outline-none focus:border-gold-500 transition-colors cursor-pointer">
+                        <option value="0.75">0.75x</option>
+                        <option value="1" selected>1.0x</option>
+                        <option value="1.25">1.25x</option>
+                        <option value="1.5">1.5x</option>
+                        <option value="1.75">1.75x</option>
+                        <option value="2">2.0x</option>
+                    </select>
+                    <button onclick="sharePodcast()"
+                        class="text-slate-400 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/5 flex items-center gap-1 text-xs font-mono">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <button onclick="closePodcastModal()"
+                        class="text-slate-400 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/5">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="relative w-full shrink-0 flex items-end justify-center aspect-[2/3] bg-cover bg-center"
+                style="background-image: url('Wealth_Titel.png');">
+                <div class="absolute inset-0 bg-gradient-to-t from-obsidian-950 via-obsidian-950/40 to-transparent"></div>
+                <div class="relative z-10 w-full p-6">
+                    <audio id="podcastAudio" controls class="w-full shadow-2xl rounded-full" style="outline: none;">
+                        <source src="Wealth_Podcast.m4a" type="audio/mp4">
+                        Dein Browser unterstützt das Audio-Element nicht.
+                    </audio>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="presentationModal" onclick="if(event.target === this) closePresentationModal()"
+        class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/90 backdrop-blur-md p-4 opacity-0 transition-opacity duration-300">
+        <div class="relative w-full max-w-lg flex flex-col bg-obsidian-900 rounded-2xl overflow-hidden shadow-2xl border border-white/10 transform scale-95 transition-transform duration-300 max-h-[90dvh]"
+            id="presentationModalContent">
+            <div class="flex justify-between items-center p-4 border-b border-white/10 shrink-0 bg-obsidian-850">
+                <div class="flex items-center gap-2 min-w-0 pr-2">
+                    <span class="w-2 h-2 rounded-full bg-gold-500 shrink-0"></span>
+                    <h3 class="text-white font-bold text-sm sm:text-base truncate">Ebook: The Vibe of Wealth</h3>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <a href="https://docs.google.com/document/d/19xJVJDZ71X8U8WkFWSy1o-Suc1VQuB5dVhKbvI8FU1I/edit?tab=t.0"
+                        target="_blank" rel="noopener noreferrer"
+                        class="text-gold-400 bg-gold-500/10 hover:bg-gold-500/20 border border-gold-500/30 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 text-xs font-mono font-semibold">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <span class="hidden sm:inline">Vollbild</span>
+                    </a>
+                    <button onclick="shareEbook()"
+                        class="text-slate-400 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/5 flex items-center gap-1 text-xs font-mono">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <button onclick="closePresentationModal()"
+                        class="text-slate-400 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/5">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <a href="https://docs.google.com/document/d/19xJVJDZ71X8U8WkFWSy1o-Suc1VQuB5dVhKbvI8FU1I/edit?tab=t.0"
+                target="_blank" rel="noopener noreferrer"
+                class="relative block w-full aspect-[3/4] bg-obsidian-950 cursor-pointer group overflow-hidden">
+                <img src="Wealth_Titel.png" class="w-full h-full object-cover transition-all duration-500 group-hover:scale-105" alt="Ebook Preview">
+                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <span class="px-4 py-2 rounded-xl bg-gold-500 text-obsidian-950 font-bold font-mono text-xs shadow-lg uppercase tracking-wider flex items-center gap-2">
+                        Jetzt lesen
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                        </svg>
+                    </span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Toast Notification for Share / Copy -->
+    <div id="share-toast"
+        class="fixed bottom-6 right-6 z-[120] pointer-events-none transform translate-y-8 opacity-0 transition-all duration-300 flex items-center gap-3 px-4 py-3 rounded-xl bg-obsidian-900 border border-gold-500/40 shadow-2xl shadow-black/80 text-xs font-mono text-white backdrop-blur-md">
+        <div class="w-6 h-6 rounded-full bg-gold-500/20 text-gold-400 flex items-center justify-center shrink-0">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+            </svg>
+        </div>
+        <span id="toast-message">Link zum fincast Hub in die Zwischenablage kopiert!</span>
     </div>
 
     <script>
@@ -485,89 +840,93 @@
 
         const translations = {
             DE: {
-                hubTitle: "fincast Hub",
-                hubSubtitle: "Smarte Tools für kluge Anleger",
+                hubTitle: "fincast <span class='text-gold-500'>Hub</span>",
+                hubSubtitle: "Smarte Algorithmen, Multi-Agenten-KI und fundiertes Börsenwissen für kluge Investoren.",
                 termTag: "Multi-Agent AI Analysis",
-                termDesc: "Tiefgreifende Aktienanalysen basierend auf den KI-Frameworks von Goldman Sachs, JPMorgan & Citadel.",
+                termDesc: "Tiefgreifende Aktienanalysen basierend auf den KI-Frameworks führender Investmentbanken wie Goldman Sachs, Morgan Stanley & Citadel.",
                 calcTag: "Wealth Simulation",
-                calcDesc: "Präzise Berechnung deines Vermögensaufbaus unter Berücksichtigung von Steuern und Inflation.",
-                version: "Institutional Grade Financial Software",
-                seoTitle: "Fincast | Meine Plattform für professionelle Finanzanalyse",
-                seoIntro: "Willkommen bei <strong>Fincast</strong>, dem fortschrittlichen Hub, den ich für moderne Anleger entwickelt habe. Ich kombiniere hochkomplexe Datenanalyse mit intuitiver Bedienbarkeit, um dir Werkzeuge zu bieten, die sonst nur Profis vorbehalten sind.",
+                calcDesc: "Präzise Berechnung deines langfristigen Vermögensaufbaus unter Berücksichtigung von Dividendenwachstum, Steuern und Inflation.",
+                version: "fincast Institutional Grade Financial Software • v3.5",
+                seoTitle: "fincast | Meine Plattform für professionelle Finanzanalyse",
+                seoIntro: "Willkommen bei <strong>fincast</strong>, dem fortschrittlichen Hub, den ich für moderne und anspruchsvolle Anleger entwickelt habe. Mein Ziel war es, hochkomplexe Datenanalyse mit einer intuitiven Bedienbarkeit zu vereinen, um dir Werkzeuge an die Hand zu geben, die sonst fast ausschließlich institutionellen Investoren vorbehalten sind.",
                 seoTermH: "Strategic Intelligence Terminal",
-                seoTermP: "Mein Flaggschiff-Tool nutzt modernste KI-Modelle, um Aktien nach den KI-Frameworks führender Investmentbanken wie <strong>Goldman Sachs, Morgan Stanley und Citadel</strong> zu analysieren.",
+                seoTermP: "Mein Flaggschiff-Tool nutzt modernste KI-Modelle und Multi-Agenten-Systeme, um Aktien nach den strengen KI-Frameworks führender Investmentbanken wie <strong>Goldman Sachs, Morgan Stanley und Citadel</strong> zu analysieren.",
                 seoCalcH: "Zinseszins & Dividenden Simulator",
-                seoCalcP: "Mein Simulator ist weit mehr als ein einfacher Rechner. Er simuliert dein Portfolio-Wachstum unter Berücksichtigung von <strong>Dividenden-Wachstum, Inflation und Steuern</strong>.",
+                seoCalcP: "Mein Simulator bildet Portfolio-Wachstum unter realistischen Bedingungen ab: <strong>Dividenden-Wachstum, Inflation, Kapitalertragsteuern und Freibeträge</strong>.",
                 videoTag: "Erklärvideo",
-                videoDesc: "Ein umfassender Einstieg und Leitfaden für neue Investoren in die Welt der Aktien.",
-                presTag: "Ebook",
-                presDesc: "Mein exklusives Mentoring-Ebook von Nikolai Bretthauer für deinen Weg in die finanzielle Unabhängigkeit.",
-                podcastTag: "Podcast | The Vibe of Wealth",
-                podcastDesc: "Höre dir das Buch The Vibe of Wealth direkt als Procast an.",
+                videoDesc: "Ein fundierter Einstieg und Leitfaden für neue Investoren in die Welt der Aktien & ETFs.",
+                presTag: "Mentoring Ebook",
+                presDesc: "Mein exklusives Mentoring-Ebook von Nikolai Bretthauer für deinen Weg in die finanzielle Flexibilität.",
+                podcastTag: "Audio Podcast",
+                podcastDesc: "Höre dir die neuesten Einsichten und Strategien für deinen finanziellen Erfolg direkt als Podcast an.",
                 hypeTag: "Sentiment Analysis",
-                hypeDesc: "Professionelles Hype-Barometer mit on-demand Trading-Setups & optionaler KI-Report-Generierung. Identifiziere volumenbestätigte Breakouts vor allen anderen.",
-                seoVideoH: "Erste Schritte an der Börse",
-                seoVideoP: "Ein fundiertes Erklärvideo, das dir die grundlegenden Mechanismen der Aktienmärkte näherbringt. Ideal für den Start, um typische Anfängerfehler zu vermeiden und ein solides Fundament für deine Investments aufzubauen.",
-                seoEbookH: "The Vibe of Wealth Ebook",
-                seoEbookP: "Mein exklusives Mentoring-Ebook liefert dir auf komprimierten Seiten die Essenz für finanzielle Flexibilität. Lerne die Mindsets und Strategien kennen, die den Grundstein für echten, nachhaltigen Vermögensaufbau legen.",
-                seoPodcastH: "The Vibe of Wealth Podcast",
-                seoPodcastP: "Höre dir die Inhalte des Ebooks bequem unterwegs als Podcast an. Mit dem integrierten Audio-Player kannst du die Abspielgeschwindigkeit anpassen und tief in die Materie eintauchen, wann immer es dir passt.",
+                hypeDesc: "Echtzeit-Sentiment, quantitative Pre-Breakout Setups & KI-Report-Generierung. Identifiziere volumenbestätigte Marktbewegungen.",
                 seoHypeH: "Abracadabra Hype-Barometer",
-                seoHypeP: "Mein Echtzeit Hype-Barometer analysiert kontinuierlich soziale Kanäle, um verlässliche Hype-Strömungen zu identifizieren. Durch die zuschaltbare quantitative Trading-Engine werden on-demand technische Indikatoren (EMA 9/20 Crossover, RSI-Momentum-Filter und Volume-Spikes) berechnet. Sie ermittelt hochpräzise Pre-Breakout-Signale an lokalen Widerstandslinien (LH) – vollständig abgesichert durch einen speichereffizienten Cache. Zudem lässt sich optional ein vollautomatisierter KI-Trading-Setup-Report generieren.",
-                adsTitle: "Empfohlene Partner & Support"
+                seoHypeP: "Echtzeit-Hype-Barometer scannt soziale Kanäle, filtert quantitative Trading-Setups (EMA 9/20, RSI Momentum) und generiert automatisierte KI-Reports für Pre-Breakout Signale.",
+                seoEbookH: "The Vibe of Wealth Ebook & Podcast",
+                seoEbookP: "Exklusives Mentoring-Wissen für deinen Weg in die finanzielle Flexibilität – wahlweise zum Lesen oder direkt als Audio-Podcast.",
+                adsTitle: "Empfohlene Partner & Broker",
+                shareBtn: "Teilen",
+                shareMobile: "App & Webseite teilen",
+                shareTitle: "fincast Hub | Smarte KI-Tools & Analysen für Anleger",
+                shareText: "Entdecke den fincast Hub: Multi-Agenten-KI, Strategic Terminal, Zinseszins- & Dividendenrechner!",
+                shareSuccess: "Link zum fincast Hub in die Zwischenablage kopiert!",
+                sharePrompt: "fincast Hub teilen"
             },
             EN: {
-                hubTitle: "fincast Hub",
-                hubSubtitle: "Smart tools for savvy investors",
+                hubTitle: "fincast <span class='text-gold-500'>Hub</span>",
+                hubSubtitle: "Smart algorithms, multi-agent AI, and profound market intelligence for savvy investors.",
                 termTag: "Multi-Agent AI Analysis",
-                termDesc: "In-depth stock analysis based on AI-Frameworks from Goldman Sachs, JPMorgan & Citadel.",
+                termDesc: "In-depth equity analysis based on AI frameworks from Goldman Sachs, Morgan Stanley & Citadel.",
                 calcTag: "Wealth Simulation",
-                calcDesc: "Precise calculation of your wealth building considering taxes and inflation.",
-                version: "Institutional Grade Financial Software",
-                seoTitle: "Fincast | My platform for professional financial analysis",
-                seoIntro: "Welcome to <strong>Fincast</strong>, the advanced hub I designed for modern investors. I combine highly complex data analysis with intuitive usability to provide you with tools otherwise reserved for institutional investors.",
+                calcDesc: "Precise simulation of your long-term wealth accumulation accounting for dividend growth, taxes, and inflation.",
+                version: "fincast Institutional Grade Financial Software • v3.5",
+                seoTitle: "fincast | My platform for professional financial analysis",
+                seoIntro: "Welcome to <strong>fincast</strong>, the advanced hub designed for modern investors. I combine institutional-grade data analytics with sleek usability to provide tools otherwise reserved for investment banks.",
                 seoTermH: "Strategic Intelligence Terminal",
-                seoTermP: "My flagship tool uses cutting-edge AI models to analyze stocks according to AI-Frameworks of leading investment banks like <strong>Goldman Sachs, Morgan Stanley, and Citadel</strong>.",
+                seoTermP: "My flagship tool leverages state-of-the-art multi-agent AI systems to evaluate equities against strict institutional frameworks.",
                 seoCalcH: "Compound Interest & Dividend Simulator",
-                seoCalcP: "My Simulator is more than a simple calculator. It simulates your portfolio growth considering <strong>Dividend Growth, inflation, capital gains taxes, and allowances</strong>.",
-                videoTag: "Explainer Video",
-                videoDesc: "A comprehensive introduction and guide for new investors into the world of stocks.",
-                presTag: "Ebook",
-                presDesc: "My exclusive mentoring ebook by Nikolai Bretthauer for your journey to financial independance.",
-                podcastTag: "Podcast | The Vibe of Wealth",
-                podcastDesc: "Listen to the book The Vibe of Wealth directly as a podcast.",
+                seoCalcP: "Simulates portfolio compounding under real-world conditions: dividend reinvestment, inflation adjustments, and tax calculations.",
+                videoTag: "Video Guide",
+                videoDesc: "A comprehensive introduction and guide for new investors stepping into stocks & ETFs.",
+                presTag: "Mentoring Ebook",
+                presDesc: "My exclusive mentoring ebook by Nikolai Bretthauer for your journey toward financial independence.",
+                podcastTag: "Audio Podcast",
+                podcastDesc: "Listen to the latest investment insights and strategies directly on the go.",
                 hypeTag: "Sentiment Analysis",
-                hypeDesc: "Professional hype barometer with on-demand trading setups & optional AI report generation. Spot volume-backed breakouts before the crowd.",
-                seoVideoH: "First Steps in the Stock Market",
-                seoVideoP: "A well-founded explainer video that introduces you to the basic mechanisms of the stock markets. Ideal for getting started to avoid typical beginner mistakes and build a solid foundation for your investments.",
-                seoEbookH: "The Vibe of Wealth Ebook",
-                seoEbookP: "My exclusive mentoring ebook provides you with the essence of financial flexibility on compressed pages. Learn the mindsets and strategies that lay the foundation for true, sustainable wealth building.",
-                seoPodcastH: "The Vibe of Wealth Podcast",
-                seoPodcastP: "Listen to the contents of the ebook comfortably on the go as a podcast. With the integrated audio player, you can adjust the playback speed and dive deep into the subject matter whenever it suits you.",
-                seoHypeH: "Abracadabra Hype Barometer",
-                seoHypeP: "My real-time sentiment barometer scans social media to index high-reliability hype trends. Featuring a powerful on-demand technical analysis engine, it computes EMA 9/20 crossovers, RSI momentum, and volume spikes to identify high-probability pre-breakout setups at local resistance (LH) levels – secured by an API-safe cache. Users can also optionally generate fully automated AI trading setup reports.",
-                adsTitle: "Recommended Partners & Support"
+                hypeDesc: "Real-time sentiment tracking, quantitative pre-breakout setups & automated AI trading reports.",
+                seoHypeH: "Abracadabra Hype-Barometer",
+                seoHypeP: "Real-time sentiment barometer indexing social trends, computing technical indicators (EMA 9/20, RSI momentum), and finding breakout signals.",
+                seoEbookH: "The Vibe of Wealth Ebook & Podcast",
+                seoEbookP: "Exclusive mentoring wisdom for sustainable financial growth – available as an ebook and audio podcast.",
+                adsTitle: "Recommended Partners & Brokers",
+                shareBtn: "Share",
+                shareMobile: "Share App & Website",
+                shareTitle: "fincast Hub | Smart AI Tools & Market Intelligence",
+                shareText: "Discover fincast Hub: Multi-Agent AI equity analysis, terminal & wealth simulator!",
+                shareSuccess: "fincast Hub link copied to clipboard!",
+                sharePrompt: "Share fincast Hub"
             }
         };
 
         const ads = {
             DE: [
-                { title: "Interactive Brokers", sub: "Weltweiter Handel zu unschlagbaren Konditionen.", btn: "Jetzt anmelden", link: "https://ibkr.com/referral/nikolai299", bg: "linear-gradient(135deg, #333, #b91c1c)" },
-                { title: "Trade Republic", sub: "Dein Bonus wartet auf dich.", btn: "Jetzt Depot eröffnen", link: "https://refnocode.trade.re/wsjpt093", bg: "linear-gradient(135deg, #000, #222)" },
-                { title: "ING DiBa", sub: "Deutschlands beliebtester Broker.", btn: "Zum Depot-Angebot", link: "https://www.ing.de/depotkwk/aa/qMSsG9b3sfYwe7oec_MHkdo9erNgI0N1C05s2nPmaFllOL_mq8sF0eNbrBWoWpiPbg_fneIWXo0DlDdVI1MWYujZlsXD-3Tvg-DfGOcuOMQ=", bg: "linear-gradient(135deg, #ff6200, #d95300)" },
-                { title: "Bison App", sub: "Kryptos einfach & sicher handeln.", btn: "Konto eröffnen", link: "https://join.bisonapp.com/8jztca", bg: "linear-gradient(135deg, #003056, #004b85)" },
-                { title: "Bitpanda", sub: "Investiere in Aktien, Krypto & Gold.", btn: "Bonus sichern", link: "https://7lr8.adj.st/web.bitpanda.com/user/register/834555914483041191?adj_t=19f71v2&adj_fallback=https%3A%2F%2Fweb.bitpanda.com%2Fuser%2Fregister%2F834555914483041191&adj_redirect_macos=https%3A%2F%2Fweb.bitpanda.com%2Fuser%2Fregister%2F834555914483041191", bg: "linear-gradient(135deg, #00bf71, #008f55)" },
-                { title: "Getquin", sub: "Tracke alle deine Assets einfach in Echtzeit.", btn: "Konto erstellen", link: "https://getqu.in/nFa0yY/tWX6ya/", bg: "linear-gradient(135deg, #0d1117, #21262d)" },
-                { title: "Support ☕", sub: "fincast Hub gefällt dir? Supporte mich mit einem Kaffee!", btn: "Via PayPal spenden", link: "https://www.paypal.com/paypalme/nikobre", bg: "linear-gradient(135deg, #0070ba, #003087)" }
+                { title: "Interactive Brokers", sub: "Weltweiter Handel zu unschlagbaren Konditionen.", btn: "Jetzt anmelden", link: "https://ibkr.com/referral/nikolai299", bg: "linear-gradient(135deg, #1a1f2e, #b91c1c)" },
+                { title: "Trade Republic", sub: "Dein Bonus wartet auf dich.", btn: "Jetzt Depot eröffnen", link: "https://refnocode.trade.re/wsjpt093", bg: "linear-gradient(135deg, #1a1f2e, #222)" },
+                { title: "ING DiBa", sub: "Deutschlands beliebtester Broker.", btn: "Zum Depot-Angebot", link: "https://www.ing.de/depotkwk/aa/qMSsG9b3sfYwe7oec_MHkdo9erNgI0N1C05s2nPmaFllOL_mq8sF0eNbrBWoWpiPbg_fneIWXo0DlDdVI1MWYujZlsXD-3Tvg-DfGOcuOMQ=", bg: "linear-gradient(135deg, #1a1f2e, #d95300)" },
+                { title: "Bison App", sub: "Kryptos einfach & sicher handeln.", btn: "Konto eröffnen", link: "https://join.bisonapp.com/8jztca", bg: "linear-gradient(135deg, #1a1f2e, #004b85)" },
+                { title: "Bitpanda", sub: "Investiere in Aktien, Krypto & Gold.", btn: "Bonus sichern", link: "https://7lr8.adj.st/web.bitpanda.com/user/register/834555914483041191?adj_t=19f71v2&adj_fallback=https%3A%2F%2Fweb.bitpanda.com%2Fuser%2Fregister%2F834555914483041191&adj_redirect_macos=https%3A%2F%2Fweb.bitpanda.com%2Fuser%2Fregister%2F834555914483041191", bg: "linear-gradient(135deg, #1a1f2e, #008f55)" },
+                { title: "Getquin", sub: "Tracke alle deine Assets einfach in Echtzeit.", btn: "Konto erstellen", link: "https://getqu.in/nFa0yY/tWX6ya/", bg: "linear-gradient(135deg, #1a1f2e, #21262d)" },
+                { title: "Support", sub: "fincast Hub gefällt dir? Supporte mich mit einem Kaffee!", btn: "Via PayPal spenden", link: "https://www.paypal.com/paypalme/nikobre", bg: "linear-gradient(135deg, #1a1f2e, #003087)" }
             ],
             EN: [
-                { title: "Interactive Brokers", sub: "Global trading with unbeatable conditions.", btn: "Sign up now", link: "https://ibkr.com/referral/nikolai299", bg: "linear-gradient(135deg, #333, #b91c1c)" },
-                { title: "Trade Republic", sub: "Your bonus is waiting for you.", btn: "Open account now", link: "https://refnocode.trade.re/wsjpt093", bg: "linear-gradient(135deg, #000, #222)" },
-                { title: "ING DiBa", sub: "Germany's most popular broker.", btn: "To the offer", link: "https://www.ing.de/depotkwk/aa/qMSsG9b3sfYwe7oec_MHkdo9erNgI0N1C05s2nPmaFllOL_mq8sF0eNbrBWoWpiPbg_fneIWXo0DlDdVI1MWYujZlsXD-3Tvg-DfGOcuOMQ=", bg: "linear-gradient(135deg, #ff6200, #d95300)" },
-                { title: "Bison App", sub: "Trade crypto simply & securely.", btn: "Open account", link: "https://join.bisonapp.com/8jztca", bg: "linear-gradient(135deg, #003056, #004b85)" },
-                { title: "Bitpanda", sub: "Invest in stocks, crypto & gold.", btn: "Claim bonus", link: "https://7lr8.adj.st/web.bitpanda.com/user/register/834555914483041191?adj_t=19f71v2&adj_fallback=https%3A%2F%2Fweb.bitpanda.com%2Fuser%2Fregister%2F834555914483041191&adj_redirect_macos=https%3A%2F%2Fweb.bitpanda.com%2Fuser%2Fregister%2F834555914483041191", bg: "linear-gradient(135deg, #00bf71, #008f55)" },
-                { title: "Getquin", sub: "Track all your assets easily in real-time.", btn: "Create account", link: "https://getqu.in/nFa0yY/tWX6ya/", bg: "linear-gradient(135deg, #0d1117, #21262d)" },
-                { title: "Support ☕", sub: "Like the fincast Hub? Support me with a coffee!", btn: "Donate via PayPal", link: "https://www.paypal.com/paypalme/nikobre", bg: "linear-gradient(135deg, #0070ba, #003087)" }
+                { title: "Interactive Brokers", sub: "Global trading with unbeatable conditions.", btn: "Sign up now", link: "https://ibkr.com/referral/nikolai299", bg: "linear-gradient(135deg, #1a1f2e, #b91c1c)" },
+                { title: "Trade Republic", sub: "Your welcome bonus is waiting for you.", btn: "Open account", link: "https://refnocode.trade.re/wsjpt093", bg: "linear-gradient(135deg, #1a1f2e, #222)" },
+                { title: "ING DiBa", sub: "Germany's most popular broker.", btn: "To the offer", link: "https://www.ing.de/depotkwk/aa/qMSsG9b3sfYwe7oec_MHkdo9erNgI0N1C05s2nPmaFllOL_mq8sF0eNbrBWoWpiPbg_fneIWXo0DlDdVI1MWYujZlsXD-3Tvg-DfGOcuOMQ=", bg: "linear-gradient(135deg, #1a1f2e, #d95300)" },
+                { title: "Bison App", sub: "Trade crypto simply & securely.", btn: "Open account", link: "https://join.bisonapp.com/8jztca", bg: "linear-gradient(135deg, #1a1f2e, #004b85)" },
+                { title: "Bitpanda", sub: "Invest in stocks, crypto & gold.", btn: "Claim bonus", link: "https://7lr8.adj.st/web.bitpanda.com/user/register/834555914483041191?adj_t=19f71v2&adj_fallback=https%3A%2F%2Fweb.bitpanda.com%2Fuser%2Fregister%2F834555914483041191&adj_redirect_macos=https%3A%2F%2Fweb.bitpanda.com%2Fuser%2Fregister%2F834555914483041191", bg: "linear-gradient(135deg, #1a1f2e, #008f55)" },
+                { title: "Getquin", sub: "Track all your assets easily in real-time.", btn: "Create account", link: "https://getqu.in/nFa0yY/tWX6ya/", bg: "linear-gradient(135deg, #1a1f2e, #21262d)" },
+                { title: "Support", sub: "Like the fincast Hub? Support me with a coffee!", btn: "Donate via PayPal", link: "https://www.paypal.com/paypalme/nikobre", bg: "linear-gradient(135deg, #1a1f2e, #003087)" }
             ]
         };
 
@@ -577,9 +936,9 @@
 
         function renderAds() {
             const container = document.getElementById('ads-container');
+            if (!container) return;
             container.innerHTML = '';
 
-            // Duplicate list for seamless infinite scroll
             const renderList = [...ads[curLang], ...ads[curLang]];
 
             renderList.forEach(ad => {
@@ -587,17 +946,24 @@
                 card.href = ad.link;
                 card.target = "_blank";
                 card.rel = "noopener noreferrer";
-                card.className = "flex-none w-[280px] sm:w-[320px] p-6 rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 relative group overflow-hidden flex flex-col justify-between h-[180px]";
+                card.className = "flex-none w-[280px] sm:w-[320px] p-5 rounded-2xl bg-obsidian-900 border border-white/[0.06] hover:border-gold-500/30 hover:shadow-xl transition-all duration-300 relative group overflow-hidden flex flex-col justify-between h-[160px]";
 
                 card.innerHTML = `
-                    <div class="absolute inset-0 opacity-[0.03] group-hover:opacity-10 transition-opacity duration-500" style="background: ${ad.bg}"></div>
+                    <div class="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-500" style="background: ${ad.bg}"></div>
                     <div class="relative z-10">
-                        <h4 class="text-slate-800 font-extrabold text-lg tracking-tight mb-1">${ad.title}</h4>
-                        <p class="text-slate-500 text-sm leading-snug">${ad.sub}</p>
+                        <h4 class="text-white font-bold text-base tracking-tight mb-1 flex items-center justify-between">
+                            ${ad.title}
+                            <svg class="w-3.5 h-3.5 text-slate-500 group-hover:text-gold-400 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                            </svg>
+                        </h4>
+                        <p class="text-slate-400 text-xs leading-snug">${ad.sub}</p>
                     </div>
-                    <div class="relative z-10 inline-flex items-center font-semibold text-sm group-hover:translate-x-1 transition-transform mt-auto" style="color: var(--accent)">
+                    <div class="relative z-10 inline-flex items-center text-xs font-mono font-semibold text-gold-400 group-hover:translate-x-1 transition-transform mt-auto gap-1">
                         ${ad.btn}
-                        <svg class="w-4 h-4 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        <svg class="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
                     </div>
                 `;
 
@@ -606,22 +972,16 @@
 
                 container.appendChild(card);
             });
-
-            if (!marqueeAnimId) {
-                marqueeAnimId = requestAnimationFrame(animateMarquee);
-            }
+            if (!marqueeAnimId) marqueeAnimId = requestAnimationFrame(animateMarquee);
         }
 
         function animateMarquee() {
             const container = document.getElementById('ads-container');
             if (container && !isHovered) {
-                scrollPos += 0.5; // Scroll speed
-                if (scrollPos >= container.scrollWidth / 2) {
-                    scrollPos = 0;
-                }
+                scrollPos += 0.5;
+                if (scrollPos >= container.scrollWidth / 2) scrollPos = 0;
                 container.scrollLeft = scrollPos;
             } else if (container && isHovered) {
-                // Sync scrollPos if user scrolls manually
                 scrollPos = container.scrollLeft;
             }
             marqueeAnimId = requestAnimationFrame(animateMarquee);
@@ -629,58 +989,135 @@
 
         function toggleLanguage() {
             curLang = (curLang === 'DE') ? 'EN' : 'DE';
-            document.body.classList.toggle('lang-en', curLang === 'EN');
             applyLang();
             localStorage.setItem('fincast_lang', curLang);
         }
 
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const iconOpen = document.getElementById('menu-icon-open');
+            const iconClose = document.getElementById('menu-icon-close');
+            if (menu) {
+                const isHidden = menu.classList.contains('hidden');
+                menu.classList.toggle('hidden', !isHidden);
+                if (iconOpen) iconOpen.classList.toggle('hidden', isHidden);
+                if (iconClose) iconClose.classList.toggle('hidden', !isHidden);
+            }
+        }
+
         function applyLang() {
             const l = translations[curLang];
-            document.getElementById('t-hub-title').innerText = l.hubTitle;
-            document.getElementById('t-hub-subtitle').innerText = l.hubSubtitle;
-            document.getElementById('t-term-tag').innerText = l.termTag;
-            document.getElementById('t-term-desc').innerText = l.termDesc;
-            document.getElementById('t-calc-tag').innerText = l.calcTag;
-            document.getElementById('t-calc-desc').innerText = l.calcDesc;
-            document.getElementById('t-version').innerText = l.version;
-            document.getElementById('t-seo-title').innerText = l.seoTitle;
-            document.getElementById('t-seo-intro').innerHTML = l.seoIntro;
-            document.getElementById('t-seo-term-h').innerText = l.seoTermH;
-            document.getElementById('t-seo-term-p').innerHTML = l.seoTermP;
-            document.getElementById('t-seo-calc-h').innerText = l.seoCalcH;
-            document.getElementById('t-seo-calc-p').innerHTML = l.seoCalcP;
-            document.getElementById('t-seo-video-h').innerText = l.seoVideoH;
-            document.getElementById('t-seo-video-p').innerHTML = l.seoVideoP;
-            document.getElementById('t-seo-ebook-h').innerText = l.seoEbookH;
-            document.getElementById('t-seo-ebook-p').innerHTML = l.seoEbookP;
-            document.getElementById('t-seo-podcast-h').innerText = l.seoPodcastH;
-            document.getElementById('t-seo-podcast-p').innerHTML = l.seoPodcastP;
-            document.getElementById('t-seo-hype-h').innerText = l.seoHypeH;
-            document.getElementById('t-seo-hype-p').innerHTML = l.seoHypeP;
-            document.getElementById('t-video-tag').innerText = l.videoTag;
-            document.getElementById('t-video-desc').innerText = l.videoDesc;
-            document.getElementById('t-pres-tag').innerText = l.presTag;
-            document.getElementById('t-pres-desc').innerText = l.presDesc;
-            document.getElementById('t-podcast-tag').innerText = l.podcastTag;
-            document.getElementById('t-podcast-desc').innerText = l.podcastDesc;
-            document.getElementById('t-hype-tag').innerText = l.hypeTag;
-            document.getElementById('t-hype-desc').innerText = l.hypeDesc;
-            document.getElementById('t-ads-title').innerText = l.adsTitle;
+            const langLabel = document.getElementById('lang-label');
+            if (langLabel) langLabel.innerText = curLang;
+
+            if (document.getElementById('t-hub-title')) document.getElementById('t-hub-title').innerHTML = l.hubTitle;
+            if (document.getElementById('t-hub-subtitle')) document.getElementById('t-hub-subtitle').innerText = l.hubSubtitle;
+            if (document.getElementById('t-term-tag')) document.getElementById('t-term-tag').innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5" /></svg> ${l.termTag}`;
+            if (document.getElementById('t-term-desc')) document.getElementById('t-term-desc').innerText = l.termDesc;
+            if (document.getElementById('t-calc-tag')) document.getElementById('t-calc-tag').innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg> ${l.calcTag}`;
+            if (document.getElementById('t-calc-desc')) document.getElementById('t-calc-desc').innerText = l.calcDesc;
+            if (document.getElementById('t-version')) document.getElementById('t-version').innerText = l.version;
+            if (document.getElementById('t-seo-title')) document.getElementById('t-seo-title').innerText = l.seoTitle;
+            if (document.getElementById('t-seo-intro')) document.getElementById('t-seo-intro').innerHTML = l.seoIntro;
+            if (document.getElementById('t-seo-term-h')) document.getElementById('t-seo-term-h').innerText = l.seoTermH;
+            if (document.getElementById('t-seo-term-p')) document.getElementById('t-seo-term-p').innerHTML = l.seoTermP;
+            if (document.getElementById('t-seo-calc-h')) document.getElementById('t-seo-calc-h').innerText = l.seoCalcH;
+            if (document.getElementById('t-seo-calc-p')) document.getElementById('t-seo-calc-p').innerHTML = l.seoCalcP;
+            if (document.getElementById('t-seo-ebook-h')) document.getElementById('t-seo-ebook-h').innerText = l.seoEbookH;
+            if (document.getElementById('t-seo-ebook-p')) document.getElementById('t-seo-ebook-p').innerHTML = l.seoEbookP;
+            if (document.getElementById('t-seo-hype-h')) document.getElementById('t-seo-hype-h').innerText = l.seoHypeH;
+            if (document.getElementById('t-seo-hype-p')) document.getElementById('t-seo-hype-p').innerHTML = l.seoHypeP;
+            if (document.getElementById('t-video-tag')) document.getElementById('t-video-tag').innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z" /></svg> ${l.videoTag}`;
+            if (document.getElementById('t-video-desc')) document.getElementById('t-video-desc').innerText = l.videoDesc;
+            if (document.getElementById('t-pres-tag')) document.getElementById('t-pres-tag').innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" /></svg> ${l.presTag}`;
+            if (document.getElementById('t-pres-desc')) document.getElementById('t-pres-desc').innerText = l.presDesc;
+            if (document.getElementById('t-podcast-tag')) document.getElementById('t-podcast-tag').innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 0 1 0 12.728M16.463 8.288a5.25 5.25 0 0 1 0 7.424M6.75 8.25l4.72-4.72a.75.75 0 0 1 1.28.53v15.88a.75.75 0 0 1-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.009 9.009 0 0 1 2.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75Z" /></svg> ${l.podcastTag}`;
+            if (document.getElementById('t-podcast-desc')) document.getElementById('t-podcast-desc').innerText = l.podcastDesc;
+            if (document.getElementById('t-hype-tag')) document.getElementById('t-hype-tag').innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z" /></svg> ${l.hypeTag}`;
+            if (document.getElementById('t-hype-desc')) document.getElementById('t-hype-desc').innerText = l.hypeDesc;
+            if (document.getElementById('t-ads-title')) document.getElementById('t-ads-title').innerText = l.adsTitle;
+            if (document.getElementById('t-share-header')) document.getElementById('t-share-header').innerText = l.shareBtn;
+            if (document.getElementById('t-mobile-share')) document.getElementById('t-mobile-share').innerText = l.shareMobile;
+            if (document.getElementById('hub-share-btn')) document.getElementById('hub-share-btn').title = l.sharePrompt;
             renderAds();
+        }
+
+        let toastTimer = null;
+        function showToast(msg) {
+            const toast = document.getElementById('share-toast');
+            const toastMsg = document.getElementById('toast-message');
+            if (!toast) return;
+            if (toastMsg) toastMsg.innerText = msg;
+            if (toastTimer) clearTimeout(toastTimer);
+            toast.classList.remove('translate-y-8', 'opacity-0', 'pointer-events-none');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            toastTimer = setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-8', 'opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
+        function shareHub() {
+            const l = translations[curLang] || translations.DE;
+            const shareUrl = window.location.origin + window.location.pathname;
+            const shareData = {
+                title: l.shareTitle || 'fincast Hub | Smarte KI-Tools & Analysen für Anleger',
+                text: l.shareText || 'fincast Hub: Multi-Agenten-KI, Strategic Terminal, Zinseszins- & Dividendenrechner!',
+                url: shareUrl
+            };
+
+            if (navigator.share) {
+                navigator.share(shareData).catch(err => {
+                    if (err.name !== 'AbortError') {
+                        copyHubLink(shareUrl, l.shareSuccess);
+                    }
+                });
+            } else {
+                copyHubLink(shareUrl, l.shareSuccess);
+            }
+        }
+
+        function copyHubLink(url, successMsg) {
+            const msg = successMsg || (curLang === 'DE' ? 'Link zum fincast Hub in die Zwischenablage kopiert!' : 'fincast Hub link copied to clipboard!');
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(() => {
+                    showToast(msg);
+                }).catch(() => {
+                    fallbackPromptCopy(url, msg);
+                });
+            } else {
+                fallbackPromptCopy(url, msg);
+            }
+        }
+
+        function fallbackPromptCopy(url, msg) {
+            try {
+                const input = document.createElement('input');
+                input.value = url;
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand('copy');
+                document.body.removeChild(input);
+                showToast(msg);
+            } catch(e) {
+                showToast(msg);
+            }
         }
 
         function shareVideo() {
             const shareUrl = window.location.origin + "/video.html";
             if (navigator.share) {
                 navigator.share({
-                    title: 'Fincast | Erste Schritte an der Börse',
-                    text: 'Schau dir dieses Erklärvideo auf Fincast an!',
+                    title: 'fincast | Erste Schritte an der Börse',
+                    text: 'Schau dir dieses Erklärvideo auf fincast an!',
                     url: shareUrl
-                }).catch(err => console.log('Error sharing:', err));
-            } else {
-                navigator.clipboard.writeText(shareUrl).then(() => {
-                    alert('Link zur Webseite (mit Video) in die Zwischenablage kopiert!');
+                }).catch(err => {
+                    if (err.name !== 'AbortError') {
+                        copyHubLink(shareUrl, 'Link zum Video in die Zwischenablage kopiert!');
+                    }
                 });
+            } else {
+                copyHubLink(shareUrl, 'Link zum Video in die Zwischenablage kopiert!');
             }
         }
 
@@ -688,14 +1125,16 @@
             const shareUrl = window.location.origin + "/ebook.html";
             if (navigator.share) {
                 navigator.share({
-                    title: 'Fincast | The Vibe of Wealth Ebook',
-                    text: 'Lies das exklusive "The Vibe of Wealth" Ebook auf Fincast!',
+                    title: 'fincast | The Vibe of Wealth Ebook',
+                    text: 'Lies das exklusive Mentoring-Ebook "The Vibe of Wealth" auf fincast!',
                     url: shareUrl
-                }).catch(err => console.log('Error sharing:', err));
-            } else {
-                navigator.clipboard.writeText(shareUrl).then(() => {
-                    alert('Link zur Webseite (mit Ebook) in die Zwischenablage kopiert!');
+                }).catch(err => {
+                    if (err.name !== 'AbortError') {
+                        copyHubLink(shareUrl, 'Link zum Ebook in die Zwischenablage kopiert!');
+                    }
                 });
+            } else {
+                copyHubLink(shareUrl, 'Link zum Ebook in die Zwischenablage kopiert!');
             }
         }
 
@@ -703,27 +1142,26 @@
             const shareUrl = window.location.origin + "/podcast.html";
             if (navigator.share) {
                 navigator.share({
-                    title: 'Fincast | The Vibe of Wealth Podcast',
+                    title: 'fincast | The Vibe of Wealth Podcast',
                     text: 'Höre dir den exklusiven "The Vibe of Wealth" Podcast direkt auf fincast an!',
                     url: shareUrl
-                }).catch(err => console.log('Error sharing:', err));
-            } else {
-                navigator.clipboard.writeText(shareUrl).then(() => {
-                    alert('Link zur Webseite (mit Podcast) in die Zwischenablage kopiert!');
+                }).catch(err => {
+                    if (err.name !== 'AbortError') {
+                        copyHubLink(shareUrl, 'Link zum Podcast in die Zwischenablage kopiert!');
+                    }
                 });
+            } else {
+                copyHubLink(shareUrl, 'Link zum Podcast in die Zwischenablage kopiert!');
             }
         }
 
         function openPodcastModal() {
             const modal = document.getElementById('podcastModal');
             const modalContent = document.getElementById('podcastModalContent');
-
-            // Setze Geschwindigkeit auf den ausgewählten Wert
             changePodcastSpeed();
-
+            document.body.style.overflow = 'hidden';
             modal.classList.remove('hidden');
             modal.classList.add('flex');
-
             setTimeout(() => {
                 modal.classList.remove('opacity-0');
                 modalContent.classList.remove('scale-95');
@@ -735,51 +1173,35 @@
             const modal = document.getElementById('podcastModal');
             const modalContent = document.getElementById('podcastModalContent');
             const audio = document.getElementById('podcastAudio');
-
             modal.classList.add('opacity-0');
             modalContent.classList.remove('scale-100');
             modalContent.classList.add('scale-95');
-
+            document.body.style.overflow = '';
             setTimeout(() => {
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
-                if (audio) {
-                    audio.pause();
-                }
+                if (audio) audio.pause();
             }, 300);
         }
 
         function changePodcastSpeed() {
             const audio = document.getElementById('podcastAudio');
             const speedSelect = document.getElementById('playbackSpeed');
-            if (audio && speedSelect) {
-                audio.playbackRate = parseFloat(speedSelect.value);
-            }
+            if (audio && speedSelect) audio.playbackRate = parseFloat(speedSelect.value);
         }
 
         function openVideoModal() {
             const modal = document.getElementById('videoModal');
             const modalContent = document.getElementById('videoModalContent');
             const iframe = document.getElementById('videoIframe');
-
-            // HIER DEINE VIDEO URL EINTRAGEN:
-
-            // OPTION 1: GOOGLE DRIVE (Empfohlen für private Videos)
-            // 1. Video bei Drive hochladen & Rechtsklick -> Freigeben -> "Jeder mit Link kann ansehen"
-            // 2. Link kopieren (Bsp: https://drive.google.com/file/d/123XYZ/view?usp=sharing)
-            // 3. WICHTIG: Ersetze das "/view?usp=sharing" am Ende durch "/preview"
-            // Beispiel: const videoUrl = "https://drive.google.com/file/d/123XYZ/preview";
-
-            // OPTION 2: YOUTUBE
-            // Beispiel: const videoUrl = "https://www.youtube.com/embed/DEIN_VIDEO_ID?autoplay=1";
-
             const videoUrl = "https://drive.google.com/file/d/193X6xhdz5Kj4ANxUPl4jISnNPpINewp4/preview";
-            iframe.src = videoUrl;
+            if (!iframe.src || iframe.src !== videoUrl) {
+                iframe.src = videoUrl;
+            }
 
+            document.body.style.overflow = 'hidden';
             modal.classList.remove('hidden');
             modal.classList.add('flex');
-
-            // Trigger animations
             setTimeout(() => {
                 modal.classList.remove('opacity-0');
                 modalContent.classList.remove('scale-95');
@@ -791,25 +1213,23 @@
             const modal = document.getElementById('videoModal');
             const modalContent = document.getElementById('videoModalContent');
             const iframe = document.getElementById('videoIframe');
-
             modal.classList.add('opacity-0');
             modalContent.classList.remove('scale-100');
             modalContent.classList.add('scale-95');
-
+            document.body.style.overflow = '';
             setTimeout(() => {
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
-                iframe.src = ""; // Stoppt das Video, wenn das Modal geschlossen wird
+                iframe.src = "";
             }, 300);
         }
 
         function openPresentationModal() {
             const modal = document.getElementById('presentationModal');
             const modalContent = document.getElementById('presentationModalContent');
-
+            document.body.style.overflow = 'hidden';
             modal.classList.remove('hidden');
             modal.classList.add('flex');
-
             setTimeout(() => {
                 modal.classList.remove('opacity-0');
                 modalContent.classList.remove('scale-95');
@@ -820,191 +1240,45 @@
         function closePresentationModal() {
             const modal = document.getElementById('presentationModal');
             const modalContent = document.getElementById('presentationModalContent');
-
             modal.classList.add('opacity-0');
             modalContent.classList.remove('scale-100');
             modalContent.classList.add('scale-95');
-
+            document.body.style.overflow = '';
             setTimeout(() => {
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
             }, 300);
         }
 
-        // Initialize from localStorage
-        window.onload = () => {
-            const savedLang = localStorage.getItem('fincast_lang');
-            if (savedLang) {
-                curLang = savedLang;
-                document.body.classList.toggle('lang-en', curLang === 'EN');
+        // Close any active modal with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeVideoModal();
+                closePresentationModal();
+                closePodcastModal();
             }
-            applyLang();
+        });
 
-            // Auto-open video if parameter ?video=1 is present
+        function checkInitialModals() {
             const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('video') === '1') {
-                openVideoModal();
-            }
-            // Auto-open ebook if parameter ?ebook=1 is present
-            if (urlParams.get('ebook') === '1') {
-                openPresentationModal();
-            }
-            // Auto-open podcast if parameter ?podcast=1 is present
-            if (urlParams.get('podcast') === '1') {
-                openPodcastModal();
-            }
+            if (urlParams.get('video') === '1') openVideoModal();
+            if (urlParams.get('ebook') === '1') openPresentationModal();
+            if (urlParams.get('podcast') === '1') openPodcastModal();
+        }
 
+        const initHub = () => {
+            const savedLang = localStorage.getItem('fincast_lang');
+            if (savedLang) curLang = savedLang;
+            applyLang();
+            checkInitialModals();
         };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initHub);
+        } else {
+            initHub();
+        }
     </script>
-
-    <!-- Video Modal -->
-    <div id="videoModal"
-        class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/90 backdrop-blur-sm p-2 sm:p-4 opacity-0 transition-opacity duration-300">
-        <div class="relative w-full max-w-5xl flex flex-col bg-[#1a1a1a] rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl border border-white/10 transform scale-95 transition-transform duration-300"
-            id="videoModalContent" style="max-height: 90vh;">
-            <!-- Header -->
-            <div class="flex justify-between items-center p-3 sm:p-4 border-b border-white/10 shrink-0">
-                <h3 class="text-white font-bold text-sm sm:text-lg truncate pr-2">Erklärvideo: Erste Schritte an der
-                    Börse</h3>
-                <div class="flex items-center gap-2">
-                    <button onclick="shareVideo()"
-                        class="text-gray-400 hover:text-white transition-colors focus:outline-none p-1 shrink-0 flex items-center gap-1 text-xs sm:text-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
-                            <polyline points="16 6 12 2 8 6"></polyline>
-                            <line x1="12" y1="2" x2="12" y2="15"></line>
-                        </svg>
-                        <span class="hidden sm:inline">Teilen</span>
-                    </button>
-                    <button onclick="closeVideoModal()"
-                        class="text-gray-400 hover:text-white transition-colors focus:outline-none p-1 shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            <!-- Video Container -->
-            <div class="relative w-full bg-black shrink-0 flex items-center justify-center"
-                style="aspect-ratio: 16/9; max-height: calc(90vh - 65px);">
-                <div class="absolute text-white/50 text-sm">Lade Video...</div>
-                <iframe id="videoIframe" class="absolute top-0 left-0 w-full h-full z-10" src="" frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowfullscreen></iframe>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- Podcast Modal -->
-    <div id="podcastModal"
-        class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/90 backdrop-blur-sm p-2 sm:p-4 opacity-0 transition-opacity duration-300">
-        <div class="relative w-full max-w-md flex flex-col bg-[#1a1a1a] rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl border border-white/10 transform scale-95 transition-transform duration-300"
-            id="podcastModalContent">
-            <!-- Header -->
-            <div
-                class="flex justify-between items-center p-3 sm:p-4 border-b border-white/10 shrink-0 relative z-20 bg-[#1a1a1a]">
-                <h3 class="text-white font-bold text-sm sm:text-lg truncate pr-2">Podcast: The Vibe of Wealth</h3>
-                <div class="flex items-center gap-2 sm:gap-3">
-                    <select id="playbackSpeed" onchange="changePodcastSpeed()"
-                        class="bg-black/50 text-white border border-white/20 rounded px-2 py-1 text-xs font-medium focus:outline-none focus:border-[var(--accent)] transition-colors cursor-pointer mr-1">
-                        <option value="0.75">0.75x</option>
-                        <option value="1" selected>1.0x</option>
-                        <option value="1.25">1.25x</option>
-                        <option value="1.5">1.5x</option>
-                        <option value="1.75">1.75x</option>
-                        <option value="2">2.0x</option>
-                    </select>
-                    <button onclick="sharePodcast()"
-                        class="text-gray-400 hover:text-white transition-colors focus:outline-none p-1 shrink-0 flex items-center gap-1 text-xs sm:text-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
-                            <polyline points="16 6 12 2 8 6"></polyline>
-                            <line x1="12" y1="2" x2="12" y2="15"></line>
-                        </svg>
-                        <span class="hidden sm:inline">Teilen</span>
-                    </button>
-                    <button onclick="closePodcastModal()"
-                        class="text-gray-400 hover:text-white transition-colors focus:outline-none p-1 shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            <!-- Audio Container -->
-            <div class="relative w-full shrink-0 flex items-end justify-center aspect-[2/3] bg-cover bg-center"
-                style="background-image: url('Wealth_Titel.png');">
-                <!-- Overlay -->
-                <div class="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/40 to-transparent"></div>
-
-                <div class="relative z-10 w-full p-4 sm:p-8">
-                    <audio id="podcastAudio" controls class="w-full shadow-2xl rounded-full" style="outline: none;">
-                        <source src="Wealth_Podcast.m4a" type="audio/mp4">
-                        Dein Browser unterstützt das Audio-Element nicht.
-                    </audio>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Presentation Modal -->
-    <div id="presentationModal"
-        class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/90 backdrop-blur-sm p-4 opacity-0 transition-opacity duration-300">
-        <div class="relative w-full max-w-lg flex flex-col bg-[#1a1a1a] rounded-2xl overflow-hidden shadow-2xl border border-white/10 transform scale-95 transition-transform duration-300"
-            id="presentationModalContent">
-            <!-- Header -->
-            <div class="flex justify-between items-center p-3 sm:p-4 border-b border-white/10 shrink-0">
-                <h3 class="text-white font-bold text-sm sm:text-lg truncate pr-2">Ebook: The Vibe of Wealth</h3>
-                <div class="flex items-center gap-2">
-                    <a href="https://docs.google.com/document/d/19xJVJDZ71X8U8WkFWSy1o-Suc1VQuB5dVhKbvI8FU1I/edit?tab=t.0"
-                        target="_blank" rel="noopener noreferrer"
-                        class="text-[var(--gold-400)] bg-[var(--gold-glow)] hover:bg-[rgba(234,179,8,0.25)] border border-[rgba(234,179,8,0.3)] px-3 py-1.5 rounded-lg transition-colors focus:outline-none flex items-center gap-2 text-xs sm:text-sm font-semibold mr-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                            <polyline points="15 3 21 3 21 9"></polyline>
-                            <line x1="10" y1="14" x2="21" y2="3"></line>
-                        </svg>
-                        <span class="hidden sm:inline">Vollbild lesen</span>
-                    </a>
-                    <button onclick="shareEbook()"
-                        class="text-gray-400 hover:text-white transition-colors focus:outline-none p-1 shrink-0 flex items-center gap-1 text-xs sm:text-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
-                            <polyline points="16 6 12 2 8 6"></polyline>
-                            <line x1="12" y1="2" x2="12" y2="15"></line>
-                        </svg>
-                        <span class="hidden sm:inline">Teilen</span>
-                    </button>
-                    <button onclick="closePresentationModal()"
-                        class="text-gray-400 hover:text-white transition-colors focus:outline-none p-1 shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            <!-- Ebook Container - Image Preview -->
-            <a href="https://docs.google.com/document/d/19xJVJDZ71X8U8WkFWSy1o-Suc1VQuB5dVhKbvI8FU1I/edit?tab=t.0"
-                target="_blank" rel="noopener noreferrer"
-                class="relative block w-full aspect-[3/4] bg-[#0f172a] cursor-pointer group overflow-hidden">
-                <img src="Wealth_Titel.png"
-                    class="w-full h-full object-cover transition-all duration-500 scale-100 group-hover:scale-105"
-                    alt="Ebook Preview">
-            </a>
-        </div>
-    </div>
-
 </body>
 
 </html>

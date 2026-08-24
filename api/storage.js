@@ -15,19 +15,41 @@ module.exports = async function handler(req, res) {
             if (adminEmail && !usersArray.find(u => u.email === adminEmail)) {
                 usersArray.push({
                     email: adminEmail, passwordHash: adminHash, firstName: 'Admin', lastName: 'System',
-                    tier: 'premium', isAdmin: true, model: 'gemini-2.5-flash', createdAt: new Date().toISOString()
+                    tier: 'premium', isAdmin: true, emailVerified: true, model: 'gemini-3.5-flash', createdAt: new Date().toISOString()
                 });
                 await redis.set('terminal_users', JSON.stringify(usersArray));
             }
-            return res.status(200).json(usersArray);
+            // Strip sensitive fields (passwords, salts, verification codes) before returning
+            const safeUsers = usersArray.map(u => {
+                const { password, passwordHash, salt, verificationCode, verificationToken, verificationExpires, ...safe } = u;
+                return safe;
+            });
+            return res.status(200).json(safeUsers);
         }
 
         if (action === 'save_user') {
             let users = await redis.get('terminal_users');
             let usersArray = users ? JSON.parse(users) : [];
             const index = usersArray.findIndex(u => u.email === data.email);
-            if (index > -1) { usersArray[index] = { ...usersArray[index], ...data }; } 
-            else { usersArray.push(data); }
+            if (index > -1) { 
+                const existing = usersArray[index];
+                usersArray[index] = { 
+                    ...existing, 
+                    ...data,
+                    // Preserve existing credentials and verification status unless explicitly managed by auth API
+                    password: existing.password,
+                    passwordHash: existing.passwordHash,
+                    emailVerified: existing.emailVerified !== undefined ? existing.emailVerified : true
+                }; 
+            } else { 
+                usersArray.push({
+                    tier: 'free',
+                    isAdmin: false,
+                    emailVerified: true,
+                    model: 'gemini-3.5-flash',
+                    ...data
+                }); 
+            }
             await redis.set('terminal_users', JSON.stringify(usersArray));
             return res.status(200).json({ success: true });
         }

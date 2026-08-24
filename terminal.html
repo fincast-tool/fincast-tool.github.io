@@ -4,23 +4,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>fincast | Strategic Intelligence Terminal</title>
-    <meta name="description" content="Institutionelles Aktien-Analyse-Terminal mit KI-gestützten Frameworks.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://fincast-tool.vercel.app/terminal.html">
-    <meta property="og:title" content="fincast | Strategic Intelligence Terminal">
-    <meta property="og:description" content="Institutionelles Aktien-Analyse-Terminal mit KI-gestützten Frameworks.">
-    <meta property="og:image" content="https://fincast-tool.vercel.app/theme-toggle-portfoliomanager.png">
+    <title>fincast Terminal | KI-Aktienanalyse &amp; DCF-Bewertung</title>
 
+    <!-- SEO Meta Tags -->
+    <meta name="description"
+        content="Aktienanalyse auf Profi-Niveau mit fincast Terminal: DCF-Bewertung, fundamentale Kennzahlen und KI-Insights. Jetzt Aktien präzise online analysieren!">
+    <meta name="keywords"
+        content="Aktienanalyse, DCF Bewertung, Finanzterminal, fincast Terminal, Kennzahlen Analyse, KI Börsenanalyse, Fundamental-Analyse, Fair Value Rechner">
+    <meta name="author" content="Nikolai Bretthauer">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="https://fincast-tool.vercel.app/terminal.html">
+
+    <!-- Open Graph / Social Media Meta Tags -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="fincast Hub">
+    <meta property="og:url" content="https://fincast-tool.vercel.app/terminal.html">
+    <meta property="og:title" content="fincast Terminal | KI-Aktienanalyse &amp; DCF-Bewertung">
+    <meta property="og:description"
+        content="Das fincast Strategic Intelligence Terminal liefert fundamentale Kennzahlen, DCF-Modelle und KI-gestützte Analysen für fundierte Investment-Entscheidungen.">
+    <meta property="og:image" content="https://fincast-tool.vercel.app/theme-toggle-portfoliomanager.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:locale" content="de_DE">
+
+    <!-- Twitter / X Cards -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://fincast-tool.vercel.app/terminal.html">
-    <meta name="twitter:title" content="fincast | Strategic Intelligence Terminal">
-    <meta name="twitter:description" content="Institutionelles Aktien-Analyse-Terminal mit KI-gestützten Frameworks.">
+    <meta name="twitter:title" content="fincast Terminal | KI-Aktienanalyse &amp; DCF-Bewertung">
+    <meta name="twitter:description"
+        content="Das fincast Strategic Intelligence Terminal liefert fundamentale Kennzahlen, DCF-Modelle und KI-gestützte Analysen für fundierte Investment-Entscheidungen.">
     <meta name="twitter:image" content="https://fincast-tool.vercel.app/theme-toggle-portfoliomanager.png">
+
     <link rel="icon" type="image/png" href="portfoliomanager%20-%20Symbol.png">
     <link rel="shortcut icon" href="portfoliomanager%20-%20Symbol.png">
     <link rel="apple-touch-icon" href="portfoliomanager%20-%20Symbol.png">
     <link rel="manifest" href="manifest.json">
+
+    <!-- Structured Data / JSON-LD -->
+    <script type="application/ld+json">
+    [
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "fincast Strategic Intelligence Terminal",
+        "url": "https://fincast-tool.vercel.app/terminal.html",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "All",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "EUR"
+        },
+        "description": "Institutionelles Aktien-Analyse-Terminal mit DCF-Modellen, fundamentalen Kennzahlen und KI-gestützten Frameworks."
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://fincast-tool.vercel.app/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Terminal",
+            "item": "https://fincast-tool.vercel.app/terminal.html"
+          }
+        ]
+      }
+    ]
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
@@ -462,15 +517,29 @@
         }
 
         .auth-error {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.2);
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.3);
             color: #ef4444;
-            padding: 8px 12px;
-            border-radius: 6px;
+            padding: 10px 14px;
+            border-radius: 8px;
             font-size: 11px;
             font-family: 'JetBrains Mono', monospace;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
             display: none;
+            line-height: 1.4;
+        }
+
+        .auth-success {
+            background: rgba(34, 197, 94, 0.12);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #22c55e;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 14px;
+            display: none;
+            line-height: 1.4;
         }
 
         /* Admin Panel */
@@ -611,94 +680,160 @@
     <!-- ========== AUTH SCREEN ========== -->
     <div id="authScreen" class="auth-screen">
         <div class="auth-card">
-            <div class="text-center mb-8">
+            <div class="text-center mb-6">
                 <div
-                    class="w-14 h-14 rounded-2xl logo-shiny overflow-hidden flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    class="w-14 h-14 rounded-2xl logo-shiny overflow-hidden flex items-center justify-center mx-auto mb-3 shadow-lg">
                     <img src="portfoliomanager - Symbol.png" class="w-full h-full object-contain opacity-90"
                         alt="Terminal Logo">
                 </div>
-                <h2 class="text-lg font-black text-white uppercase tracking-tight">Strategic Intelligence Terminal</h2>
-                <p class="text-[10px] text-gray-500 font-mono uppercase tracking-widest mt-1">Institutional Access</p>
+                <h2 class="text-base font-black text-white uppercase tracking-tight">Strategic Intelligence Terminal</h2>
+                <p class="text-[9px] text-gray-500 font-mono uppercase tracking-widest mt-0.5">Institutional Access</p>
             </div>
-            <div class="flex border-b border-white/5 mb-6">
+
+            <!-- Auth Tabs (visible during Login / Register) -->
+            <div id="authTabsContainer" class="flex border-b border-white/5 mb-5">
                 <button id="tab-login" onclick="setAuthTab('login')" class="auth-tab active">Login</button>
                 <button id="tab-register" onclick="setAuthTab('register')" class="auth-tab">Register</button>
             </div>
-            <div id="authError" class="auth-error"></div>
-            <!-- Login Form -->
-            <div id="loginForm">
-                <div class="space-y-4">
-                    <div><label class="data-label mb-1 block">Email</label><input id="loginEmail" type="email"
-                            placeholder="EMAIL..." class="w-full terminal-input" /></div>
-                    <div><label class="data-label mb-1 block">Password</label><input id="loginPass" type="password"
-                            placeholder="PASSWORD..." class="w-full terminal-input" /></div>
-                    <div class="flex items-center gap-2 py-1">
-                        <input type="checkbox" id="loginRemember"
-                            class="w-3 h-3 accent-gold-500 bg-obsidian-800 border-white/10 rounded" checked>
-                        <label for="loginRemember"
-                            class="text-[10px] text-gray-500 font-mono uppercase tracking-widest cursor-pointer">Eingeloggt
-                            bleiben</label>
-                    </div>
-                    <button onclick="doLogin()"
-                        class="w-full search-btn py-3 text-xs uppercase tracking-widest mt-2">Access Terminal</button>
-                </div>
-            </div>
-            <!-- Register Form -->
-            <div id="registerForm" class="hidden">
-                <div class="space-y-4">
-                    <div class="grid grid-cols-2 gap-3">
-                        <div><label class="data-label mb-1 block">Vorname</label><input id="regFirst" type="text"
-                                placeholder="VORNAME..." class="w-full terminal-input" /></div>
-                        <div><label class="data-label mb-1 block">Nachname</label><input id="regLast" type="text"
-                                placeholder="NACHNAME..." class="w-full terminal-input" /></div>
-                    </div>
-                    <div><label class="data-label mb-1 block">Email</label><input id="regEmail" type="email"
-                            placeholder="EMAIL..." class="w-full terminal-input" /></div>
-                    <div><label class="data-label mb-1 block">Password</label><input id="regPass" type="password"
-                            placeholder="PASSWORD..." class="w-full terminal-input" /></div>
-                    <div><label class="data-label mb-1 block">Password bestätigen</label><input id="regPass2"
-                            type="password" placeholder="WIEDERHOLEN..." class="w-full terminal-input" /></div>
-                    <button onclick="doRegister()"
-                        class="w-full search-btn py-3 text-xs uppercase tracking-widest mt-2">Account erstellen</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- ========== ADMIN PANEL ========== -->
-    <div id="adminPanel" class="admin-overlay">
-        <div class="max-w-5xl mx-auto">
-            <div class="flex items-center justify-between mb-8">
-                <div>
-                    <h2 class="text-sm font-bold font-mono text-gold-500 tracking-widest uppercase">Admin Panel</h2>
-                    <p class="text-[10px] text-gray-500 font-mono mt-1">Benutzerverwaltung • API-Schlüssel • Abo-Modelle
-                        • <span class="text-gold-500/50">Reset: <span id="resetTimeDisplay">10:00</span> DE-Zeit</span>
-                        <select id="seasonToggle" onchange="updateSeasonToggle()"
-                            class="ml-2 bg-transparent border border-white/10 text-gold-500 rounded px-1 py-0.5 outline-none cursor-pointer">
-                            <option value="summer" style="background:#0f1420;">Sommerzeit (10:00)</option>
-                            <option value="winter" style="background:#0f1420;">Winterzeit (09:00)</option>
-                        </select>
-                    </p>
-                </div>
-                <button onclick="toggleAdmin()" class="text-gray-500 hover:text-white text-2xl">&times;</button>
+            <div id="authError" class="auth-error"></div>
+            <div id="authSuccess" class="auth-success"></div>
+
+            <!-- 1. Login Form -->
+            <div id="loginForm">
+                <form onsubmit="event.preventDefault(); doLogin();" class="space-y-4">
+                    <div>
+                        <label class="data-label mb-1 block">Email</label>
+                        <input id="loginEmail" type="email" autocomplete="email" required
+                            placeholder="NAME@DOMAIN.COM" class="w-full terminal-input" />
+                    </div>
+                    <div>
+                        <label class="data-label mb-1 block">Password</label>
+                        <input id="loginPass" type="password" autocomplete="current-password" required
+                            placeholder="••••••••••••" class="w-full terminal-input" />
+                    </div>
+                    <div class="flex items-center justify-between py-1">
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" id="loginRemember"
+                                class="w-3.5 h-3.5 accent-gold-500 bg-obsidian-800 border-white/10 rounded cursor-pointer" checked>
+                            <label for="loginRemember"
+                                class="text-[10px] text-gray-400 font-mono uppercase tracking-widest cursor-pointer select-none">Angemeldet bleiben</label>
+                        </div>
+                    </div>
+                    <button id="btnLoginSubmit" type="submit"
+                        class="w-full search-btn py-3 text-xs uppercase tracking-widest mt-2 flex items-center justify-center gap-2">
+                        <span>Access Terminal</span>
+                    </button>
+                </form>
             </div>
-            <div class="widget-card rounded-xl overflow-hidden">
-                <div class="widget-header"><span class="data-label">Registrierte Benutzer</span></div>
-                <div class="overflow-x-auto">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>API Key</th>
-                                <th>Engine</th>
-                                <th>Abo</th>
-                                <th>Queries heute</th>
-                                <th>Aktion</th>
-                            </tr>
-                        </thead>
-                        <tbody id="adminUserList"></tbody>
-                    </table>
+
+            <!-- 2. Register Form -->
+            <div id="registerForm" class="hidden">
+                <form onsubmit="event.preventDefault(); doRegister();" class="space-y-3">
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="data-label mb-1 block">Vorname</label>
+                            <input id="regFirst" type="text" placeholder="VORNAME..." autocomplete="given-name" required class="w-full terminal-input" />
+                        </div>
+                        <div>
+                            <label class="data-label mb-1 block">Nachname</label>
+                            <input id="regLast" type="text" placeholder="NACHNAME..." autocomplete="family-name" required class="w-full terminal-input" />
+                        </div>
+                    </div>
+                    <div>
+                        <label class="data-label mb-1 block">Email</label>
+                        <input id="regEmail" type="email" placeholder="NAME@DOMAIN.COM" autocomplete="email" required class="w-full terminal-input" />
+                    </div>
+                    <div>
+                        <label class="data-label mb-1 block">Passwort</label>
+                        <input id="regPass" type="password" placeholder="MIN. 8 ZEICHEN..." autocomplete="new-password" required
+                            oninput="updatePasswordStrengthUI(this.value)" class="w-full terminal-input" />
+                        
+                        <!-- Live Password Strength Indicator -->
+                        <div class="mt-2 space-y-1.5">
+                            <div class="flex items-center justify-between text-[9px] font-mono">
+                                <span class="text-gray-500 uppercase tracking-wider">Passwortstärke:</span>
+                                <span id="passStrengthLabel" class="text-gray-400 font-bold uppercase tracking-wider">-</span>
+                            </div>
+                            <div class="grid grid-cols-4 gap-1.5 h-1.5 w-full bg-white/5 rounded-full overflow-hidden p-0.5">
+                                <div id="strBar1" class="h-full rounded-full transition-all duration-300 bg-white/10"></div>
+                                <div id="strBar2" class="h-full rounded-full transition-all duration-300 bg-white/10"></div>
+                                <div id="strBar3" class="h-full rounded-full transition-all duration-300 bg-white/10"></div>
+                                <div id="strBar4" class="h-full rounded-full transition-all duration-300 bg-white/10"></div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-x-2 gap-y-1 pt-1 text-[9px] font-mono text-gray-500">
+                                <div id="critLen" class="flex items-center gap-1">
+                                    <svg class="w-3 h-3 text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/></svg>
+                                    <span>8+ Zeichen</span>
+                                </div>
+                                <div id="critCase" class="flex items-center gap-1">
+                                    <svg class="w-3 h-3 text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/></svg>
+                                    <span>Groß & Klein</span>
+                                </div>
+                                <div id="critNum" class="flex items-center gap-1">
+                                    <svg class="w-3 h-3 text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/></svg>
+                                    <span>Mind. 1 Zahl</span>
+                                </div>
+                                <div id="critSpec" class="flex items-center gap-1">
+                                    <svg class="w-3 h-3 text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/></svg>
+                                    <span>Sonderzeichen</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="data-label mb-1 block">Passwort bestätigen</label>
+                        <input id="regPass2" type="password" placeholder="WIEDERHOLEN..." autocomplete="new-password" required class="w-full terminal-input" />
+                    </div>
+                    <div class="flex items-start gap-2 pt-1 pb-1">
+                        <input type="checkbox" id="regTerms" required
+                            class="w-3.5 h-3.5 mt-0.5 accent-gold-500 bg-obsidian-800 border-white/10 rounded cursor-pointer">
+                        <label for="regTerms" class="text-[9px] text-gray-400 font-mono leading-tight cursor-pointer select-none">
+                            Ich akzeptiere die <a href="Impressum.html" target="_blank" class="text-gold-500 hover:underline">Nutzungsbedingungen & Datenschutzerklärung</a> gem. DSGVO.
+                        </label>
+                    </div>
+                    <button id="btnRegSubmit" type="submit"
+                        class="w-full search-btn py-3 text-xs uppercase tracking-widest mt-2 flex items-center justify-center gap-2">
+                        <span>Account erstellen</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- 3. Email Verification (Double Opt-In OTP) -->
+            <div id="verifyForm" class="hidden">
+                <div class="text-center space-y-4">
+                    <div class="w-12 h-12 rounded-full bg-gold-500/10 border border-gold-500/30 flex items-center justify-center mx-auto text-gold-500 shadow-inner">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider">E-Mail bestätigen</h3>
+                        <p class="text-[11px] text-gray-400 mt-1">
+                            Wir haben einen 6-stelligen Bestätigungscode gesendet an:
+                            <span id="verifyEmailDisplay" class="text-gold-500 font-mono font-bold block mt-1 break-all"></span>
+                        </p>
+                    </div>
+                    <form onsubmit="event.preventDefault(); doVerifyOtp();" class="space-y-3">
+                        <div>
+                            <label class="data-label mb-1.5 block text-center">6-Stelliger Bestätigungscode</label>
+                            <input id="otpCodeInput" type="text" maxlength="6" pattern="[0-9]*" inputmode="numeric" required
+                                placeholder="000000" class="w-full text-center text-2xl font-mono font-bold tracking-[0.4em] py-2.5 terminal-input text-gold-500" />
+                        </div>
+                        <button id="btnVerifySubmit" type="submit"
+                            class="w-full search-btn py-3 text-xs uppercase tracking-widest flex items-center justify-center gap-2">
+                            <span>Code bestätigen & Einloggen</span>
+                        </button>
+                    </form>
+                    <div class="pt-3 flex flex-col items-center gap-2 border-t border-white/5">
+                        <button id="btnResendOtp" onclick="doResendOtp()"
+                            class="text-[11px] text-gray-400 hover:text-gold-500 font-mono transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                            Code erneut senden <span id="resendCountdown"></span>
+                        </button>
+                        <button onclick="setAuthTab('login')" class="text-[10px] text-gray-600 hover:text-gray-400 font-mono uppercase tracking-wider">
+                            &larr; Zurück zur Anmeldung
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -736,7 +871,7 @@
                                 d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg></div>
                     <div id="adminBtn"
-                        class="p-2 cursor-pointer hover:text-gold-500 transition-all hover:scale-110"
+                        class="hidden p-2 cursor-pointer hover:text-gold-500 transition-all hover:scale-110"
                         onclick="toggleAdmin()" title="Admin"><svg class="w-6 h-6" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -784,7 +919,7 @@
                             d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                     </svg>
                 </div>
-                <div id="adminBtnMobile" onclick="toggleAdmin()">
+                <div id="adminBtnMobile" class="hidden" onclick="toggleAdmin()">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -809,25 +944,46 @@
             <div class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
 
                 <!-- Header -->
-                <header class="py-4 px-6 border-b border-white/5 flex items-center justify-between gap-6 z-30">
-                    <div class="flex items-center gap-4">
-                        <a href="index.html" class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-white/5 border border-white/10 hover:bg-white/10 hover:border-gold-500/30 text-[9px] font-mono text-gray-400 hover:text-white uppercase tracking-wider transition-all" title="Zurück zum Fincast Hub">
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-                            </svg>
-                            <span>Hub</span>
-                        </a>
-                        <div class="w-px h-4 bg-white/[0.06]"></div>
-                        <div class="flex items-center gap-2">
+                <header class="py-2.5 md:py-3 px-3 md:px-6 border-b border-white/[0.06] bg-[#0a0d14]/90 backdrop-blur-xl flex items-center justify-between gap-2 md:gap-4 z-30">
+                    <div class="hidden sm:flex items-center gap-3">
+                        <div class="flex items-center gap-1.5 bg-obsidian-900/90 p-1 rounded-xl border border-white/[0.06]">
+                            <a href="index.html" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white font-mono text-[11px] font-medium transition-all">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                                </svg>
+                                <span>Hub</span>
+                            </a>
+                            <a href="terminal.html" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gold-500/10 border border-gold-500/30 text-gold-400 font-mono text-[11px] font-semibold">
+                                <svg class="w-3.5 h-3.5 text-gold-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5" />
+                                </svg>
+                                <span>Terminal</span>
+                            </a>
+                            <a href="abracadabra/hype.html" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white font-mono text-[11px] font-medium transition-all">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z" />
+                                </svg>
+                                <span>Hype</span>
+                            </a>
+                            <a href="calculator.html" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white font-mono text-[11px] font-medium transition-all">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                </svg>
+                                <span>Simulator</span>
+                            </a>
+                        </div>
+
+                        <div class="hidden md:flex items-center gap-2 px-2.5 py-1 rounded-lg bg-obsidian-900 border border-white/[0.06]">
                             <div class="w-2 h-2 rounded-full bg-gold-500 animate-pulse"></div>
-                            <span class="text-[10px] font-mono text-gold-500 uppercase tracking-[0.2em]">Live Terminal</span>
+                            <span class="text-[10px] font-mono text-gold-400 font-bold uppercase tracking-wider">Live</span>
                         </div>
                     </div>
-                    <div class="flex-1 max-w-xl relative flex gap-2">
-                        <input id="tickerInput" type="text" placeholder="ENTER SYMBOL (E.G. AAPL, TSLA, BTC)..."
-                            class="terminal-input" autocomplete="off">
+
+                    <div class="flex-1 w-full md:max-w-xl relative flex gap-2">
+                        <input id="tickerInput" type="text" placeholder="ENTER SYMBOL (E.G. AAPL, NVDA, BTC)..."
+                            class="terminal-input font-mono text-xs md:text-sm py-2.5 px-3.5 md:py-2 md:px-4" autocomplete="off">
                         <button id="execBtn" onclick="startAnalysis()"
-                            class="search-btn px-6 py-2 text-[10px] uppercase tracking-widest">Execute</button>
+                            class="search-btn px-4 sm:px-6 py-2.5 md:py-2 text-[10px] sm:text-xs uppercase tracking-widest font-mono font-bold shrink-0">Execute</button>
                     </div>
                 </header>
 
@@ -954,19 +1110,23 @@
                             <div id="legalDisclaimer"
                                 class="mt-12 p-6 glass-card rounded-xl border border-red-500/10 bg-red-500/5">
                                 <div class="flex gap-4 items-start">
-                                    <span class="text-red-500 text-lg">⚖️</span>
+                                    <div class="p-2 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 shrink-0">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                                        </svg>
+                                    </div>
                                     <div>
-                                        <h4 class="text-[10px] font-bold text-red-500 uppercase tracking-widest mb-2"
+                                        <h4 class="text-[10px] font-bold text-red-400 uppercase tracking-widest mb-2"
                                             data-de="Rechtlicher Disclaimer & Risikohinweis"
                                             data-en="Legal Disclaimer & Risk Notice"
                                             data-fr="Avertissement Légal & Risque" data-es="Aviso Legal y de Riesgo">
                                             Legal Disclaimer & Risk Notice</h4>
                                         <p id="disclaimerText"
-                                            class="text-[9px] text-gray-500 leading-relaxed font-mono uppercase"
+                                            class="text-[9px] text-gray-400 leading-relaxed font-mono uppercase"
                                             data-de="Diese Analyse wurde von einer künstlichen Intelligenz erstellt. KI-Modelle können fehlerhafte Informationen generieren oder Fakten 'halluzinieren'. Sämtliche Inhalte dienen ausschließlich der Information und stellen keine Anlageberatung, Kaufempfehlung oder Aufforderung zum Handel von Wertpapieren dar. Vergangene Wertentwicklungen sind kein Indikator für zukünftige Ergebnisse. Investitionen in Wertpapiere sind mit Risiken bis hin zum Totalverlust verbunden. Fincast übernimmt keine Haftung für die Richtigkeit der Daten oder für finanzielle Verluste, die auf Basis dieser Analyse entstehen."
                                             data-en="This analysis was generated by an artificial intelligence. AI models can generate incorrect information or 'hallucinate' facts. All content is for informational purposes only and does not constitute investment advice, a recommendation to buy, or a solicitation to trade securities. Past performance is not an indicator of future results. Investments in securities involve risks, including the possibility of total loss. Fincast assumes no liability for the accuracy of the data or for financial losses incurred based on this analysis."
                                             data-fr="Cette analyse a été générée par une intelligence artificielle. Les modèles d'IA peuvent générer des informations incorrectes ou 'halluciner' des faits. Tout le contenu est à titre informatif uniquement et ne constitue pas un conseil en investissement, une recommandation d'achat ou une sollicitation à négocier des titres. Les performances passées ne sont pas un indicateur des résultats futurs. Les investissements en titres comportent des risques, y compris la possibilité d'une perte totale. Fincast décline toute responsabilité quant à l'exactitude des données ou aux pertes financières subies sur la base de cette analyse."
-                                            data-es="Este análisis fue generado por una inteligencia artificial. Los modelos de IA pueden generar información incorrecta o 'alucinar' hechos. Todo el contenido es solo para fines informativos y no constituye asesoramiento de inversión, una recomendación de compra o una solicitud para negociar valores. El rendimiento pasado no es un indicador de resultados futuros. Las inversiones en valores implican riesgos, incluida la posibilidad de pérdida total. Fincast no asume ninguna responsabilidad por la exactitud de los datos o por las pérdidas financieras sufridas en base a este análisis.">
+                                            data-es="Este análisis fue generado por una intelligence artificial. Los modelos de IA pueden generar información incorrecta o 'alucinar' hechos. Todo el contenido es solo para fines informativos y no constituye asesoramiento de inversión, una recomendación de compra o una solicitud para negociar valores. El rendimiento pasado no es un indicador de resultados futuros. Las inversiones en valores implican riesgos, incluida la posibilidad de pérdida total. Fincast no asume ninguna responsabilidad por la exactitud de los datos o por las pérdidas financieras sufridas en base a este análisis.">
                                             Diese Analyse wurde von einer künstlichen Intelligenz erstellt. KI-Modelle
                                             können fehlerhafte Informationen generieren oder Fakten 'halluzinieren'...
                                         </p>
@@ -979,29 +1139,32 @@
 
                 <!-- Footer -->
                 <footer
-                    class="flex h-10 bg-obsidian-900 border-t border-white/5 px-4 md:px-6 items-center justify-between text-[9px] md:text-[10px] font-mono text-gray-600 uppercase tracking-widest mb-16 md:mb-0">
+                    class="flex h-12 bg-obsidian-950 border-t border-white/[0.06] px-4 md:px-6 items-center justify-between text-[9px] md:text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-16 md:mb-0">
                     <div class="flex gap-3 md:gap-6 items-center">
                         <span class="flex items-center gap-1 sm:gap-2">
-                            <span class="hidden min-[450px]:inline">Model:</span>
+                            <span class="hidden min-[450px]:inline text-slate-500">Model:</span>
                             <select id="footerModelSelect" onchange="quickChangeModel(this.value)"
-                                class="bg-transparent text-gold-600 font-bold outline-none border-none cursor-pointer appearance-none uppercase hover:text-gold-400 transition-colors">
-                                <option value="gemini-2.5-flash-lite">2.5 FLASH-LITE</option>
-                                <option value="gemini-2.5-flash">2.5 FLASH</option>
-                                <option value="gemini-flash-latest">FLASH (LATEST)</option>
+                                class="bg-transparent text-gold-500 font-bold outline-none border-none cursor-pointer appearance-none uppercase hover:text-gold-400 transition-colors">
+                                <option value="gemini-3.5-flash" style="background:#0f1420;">3.5 FLASH</option>
+                                <option value="gemini-3.6-flash" style="background:#0f1420;">3.6 FLASH</option>
+                                <option value="gemini-3.7-flash" style="background:#0f1420;">3.7 FLASH</option>
+                                <option value="gemini-2.5-flash" style="background:#0f1420;">2.5 FLASH</option>
+                                <option value="gemini-flash-latest" style="background:#0f1420;">FLASH (LATEST)</option>
                             </select>
                         </span>
                         <span class="query-counter"
                             title="Reset täglich um 10:00 Uhr deutscher Zeit (Midnight PT)">Queries: <span
-                                id="queryCountLabel" class="count">0/1</span> <span
-                                class="hidden min-[400px]:inline text-[8px] opacity-50 ml-1">(Reset 10:00)</span></span>
+                                id="queryCountLabel" class="count text-slate-300 font-bold">0/3</span> <span
+                                class="hidden min-[400px]:inline text-[8px] opacity-50 ml-1">(Reset <span id="footerResetTime">10:00</span>)</span></span>
                         <span id="tierLabel" class="tier-free">FREE</span>
                     </div>
                     <div class="flex items-center gap-4 md:gap-6">
                         <div class="flex gap-4 md:mr-6 md:border-r border-white/10 md:pr-6">
-                            <a href="FAQ.html" class="hover:text-gold-500 transition-colors">FAQ</a>
-                            <a href="Impressum.html" class="hover:text-gold-500 transition-colors">Impressum</a>
+                            <a href="index.html" class="hover:text-gold-400 transition-colors">Hub</a>
+                            <a href="FAQ.html" class="hover:text-gold-400 transition-colors">FAQ</a>
+                            <a href="Impressum.html" class="hover:text-gold-400 transition-colors">Impressum & Datenschutz</a>
                         </div>
-                        <span class="hidden lg:inline">Strategic Research Terminal v3.0.0 &copy; 2026</span>
+                        <span class="hidden lg:inline text-slate-600">fincast Terminal v3.5 &copy; 2026</span>
                     </div>
                 </footer>
             </div>
@@ -1067,8 +1230,14 @@
                 <div>
                     <h2 class="text-2xl font-black text-white tracking-tighter uppercase italic">Terminal <span
                             class="text-gold-500">Master Control</span></h2>
-                    <p class="text-[10px] text-gray-500 font-mono uppercase tracking-[0.3em] mt-1">Authorized Access Only
-                        • Protocol v4.2 • Auto-Reset: 10:00 CEST</p>
+                    <p class="text-[10px] text-gray-500 font-mono uppercase tracking-[0.2em] mt-1">Authorized Access Only
+                        • Protocol v4.2 • Reset: <span id="resetTimeDisplay" class="text-gold-400">10:00</span> DE-Zeit
+                        <select id="seasonToggle" onchange="updateSeasonToggle()"
+                            class="ml-2 bg-[#0f1420] border border-white/10 text-gold-500 rounded px-1.5 py-0.5 outline-none cursor-pointer text-[9px] uppercase font-mono">
+                            <option value="summer" style="background:#0f1420;">Sommerzeit (10:00)</option>
+                            <option value="winter" style="background:#0f1420;">Winterzeit (09:00)</option>
+                        </select>
+                    </p>
                 </div>
                 <button onclick="toggleAdmin()"
                     class="bg-white/5 hover:bg-white/10 text-white p-3 rounded-xl transition-all border border-white/5">
@@ -1114,43 +1283,357 @@
 
 
     <script>
-        // ==================== AUTH UI LOGIC ====================
+        // ==================== AUTH UI & LOGIC ====================
+        let pendingVerificationEmail = '';
+        let resendTimerInterval = null;
+        let cachedCurrentUser = null;
+
         function setAuthTab(tab) {
             const loginForm = document.getElementById('loginForm');
             const registerForm = document.getElementById('registerForm');
+            const verifyForm = document.getElementById('verifyForm');
+            const tabsContainer = document.getElementById('authTabsContainer');
             const tabLogin = document.getElementById('tab-login');
             const tabRegister = document.getElementById('tab-register');
             const error = document.getElementById('authError');
+            const success = document.getElementById('authSuccess');
 
-            if (error) error.style.display = 'none';
+            if (error) { error.textContent = ''; error.style.display = 'none'; }
+            if (success) { success.textContent = ''; success.style.display = 'none'; }
 
             if (tab === 'login') {
+                tabsContainer.classList.remove('hidden');
                 loginForm.classList.remove('hidden');
                 registerForm.classList.add('hidden');
+                verifyForm.classList.add('hidden');
                 tabLogin.classList.add('active');
                 tabRegister.classList.remove('active');
-            } else {
+            } else if (tab === 'register') {
+                tabsContainer.classList.remove('hidden');
                 loginForm.classList.add('hidden');
                 registerForm.classList.remove('hidden');
+                verifyForm.classList.add('hidden');
                 tabLogin.classList.remove('active');
                 tabRegister.classList.add('active');
+            } else if (tab === 'verify') {
+                tabsContainer.classList.add('hidden');
+                loginForm.classList.add('hidden');
+                registerForm.classList.add('hidden');
+                verifyForm.classList.remove('hidden');
+                const disp = document.getElementById('verifyEmailDisplay');
+                if (disp && pendingVerificationEmail) {
+                    disp.textContent = pendingVerificationEmail;
+                }
+                const otpInput = document.getElementById('otpCodeInput');
+                if (otpInput) {
+                    otpInput.value = '';
+                    setTimeout(() => otpInput.focus(), 150);
+                }
             }
         }
 
         function showAuthError(msg) {
             const err = document.getElementById('authError');
-            err.textContent = msg;
-            err.style.display = 'block';
-            setTimeout(() => { err.style.display = 'none'; }, 5000);
+            const succ = document.getElementById('authSuccess');
+            if (succ) succ.style.display = 'none';
+            if (err) {
+                err.textContent = msg;
+                err.style.display = 'block';
+            }
         }
 
-        // ==================== MD5 HASH ====================
-        function md5(s) { function L(k, d) { return (k << d) | (k >>> (32 - d)) } function K(G, k) { var I, d, F, H, x; F = (G & 2147483648); H = (k & 2147483648); I = (G & 1073741824); d = (k & 1073741824); x = (G & 1073741823) + (k & 1073741823); if (I & d) return (x ^ 2147483648 ^ F ^ H); if (I | d) { if (x & 1073741824) return (x ^ 3221225472 ^ F ^ H); else return (x ^ 1073741824 ^ F ^ H) } else return (x ^ F ^ H) } function r(d, F, k) { return (d & F) | ((~d) & k) } function q(d, F, k) { return (d & k) | (F & (~k)) } function p(d, F, k) { return (d ^ F ^ k) } function n(d, F, k) { return (F ^ (d | (~k))) } function u(G, F, aa, Z, k, H, I) { G = K(G, K(K(r(F, aa, Z), k), I)); return K(L(G, H), F) } function f(G, F, aa, Z, k, H, I) { G = K(G, K(K(q(F, aa, Z), k), I)); return K(L(G, H), F) } function D(G, F, aa, Z, k, H, I) { G = K(G, K(K(p(F, aa, Z), k), I)); return K(L(G, H), F) } function t(G, F, aa, Z, k, H, I) { G = K(G, K(K(n(F, aa, Z), k), I)); return K(L(G, H), F) } function e(G) { var Z; var F = G.length; var x = F + 8; var k = (x - (x % 64)) / 64; var I = (k + 1) * 16; var aa = Array(I - 1); var d = 0; var H = 0; while (H < F) { Z = (H - (H % 4)) / 4; d = (H % 4) * 8; aa[Z] = (aa[Z] | (G.charCodeAt(H) << d)); H++ } Z = (H - (H % 4)) / 4; d = (H % 4) * 8; aa[Z] = aa[Z] | (128 << d); aa[I - 2] = F << 3; aa[I - 1] = F >>> 29; return aa } function B(x) { var k = "", F = "", G, d; for (d = 0; d <= 3; d++) { G = (x >>> (d * 8)) & 255; F = "0" + G.toString(16); k = k + F.substr(F.length - 2, 2) } return k } var C = Array(); var P, h, E, v, g, Y, X, W, V; var S = 7, Q = 12, N = 17, M = 22; var A = 5, z = 9, y = 14, w = 20; var o = 4, m = 11, l = 16, j = 23; var U = 6, T = 10, R = 15, O = 21; C = e(s); Y = 1732584193; X = 4023233417; W = 2562383102; V = 271733878; for (P = 0; P < C.length; P += 16) { h = Y; E = X; v = W; g = V; Y = u(Y, X, W, V, C[P + 0], S, 3614090360); V = u(V, Y, X, W, C[P + 1], Q, 3905402710); W = u(W, V, Y, X, C[P + 2], N, 606105819); X = u(X, W, V, Y, C[P + 3], M, 3250441966); Y = u(Y, X, W, V, C[P + 4], S, 4118548399); V = u(V, Y, X, W, C[P + 5], Q, 1200080426); W = u(W, V, Y, X, C[P + 6], N, 2821735955); X = u(X, W, V, Y, C[P + 7], M, 4249261313); Y = u(Y, X, W, V, C[P + 8], S, 1770035416); V = u(V, Y, X, W, C[P + 9], Q, 2336552879); W = u(W, V, Y, X, C[P + 10], N, 4294925233); X = u(X, W, V, Y, C[P + 11], M, 2304563134); Y = u(Y, X, W, V, C[P + 12], S, 1804603682); V = u(V, Y, X, W, C[P + 13], Q, 4254626195); W = u(W, V, Y, X, C[P + 14], N, 2792965006); X = u(X, W, V, Y, C[P + 15], M, 1236535329); Y = f(Y, X, W, V, C[P + 1], A, 4129170786); V = f(V, Y, X, W, C[P + 6], z, 3225465664); W = f(W, V, Y, X, C[P + 11], y, 643717713); X = f(X, W, V, Y, C[P + 0], w, 3921069994); Y = f(Y, X, W, V, C[P + 5], A, 3593408605); V = f(V, Y, X, W, C[P + 10], z, 38016083); W = f(W, V, Y, X, C[P + 15], y, 3634488961); X = f(X, W, V, Y, C[P + 4], w, 3889429448); Y = f(Y, X, W, V, C[P + 9], A, 568446438); V = f(V, Y, X, W, C[P + 14], z, 3275163606); W = f(W, V, Y, X, C[P + 3], y, 4107603335); X = f(X, W, V, Y, C[P + 8], w, 1163531501); Y = f(Y, X, W, V, C[P + 13], A, 2850285829); V = f(V, Y, X, W, C[P + 2], z, 4243563512); W = f(W, V, Y, X, C[P + 7], y, 1735328473); X = f(X, W, V, Y, C[P + 12], w, 2368359562); Y = D(Y, X, W, V, C[P + 5], o, 4294588738); V = D(V, Y, X, W, C[P + 8], m, 2272392833); W = D(W, V, Y, X, C[P + 11], l, 1839030562); X = D(X, W, V, Y, C[P + 14], j, 4259657740); Y = D(Y, X, W, V, C[P + 1], o, 2763975236); V = D(V, Y, X, W, C[P + 4], m, 1272893353); W = D(W, V, Y, X, C[P + 7], l, 4139469664); X = D(X, W, V, Y, C[P + 10], j, 3200236656); Y = D(Y, X, W, V, C[P + 13], o, 681279174); V = D(V, Y, X, W, C[P + 0], m, 3936430074); W = D(W, V, Y, X, C[P + 3], l, 3572445317); X = D(X, W, V, Y, C[P + 6], j, 76029189); Y = D(Y, X, W, V, C[P + 9], o, 3654602809); V = D(V, Y, X, W, C[P + 12], m, 3873151461); W = D(W, V, Y, X, C[P + 15], l, 530742520); X = D(X, W, V, Y, C[P + 2], j, 3299628645); Y = t(Y, X, W, V, C[P + 0], U, 4096336452); V = t(V, Y, X, W, C[P + 7], T, 1126891415); W = t(W, V, Y, X, C[P + 14], R, 2878612391); X = t(X, W, V, Y, C[P + 5], O, 4237533241); Y = t(Y, X, W, V, C[P + 12], U, 1700485571); V = t(V, Y, X, W, C[P + 3], T, 2399980690); W = t(W, V, Y, X, C[P + 10], R, 4293915773); X = t(X, W, V, Y, C[P + 1], O, 2240044497); Y = t(Y, X, W, V, C[P + 8], U, 1873313359); V = t(V, Y, X, W, C[P + 15], T, 4264355552); W = t(W, V, Y, X, C[P + 6], R, 2734768916); X = t(X, W, V, Y, C[P + 13], O, 1309151649); Y = t(Y, X, W, V, C[P + 4], U, 4149444226); V = t(V, Y, X, W, C[P + 11], T, 3174756917); W = t(W, V, Y, X, C[P + 2], R, 718787259); X = t(X, W, V, Y, C[P + 9], O, 3951481745); Y = K(Y, h); X = K(X, E); W = K(W, v); V = K(V, g) } return (B(Y) + B(X) + B(W) + B(V)).toLowerCase() }
+        function showAuthSuccess(msg) {
+            const succ = document.getElementById('authSuccess');
+            const err = document.getElementById('authError');
+            if (err) err.style.display = 'none';
+            if (succ) {
+                succ.textContent = msg;
+                succ.style.display = 'block';
+            }
+        }
+
+        function updatePasswordStrengthUI(pwd) {
+            const label = document.getElementById('passStrengthLabel');
+            const b1 = document.getElementById('strBar1');
+            const b2 = document.getElementById('strBar2');
+            const b3 = document.getElementById('strBar3');
+            const b4 = document.getElementById('strBar4');
+
+            const cLen = document.getElementById('critLen');
+            const cCase = document.getElementById('critCase');
+            const cNum = document.getElementById('critNum');
+            const cSpec = document.getElementById('critSpec');
+
+            function setCrit(el, passed) {
+                if (!el) return;
+                const svg = el.querySelector('svg');
+                const span = el.querySelector('span');
+                if (passed) {
+                    if (svg) { svg.classList.remove('text-gray-600'); svg.classList.add('text-emerald-400'); }
+                    if (span) { span.classList.remove('text-gray-500'); span.classList.add('text-gray-200'); }
+                } else {
+                    if (svg) { svg.classList.remove('text-emerald-400'); svg.classList.add('text-gray-600'); }
+                    if (span) { span.classList.remove('text-gray-200'); span.classList.add('text-gray-500'); }
+                }
+            }
+
+            if (!pwd) {
+                if (label) { label.textContent = '-'; label.className = 'text-gray-400 font-bold uppercase tracking-wider'; }
+                [b1, b2, b3, b4].forEach(b => { if (b) b.className = 'h-full rounded-full transition-all duration-300 bg-white/10'; });
+                [cLen, cCase, cNum, cSpec].forEach(c => setCrit(c, false));
+                return;
+            }
+
+            const hasLen = pwd.length >= 8;
+            const hasCase = /[A-Z]/.test(pwd) && /[a-z]/.test(pwd);
+            const hasNum = /[0-9]/.test(pwd);
+            const hasSpec = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd);
+
+            setCrit(cLen, hasLen);
+            setCrit(cCase, hasCase);
+            setCrit(cNum, hasNum);
+            setCrit(cSpec, hasSpec);
+
+            let score = 0;
+            if (hasLen) score++;
+            if (hasCase) score++;
+            if (hasNum) score++;
+            if (hasSpec) score++;
+
+            [b1, b2, b3, b4].forEach(b => { if (b) b.className = 'h-full rounded-full transition-all duration-300 bg-white/10'; });
+
+            if (score === 1) {
+                if (label) { label.textContent = 'Schwach'; label.className = 'text-red-500 font-bold uppercase tracking-wider'; }
+                if (b1) b1.className = 'h-full rounded-full transition-all duration-300 bg-red-500';
+            } else if (score === 2) {
+                if (label) { label.textContent = 'Mittel'; label.className = 'text-yellow-500 font-bold uppercase tracking-wider'; }
+                if (b1) b1.className = 'h-full rounded-full transition-all duration-300 bg-yellow-500';
+                if (b2) b2.className = 'h-full rounded-full transition-all duration-300 bg-yellow-500';
+            } else if (score === 3) {
+                if (label) { label.textContent = 'Gut'; label.className = 'text-gold-400 font-bold uppercase tracking-wider'; }
+                if (b1) b1.className = 'h-full rounded-full transition-all duration-300 bg-gold-400';
+                if (b2) b2.className = 'h-full rounded-full transition-all duration-300 bg-gold-400';
+                if (b3) b3.className = 'h-full rounded-full transition-all duration-300 bg-gold-400';
+            } else if (score === 4) {
+                if (label) { label.textContent = 'Sehr Stark'; label.className = 'text-emerald-400 font-bold uppercase tracking-wider'; }
+                if (b1) b1.className = 'h-full rounded-full transition-all duration-300 bg-emerald-400';
+                if (b2) b2.className = 'h-full rounded-full transition-all duration-300 bg-emerald-400';
+                if (b3) b3.className = 'h-full rounded-full transition-all duration-300 bg-emerald-400';
+                if (b4) b4.className = 'h-full rounded-full transition-all duration-300 bg-emerald-400';
+            }
+        }
+
+        async function authApiCall(action, payload = {}) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+            try {
+                const res = await fetch('/api/auth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action, ...payload }),
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    return { error: data.error || `HTTP ${res.status}`, ...data };
+                }
+                return data;
+            } catch (e) {
+                clearTimeout(timeoutId);
+                console.error('Auth API Error:', e);
+                return { error: e.name === 'AbortError' ? 'Timeout: Server antwortet nicht.' : 'Netzwerkfehler beim Verbinden.' };
+            }
+        }
+
+        async function doLogin() {
+            const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+            const pass = document.getElementById('loginPass').value;
+            const rememberMe = document.getElementById('loginRemember').checked;
+            const btn = document.getElementById('btnLoginSubmit');
+
+            if (!email || !pass) return showAuthError('Bitte alle Felder ausfüllen.');
+
+            const origBtnText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<div class="w-4 h-4 border-2 border-obsidian-950/40 border-t-obsidian-950 rounded-full animate-spin"></div> <span>Wird überprüft...</span>';
+
+            try {
+                const res = await authApiCall('login', { email, password: pass, rememberMe });
+
+                if (res.error) {
+                    if (res.requiresVerification) {
+                        pendingVerificationEmail = res.email || email;
+                        setAuthTab('verify');
+                        showAuthError('E-Mail ist noch nicht bestätigt. Bitte gib deinen Bestätigungscode ein.');
+                        startResendTimer(60);
+                        return;
+                    }
+                    return showAuthError(res.error);
+                }
+
+                if (res.sessionToken) {
+                    localStorage.setItem('terminal_session_token', res.sessionToken);
+                    localStorage.setItem('terminal_session', res.user.email);
+                    cachedCurrentUser = res.user;
+                    showAuthSuccess('Erfolgreich angemeldet. Terminal wird geladen...');
+                    await initApp();
+                }
+            } catch (err) {
+                console.error('Login Exception:', err);
+                showAuthError('Anmeldefehler: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = origBtnText;
+            }
+        }
+
+        async function doRegister() {
+            const first = document.getElementById('regFirst').value.trim();
+            const last = document.getElementById('regLast').value.trim();
+            const email = document.getElementById('regEmail').value.trim().toLowerCase();
+            const pass = document.getElementById('regPass').value;
+            const pass2 = document.getElementById('regPass2').value;
+            const terms = document.getElementById('regTerms').checked;
+            const btn = document.getElementById('btnRegSubmit');
+
+            if (!first || !last || !email || !pass) return showAuthError('Bitte alle Pflichtfelder ausfüllen.');
+            if (pass !== pass2) return showAuthError('Die Passwörter stimmen nicht überein.');
+            if (!terms) return showAuthError('Bitte akzeptiere die Nutzungsbedingungen und Datenschutzerklärung.');
+
+            const origBtnText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<div class="w-4 h-4 border-2 border-obsidian-950/40 border-t-obsidian-950 rounded-full animate-spin"></div> <span>Wird erstellt...</span>';
+
+            try {
+                const res = await authApiCall('register', {
+                    firstName: first,
+                    lastName: last,
+                    email,
+                    password: pass,
+                    termsAccepted: terms
+                });
+
+                if (res.error) {
+                    return showAuthError(res.error);
+                }
+
+                pendingVerificationEmail = email;
+                setAuthTab('verify');
+                showAuthSuccess('Bestätigungscode wurde versendet! Bitte prüfe dein Postfach.');
+                startResendTimer(60);
+
+                if (res.devOtp) {
+                    console.log('%c[DEV/FALLBACK OTP] Dein Bestätigungscode lautet: ' + res.devOtp, 'color: #d4af37; font-weight: bold; font-size: 14px;');
+                }
+            } catch (err) {
+                console.error('Registration Exception:', err);
+                showAuthError('Registrierung fehlgeschlagen: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = origBtnText;
+            }
+        }
+
+        async function doVerifyOtp(directCode = null, directToken = null, directEmail = null) {
+            const email = directEmail || pendingVerificationEmail || (document.getElementById('loginEmail')?.value.trim().toLowerCase());
+            const code = directCode || document.getElementById('otpCodeInput')?.value.trim();
+            const token = directToken || null;
+            const btn = document.getElementById('btnVerifySubmit');
+
+            if (!email) {
+                return showAuthError('Keine E-Mail-Adresse für die Verifizierung gefunden.');
+            }
+
+            if (!code && !token) {
+                return showAuthError('Bitte gib den 6-stelligen Bestätigungscode ein.');
+            }
+
+            let origBtnText = '';
+            if (btn) {
+                origBtnText = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<div class="w-4 h-4 border-2 border-obsidian-950/40 border-t-obsidian-950 rounded-full animate-spin"></div> <span>Wird bestätigt...</span>';
+            }
+
+            try {
+                const res = await authApiCall('verify_otp', { email, code, token });
+
+                if (res.error) {
+                    return showAuthError(res.error);
+                }
+
+                if (res.sessionToken) {
+                    localStorage.setItem('terminal_session_token', res.sessionToken);
+                    localStorage.setItem('terminal_session', res.user.email);
+                    cachedCurrentUser = res.user;
+                    showAuthSuccess('E-Mail erfolgreich verifiziert! Terminal wird geladen...');
+                    setTimeout(async () => {
+                        await initApp();
+                    }, 600);
+                }
+            } catch (err) {
+                console.error('Verification Exception:', err);
+                showAuthError('Verifizierung fehlgeschlagen: ' + err.message);
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = origBtnText;
+                }
+            }
+        }
+
+        async function doResendOtp() {
+            const email = pendingVerificationEmail || (document.getElementById('loginEmail')?.value.trim().toLowerCase());
+            const btn = document.getElementById('btnResendOtp');
+
+            if (!email) return showAuthError('Keine E-Mail-Adresse hinterlegt.');
+
+            btn.disabled = true;
+
+            try {
+                const res = await authApiCall('resend_otp', { email });
+                if (res.error) {
+                    return showAuthError(res.error);
+                }
+                showAuthSuccess('Ein neuer Bestätigungscode wurde an dein Postfach gesendet.');
+                startResendTimer(60);
+                if (res.devOtp) {
+                    console.log('%c[DEV/FALLBACK OTP] Neuer Bestätigungscode: ' + res.devOtp, 'color: #d4af37; font-weight: bold; font-size: 14px;');
+                }
+            } catch (err) {
+                showAuthError('Fehler beim erneuten Senden: ' + err.message);
+                btn.disabled = false;
+            }
+        }
+
+        function startResendTimer(seconds) {
+            const btn = document.getElementById('btnResendOtp');
+            const countdown = document.getElementById('resendCountdown');
+            if (!btn || !countdown) return;
+
+            clearInterval(resendTimerInterval);
+            btn.disabled = true;
+            let remaining = seconds;
+            countdown.textContent = `(${remaining}s)`;
+
+            resendTimerInterval = setInterval(() => {
+                remaining--;
+                if (remaining <= 0) {
+                    clearInterval(resendTimerInterval);
+                    countdown.textContent = '';
+                    btn.disabled = false;
+                } else {
+                    countdown.textContent = `(${remaining}s)`;
+                }
+            }, 1000);
+        }
 
         // ==================== CLOUD STORAGE WRAPPER ====================
         async function apiCall(action, params = {}) {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s Timeout
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
 
             try {
                 const res = await fetch('/api/storage', {
@@ -1166,7 +1649,7 @@
             } catch (e) {
                 clearTimeout(timeoutId);
                 console.error('Cloud Storage Error:', e);
-                return { error: e.name === 'AbortError' ? 'Timeout: Datenbank antwortet nicht (Redis hinkt).' : 'Netzwerkfehler.' };
+                return { error: e.name === 'AbortError' ? 'Timeout: Datenbank antwortet nicht.' : 'Netzwerkfehler.' };
             }
         }
 
@@ -1177,70 +1660,38 @@
         }
 
         async function getCurrentUser() {
-            const e = localStorage.getItem('terminal_session');
-            if (!e) return null;
-            const users = await getUsers();
-            if (!Array.isArray(users)) return null;
-            return users.find(u => u.email === e) || null;
-        }
+            if (cachedCurrentUser) return cachedCurrentUser;
 
-        async function doLogin() {
-            const email = document.getElementById('loginEmail').value.trim().toLowerCase();
-            const pass = document.getElementById('loginPass').value;
-            if (!email || !pass) return showAuthError('Alle Felder ausfüllen.');
-
-            try {
-                const users = await getUsers();
-                if (!Array.isArray(users)) throw new Error('Datenbank-Format ungültig.');
-
-                const user = users.find(u => u.email === email && u.password === md5(pass));
-                if (!user) return showAuthError('Ungültige Anmeldedaten.');
-
-                localStorage.setItem('terminal_session', email);
-                await initApp();
-            } catch (err) {
-                console.error('Login Error:', err);
-                showAuthError('Datenbank-Fehler: ' + err.message);
+            const token = localStorage.getItem('terminal_session_token');
+            if (token) {
+                try {
+                    const res = await authApiCall('verify_session', { sessionToken: token });
+                    if (res && res.user) {
+                        cachedCurrentUser = res.user;
+                        return res.user;
+                    }
+                    localStorage.removeItem('terminal_session_token');
+                } catch (e) {
+                    console.warn('Session check failed:', e);
+                }
             }
-        }
 
-        async function doRegister() {
-            const first = document.getElementById('regFirst').value.trim();
-            const last = document.getElementById('regLast').value.trim();
-            const email = document.getElementById('regEmail').value.trim().toLowerCase();
-            const pass = document.getElementById('regPass').value;
-            const pass2 = document.getElementById('regPass2').value;
-
-            if (!first || !last || !email || !pass) return showAuthError('Alle Felder ausfüllen.');
-            if (pass !== pass2) return showAuthError('Passwörter stimmen nicht überein.');
-
-            try {
-                const users = await getUsers();
-                if (!Array.isArray(users)) throw new Error('Datenbank-Fehler beim Laden der Benutzer.');
-
-                if (users.find(u => u.email === email)) return showAuthError('Email bereits registriert.');
-
-                const newUser = {
-                    email,
-                    password: md5(pass),
-                    firstName: first,
-                    lastName: last,
-                    apiKey: '',
-                    model: 'gemini-2.5-flash',
-                    tier: 'free',
-                    isAdmin: false,
-                    createdAt: new Date().toISOString()
-                };
-
-                const res = await apiCall('save_user', { data: newUser });
-                if (!res || res.error) throw new Error(res?.error || 'Speichern fehlgeschlagen.');
-
-                localStorage.setItem('terminal_session', email);
-                await initApp();
-            } catch (err) {
-                console.error('Registration Error:', err);
-                showAuthError('Registrierung fehlgeschlagen: ' + err.message);
+            // Fallback for existing legacy session
+            const legacyEmail = localStorage.getItem('terminal_session');
+            if (legacyEmail) {
+                try {
+                    const users = await getUsers();
+                    const user = users.find(u => u.email === legacyEmail);
+                    if (user) {
+                        cachedCurrentUser = user;
+                        return user;
+                    }
+                } catch (e) {
+                    console.warn('Legacy session fallback failed:', e);
+                }
             }
+
+            return null;
         }
 
         async function getQueryCount(email, model = '') {
@@ -1252,10 +1703,10 @@
         async function incrementQuery(email, model = '') { await apiCall('increment_query', { email, model }); }
 
         async function updateFooter(user) {
-            const limit = user.tier === 'premium' ? 20 : 1;
+            const limit = user.tier === 'premium' ? 20 : 3;
             const used = await getQueryCount(user.email, MODEL_ID);
             const modelSelect = document.getElementById('footerModelSelect');
-            if (modelSelect) modelSelect.value = user.model || 'gemini-2.5-flash-lite';
+            if (modelSelect) modelSelect.value = user.model || 'gemini-3.5-flash';
             document.getElementById('queryCountLabel').textContent = `${used}/${limit}`;
             const tl = document.getElementById('tierLabel');
             tl.textContent = user.tier === 'premium' ? 'PREMIUM' : 'FREE';
@@ -1278,57 +1729,6 @@
             }
         }
 
-        // ==================== ADMIN PANEL ====================
-        function toggleAdmin() { document.getElementById('adminPanel').classList.toggle('open'); if (document.getElementById('adminPanel').classList.contains('open')) renderAdminUsers(); }
-
-        async function renderAdminUsers() {
-            const tbody = document.getElementById('adminUserList');
-            const users = await getUsers();
-            const allQueries = await apiCall('get_all_queries');
-
-            tbody.innerHTML = '';
-            users.forEach((u, i) => {
-                const userModel = u.model || 'gemini-2.5-flash-lite';
-                const qCount = allQueries[u.email] && allQueries[u.email].counts ? (allQueries[u.email].counts[userModel] || 0) : 0;
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-            <td class="text-white text-xs">${u.firstName} ${u.lastName}${u.isAdmin ? ' <span class="text-gold-500">(Admin)</span>' : ''}</td>
-            <td class="text-gray-400 text-[10px] font-mono">${u.email}</td>
-            <td><input type="text" value="${u.apiKey || ''}" data-idx="${i}" data-field="apiKey" class="w-28" placeholder="KEY..." onchange="adminUpdate(this)"/></td>
-            <td><select data-idx="${i}" data-field="model" onchange="adminUpdate(this)" class="bg-[#0f1420] text-gold-500 border border-white/10 rounded px-1 py-0.5 text-xs">
-                <option value="gemini-2.5-flash-lite" ${u.model === 'gemini-2.5-flash-lite' ? 'selected' : ''}>Gemini 2.5 Flash-Lite (Empfohlen)</option>
-                <option value="gemini-2.5-flash" ${u.model === 'gemini-2.5-flash' || !u.model ? 'selected' : ''}>Gemini 2.5 Flash (Standard)</option>
-                <option value="gemini-flash-latest" ${u.model === 'gemini-flash-latest' ? 'selected' : ''}>Gemini Flash (Auto-Latest)</option>
-            </select></td>
-            <td><select data-idx="${i}" data-field="tier" onchange="adminUpdate(this)">
-                <option value="free" ${u.tier === 'free' ? 'selected' : ''}>Free (1/Tag/Model)</option>
-                <option value="premium" ${u.tier === 'premium' ? 'selected' : ''}>Premium (20/Tag/Model)</option>
-            </select></td>
-            <td class="text-center font-mono text-[10px] text-gray-400">${qCount}</td>
-            <td>${!u.isAdmin ? '<button onclick="adminDelete(' + i + ')" class="text-red-500/50 hover:text-red-500 text-[9px] font-mono uppercase">Löschen</button>' : '<span class="text-[9px] text-gray-600">—</span>'}</td>`;
-                tbody.appendChild(tr);
-            });
-        }
-
-        async function adminUpdate(el) {
-            const users = await getUsers();
-            const idx = parseInt(el.dataset.idx);
-            users[idx][el.dataset.field] = el.value;
-            await apiCall('save_user', { data: users[idx] }); // Assuming save_user handles individual updates or full list
-            const cur = await getCurrentUser();
-            if (cur) await updateFooter(cur);
-        }
-
-        async function adminDelete(idx) {
-            if (!confirm('Benutzer wirklich löschen?')) return;
-            const users = await getUsers();
-            const userToDelete = users[idx];
-            // Here we should call a delete API if possible, or just overwrite
-            // For now, let's assume we can save the list or a flag
-            await apiCall('delete_user', { email: userToDelete.email });
-            await renderAdminUsers();
-        }
-
         function updateSeasonToggle() {
             const val = document.getElementById('seasonToggle').value;
             localStorage.setItem('terminal_season', val);
@@ -1339,9 +1739,12 @@
             try {
                 const val = localStorage.getItem('terminal_season') || 'summer';
                 const el = document.getElementById('resetTimeDisplay');
+                const footerEl = document.getElementById('footerResetTime');
                 const toggle = document.getElementById('seasonToggle');
 
-                if (el) el.textContent = val === 'summer' ? '10:00' : '09:00';
+                const timeStr = val === 'summer' ? '10:00' : '09:00';
+                if (el) el.textContent = timeStr;
+                if (footerEl) footerEl.textContent = timeStr;
                 if (toggle) toggle.value = val;
             } catch (e) {
                 console.warn('Error updating season display', e);
@@ -1401,11 +1804,27 @@
 
         // ==================== APP INIT ====================
         async function initApp() {
-            const user = await getCurrentUser();
             const authScreen = document.getElementById('authScreen');
             const mainApp = document.getElementById('mainApp');
             const urlParams = new URLSearchParams(window.location.search);
             const shareId = urlParams.get('share');
+            const verifyAction = urlParams.get('action');
+            const verifyToken = urlParams.get('token');
+            const verifyEmail = urlParams.get('email');
+
+            // Handle Email Verification Link from URL
+            if (verifyAction === 'verify' && verifyToken && verifyEmail) {
+                authScreen.style.display = 'flex';
+                mainApp.classList.add('hidden');
+                pendingVerificationEmail = verifyEmail;
+                setAuthTab('verify');
+                showAuthSuccess('E-Mail-Bestätigungslink erkannt. Verifiziere Account...');
+                await doVerifyOtp(null, verifyToken, verifyEmail);
+                window.history.replaceState({}, document.title, window.location.pathname);
+                return;
+            }
+
+            const user = await getCurrentUser();
 
             // Handle Share Link (ALLOW GUESTS)
             if (shareId) {
@@ -1451,12 +1870,16 @@
             mainApp.classList.remove('hidden');
             document.getElementById('guestNotice').classList.add('hidden');
 
+            const adminBtn = document.getElementById('adminBtn');
+            const abm = document.getElementById('adminBtnMobile');
             if (user.isAdmin) {
-                document.getElementById('adminBtn').classList.remove('hidden');
-                const abm = document.getElementById('adminBtnMobile');
+                if (adminBtn) adminBtn.classList.remove('hidden');
                 if (abm) abm.classList.remove('hidden');
+            } else {
+                if (adminBtn) adminBtn.classList.add('hidden');
+                if (abm) abm.classList.add('hidden');
             }
-            MODEL_ID = user.model || 'gemini-2.5-flash';
+            MODEL_ID = user.model || 'gemini-3.5-flash';
             await updateFooter(user);
             updateLanguageUI();
             updateResetTimeDisplay();
@@ -1475,7 +1898,7 @@
         }
 
         // ==================== CONFIGURATION ====================
-        let MODEL_ID = 'gemini-2.5-flash';
+        let MODEL_ID = 'gemini-3.5-flash';
         let USER_LANG = localStorage.getItem('gemini_user_lang') || 'de-DE';
         let CURRENT_ANALYSIS_DATA = null;
 
@@ -1538,10 +1961,10 @@
                 return;
             }
 
-            const limit = user.tier === 'premium' ? 20 : 1;
-            const used = await getQueryCount(user.email).catch(() => 0);
+            const limit = user.tier === 'premium' ? 20 : 3;
+            const used = await getQueryCount(user.email, MODEL_ID).catch(() => 0);
             if (used >= limit) {
-                alert(`Tageslimit für dieses Modell erreicht (${limit} Anfrage${limit > 1 ? 'n' : ''}/Tag). ${user.tier === 'free' ? 'Tipp: Du kannst unten links das Modell wechseln, um einen weiteren Gratis-Versuch zu erhalten!' : 'Bitte wechsle unten links das Modell oder warte bis morgen.'}`);
+                alert(`Tageslimit für dieses Modell erreicht (${limit} Anfrage${limit > 1 ? 'n' : ''}/Tag). ${user.tier === 'free' ? 'Tipp: Du kannst unten links das Modell wechseln, um weitere Gratis-Versuche zu erhalten!' : 'Bitte wechsle unten links das Modell oder warte bis morgen.'}`);
                 return;
             }
 
@@ -1556,7 +1979,7 @@
             updateLoadingStatus('Initializing Multi-Agent Protocol...', 5);
 
             try {
-                MODEL_ID = user.model || 'gemini-2.5-flash';
+                MODEL_ID = user.model || 'gemini-3.5-flash';
                 const langNames = { 'de-DE': 'DEUTSCH', 'en-US': 'ENGLISH', 'fr-FR': 'FRANÇAIS', 'es-ES': 'ESPAÑOL' };
                 const currentLangName = langNames[USER_LANG] || 'DEUTSCH';
                 const results = {};
@@ -1722,8 +2145,33 @@ ROLE: Quant Researcher (Statistical Arbitrage)
 - Pattern Finder (Statistical Arbitrage AI): [1 sentence synthesis] [BADGE]
 - Strategic DNA: [1 sentence synthesis about Sector and Profile]
 
-- INSTITUTIONAL MASTER CONCLUSION:
-[Provide a 3-4 sentence sophisticated synthesis of all agent findings. Explain the core conflict or agreement between frameworks and provide a final strategic outlook.]
+Rolle & Persona:
+Agiere als Charlie Munger, der langjährige Vizepräsident von Berkshire Hathaway. Analysiere das Unternehmen ${query} mit schonungsloser intellektueller Ehrlichkeit, rationalem Pragmatismus, multidisziplinären mentalen Modellen und trockenem Realismus. Vermeide Wall-Street-Jargon, übertriebenen Optimismus und vage Prognosen.
+
+Analysiere ${query} anhand der folgenden 5 Prüfschritte:
+
+1. Circle of Competence (Verständlichkeit des Geschäftsmodells)
+- Wie verdient das Unternehmen tatsächlich seinen operativen Cashflow?
+- Ist das Modell einfach und vorhersehbar oder komplex, technologiegetrieben und ständiger Disruption ausgesetzt? (Kategorie: „Investieren“, „Verwerfen“ oder „Too Hard Box“?)
+
+2. Durable Competitive Advantage & Moat (Burggraben)
+- Worin besteht der wirtschaftliche Burggraben (Netzwerkeffekte, Wechselkosten, Preissetzungsmacht, Skalenvorteile)?
+- Wie wahrscheinlich ist es, dass dieser Vorteil in 10 bis 15 Jahren noch intakt ist?
+
+3. Management-Qualität, Kapitalallokation & Anreize
+- Zeigt das Management operative Exzellenz und Integrität („Skin in the Game“)?
+- Wie diszipliniert ist die Reinvestition von Kapital (Aktienrückkäufe bei Unterbewertung, Dividenden, Vermeidung teurer Übernahmen)?
+- Welche toxischen Fehlanreize (z. B. aktienoptionsgetriebene Verwässerung) existieren?
+
+4. Inversion (Pre-Mortem-Analyse: Was kann das Unternehmen zerstören?)
+- Drehe die Perspektive um: Wenn ${query} in den nächsten 10 Jahren scheitert oder massiv an Wert verliert – was waren die konkreten Ursachen (z. B. technologische Obsoleszenz, Bilanzüberschuldung, Margenerosion)?
+
+5. Bewertung & Margin of Safety
+- Rechtfertigt die fundamentale Ertragskraft den aktuellen Preis, um ein faires Unternehmen zu einem wunderbaren Preis – oder ein wunderbares Unternehmen zu einem fairen Preis zu kaufen?
+- Welcher Sicherheitsabschlag ist hier zwingend erforderlich?
+
+- INSTITUTIONAL MASTER CONCLUSION (Charlie Munger Urteil & Fazit):
+[Fasse deine finale Einschätzung in Charlie Mungers ungeschminkter Tonalität zusammen: Kaufen, Beobachten oder sofort in die „Too Hard Box“ werfen? 3-4 Sätze Synthese aller Befunde.]
 
 - FINAL TERMINAL SENTIMENT: [BADGE]
 MANDATORY: Use EXACTLY ONE of these badges per agent/sentiment: [POSITIVE], [STRONG POSITIVE], [NEUTRAL], [NEGATIVE], [STRONG NEGATIVE], [UNDERVALUED], [OVERVALUED], [FAIRLY VALUED], [WAIT].
@@ -1939,10 +2387,15 @@ CRITICAL: Add this exact sentence at the end: "DISCLAIMER: Diese Analyse ist ein
 
         // Legacy state manager removed
 
-        function doLogout() {
+        async function doLogout() {
             if (confirm('Möchtest du dich wirklich abmelden?')) {
+                const token = localStorage.getItem('terminal_session_token');
+                if (token) {
+                    await authApiCall('logout', { sessionToken: token }).catch(() => {});
+                }
+                localStorage.removeItem('terminal_session_token');
                 localStorage.removeItem('terminal_session');
-                // Optional: Clear UI state or redirect
+                cachedCurrentUser = null;
                 location.reload();
             }
         }
@@ -2101,7 +2554,13 @@ CRITICAL: Add this exact sentence at the end: "DISCLAIMER: Diese Analyse ist ein
                 await apiCall('delete_user', { email: user.email });
                 await apiCall('delete_archive', { email: user.email });
 
+                const token = localStorage.getItem('terminal_session_token');
+                if (token) {
+                    await authApiCall('logout', { sessionToken: token }).catch(() => {});
+                }
+                localStorage.removeItem('terminal_session_token');
                 localStorage.removeItem('terminal_session');
+                cachedCurrentUser = null;
                 alert('Dein Account wurde erfolgreich gelöscht.');
                 location.reload();
             } catch (err) {
@@ -2111,7 +2570,12 @@ CRITICAL: Add this exact sentence at the end: "DISCLAIMER: Diese Analyse ist ein
         }
 
         // ==================== ADMIN LOGIC ====================
-        function toggleAdmin() {
+        async function toggleAdmin() {
+            const user = await getCurrentUser();
+            if (!user || !user.isAdmin) {
+                console.warn('Unauthorized access to admin panel');
+                return;
+            }
             const overlay = document.getElementById('adminOverlay');
             if (!overlay) return;
             overlay.classList.toggle('open');
@@ -2159,7 +2623,9 @@ CRITICAL: Add this exact sentence at the end: "DISCLAIMER: Diese Analyse ist ein
                             </td>
                             <td class="px-4">
                                 <select onchange="updateUserField('${u.email}', 'model', this.value)" class="bg-black/40 border border-white/10 rounded text-[10px] font-mono p-1 text-white/70">
-                                    <option value="gemini-2.5-flash-lite" ${u.model === 'gemini-2.5-flash-lite' ? 'selected' : ''}>2.5 FLASH-LITE</option>
+                                    <option value="gemini-3.5-flash" ${u.model === 'gemini-3.5-flash' || !u.model ? 'selected' : ''}>3.5 FLASH</option>
+                                    <option value="gemini-3.6-flash" ${u.model === 'gemini-3.6-flash' ? 'selected' : ''}>3.6 FLASH</option>
+                                    <option value="gemini-3.7-flash" ${u.model === 'gemini-3.7-flash' ? 'selected' : ''}>3.7 FLASH</option>
                                     <option value="gemini-2.5-flash" ${u.model === 'gemini-2.5-flash' ? 'selected' : ''}>2.5 FLASH</option>
                                     <option value="gemini-flash-latest" ${u.model === 'gemini-flash-latest' ? 'selected' : ''}>FLASH (LATEST)</option>
                                 </select>

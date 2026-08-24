@@ -1,6 +1,6 @@
 {
   "meta": {
-    "last_updated": "2026-05-18T18:47:56.677744+00:00",
+    "last_updated": "2026-05-18T19:31:39.491522+00:00",
     "window_minutes": 480,
     "min_mentions": 4,
     "min_sentiment": 0.6,
@@ -22,12 +22,12 @@
       "ta": {
         "ticker": "NVDA",
         "asset_type": "stock",
-        "current_price": 219.36,
-        "rsi_value": 30.82,
-        "volume_spike_factor": 0.1,
-        "distance_to_local_ath_pct": 7.09,
-        "ema_9": 220.52,
-        "ema_20": 221.94,
+        "current_price": 220.63,
+        "rsi_value": 39.72,
+        "volume_spike_factor": 0.08,
+        "distance_to_local_ath_pct": 6.55,
+        "ema_9": 220.49,
+        "ema_20": 221.56,
         "setup_label": "NEUTRAL"
       }
     },
@@ -43,13 +43,13 @@
       "ta": {
         "ticker": "BTC",
         "asset_type": "crypto",
-        "current_price": 76373.46,
-        "rsi_value": 42.49,
-        "volume_spike_factor": 0.06,
-        "distance_to_local_ath_pct": 2.62,
-        "ema_9": 76452.229,
-        "ema_20": 76546.7491,
-        "setup_label": "NEUTRAL"
+        "current_price": 76741.59,
+        "rsi_value": 53.87,
+        "volume_spike_factor": 0.07,
+        "distance_to_local_ath_pct": 2.15,
+        "ema_9": 76548.9382,
+        "ema_20": 76570.3875,
+        "setup_label": "CONSOLIDATION"
       }
     },
     {
@@ -64,12 +64,12 @@
       "ta": {
         "ticker": "AMD",
         "asset_type": "stock",
-        "current_price": 412.58,
-        "rsi_value": 34.34,
-        "volume_spike_factor": 0.08,
-        "distance_to_local_ath_pct": 9.88,
-        "ema_9": 414.74,
-        "ema_20": 417.88,
+        "current_price": 415.33,
+        "rsi_value": 42.67,
+        "volume_spike_factor": 0.09,
+        "distance_to_local_ath_pct": 9.28,
+        "ema_9": 415.08,
+        "ema_20": 417.28,
         "setup_label": "NEUTRAL"
       }
     },
@@ -85,13 +85,13 @@
       "ta": {
         "ticker": "SOL",
         "asset_type": "crypto",
-        "current_price": 83.95,
-        "rsi_value": 41.22,
-        "volume_spike_factor": 0.07,
-        "distance_to_local_ath_pct": 3.44,
-        "ema_9": 84.0965,
-        "ema_20": 84.2437,
-        "setup_label": "NEUTRAL"
+        "current_price": 84.63,
+        "rsi_value": 54.63,
+        "volume_spike_factor": 0.09,
+        "distance_to_local_ath_pct": 2.66,
+        "ema_9": 84.2825,
+        "ema_20": 84.2973,
+        "setup_label": "CONSOLIDATION"
       }
     }
   ],

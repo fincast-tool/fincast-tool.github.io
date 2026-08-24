@@ -1,308 +1,492 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" class="dark">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Impressum | fincast - Zinseszins & Dividendenrechner</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Impressum &amp; Datenschutz | fincast Financial Tools</title>
+
+    <!-- SEO Meta Tags -->
     <meta name="description"
-        content="Impressum und Datenschutzerklärung von fincast. Informationen zum Anbieter, Haftungsausschluss und Datenschutz für den Zinseszinsrechner & Dividendenrechner.">
+        content="Rechtliche Hinweise, Impressum nach § 5 DDG und Datenschutzerklärung nach DSGVO &amp; § 25 TDDDG für fincast Hub und angeschlossene Tools.">
     <meta name="keywords"
-        content="Impressum, Datenschutz, fincast, Zinseszinsrechner, Dividendenrechner, Nikolai Bretthauer">
+        content="Impressum, Datenschutz, fincast, DDG, TDDDG, DSGVO, Nikolai Bretthauer">
     <meta name="author" content="Nikolai Bretthauer">
-    <link rel="canonical" href="https://fincast-tool.vercel.app/Impressum.html" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="https://fincast-tool.vercel.app/Impressum.html">
 
     <link rel="icon" type="image/png" href="portfoliomanager%20-%20Symbol.png">
     <link rel="shortcut icon" href="portfoliomanager%20-%20Symbol.png">
     <link rel="apple-touch-icon" href="portfoliomanager%20-%20Symbol.png">
     <link rel="manifest" href="manifest.json">
 
-    <meta name="image" content="https://fincast-tool.vercel.app/portfoliomanager%20-%20Symbol.png">
+    <!-- Open Graph / Social Media Meta Tags -->
     <meta property="og:type" content="website">
+    <meta property="og:site_name" content="fincast Hub">
     <meta property="og:url" content="https://fincast-tool.vercel.app/Impressum.html">
-    <meta property="og:title" content="Impressum | Fincast Strategic Intelligence">
-    <meta property="og:description" content="Anbieterkennzeichnung und rechtliche Hinweise zum Fincast Projekt.">
-    <meta property="og:image" content="https://fincast-tool.vercel.app/portfoliomanager%20-%20Symbol.png">
+    <meta property="og:title" content="Impressum &amp; Datenschutz | fincast Financial Tools">
+    <meta property="og:description"
+        content="Rechtliche Hinweise, Impressum nach § 5 DDG und Datenschutzerklärung nach DSGVO &amp; § 25 TDDDG für fincast Hub und angeschlossene Tools.">
+    <meta property="og:image" content="https://fincast-tool.vercel.app/theme-toggle-portfoliomanager.png">
 
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Impressum | Fincast Strategic Intelligence">
-    <meta name="twitter:description" content="Anbieterkennzeichnung und rechtliche Hinweise zum Fincast Projekt.">
-    <meta name="twitter:image" content="https://fincast-tool.vercel.app/portfoliomanager%20-%20Symbol.png">
+    <!-- Twitter / X Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Impressum &amp; Datenschutz | fincast Financial Tools">
+    <meta name="twitter:description"
+        content="Rechtliche Hinweise, Impressum nach § 5 DDG und Datenschutzerklärung nach DSGVO &amp; § 25 TDDDG für fincast Hub und angeschlossene Tools.">
+    <meta name="twitter:image" content="https://fincast-tool.vercel.app/theme-toggle-portfoliomanager.png">
+
+    <!-- Structured Data / JSON-LD -->
+    <script type="application/ld+json">
+    [
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Impressum & Datenschutz - fincast",
+        "url": "https://fincast-tool.vercel.app/Impressum.html",
+        "description": "Anbieterkennzeichnung gemäß § 5 DDG und Datenschutzerklärung gemäß DSGVO und § 25 TDDDG."
+      }
+    ]
+    </script>
+
+    <!-- Tailwind CSS & Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    },
+                    colors: {
+                        obsidian: {
+                            700: '#23293a',
+                            800: '#1a1f2e',
+                            850: '#141926',
+                            900: '#0f1420',
+                            950: '#0a0d14'
+                        },
+                        gold: {
+                            400: '#facc15',
+                            500: '#d4af37',
+                            600: '#b08d2b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        :root {
-            --primary: #2c3e50;
-            --accent: #27ae60;
-            --bg: #f8f9fa;
-            --card-bg: #ffffff;
-            --text: #333;
-            --text-muted: #7f8c8d;
-            --border: #dcdde1;
-        }
-
-        .dark-mode {
-            --primary: #ecf0f1;
-            --accent: #2ecc71;
-            --bg: #1a1a1a;
-            --card-bg: #2d2d2d;
-            --text: #f0f0f0;
-            --text-muted: #bdc3c7;
-            --border: #444;
-        }
-
         body {
-            font-family: -apple-system, sans-serif;
-            line-height: 1.6;
-            color: var(--text);
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 20px;
-            background: var(--bg);
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        .card {
-            background: var(--card-bg);
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            transition: background-color 0.3s, box-shadow 0.3s;
-        }
-
-        .top-nav {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0d14;
+            color: #e2e8f0;
+            margin: 0;
+            min-height: 100vh;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
         }
 
-        .top-btns {
-            display: flex;
-            align-items: center;
-            gap: 15px;
+        .widget-card {
+            background: #0f1420;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
         }
 
-        h1 {
-            color: var(--primary);
-            border-bottom: 2px solid var(--accent);
-            padding-bottom: 10px;
+        .logo-box {
+            background: radial-gradient(circle at center, rgba(212, 175, 55, 0.2), rgba(10, 13, 20, 0.6));
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
         }
 
-        h2 {
-            color: var(--accent);
-            margin-top: 30px;
-            font-size: 1.2rem;
-        }
-
-        .back-link {
-            display: inline-block;
-            color: var(--accent);
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .back-link:hover {
-            text-decoration: underline;
-        }
-
-        /* Toggle Button Styles from index.html */
-        .toggle-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            flex-shrink: 0;
-            position: relative;
-        }
-
-        .toggle-btn:hover {
-            transform: translateY(-2px);
-            border-color: var(--accent);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .toggle-btn img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* Zustand im Dark Mode */
-        body.dark-mode #theme-toggle {
-            box-shadow: 0 0 20px rgba(136, 244, 248, 0.2);
-            border-color: #88f4f8;
-        }
-
-        body.dark-mode #theme-toggle img {
-            transform: rotate(180deg);
-            filter: drop-shadow(0 0 5px #88f4f8);
-        }
-
-        body.dark-mode #lang-toggle {
-            border-color: var(--accent);
-            box-shadow: 0 0 15px rgba(46, 204, 113, 0.1);
-        }
-
-        body.lang-en #lang-toggle img {
-            transform: rotate(180deg);
+        .tab-btn.active {
+            background-color: rgba(212, 175, 55, 0.1);
+            border-color: rgba(212, 175, 55, 0.4);
+            color: #facc15;
+            font-weight: 700;
         }
     </style>
 </head>
 
-<body>
+<body class="flex flex-col min-h-screen">
 
-    <div class="top-nav">
-        <a href="index.html" class="back-link" id="t-back">← Zurück zum Simulator</a>
-        <div class="top-btns">
-            <div class="toggle-btn" onclick="toggleLanguage()" id="lang-toggle">
-                <img src="theme-toggle-language.png" alt="Language Toggle">
+    <!-- ═══ STANDARDIZED WEBAPP HEADER ═══ -->
+    <header class="sticky top-0 z-50 w-full border-b border-white/[0.06] bg-[#0a0d14]/90 backdrop-blur-xl transition-all">
+        <div class="max-w-[1500px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+            
+            <div class="flex items-center gap-3">
+                <a href="index.html" class="flex items-center gap-3 group focus:outline-none">
+                    <div class="w-9 h-9 rounded-xl logo-box flex items-center justify-center shadow-lg transition-transform group-hover:scale-105">
+                        <img src="portfoliomanager%20-%20Symbol.png" class="w-7 h-7 object-contain opacity-90" alt="fincast logo">
+                    </div>
+                    <div class="flex flex-col">
+                        <div class="flex items-center gap-1.5 leading-none">
+                            <span class="text-base font-extrabold tracking-tight text-white">fincast</span>
+                            <span class="text-[10px] font-mono uppercase tracking-widest text-slate-400 font-bold px-1.5 py-0.5 rounded bg-white/5 border border-white/10">Legal</span>
+                        </div>
+                        <span class="text-[9px] font-mono text-slate-500 uppercase tracking-widest mt-0.5 hidden sm:inline">Impressum &amp; Datenschutz</span>
+                    </div>
+                </a>
             </div>
-            <div class="toggle-btn" onclick="toggleDarkMode()" id="theme-toggle">
-                <img src="theme-toggle-icon.png" alt="Theme Toggle">
+
+            <nav class="hidden md:flex items-center gap-1.5 bg-obsidian-900/80 p-1 rounded-xl border border-white/[0.06]">
+                <a href="index.html" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white font-mono text-xs font-medium transition-all">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                    </svg>
+                    <span>Hub</span>
+                </a>
+                <a href="terminal.html" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white font-mono text-xs font-medium transition-all">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5" />
+                    </svg>
+                    <span>Terminal</span>
+                </a>
+                <a href="abracadabra/hype.html" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white font-mono text-xs font-medium transition-all">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z" />
+                    </svg>
+                    <span>Hype-Barometer</span>
+                </a>
+                <a href="calculator.html" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white font-mono text-xs font-medium transition-all">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                    <span>Simulator</span>
+                </a>
+            </nav>
+
+            <div class="flex items-center gap-3">
+                <button onclick="toggleLanguage()" id="lang-toggle-btn"
+                    class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-obsidian-900 hover:bg-obsidian-800 border border-white/[0.08] hover:border-gold-500/40 text-slate-300 hover:text-gold-400 transition-all text-xs font-mono cursor-pointer"
+                    title="Sprache wechseln / Switch Language">
+                    <svg class="w-4 h-4 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 2a14.5 14.5 0 0 0 0 20M12 2a14.5 14.5 0 0 1 0 20M2 12h20" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span id="lang-label" class="font-bold tracking-wider">DE</span>
+                </button>
             </div>
         </div>
-    </div>
+    </header>
 
-    <div class="card" id="legal-content">
-        <!-- Content will be injected via JS -->
-    </div>
+    <!-- ═══ MAIN CONTENT ═══ -->
+    <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-10">
 
+        <!-- Tabs Switcher -->
+        <div class="flex items-center justify-center gap-2 mb-8 bg-obsidian-900 p-1.5 rounded-2xl border border-white/[0.06] max-w-md mx-auto">
+            <button onclick="switchTab('impressum')" id="tab-impressum-btn"
+                class="tab-btn active flex-1 py-2.5 rounded-xl text-xs font-mono uppercase tracking-wider transition-all cursor-pointer border border-transparent flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                </svg>
+                <span>Impressum</span>
+            </button>
+            <button onclick="switchTab('datenschutz')" id="tab-datenschutz-btn"
+                class="tab-btn flex-1 py-2.5 rounded-xl text-xs font-mono uppercase tracking-wider text-slate-400 hover:text-white transition-all cursor-pointer border border-transparent flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+                </svg>
+                <span>Datenschutz</span>
+            </button>
+        </div>
+
+        <!-- Container Card -->
+        <div class="widget-card p-6 sm:p-10 border-white/[0.08] shadow-2xl">
+            <div id="legal-content">
+                <!-- Injected by JS based on active tab and language -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ═══ STANDARDIZED WEBAPP FOOTER ═══ -->
+    <footer class="w-full border-t border-white/[0.06] bg-obsidian-950 py-6 mt-auto">
+        <div class="max-w-[1500px] mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3 text-center md:text-left">
+                <img src="portfoliomanager%20-%20Symbol.png" class="w-5 h-5 object-contain opacity-80" alt="fincast symbol">
+                <div>
+                    <p class="text-xs font-mono text-slate-400 font-bold uppercase tracking-wider">
+                        fincast Institutional Grade Financial Software • v3.5
+                    </p>
+                    <p class="text-[11px] text-slate-600 mt-0.5">
+                        © 2026 Nikolai Bretthauer. Alle Rechte vorbehalten.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-6 text-xs font-mono uppercase tracking-wider text-slate-400">
+                <a href="index.html" class="hover:text-gold-400 transition-colors flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></svg>
+                    <span>Hub</span>
+                </a>
+                <span class="text-slate-700">•</span>
+                <a href="FAQ.html" class="hover:text-gold-400 transition-colors flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" /></svg>
+                    <span>FAQ</span>
+                </a>
+                <span class="text-slate-700">•</span>
+                <a href="Impressum.html" class="text-gold-400 font-bold flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-gold-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" /></svg>
+                    <span>Impressum & Datenschutz</span>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ═══ SCRIPTS ═══ -->
     <script>
         let curLang = 'DE';
+        let currentTab = 'impressum';
 
-        const trans = {
+        const legalData = {
             DE: {
-                title: "Impressum | Fincast Strategic Intelligence",
-                back: "← Zurück zum Fincast Hub",
-                content: `
-                    <h1>Impressum</h1>
-                    <h2>Angaben gemäß § 5 DDG</h2>
-                    <p>Nikolai Bretthauer<br>Goethestr. 21d<br>59423 Unna</p>
+                impressum: `
+                    <div class="space-y-6">
+                        <div class="border-b border-white/[0.06] pb-4">
+                            <h1 class="text-xl sm:text-2xl font-extrabold text-white font-mono uppercase tracking-tight">Impressum</h1>
+                            <p class="text-xs text-slate-400 mt-1">Angaben gemäß § 5 Digitale-Dienste-Gesetz (DDG)</p>
+                        </div>
 
-                    <h2>Kontakt</h2>
-                    <p>Telefon: +49 (0) -/- <br>E-Mail: niko.bretthauer@gmail.com<br>Webseite: -/-</p>
+                        <div>
+                            <h2 class="text-xs font-mono font-bold text-gold-400 uppercase tracking-wider mb-2">Diensteanbieter &amp; Betreiber</h2>
+                            <p class="text-sm text-slate-300 leading-relaxed">
+                                Nikolai Bretthauer<br>
+                                Goethestr. 21d<br>
+                                59423 Unna<br>
+                                Deutschland
+                            </p>
+                        </div>
 
-                    <h2>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h2>
-                    <p>Nikolai Bretthauer<br>Goethestr. 21d<br>59423 Unna</p>
+                        <div>
+                            <h2 class="text-xs font-mono font-bold text-gold-400 uppercase tracking-wider mb-2">Kontakt</h2>
+                            <p class="text-sm text-slate-300 leading-relaxed font-mono">
+                                E-Mail: <a href="mailto:niko.bretthauer@gmail.com" class="text-gold-400 hover:underline">niko.bretthauer@gmail.com</a>
+                            </p>
+                        </div>
 
-                    <h2>Haftungsausschluss (Disclaimer)</h2>
-                    <strong>Haftung für Inhalte</strong>
-                    <p>Als Diensteanbieter bin ich gemäß § 7 Abs. 1 DDG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 DDG bin ich jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen.</p>
+                        <div>
+                            <h2 class="text-xs font-mono font-bold text-gold-400 uppercase tracking-wider mb-2">Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>
+                            <p class="text-sm text-slate-300 leading-relaxed">
+                                Nikolai Bretthauer<br>
+                                Goethestr. 21d<br>
+                                59423 Unna
+                            </p>
+                        </div>
 
-                    <strong>Haftung für Links</strong>
-                    <p>Mein Angebot enthält Links zu externen Webseiten Dritter, auf deren Inhalte ich keinen Einfluss haben. Deshalb kann ich für diese fremden Inhalte keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich.</p>
+                        <div class="border-t border-white/[0.06] pt-6 space-y-4">
+                            <h2 class="text-xs font-mono font-bold text-gold-400 uppercase tracking-wider">Haftungsausschluss (Disclaimer)</h2>
+                            
+                            <div>
+                                <h3 class="text-xs font-bold text-slate-200 mb-1">Haftung für Inhalte</h3>
+                                <p class="text-xs text-slate-400 leading-relaxed">
+                                    Als Diensteanbieter bin ich gemäß § 7 Abs. 1 DDG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 DDG bin ich als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.
+                                </p>
+                            </div>
 
-                    <strong>Anlagehinweis</strong>
-                    <p>Die bereitgestellten Berechnungen dienen ausschließlich der Information und stellen keine Anlageberatung dar. Für Verluste, die durch die Nutzung dieses Tools entstehen könnten, wird keine Haftung übernommen.</p>
+                            <div>
+                                <h3 class="text-xs font-bold text-slate-200 mb-1">Haftung für Links</h3>
+                                <p class="text-xs text-slate-400 leading-relaxed">
+                                    Mein Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte ich keinen Einfluss habe. Deshalb kann ich für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich.
+                                </p>
+                            </div>
 
-                    <h2>Urheberrecht</h2>
-                    <p>Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.</p>
+                            <div>
+                                <h3 class="text-xs font-bold text-slate-200 mb-1">Keine Anlageberatung</h3>
+                                <p class="text-xs text-slate-400 leading-relaxed">
+                                    Die im fincast Hub, Simulator, Terminal und Hype-Barometer bereitgestellten Daten, KI-Analysen und Berechnungen dienen ausschließlich der Information und privaten Weiterbildung. Sie stellen zu keinem Zeitpunkt eine Anlageberatung, Kauf- oder Verkaufsempfehlung für Finanzinstrumente dar.
+                                </p>
+                            </div>
 
-                    <h2>Datenschutzerklärung</h2>
-                    <p><strong>1. Verantwortlicher</strong><br>Nikolai Bretthauer, Goethestr. 21d, 59423 Unna, E-Mail: niko.bretthauer@gmail.com</p>
-                    <p><strong>2. Allgemeines</strong><br>Diese Webseite verarbeitet personenbezogene Daten ausschließlich im Rahmen der gesetzlichen Bestimmungen der DSGVO und des TTDSG.</p>
-                    <p><strong>3. Datenerhebung</strong><br>Beim Aufruf dieser Webseite werden keine personenbezogenen Daten (IPs, Logfiles, Tracking) erhoben.</p>
-                    <p><strong>4. Cookies</strong><br>Diese Webseite verwendet keine Cookies.</p>
+                            <div>
+                                <h3 class="text-xs font-bold text-slate-200 mb-1">Urheberrecht</h3>
+                                <p class="text-xs text-slate-400 leading-relaxed">
+                                    Die durch den Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der vorherigen schriftlichen Zustimmung.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                datenschutz: `
+                    <div class="space-y-6">
+                        <div class="border-b border-white/[0.06] pb-4">
+                            <h1 class="text-xl sm:text-2xl font-extrabold text-white font-mono uppercase tracking-tight">Datenschutzerklärung</h1>
+                            <p class="text-xs text-slate-400 mt-1">Informationen gemäß DSGVO und § 25 TDDDG</p>
+                        </div>
+
+                        <div>
+                            <h2 class="text-xs font-mono font-bold text-gold-400 uppercase tracking-wider mb-2">1. Name und Kontaktdaten des Verantwortlichen</h2>
+                            <p class="text-sm text-slate-300 leading-relaxed">
+                                Nikolai Bretthauer<br>
+                                Goethestr. 21d, 59423 Unna, Deutschland<br>
+                                E-Mail: <a href="mailto:niko.bretthauer@gmail.com" class="text-gold-400 hover:underline">niko.bretthauer@gmail.com</a>
+                            </p>
+                        </div>
+
+                        <div>
+                            <h2 class="text-xs font-mono font-bold text-gold-400 uppercase tracking-wider mb-2">2. Grundsatz der Datensparsamkeit &amp; Lokale Verarbeitung</h2>
+                            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                                Der Schutz deiner persönlichen Finanzdaten hat bei fincast höchste Priorität. Sämtliche Berechnungen im <strong>Zinseszins &amp; Dividenden Simulator</strong> finden zu <strong>100% lokal</strong> in deinem Webbrowser über clientseitigen Programmcode (JavaScript) statt. Deine Vermögens-, Sparraten- und Ertragsdaten werden zu keinem Zeitpunkt an externe Server übertragen.
+                            </p>
+                        </div>
+
+                        <div>
+                            <h2 class="text-xs font-mono font-bold text-gold-400 uppercase tracking-wider mb-2">3. Cookies &amp; Lokaler Speicher (§ 25 TDDDG)</h2>
+                            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                                Diese Plattform setzt <strong>keine Tracking-, Marketing- oder Werbe-Cookies</strong> ein. Zur Speicherung deiner gewählten Spracheinstellungen und Parametereinstellungen wird ausschließlich der lokale Browserspeicher (<code>localStorage</code>) auf deinem Endgerät verwendet. Dies ist technisch notwendig (Art. 6 Abs. 1 lit. f DSGVO i.V.m. § 25 Abs. 2 Nr. 2 TDDDG).
+                            </p>
+                        </div>
+
+                        <div>
+                            <h2 class="text-xs font-mono font-bold text-gold-400 uppercase tracking-wider mb-2">4. Hosting &amp; Server-Log-Dateien</h2>
+                            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                                Beim Aufruf unserer Webanwendung erfasst der Webserver des Hosters technisch bedingt Verbindungsdaten (z.B. IP-Adresse in anonymisierter Form, Datum und Uhrzeit des Abrufs, Browsertyp), um die Auslieferung und Sicherheit der Anwendung zu gewährleisten (Art. 6 Abs. 1 lit. f DSGVO).
+                            </p>
+                        </div>
+
+                        <div>
+                            <h2 class="text-xs font-mono font-bold text-gold-400 uppercase tracking-wider mb-2">5. KI-Analysen &amp; Externe API-Abfragen</h2>
+                            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                                Im <strong>Strategic Intelligence Terminal</strong> werden zur Analyse von Wertpapieren Anfragen über modernste KI-Modelle und Google Search Grounding abgewickelt. Hierbei werden ausschließlich die gesuchten Tickersymbole bzw. Unternehmensnamen verarbeitet – es werden keine personenbezogenen Nutzerdaten an die KI-Schnittstellen übermittelt.
+                            </p>
+                        </div>
+
+                        <div>
+                            <h2 class="text-xs font-mono font-bold text-gold-400 uppercase tracking-wider mb-2">6. Deine Rechte als betroffene Person</h2>
+                            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                                Du hast nach der DSGVO jederzeit das Recht auf Auskunft (Art. 15), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18) sowie Datenübertragbarkeit (Art. 20). Wende dich dazu formlos an die oben angegebene E-Mail-Adresse.
+                            </p>
+                        </div>
+                    </div>
                 `
             },
             EN: {
-                title: "Legal Notice | Fincast Strategic Intelligence",
-                back: "← Back to Fincast Hub",
-                content: `
-                    <h1>Legal Notice (Impressum)</h1>
-                    <h2>Details according to § 5 DDG</h2>
-                    <p>Nikolai Bretthauer<br>Goethestr. 21d<br>59423 Unna, Germany</p>
+                impressum: `
+                    <div class="space-y-6">
+                        <div class="border-b border-white/[0.06] pb-4">
+                            <h1 class="text-xl sm:text-2xl font-extrabold text-white font-mono uppercase tracking-tight">Legal Notice (Impressum)</h1>
+                            <p class="text-xs text-slate-400 mt-1">Information pursuant to § 5 Digital Services Act (DDG)</p>
+                        </div>
 
-                    <h2>Contact</h2>
-                    <p>Phone: +49 (0) -/- <br>Email: niko.bretthauer@gmail.com<br>Website: -/-</p>
+                        <div>
+                            <h2 class="text-xs font-mono font-bold text-gold-400 uppercase tracking-wider mb-2">Service Provider &amp; Operator</h2>
+                            <p class="text-sm text-slate-300 leading-relaxed">
+                                Nikolai Bretthauer<br>
+                                Goethestr. 21d<br>
+                                59423 Unna<br>
+                                Germany
+                            </p>
+                        </div>
 
-                    <h2>Responsible for content according to § 55 Abs. 2 RStV</h2>
-                    <p>Nikolai Bretthauer<br>Goethestr. 21d<br>59423 Unna, Germany</p>
+                        <div>
+                            <h2 class="text-xs font-mono font-bold text-gold-400 uppercase tracking-wider mb-2">Contact</h2>
+                            <p class="text-sm text-slate-300 leading-relaxed font-mono">
+                                Email: <a href="mailto:niko.bretthauer@gmail.com" class="text-gold-400 hover:underline">niko.bretthauer@gmail.com</a>
+                            </p>
+                        </div>
 
-                    <h2>Disclaimer</h2>
-                    <strong>Liability for Content</strong>
-                    <p>As a service provider, I am responsible for my own content on these pages in accordance with § 7 Para. 1 DDG and general laws. However, according to §§ 8 to 10 DDG, I am not obliged to monitor transmitted or stored third-party information.</p>
+                        <div class="border-t border-white/[0.06] pt-6 space-y-4">
+                            <h2 class="text-xs font-mono font-bold text-gold-400 uppercase tracking-wider">Disclaimers</h2>
+                            
+                            <div>
+                                <h3 class="text-xs font-bold text-slate-200 mb-1">Content Liability</h3>
+                                <p class="text-xs text-slate-400 leading-relaxed">
+                                    As a service provider, I am responsible for my own content on these pages under general law (§ 7 para. 1 DDG). Under §§ 8 to 10 DDG, I am not obligated to monitor transmitted or stored third-party information.
+                                </p>
+                            </div>
 
-                    <strong>Liability for Links</strong>
-                    <p>My offer contains links to external websites of third parties, over whose content I have no influence. Therefore, I cannot assume any liability for this external content. The respective provider or operator of the pages is always responsible for the content of the linked pages.</p>
+                            <div>
+                                <h3 class="text-xs font-bold text-slate-200 mb-1">No Investment Advice</h3>
+                                <p class="text-xs text-slate-400 leading-relaxed">
+                                    All data, projections, and AI reports generated within fincast Hub, Simulator, Terminal, and Hype-Barometer are for research and informational purposes only and do not constitute financial advice.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                datenschutz: `
+                    <div class="space-y-6">
+                        <div class="border-b border-white/[0.06] pb-4">
+                            <h1 class="text-xl sm:text-2xl font-extrabold text-white font-mono uppercase tracking-tight">Privacy Policy</h1>
+                            <p class="text-xs text-slate-400 mt-1">Information pursuant to GDPR and § 25 TDDDG</p>
+                        </div>
 
-                    <strong>Investment Note</strong>
-                    <p>The calculations provided are for informational purposes only and do not constitute investment advice. No liability is assumed for losses that could arise from using this tool.</p>
+                        <div>
+                            <h2 class="text-xs font-mono font-bold text-gold-400 uppercase tracking-wider mb-2">1. Controller</h2>
+                            <p class="text-sm text-slate-300 leading-relaxed">
+                                Nikolai Bretthauer, Goethestr. 21d, 59423 Unna, Germany<br>
+                                Email: <a href="mailto:niko.bretthauer@gmail.com" class="text-gold-400 hover:underline">niko.bretthauer@gmail.com</a>
+                            </p>
+                        </div>
 
-                    <h2>Copyright</h2>
-                    <p>The content and works created by the site operator on these pages are subject to German copyright law. Duplication, editing, distribution, and any kind of exploitation outside the limits of copyright law require the written consent of the respective author or creator.</p>
+                        <div>
+                            <h2 class="text-xs font-mono font-bold text-gold-400 uppercase tracking-wider mb-2">2. Zero-Knowledge Local Computation</h2>
+                            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                                All calculations inside the <strong>Compound Interest &amp; Dividend Simulator</strong> are computed <strong>100% locally</strong> within your web browser engine. Your personal assets, contributions, and savings data are never sent to external servers.
+                            </p>
+                        </div>
 
-                    <h2>Privacy Policy</h2>
-                    <p><strong>1. Controller</strong><br>Nikolai Bretthauer, Goethestr. 21d, 59423 Unna, Germany, Email: niko.bretthauer@gmail.com</p>
-                    <p><strong>2. General Information</strong><br>This website processes personal data exclusively within the framework of the legal provisions of the GDPR and the TTDSG.</p>
-                    <p><strong>3. Data Collection</strong><br>No personal data (IPs, log files, tracking) is collected when you visit this website.</p>
-                    <p><strong>4. Cookies</strong><br>This website does not use cookies.</p>
+                        <div>
+                            <h2 class="text-xs font-mono font-bold text-gold-400 uppercase tracking-wider mb-2">3. Cookies &amp; Local Storage (§ 25 TDDDG)</h2>
+                            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                                This web application does <strong>not use any tracking, advertising, or marketing cookies</strong>. Only client-side <code>localStorage</code> is utilized for persisting user preferences.
+                            </p>
+                        </div>
+                    </div>
                 `
             }
         };
 
-        function saveToStorage() {
-            try {
-                const data = JSON.parse(localStorage.getItem('financeSimData') || '{}');
-                data.darkMode = document.body.classList.contains('dark-mode');
-                data.curLang = curLang;
-                localStorage.setItem('financeSimData', JSON.stringify(data));
-            } catch (e) { console.error("Save failed", e); }
-        }
+        function switchTab(tab) {
+            currentTab = tab;
+            const btnImp = document.getElementById('tab-impressum-btn');
+            const btnDat = document.getElementById('tab-datenschutz-btn');
 
-        function loadFromStorage() {
-            try {
-                const saved = localStorage.getItem('financeSimData');
-                if (saved) {
-                    const data = JSON.parse(saved);
-                    if (data.darkMode) document.body.classList.add('dark-mode');
-                    if (data.curLang) curLang = data.curLang;
-                }
-            } catch (e) { console.error("Load failed", e); }
-            document.body.classList.toggle('lang-en', curLang === 'EN');
+            if (tab === 'impressum') {
+                btnImp.className = 'tab-btn active flex-1 py-2.5 rounded-xl text-xs font-mono uppercase tracking-wider transition-all cursor-pointer border border-transparent flex items-center justify-center gap-2';
+                btnDat.className = 'tab-btn flex-1 py-2.5 rounded-xl text-xs font-mono uppercase tracking-wider text-slate-400 hover:text-white transition-all cursor-pointer border border-transparent flex items-center justify-center gap-2';
+            } else {
+                btnDat.className = 'tab-btn active flex-1 py-2.5 rounded-xl text-xs font-mono uppercase tracking-wider transition-all cursor-pointer border border-transparent flex items-center justify-center gap-2';
+                btnImp.className = 'tab-btn flex-1 py-2.5 rounded-xl text-xs font-mono uppercase tracking-wider text-slate-400 hover:text-white transition-all cursor-pointer border border-transparent flex items-center justify-center gap-2';
+            }
+            renderContent();
         }
 
         function toggleLanguage() {
             curLang = (curLang === 'DE') ? 'EN' : 'DE';
-            document.body.classList.toggle('lang-en', curLang === 'EN');
-            applyLang();
-            saveToStorage();
+            localStorage.setItem('fincast_lang', curLang);
+            const langLabel = document.getElementById('lang-label');
+            if (langLabel) langLabel.innerText = curLang;
+            renderContent();
         }
 
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-            saveToStorage();
-        }
-
-        function applyLang() {
-            const l = trans[curLang];
-            if (!l) return;
-            document.documentElement.lang = curLang.toLowerCase();
-            document.title = l.title;
-
-            const metaDesc = document.querySelector('meta[name="description"]');
-            if (metaDesc) {
-                metaDesc.setAttribute("content", (curLang === 'DE')
-                    ? "Impressum und Datenschutzerklärung von fincast. Informationen zum Anbieter, Haftungsausschluss und Datenschutz."
-                    : "Legal notice and privacy policy of fincast. Information about the provider, disclaimer and data protection.");
+        function renderContent() {
+            const container = document.getElementById('legal-content');
+            if (container) {
+                container.innerHTML = legalData[curLang][currentTab];
             }
-
-            const b = document.getElementById('t-back');
-            if (b) b.innerText = l.back;
-            const c = document.getElementById('legal-content');
-            if (c) c.innerHTML = l.content;
         }
 
         window.onload = () => {
-            loadFromStorage();
-            applyLang();
+            const savedLang = localStorage.getItem('fincast_lang');
+            if (savedLang) curLang = savedLang;
+            const langLabel = document.getElementById('lang-label');
+            if (langLabel) langLabel.innerText = curLang;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('tab') === 'datenschutz') {
+                switchTab('datenschutz');
+            } else {
+                switchTab('impressum');
+            }
         };
     </script>
 </body>
