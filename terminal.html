@@ -1101,6 +1101,10 @@
                                                 <span class="text-gray-500 uppercase tracking-tighter" data-de="Bull / Bear Target" data-en="Bull / Bear Target" data-fr="Cible Bull / Bear" data-es="Objetivo Bull / Bear">Bull / Bear:</span>
                                                 <span id="id_showcase_targets" class="text-gold-400 font-bold ml-1 truncate">--</span>
                                             </div>
+                                            <div class="flex items-center justify-between text-[9px] font-mono leading-tight">
+                                                <span class="text-gray-500 uppercase tracking-tighter" data-de="Potenzial Bull / Bear" data-en="Potential Bull / Bear" data-fr="Potentiel Bull / Bear" data-es="Potencial Bull / Bear">Potenzial B/B:</span>
+                                                <div id="id_showcase_potentials" class="font-mono text-[9px] ml-1 truncate">--</div>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="identity-divider border-l border-white/5 pl-4 md:pl-8">
@@ -2577,13 +2581,33 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             }
         }
 
-        function extractStockScreenerShowcase(screenerText) {
-            if (!screenerText) return { pe: '--', growth: '--', targets: '--' };
+        function parsePriceNumber(str) {
+            if (!str) return null;
+            const clean = str.replace(/[^0-9.,]/g, '').trim();
+            if (!clean) return null;
+            if (clean.includes(',') && clean.includes('.')) {
+                if (clean.lastIndexOf(',') > clean.lastIndexOf('.')) {
+                    return parseFloat(clean.replace(/\./g, '').replace(',', '.'));
+                } else {
+                    return parseFloat(clean.replace(/,/g, ''));
+                }
+            }
+            if (clean.includes(',')) {
+                return parseFloat(clean.replace(',', '.'));
+            }
+            return parseFloat(clean);
+        }
+
+        function extractStockScreenerShowcase(screenerText, currentPriceText = '') {
+            if (!screenerText) return { pe: '--', growth: '--', targets: '--', potentials: '--', bullPct: null, bearPct: null };
             const clean = screenerText.replace(/```[a-z]*\n?/gi, '').replace(/[*_#]/g, '').trim();
 
             let pe = '--';
             let growth = '--';
             let targets = '--';
+            let potentials = '--';
+            let bullNum = null;
+            let bearNum = null;
 
             // 1. P/E Analysis (Current vs 5Y Avg)
             const peMatch = clean.match(/(?:P\/E\s*Analysis|P\/E|PE|KGV-Analyse|KGV):\s*([^\n]+)/i);
@@ -2618,37 +2642,72 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 const bbMatch = line.match(/Bull\s*:?\s*([$€]?\d+(?:[.,]\d+)?(?:\s*[$€])?)\s*(?:\/|vs\.?|und|;)\s*Bear\s*:?\s*([$€]?\d+(?:[.,]\d+)?(?:\s*[$€])?)/i);
                 if (bbMatch) {
                     targets = `${bbMatch[1]} / ${bbMatch[2]}`;
+                    bullNum = parsePriceNumber(bbMatch[1]);
+                    bearNum = parsePriceNumber(bbMatch[2]);
                 } else {
                     const priceMatches = line.match(/([$€]?\d+(?:[.,]\d+)?(?:\s*[$€])?)/g);
                     if (priceMatches && priceMatches.length >= 2) {
                         targets = `${priceMatches[0]} / ${priceMatches[1]}`;
+                        bullNum = parsePriceNumber(priceMatches[0]);
+                        bearNum = parsePriceNumber(priceMatches[1]);
                     } else {
                         targets = line.split(/[,;(]/)[0].trim().substring(0, 16);
                     }
                 }
             }
 
-            return { pe, growth, targets };
+            // 4. Calculate Bull / Bear Potentials from Current Price
+            let bullPct = null;
+            let bearPct = null;
+            const currentPriceNum = parsePriceNumber(currentPriceText);
+            if (currentPriceNum && currentPriceNum > 0 && bullNum !== null && bearNum !== null) {
+                bullPct = ((bullNum - currentPriceNum) / currentPriceNum) * 100;
+                bearPct = ((bearNum - currentPriceNum) / currentPriceNum) * 100;
+                const bullSign = bullPct >= 0 ? '+' : '';
+                const bearSign = bearPct >= 0 ? '+' : '';
+                potentials = `${bullSign}${bullPct.toFixed(1)}% / ${bearSign}${bearPct.toFixed(1)}%`;
+            }
+
+            return { pe, growth, targets, potentials, bullPct, bearPct };
         }
 
         function updateStockScreenerShowcaseDisplay(data) {
             const peEl = document.getElementById('id_showcase_pe');
             const growthEl = document.getElementById('id_showcase_growth');
             const targetsEl = document.getElementById('id_showcase_targets');
+            const potentialsEl = document.getElementById('id_showcase_potentials');
             if (!peEl || !growthEl || !targetsEl) return;
 
             if (!data) {
                 peEl.textContent = '--';
                 growthEl.textContent = '--';
                 targetsEl.textContent = '--';
+                if (potentialsEl) potentialsEl.innerHTML = '<span class="text-gray-500 font-bold">--</span>';
                 return;
             }
 
+            const currentPriceText = data.company_identity?.match(/Aktueller Kurs:\s*(.*)/i)?.[1] ||
+                                     document.getElementById('id_price')?.textContent || '';
+
             const screenerText = data.goldman_sachs || '';
-            const showcase = extractStockScreenerShowcase(screenerText);
+            const showcase = extractStockScreenerShowcase(screenerText, currentPriceText);
             peEl.textContent = showcase.pe;
             growthEl.textContent = showcase.growth;
             targetsEl.textContent = showcase.targets;
+
+            if (potentialsEl) {
+                if (showcase.bullPct !== null && showcase.bearPct !== null) {
+                    const bullSign = showcase.bullPct >= 0 ? '+' : '';
+                    const bearSign = showcase.bearPct >= 0 ? '+' : '';
+                    const bullColor = showcase.bullPct >= 0 ? 'text-emerald-400' : 'text-rose-400';
+                    const bearColor = showcase.bearPct >= 0 ? 'text-emerald-400' : 'text-rose-400';
+                    potentialsEl.innerHTML = `<span class="${bullColor} font-bold">${bullSign}${showcase.bullPct.toFixed(1)}%</span> <span class="text-gray-500 font-normal">/</span> <span class="${bearColor} font-bold">${bearSign}${showcase.bearPct.toFixed(1)}%</span>`;
+                } else if (showcase.potentials !== '--') {
+                    potentialsEl.textContent = showcase.potentials;
+                } else {
+                    potentialsEl.innerHTML = '<span class="text-gray-500 font-bold">--</span>';
+                }
+            }
         }
 
         function renderIdentity(text, allData = null) {
