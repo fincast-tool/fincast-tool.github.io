@@ -1112,16 +1112,6 @@
                                         <div class="font-mono text-[11px] text-gray-300">
                                             <span id="id_sector">--</span> • <span id="id_hq">--</span>
                                         </div>
-                                        <div class="mt-2 pt-1.5 border-t border-white/5 flex flex-col gap-1">
-                                            <div class="flex items-center justify-between text-[9px] font-mono leading-tight">
-                                                <span class="text-gray-500 uppercase tracking-tighter" data-de="Technik Signal" data-en="Technical Signal" data-fr="Signal Technique" data-es="Señal Técnica">Technik Signal:</span>
-                                                <div id="id_showcase_tech_signal" class="font-mono text-[9px] ml-1 truncate">--</div>
-                                            </div>
-                                            <div class="flex items-center justify-between text-[9px] font-mono leading-tight">
-                                                <span class="text-gray-500 uppercase tracking-tighter" data-de="RSI (14-Tage)" data-en="RSI (14-Day)" data-fr="RSI (14-Jours)" data-es="RSI (14-Días)">RSI (14D):</span>
-                                                <span id="id_showcase_rsi" class="text-gold-400 font-bold ml-1 truncate">--</span>
-                                            </div>
-                                        </div>
                                     </div>
                                     <div class="identity-divider border-l border-white/5 pl-4 md:pl-8">
                                         <div class="data-label mb-1">Strategic DNA</div>
@@ -2739,73 +2729,6 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             }
         }
 
-        function extractTechnicalShowcase(citadelText) {
-            if (!citadelText) return { signal: '--', signalType: 'wait', rsi: '--' };
-            const clean = citadelText.replace(/```[a-z]*\n?/gi, '').replace(/[*_#]/g, '').trim();
-
-            const verdictObj = extractAgentVerdict('citadel', citadelText);
-            const signal = verdictObj.label || '--';
-            const signalType = verdictObj.type || 'wait';
-
-            let rsi = '--';
-            const rsiMatch = clean.match(/(?:14-Day\s*RSI|RSI\s*\(?14\)?|14-Tage-RSI|RSI)\s*:\s*([^\n,;]+)/i) ||
-                             clean.match(/RSI\s*(?:liegt\s*bei\s*|von\s*)?(\d+(?:[.,]\d+)?)/i);
-            if (rsiMatch) {
-                const rsiValStr = rsiMatch[1].trim();
-                const numM = rsiValStr.match(/\d+(?:[.,]\d+)?/);
-                if (numM) {
-                    const rsiNum = parseFloat(numM[0].replace(',', '.'));
-                    if (rsiNum >= 70) {
-                        rsi = `${rsiNum.toFixed(1)} (Überkauft)`;
-                    } else if (rsiNum <= 30) {
-                        rsi = `${rsiNum.toFixed(1)} (Überverkauft)`;
-                    } else {
-                        rsi = `${rsiNum.toFixed(1)} (Neutral)`;
-                    }
-                } else {
-                    rsi = rsiValStr.substring(0, 16);
-                }
-            }
-
-            return { signal, signalType, rsi };
-        }
-
-        function updateTechnicalShowcaseDisplay(data) {
-            const sigEl = document.getElementById('id_showcase_tech_signal');
-            const rsiEl = document.getElementById('id_showcase_rsi');
-            if (!sigEl || !rsiEl) return;
-
-            if (!data) {
-                sigEl.innerHTML = '<span class="text-gray-500 font-bold">--</span>';
-                rsiEl.textContent = '--';
-                return;
-            }
-
-            const citadelText = data.citadel || '';
-            const showcase = extractTechnicalShowcase(citadelText);
-
-            if (showcase.signal !== '--' && showcase.signal !== 'ANALYSIERT') {
-                let badgeClass = 'text-slate-400';
-                if (showcase.signalType === 'buy') badgeClass = 'text-emerald-400';
-                else if (showcase.signalType === 'sell') badgeClass = 'text-rose-400';
-                else if (showcase.signalType === 'hold') badgeClass = 'text-amber-400';
-                sigEl.innerHTML = `<span class="${badgeClass} font-extrabold uppercase tracking-wider">${showcase.signal}</span>`;
-            } else {
-                sigEl.innerHTML = '<span class="text-gray-500 font-bold">--</span>';
-            }
-
-            rsiEl.textContent = showcase.rsi;
-            if (showcase.rsi.includes('Überkauft')) {
-                rsiEl.className = 'text-rose-400 font-bold ml-1 truncate';
-            } else if (showcase.rsi.includes('Überverkauft')) {
-                rsiEl.className = 'text-emerald-400 font-bold ml-1 truncate';
-            } else if (showcase.rsi !== '--') {
-                rsiEl.className = 'text-gold-400 font-bold ml-1 truncate';
-            } else {
-                rsiEl.className = 'text-gray-500 font-bold ml-1 truncate';
-            }
-        }
-
         function renderIdentity(text, allData = null) {
             if (!text && !allData) return;
 
@@ -2825,7 +2748,6 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
 
             const data = allData || CURRENT_ANALYSIS_DATA;
             updateStockScreenerShowcaseDisplay(data);
-            updateTechnicalShowcaseDisplay(data);
             updateDcfPotentialDisplay(data);
             renderAgentFazits(data);
         }
@@ -2929,7 +2851,6 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             });
 
             updateStockScreenerShowcaseDisplay(data);
-            updateTechnicalShowcaseDisplay(data);
             updateDcfPotentialDisplay(data);
             renderAgentFazits(data);
         }
