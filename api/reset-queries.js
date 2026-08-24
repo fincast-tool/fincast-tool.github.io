@@ -8,7 +8,7 @@ module.exports = async function handler(req, res) {
 
     try {
         // Falls eine spezifische E-Mail mitgesendet wurde (manueller Reset im Admin Panel)
-        const email = req.body?.email || req.query?.email;
+        const email = req.body?.email || req.body?.userId || req.query?.email || req.query?.userId;
 
         if (email) {
             // Nur einen spezifischen Nutzer zurücksetzen

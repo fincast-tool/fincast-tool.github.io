@@ -69,7 +69,13 @@ module.exports = async function handler(req, res) {
             for (const key of keys) {
                 const userEmail = key.split(':')[1];
                 const stats = await redis.get(key);
-                allStats[userEmail] = stats ? JSON.parse(stats) : { counts: {} };
+                const parsed = stats ? JSON.parse(stats) : { count: 0, counts: {} };
+                const sumCounts = Object.values(parsed.counts || {}).reduce((a, b) => a + b, 0);
+                const totalCount = Math.max(parsed.count || 0, sumCounts);
+                allStats[userEmail] = {
+                    count: totalCount,
+                    counts: parsed.counts || {}
+                };
             }
             return res.status(200).json(allStats);
         }
@@ -77,8 +83,10 @@ module.exports = async function handler(req, res) {
         if (action === 'get_queries') {
             const stats = await redis.get(`queries:${email}`);
             const parsed = stats ? JSON.parse(stats) : { count: 0, counts: {} };
+            const sumCounts = Object.values(parsed.counts || {}).reduce((a, b) => a + b, 0);
+            const totalCount = Math.max(parsed.count || 0, sumCounts);
             return res.status(200).json({
-                count: parsed.count || 0,
+                count: totalCount,
                 counts: parsed.counts || {}
             });
         }
@@ -97,11 +105,12 @@ module.exports = async function handler(req, res) {
             }
             
             await redis.set(key, JSON.stringify(statsObj));
-            return res.status(200).json({ success: true });
+            return res.status(200).json({ success: true, count: statsObj.count, counts: statsObj.counts });
         }
 
         if (action === 'reset_queries') {
-            await redis.del(`queries:${req.body.email}`);
+            const targetEmail = req.body.email || req.body.userId;
+            await redis.del(`queries:${targetEmail}`);
             return res.status(200).json({ success: true });
         }
 

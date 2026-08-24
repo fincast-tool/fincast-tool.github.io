@@ -1146,14 +1146,14 @@
                                         </div>
                                     </div>
                                     
-                                    <div id="id_agent_fazits" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                                    <div id="id_agent_fazits" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
                                         <!-- Dynamically populated via renderAgentFazits -->
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Analysis Grid -->
-                            <div id="widgetsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div id="widgetsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <!-- Widgets injected here -->
                             </div>
 
@@ -1726,8 +1726,8 @@
             return Array.isArray(res) ? res : [];
         }
 
-        async function getCurrentUser() {
-            if (cachedCurrentUser) return cachedCurrentUser;
+        async function getCurrentUser(forceRefresh = false) {
+            if (cachedCurrentUser && !forceRefresh) return cachedCurrentUser;
 
             const token = localStorage.getItem('terminal_session_token');
             if (token) {
@@ -1761,39 +1761,42 @@
             return null;
         }
 
-        async function getQueryCount(email, model = '') {
-            const q = await apiCall('get_queries', { email, model });
-            if (model && q && q.counts) return q.counts[model] || 0;
-            return q ? q.count : 0;
+        async function getQueryCount(email) {
+            if (!email) return 0;
+            const q = await apiCall('get_queries', { email });
+            if (!q || q.error) return 0;
+            return typeof q.count === 'number' ? q.count : (q.counts ? Object.values(q.counts).reduce((a, b) => a + b, 0) : 0);
         }
 
-        async function incrementQuery(email, model = '') { await apiCall('increment_query', { email, model }); }
+        async function incrementQuery(email, model = '') { 
+            return await apiCall('increment_query', { email, model }); 
+        }
 
         async function updateFooter(user) {
+            if (!user) return;
             const limit = user.tier === 'premium' ? 20 : 3;
-            const used = await getQueryCount(user.email, MODEL_ID);
+            const used = await getQueryCount(user.email);
             const modelSelect = document.getElementById('footerModelSelect');
-            if (modelSelect) modelSelect.value = user.model || 'gemini-3.5-flash';
-            document.getElementById('queryCountLabel').textContent = `${used}/${limit}`;
+            if (modelSelect && user.model) modelSelect.value = user.model;
+            const countLabel = document.getElementById('queryCountLabel');
+            if (countLabel) countLabel.textContent = `${used}/${limit}`;
             const tl = document.getElementById('tierLabel');
-            tl.textContent = user.tier === 'premium' ? 'PREMIUM' : 'FREE';
-            tl.className = user.tier === 'premium' ? 'tier-premium' : 'tier-free';
+            if (tl) {
+                tl.textContent = user.tier === 'premium' ? 'PREMIUM' : 'FREE';
+                tl.className = user.tier === 'premium' ? 'tier-premium' : 'tier-free';
+            }
             const fu = document.getElementById('footerUser');
-            if (fu) fu.textContent = `${user.firstName} ${user.lastName}`;
+            if (fu) fu.textContent = `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'User';
         }
 
         async function quickChangeModel(newModel) {
             const user = await getCurrentUser();
             if (!user) return;
-            const users = await getUsers();
-            const idx = users.findIndex(u => u.email === user.email);
-            if (idx !== -1) {
-                users[idx].model = newModel;
-                await apiCall('save_user', { data: users[idx] });
-                MODEL_ID = newModel;
-                console.log('Model switched to:', newModel);
-                await updateFooter(users[idx]);
-            }
+            MODEL_ID = newModel;
+            user.model = newModel;
+            await apiCall('save_user', { data: user });
+            console.log('Model switched to:', newModel);
+            await updateFooter(user);
         }
 
         function updateSeasonToggle() {
@@ -1995,12 +1998,6 @@
                 icon: '<svg class=\"w-4 h-4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75\"/></svg>'
             },
             {
-                id: 'renaissance',
-                title: 'Pattern Finder',
-                firm: 'Statistical Arbitrage AI',
-                icon: '<svg class=\"w-4 h-4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z\"/></svg>'
-            },
-            {
                 id: 'executive_summary',
                 title: 'AI Verdict',
                 firm: 'Research Council',
@@ -2010,6 +2007,18 @@
 
         // Boot
         initApp();
+
+        // Real-time synchronization when tab/app becomes visible (cross-device sync)
+        document.addEventListener('visibilitychange', async () => {
+            if (document.visibilityState === 'visible') {
+                const u = await getCurrentUser(true).catch(() => null);
+                if (u) await updateFooter(u).catch(() => {});
+            }
+        });
+        window.addEventListener('focus', async () => {
+            const u = await getCurrentUser(true).catch(() => null);
+            if (u) await updateFooter(u).catch(() => {});
+        });
 
         // ==================== UI STATE MANAGEMENT ====================
         function setUIState(state) {
@@ -2059,9 +2068,9 @@
             }
 
             const limit = user.tier === 'premium' ? 20 : 3;
-            const used = await getQueryCount(user.email, MODEL_ID).catch(() => 0);
+            const used = await getQueryCount(user.email).catch(() => 0);
             if (used >= limit) {
-                alert(`Tageslimit für dieses Modell erreicht (${limit} Anfrage${limit > 1 ? 'n' : ''}/Tag). ${user.tier === 'free' ? 'Tipp: Du kannst unten links das Modell wechseln, um weitere Gratis-Versuche zu erhalten!' : 'Bitte wechsle unten links das Modell oder warte bis morgen.'}`);
+                alert(`Tageslimit erreicht (${limit} Anfrage${limit > 1 ? 'n' : ''}/Tag). ${user.tier === 'free' ? 'Upgrade auf Premium für bis zu 20 Analysen täglich oder warte bis zum nächsten Reset um 10:00 Uhr.' : 'Bitte warte bis zum nächsten Reset um 10:00 Uhr.'}`);
                 return;
             }
 
@@ -2076,7 +2085,7 @@
             updateLoadingStatus('Initializing Multi-Agent Protocol...', 5);
 
             try {
-                MODEL_ID = user.model || 'gemini-3.5-flash';
+                MODEL_ID = document.getElementById('footerModelSelect')?.value || user.model || 'gemini-3.5-flash';
                 const langNames = { 'de-DE': 'DEUTSCH', 'en-US': 'ENGLISH', 'fr-FR': 'FRANÇAIS', 'es-ES': 'ESPAÑOL' };
                 const currentLangName = langNames[USER_LANG] || 'DEUTSCH';
                 const results = {};
@@ -2087,7 +2096,7 @@
 
                 // Full Analysis in One Step
                 updateLoadingStatus('Executing Full Analysis...', 50);
-                const agentIds = ['company_identity', 'goldman_sachs', 'morgan_stanley', 'jpmorgan', 'citadel', 'renaissance', 'executive_summary'];
+                const agentIds = ['company_identity', 'goldman_sachs', 'morgan_stanley', 'jpmorgan', 'citadel', 'executive_summary'];
                 const rAll = await fetchSingleBatch(query, user, getBatchPrompt(query, currentLangName, agentIds));
                 Object.assign(results, parseFrameworks(rAll));
 
@@ -2218,19 +2227,6 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
 - Trade Execution: [Ideal Entry, Stop-Loss, and Profit Target price points]
 - Risk Management: [Calculate Risk-to-Reward Ratio for this setup]
 </citadel>\n\n`;
-            }
-
-            if (agentIds.includes('renaissance')) {
-                prompt += `<renaissance>
-ROLE: Quant Researcher (Statistical Arbitrage)
-- Seasonality: [Best/Worst months & Day-of-week performance patterns]
-- Market Events: [Correlation with Fed/CPI & Macro event impact]
-- Smart Money: [Use 'Insider Activity' and 'Institutional Trends' from FMP API BLOCK]
-- Short & Options: [Use 'Short Interest' from FMP API BLOCK; check squeeze potential]
-- Earnings Behavior: [Price action around earnings (Pre-run vs Post-gap patterns)]
-- Sector Rotation: [Rotation signals affecting this specific stock/sector]
-- Statistical Edge: [Final summary of the quantifiable advantage/anomaly]
-</renaissance>\n\n`;
             }
 
             if (agentIds.includes('executive_summary')) {
@@ -2380,15 +2376,6 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                     else if (/strong\s*bearish|sehr\s*bearish|strong\s*down/i.test(rawTrend)) verdict = 'STRONG BEARISH';
                     else if (/bearish|abw[äa]rts|downtrend/i.test(rawTrend)) verdict = 'BEARISH';
                     else verdict = rawTrend.split(/[,;\-.]/)[0].trim().toUpperCase();
-                }
-            } else if (cardId === 'renaissance') {
-                const m = clean.match(/(?:Statistical\s*Edge|Statistischer\s*Vorteil|Edge|Sentiment|Anomaly):\s*\[?([^\n\]]+)\]?/i);
-                if (m) {
-                    const rawEdge = m[1].trim();
-                    if (/kein|gering|neutral|unauff[äa]llig|ohne/i.test(rawEdge)) verdict = 'NEUTRAL';
-                    else if (/negative|bearish|nachteil|risiko|down/i.test(rawEdge)) verdict = 'NEGATIV';
-                    else if (/positive|bullish|vorteil|edge|kauf|strong/i.test(rawEdge)) verdict = 'POSITIV';
-                    else verdict = rawEdge.split(/[,;\-.]/)[0].trim().toUpperCase();
                 }
             } else if (cardId === 'executive_summary') {
                 const m = clean.match(/(?:Final\s*Terminal\s*Sentiment|Final\s*Sentiment|Terminal\s*Sentiment|Gesamtfazit|Sentiment):\s*\[?([A-Za-z\s]+)\]?/i);
@@ -2698,7 +2685,7 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 const content = data[card.id];
                 const widget = document.createElement('div');
                 widget.id = `widget_${card.id}`;
-                widget.className = `widget-card rounded-lg flex flex-col fade-up ${card.id === 'executive_summary' ? 'md:col-span-2 xl:col-span-3 border-gold-500/20' : ''}`;
+                widget.className = `widget-card rounded-lg flex flex-col fade-up ${card.id === 'executive_summary' ? 'md:col-span-2 border-gold-500/20' : ''}`;
 
                 if (!content) {
                     // Shimmer Placeholder
@@ -3002,8 +2989,8 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
 
                 let html = '';
                 usersArray.forEach(u => {
-                    const qStats = (allQueries && !allQueries.error) ? (allQueries[u.email] || { counts: {} }) : { counts: {} };
-                    const totalQueries = Object.values(qStats.counts).reduce((a, b) => a + b, 0);
+                    const qStats = (allQueries && !allQueries.error) ? (allQueries[u.email] || { count: 0, counts: {} }) : { count: 0, counts: {} };
+                    const totalQueries = typeof qStats.count === 'number' ? qStats.count : Object.values(qStats.counts || {}).reduce((a, b) => a + b, 0);
 
                     html += `
                         <tr class="hover:bg-white/5 transition-all border-b border-white/5">
@@ -3073,10 +3060,19 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 const res = await fetch('/api/reset-queries', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: email })
+                    body: JSON.stringify({ email: email })
                 });
-                if (res.ok) renderAdminUserList();
+                if (res.ok) {
+                    const currentUser = await getCurrentUser();
+                    if (currentUser && currentUser.email === email) {
+                        await updateFooter(currentUser);
+                    }
+                    renderAdminUserList();
+                } else {
+                    alert('Reset fehlgeschlagen');
+                }
             } catch (err) {
+                console.error('Reset error:', err);
                 alert('Reset fehlgeschlagen');
             }
         }
