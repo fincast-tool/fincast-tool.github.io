@@ -1088,6 +1088,20 @@
                                     <div class="identity-divider border-l border-white/5 pl-4 md:pl-8">
                                         <div class="data-label mb-1">Security Identifiers</div>
                                         <div id="id_codes" class="font-mono text-xs text-gold-400">--</div>
+                                        <div class="mt-2 pt-1.5 border-t border-white/5 flex flex-col gap-1">
+                                            <div class="flex items-center justify-between text-[9px] font-mono leading-tight">
+                                                <span class="text-gray-500 uppercase tracking-tighter" data-de="KGV (Akt. / 5J Ø)" data-en="P/E (Curr / 5Y Avg)" data-fr="PER (Act / 5A Moy)" data-es="PER (Act / 5A Med)">KGV (Akt. / 5J Ø):</span>
+                                                <span id="id_showcase_pe" class="text-gray-300 font-bold ml-1 truncate">--</span>
+                                            </div>
+                                            <div class="flex items-center justify-between text-[9px] font-mono leading-tight">
+                                                <span class="text-gray-500 uppercase tracking-tighter" data-de="5J Umsatz-CAGR" data-en="5Y Rev CAGR" data-fr="5A CA TCAC" data-es="5A Ing CAGR">5J Umsatz-CAGR:</span>
+                                                <span id="id_showcase_growth" class="text-emerald-400 font-bold ml-1 truncate">--</span>
+                                            </div>
+                                            <div class="flex items-center justify-between text-[9px] font-mono leading-tight">
+                                                <span class="text-gray-500 uppercase tracking-tighter" data-de="Bull / Bear Target" data-en="Bull / Bear Target" data-fr="Cible Bull / Bear" data-es="Objetivo Bull / Bear">Bull / Bear:</span>
+                                                <span id="id_showcase_targets" class="text-gold-400 font-bold ml-1 truncate">--</span>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="identity-divider border-l border-white/5 pl-4 md:pl-8">
                                         <div class="data-label mb-1">Sector & Headquarter</div>
@@ -1103,6 +1117,37 @@
                                     <div class="identity-divider border-l border-white/5 pl-4 md:pl-8">
                                         <div class="data-label mb-1">Aktueller Kurs</div>
                                         <div id="id_price" class="font-mono text-base font-bold text-green-400">--</div>
+                                        <div class="mt-2 pt-1.5 border-t border-white/5 flex flex-col">
+                                            <span class="data-label text-[9px] text-gray-500 leading-tight mb-0.5" data-de="Kurspotenzial DCF" data-en="DCF Price Potential" data-fr="Potentiel de Cours DCF" data-es="Potencial de Precio DCF">Kurspotenzial DCF</span>
+                                            <div id="id_dcf_potential" class="font-mono text-xs font-bold text-gold-400 truncate">--</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Agent Verdicts / Fazits Eyecatcher Strip -->
+                                <div class="mt-6 pt-6 border-t border-gold-500/15">
+                                    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-6 h-6 rounded-lg bg-gold-500/10 border border-gold-500/30 flex items-center justify-center text-gold-400">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <h3 class="text-xs font-bold text-white tracking-wide uppercase flex items-center gap-2">
+                                                    <span data-de="Agenten-Fazits auf einen Blick" data-en="Agent Verdicts at a Glance" data-fr="Avis des Agents en un coup d'œil" data-es="Veredictos de Agentes de un vistazo">Agenten-Fazits auf einen Blick</span>
+                                                    <span class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-400">Multi-Agent Radar</span>
+                                                </h3>
+                                            </div>
+                                        </div>
+                                        <div class="text-[10px] font-mono text-gray-400 flex items-center gap-2">
+                                            <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                            <span class="hidden sm:inline" data-de="Klicke auf eine Karte, um zur Detail-Analyse zu springen" data-en="Click a card to jump to detailed analysis" data-fr="Cliquer pour voir l'analyse détaillée" data-es="Clic para ir al análisis detallado">Klicke für Detail-Analyse</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="id_agent_fazits" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                                        <!-- Dynamically populated via renderAgentFazits -->
                                     </div>
                                 </div>
                             </div>
@@ -1857,7 +1902,7 @@
                         const decoded = JSON.parse(decodeURIComponent(escape(atob(shareId))));
                         if (decoded) {
                             CURRENT_ANALYSIS_DATA = decoded;
-                            if (decoded.company_identity) renderIdentity(decoded.company_identity);
+                            if (decoded.company_identity) renderIdentity(decoded.company_identity, decoded);
                             renderWidgets(decoded);
                             setUIState('results');
                         }
@@ -1865,7 +1910,7 @@
                         const res = await apiCall('get_shared_report', { id: shareId });
                         if (!res.error) {
                             CURRENT_ANALYSIS_DATA = res;
-                            if (res.company_identity) renderIdentity(res.company_identity);
+                            if (res.company_identity) renderIdentity(res.company_identity, res);
                             renderWidgets(res);
                             setUIState('results');
                         }
@@ -2047,7 +2092,7 @@
                 Object.assign(results, parseFrameworks(rAll));
 
                 CURRENT_ANALYSIS_DATA = results;
-                if (results.company_identity) renderIdentity(results.company_identity);
+                if (results.company_identity) renderIdentity(results.company_identity, results);
                 renderWidgets(results);
 
                 const resolvedName = results.company_identity?.match(/Name:\s*(.*)/)?.[1]?.trim() || query;
@@ -2190,44 +2235,16 @@ ROLE: Quant Researcher (Statistical Arbitrage)
 
             if (agentIds.includes('executive_summary')) {
                 prompt += `<executive_summary>
-- Stock Screener (Fundamental Value AI): [1 sentence synthesis] [BADGE]
-- DCF Deep Dive (Intrinsic Value AI): [1 sentence synthesis] [BADGE]
-- Earnings Breakdown (Earnings Momentum AI): [1 sentence synthesis] [BADGE]
-- Technical System (Quantitative Technical AI): [1 sentence synthesis] [BADGE]
-- Pattern Finder (Statistical Arbitrage AI): [1 sentence synthesis] [BADGE]
-- Strategic DNA: [1 sentence synthesis about Sector and Profile]
-
-Rolle & Persona:
-Agiere als Charlie Munger, der langjährige Vizepräsident von Berkshire Hathaway. Analysiere das Unternehmen ${query} mit schonungsloser intellektueller Ehrlichkeit, rationalem Pragmatismus, multidisziplinären mentalen Modellen und trockenem Realismus. Vermeide Wall-Street-Jargon, übertriebenen Optimismus und vage Prognosen.
-
-Analysiere ${query} anhand der folgenden 5 Prüfschritte:
-
-1. Circle of Competence (Verständlichkeit des Geschäftsmodells)
-- Wie verdient das Unternehmen tatsächlich seinen operativen Cashflow?
-- Ist das Modell einfach und vorhersehbar oder komplex, technologiegetrieben und ständiger Disruption ausgesetzt? (Kategorie: „Investieren“, „Verwerfen“ oder „Too Hard Box“?)
-
-2. Durable Competitive Advantage & Moat (Burggraben)
-- Worin besteht der wirtschaftliche Burggraben (Netzwerkeffekte, Wechselkosten, Preissetzungsmacht, Skalenvorteile)?
-- Wie wahrscheinlich ist es, dass dieser Vorteil in 10 bis 15 Jahren noch intakt ist?
-
-3. Management-Qualität, Kapitalallokation & Anreize
-- Zeigt das Management operative Exzellenz und Integrität („Skin in the Game“)?
-- Wie diszipliniert ist die Reinvestition von Kapital (Aktienrückkäufe bei Unterbewertung, Dividenden, Vermeidung teurer Übernahmen)?
-- Welche toxischen Fehlanreize (z. B. aktienoptionsgetriebene Verwässerung) existieren?
-
-4. Inversion (Pre-Mortem-Analyse: Was kann das Unternehmen zerstören?)
-- Drehe die Perspektive um: Wenn ${query} in den nächsten 10 Jahren scheitert oder massiv an Wert verliert – was waren die konkreten Ursachen (z. B. technologische Obsoleszenz, Bilanzüberschuldung, Margenerosion)?
-
-5. Bewertung & Margin of Safety
-- Rechtfertigt die fundamentale Ertragskraft den aktuellen Preis, um ein faires Unternehmen zu einem wunderbaren Preis – oder ein wunderbares Unternehmen zu einem fairen Preis zu kaufen?
-- Welcher Sicherheitsabschlag ist hier zwingend erforderlich?
-
-- INSTITUTIONAL MASTER CONCLUSION (Charlie Munger Urteil & Fazit):
-[Fasse deine finale Einschätzung in Charlie Mungers ungeschminkter Tonalität zusammen: Kaufen, Beobachten oder sofort in die „Too Hard Box“ werfen? 3-4 Sätze Synthese aller Befunde.]
-
-- FINAL TERMINAL SENTIMENT: [BADGE]
-MANDATORY: Use EXACTLY ONE of these badges per agent/sentiment: [POSITIVE], [STRONG POSITIVE], [NEUTRAL], [NEGATIVE], [STRONG NEGATIVE], [UNDERVALUED], [OVERVALUED], [FAIRLY VALUED], [WAIT].
-CRITICAL: Add this exact sentence at the end: "DISCLAIMER: Diese Analyse ist eine KI-gestützte Simulation und stellt keine Anlageberatung dar."
+ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Framework)
+- Agent Consensus: [1-2 sentences cross-synthesis combining Fundamental Screener, DCF, Earnings and Technical findings]
+- Circle of Competence: [Classification: INVESTIEREN / BEOBACHTEN / TOO HARD BOX + 1 sentence on core cashflow predictability and business model]
+- Economic Moat: [Moat type (Pricing Power, Network Effects, Switching Costs, Cost Advantages) & 10-15Y durability: STRONG / MODERATE / WEAK]
+- Capital Allocation: [ROIC vs WACC, capital discipline with buybacks/dividends vs share dilution, and management integrity]
+- Inversion (Pre-Mortem Risk): [The #1 structural or existential risk that could permanently impair or destroy the business model]
+- Valuation & Fair Value: [State 'Current Price' vs. 'DCF Fair Value Estimate' from FMP API BLOCK (e.g. Current: $XX.XX | DCF Fair Value: $YY.YY)]
+- Margin of Safety & Target Buy Price: [Specify required safety margin in % AND calculate exact target buy price: e.g. "Sicherheitsabschlag von XX% -> Ziel-Kaufkurs: $ZZ.ZZ (Aktueller Kurs liegt XX% über/unter dieser Kaufmarke)"]
+- Institutional Master Conclusion: [Charlie Munger unvarnished verdict in 2 concise sentences: Pragmatic investment decision]
+- Final Terminal Sentiment: [EXACTLY ONE BADGE: [BUY], [STRONG POSITIVE], [POSITIVE], [HOLD], [FAIRLY VALUED], [UNDERVALUED], [OVERVALUED], [NEUTRAL], [WAIT], [SELL], [STRONG NEGATIVE]]
 </executive_summary>\n\n`;
             }
 
@@ -2333,20 +2350,340 @@ CRITICAL: Add this exact sentence at the end: "DISCLAIMER: Diese Analyse ist ein
             return data;
         }
 
-        function renderIdentity(text) {
-            if (!text) return;
+        function extractAgentVerdict(cardId, rawText) {
+            if (!rawText) return { label: 'PENDING', type: 'wait', detail: '' };
 
-            const getValue = (key) => {
-                const match = text.match(new RegExp(`${key}:\\s*(.*)`, 'i'));
-                return match ? match[1].trim() : '--';
-            };
+            const clean = rawText.replace(/```[a-z]*\n?/gi, '').replace(/[*_#]/g, '').trim();
+            let verdict = '';
+            let detail = '';
 
-            document.getElementById('id_name').textContent = getValue('Name');
-            document.getElementById('id_codes').textContent = `${getValue('ISIN')} / ${getValue('WKN')}`;
-            document.getElementById('id_sector').textContent = getValue('Sektor');
-            document.getElementById('id_hq').textContent = getValue('HQ');
-            document.getElementById('id_desc').textContent = getValue('Profil');
-            document.getElementById('id_price').textContent = getValue('Aktueller Kurs');
+            if (cardId === 'goldman_sachs') {
+                const m = clean.match(/(?:AI\s*Sentiment|Sentiment|Fazit|Rating):\s*\[?([A-Za-z\s]+)\]?/i);
+                if (m) verdict = m[1].trim();
+                const scoreM = clean.match(/Risk\s*Score:\s*([^\n]+)/i);
+                if (scoreM) detail = scoreM[1].trim().split(',')[0].substring(0, 20);
+            } else if (cardId === 'morgan_stanley') {
+                const m = clean.match(/(?:AI\s*Outlook|Outlook|DCF\s*Rating|Bewertung):\s*\[?([A-Za-z\s]+)\]?/i);
+                if (m) verdict = m[1].trim();
+                const fvM = clean.match(/DCF\s*Fair\s*Value:\s*([^\n]+)/i);
+                if (fvM) detail = fvM[1].trim().split(';')[0].substring(0, 20);
+            } else if (cardId === 'jpmorgan') {
+                const m = clean.match(/(?:Play|Earnings\s*Sentiment|Sentiment|Rating):\s*\[?([A-Za-z\s]+)\]?/i);
+                if (m) verdict = m[1].trim();
+            } else if (cardId === 'citadel') {
+                const m = clean.match(/(?:Trend\s*Analysis|Trend|Sentiment|Signal|Setup|Direction):\s*\[?([^\n\]]+)\]?/i);
+                if (m) {
+                    const rawTrend = m[1].trim();
+                    if (/kein|neutral|seitw[äa]rts|sideways|konsolid/i.test(rawTrend)) verdict = 'NEUTRAL';
+                    else if (/strong\s*bullish|sehr\s*bullish|strong\s*up/i.test(rawTrend)) verdict = 'STRONG BULLISH';
+                    else if (/bullish|aufw[äa]rts|uptrend/i.test(rawTrend)) verdict = 'BULLISH';
+                    else if (/strong\s*bearish|sehr\s*bearish|strong\s*down/i.test(rawTrend)) verdict = 'STRONG BEARISH';
+                    else if (/bearish|abw[äa]rts|downtrend/i.test(rawTrend)) verdict = 'BEARISH';
+                    else verdict = rawTrend.split(/[,;\-.]/)[0].trim().toUpperCase();
+                }
+            } else if (cardId === 'renaissance') {
+                const m = clean.match(/(?:Statistical\s*Edge|Statistischer\s*Vorteil|Edge|Sentiment|Anomaly):\s*\[?([^\n\]]+)\]?/i);
+                if (m) {
+                    const rawEdge = m[1].trim();
+                    if (/kein|gering|neutral|unauff[äa]llig|ohne/i.test(rawEdge)) verdict = 'NEUTRAL';
+                    else if (/negative|bearish|nachteil|risiko|down/i.test(rawEdge)) verdict = 'NEGATIV';
+                    else if (/positive|bullish|vorteil|edge|kauf|strong/i.test(rawEdge)) verdict = 'POSITIV';
+                    else verdict = rawEdge.split(/[,;\-.]/)[0].trim().toUpperCase();
+                }
+            } else if (cardId === 'executive_summary') {
+                const m = clean.match(/(?:Final\s*Terminal\s*Sentiment|Final\s*Sentiment|Terminal\s*Sentiment|Gesamtfazit|Sentiment):\s*\[?([A-Za-z\s]+)\]?/i);
+                if (m) verdict = m[1].trim();
+            }
+
+            // Fallback: check whole text for prominent keywords
+            if (!verdict) {
+                const keywords = [
+                    'STRONG POSITIVE', 'STRONG BUY', 'BUY', 'POSITIVE', 'POSITIV', 'BULLISH', 'STRONG BULLISH',
+                    'UNDERVALUED', 'UNTERBEWERTET', 'FAIRLY VALUED', 'FAIR VALUED', 'FAIR BEWERTET',
+                    'HOLD', 'HALTEN', 'NEUTRAL', 'WAIT', 'WARTEN', 'CONSOLIDATION', 'SIDEWAYS',
+                    'OVERVALUED', 'ÜBERBEWERTET', 'BEARISH', 'STRONG BEARISH', 'NEGATIVE', 'NEGATIV',
+                    'SELL', 'VERKAUFEN', 'STRONG NEGATIVE', 'STRONG SELL'
+                ];
+                for (const kw of keywords) {
+                    const regex = new RegExp(`(?:\\[${kw}\\]|\\b${kw}\\b)`, 'i');
+                    if (regex.test(clean)) {
+                        verdict = kw.toUpperCase();
+                        break;
+                    }
+                }
+            }
+
+            if (!verdict) verdict = 'ANALYSIERT';
+
+            // Clean brackets
+            verdict = verdict.replace(/[\[\]]/g, '').trim().toUpperCase();
+
+            // Language translation for German if USER_LANG is de
+            const isDe = (USER_LANG || '').startsWith('de');
+            if (isDe) {
+                if (verdict === 'POSITIVE') verdict = 'POSITIV';
+                else if (verdict === 'NEGATIVE') verdict = 'NEGATIV';
+                else if (verdict === 'STRONG POSITIVE') verdict = 'STARK POSITIV';
+                else if (verdict === 'STRONG NEGATIVE') verdict = 'STARK NEGATIV';
+                else if (verdict === 'UNDERVALUED') verdict = 'UNTERBEWERTET';
+                else if (verdict === 'OVERVALUED') verdict = 'ÜBERBEWERTET';
+                else if (verdict === 'FAIRLY VALUED' || verdict === 'FAIR VALUED') verdict = 'FAIR BEWERTET';
+                else if (verdict === 'WAIT') verdict = 'ABWARTEN';
+                else if (verdict === 'HOLD') verdict = 'HALTEN';
+            }
+
+            if (verdict.length > 22) verdict = verdict.substring(0, 20) + '...';
+
+            // Determine visual badge color
+            let type = 'wait';
+            if (/^(STRONG POSITIVE|STARK POSITIV|STRONG BUY|BUY|POSITIVE|POSITIV|BULLISH|STRONG BULLISH|UNDERVALUED|UNTERBEWERTET|BEAT|VORTEIL)$/i.test(verdict) || /bullish|positive|positiv|undervalued|unterbewertet/i.test(verdict)) {
+                type = 'buy';
+            } else if (/^(STRONG NEGATIVE|STARK NEGATIV|STRONG SELL|SELL|VERKAUFEN|NEGATIVE|NEGATIV|BEARISH|STRONG BEARISH|OVERVALUED|ÜBERBEWERTET|MISS)$/i.test(verdict) || /bearish|negative|negativ|overvalued|überbewertet|sell/i.test(verdict)) {
+                type = 'sell';
+            } else if (/^(HOLD|HALTEN|NEUTRAL|FAIRLY VALUED|FAIR VALUED|FAIR BEWERTET|WAIT|ABWARTEN|WARTEN|CONSOLIDATION|SIDEWAYS)$/i.test(verdict) || /hold|halten|neutral|fair|wait|abwarten/i.test(verdict)) {
+                type = 'hold';
+            }
+
+            return { label: verdict, type, detail };
+        }
+
+        function renderAgentFazits(data) {
+            const container = document.getElementById('id_agent_fazits');
+            if (!container) return;
+
+            if (!data) {
+                container.innerHTML = '';
+                return;
+            }
+
+            container.innerHTML = '';
+
+            CARDS.forEach(card => {
+                const content = data[card.id];
+                const { label, type } = extractAgentVerdict(card.id, content);
+
+                let badgeStyles = '';
+                let dotColor = '';
+                let cardBorder = 'border-white/10 hover:border-gold-500/40 bg-obsidian-900/80';
+
+                if (type === 'buy') {
+                    badgeStyles = 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30 shadow-emerald-500/10';
+                    dotColor = 'bg-emerald-400';
+                } else if (type === 'sell') {
+                    badgeStyles = 'bg-rose-500/15 text-rose-400 border-rose-500/30 shadow-rose-500/10';
+                    dotColor = 'bg-rose-400';
+                } else if (type === 'hold') {
+                    badgeStyles = 'bg-amber-500/15 text-amber-400 border-amber-500/30 shadow-amber-500/10';
+                    dotColor = 'bg-amber-400';
+                } else {
+                    badgeStyles = 'bg-slate-500/15 text-slate-300 border-slate-500/30';
+                    dotColor = 'bg-slate-400';
+                }
+
+                const isMaster = card.id === 'executive_summary';
+                if (isMaster) {
+                    cardBorder = 'border-gold-500/40 bg-gold-500/[0.06] hover:border-gold-400 shadow-lg shadow-gold-500/10 ring-1 ring-gold-500/20';
+                }
+
+                const cardEl = document.createElement('div');
+                cardEl.className = `p-3.5 rounded-xl border ${cardBorder} backdrop-blur-md transition-all duration-200 cursor-pointer group hover:-translate-y-0.5 flex flex-col justify-between shadow-sm`;
+                cardEl.onclick = () => scrollToWidget(card.id);
+                cardEl.title = `Klicke, um zu ${card.title} zu springen`;
+
+                cardEl.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between gap-1.5 mb-1.5">
+                            <div class="flex items-center gap-1.5 min-w-0">
+                                <div class="w-5 h-5 rounded flex items-center justify-center ${isMaster ? 'bg-gold-500 text-obsidian-950 font-bold' : 'bg-white/5 text-gold-400'} shrink-0">
+                                    ${card.icon}
+                                </div>
+                                <span class="text-[11px] font-bold text-white uppercase tracking-tight truncate group-hover:text-gold-400 transition-colors">${card.title}</span>
+                            </div>
+                            <span class="w-1.5 h-1.5 rounded-full ${dotColor} shrink-0"></span>
+                        </div>
+                        <div class="text-[8px] font-mono text-gray-500 uppercase tracking-tighter truncate mb-3">
+                            ${card.firm}
+                        </div>
+                    </div>
+                    <div class="mt-auto">
+                        <div class="w-full text-center py-1 px-1.5 rounded-md border ${badgeStyles} font-mono font-extrabold text-[10px] tracking-wider uppercase truncate shadow-sm">
+                            ${label}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(cardEl);
+            });
+        }
+
+        function scrollToWidget(cardId) {
+            const el = document.getElementById(`widget_${cardId}`);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                el.classList.add('ring-2', 'ring-gold-500', 'shadow-2xl', 'shadow-gold-500/20');
+                setTimeout(() => {
+                    el.classList.remove('ring-2', 'ring-gold-500', 'shadow-2xl', 'shadow-gold-500/20');
+                }, 2000);
+            }
+        }
+
+        function extractDcfPotential(dcfText) {
+            if (!dcfText) return '--';
+            const clean = dcfText.replace(/```[a-z]*\n?/gi, '').replace(/[*_#]/g, '').trim();
+            let pot = '';
+
+            // 1. Look for Market Check line
+            const mcMatch = clean.match(/(?:Market\s*Check|Markt-Check|Marktcheck):\s*([^\n]+)/i);
+            if (mcMatch) {
+                const line = mcMatch[1].trim();
+                // Range like "25% bis 56%" or "+25% to +56%" or "25% - 56%"
+                const rangeMatch = line.match(/([+\-]?\d+(?:[.,]\d+)?\s*%\s*(?:bis|to|-)\s*[+\-]?\d+(?:[.,]\d+)?\s*%)/i);
+                if (rangeMatch) {
+                    pot = rangeMatch[1].trim();
+                } else {
+                    const singleMatch = line.match(/(?:(?:Aufw[äa]rtspotenzial|Abw[äa]rtspotenzial|Kurspotenzial|Upside|Downside|Potential|Potenzial)\s*(?:von\s*)?(?:ca\.\s*)?([+\-]?\d+(?:[.,]\d+)?\s*%))/i) ||
+                                        line.match(/([+\-]?\d+(?:[.,]\d+)?\s*%\s*(?:Upside|Downside|Aufw[äa]rtspotenzial|Abw[äa]rtspotenzial)?)/i);
+                    if (singleMatch && singleMatch[1]) pot = singleMatch[1].trim();
+                }
+            }
+
+            // 2. Fallback: Search anywhere in the DCF text
+            if (!pot) {
+                const globalRange = clean.match(/(?:Aufw[äa]rtspotenzial|Abw[äa]rtspotenzial|Kurspotenzial|Upside|Downside|Potential|Potenzial)\s*(?:von\s*)?(?:ca\.\s*)?([+\-]?\d+(?:[.,]\d+)?\s*%\s*(?:bis|to|-)\s*[+\-]?\d+(?:[.,]\d+)?\s*%)/i);
+                if (globalRange) {
+                    pot = globalRange[1].trim();
+                } else {
+                    const globalSingle = clean.match(/(?:Aufw[äa]rtspotenzial|Abw[äa]rtspotenzial|Kurspotenzial|Upside|Downside|Potential|Potenzial)\s*(?:von\s*)?(?:ca\.\s*)?([+\-]?\d+(?:[.,]\d+)?\s*%)/i);
+                    if (globalSingle) pot = globalSingle[1].trim();
+                }
+            }
+
+            if (!pot) return '--';
+
+            const isDe = (USER_LANG || '').startsWith('de');
+            if (isDe) {
+                pot = pot.replace(/\bto\b/gi, 'bis');
+            }
+            return pot;
+        }
+
+        function updateDcfPotentialDisplay(data) {
+            const potEl = document.getElementById('id_dcf_potential');
+            if (!potEl) return;
+
+            if (!data) {
+                potEl.textContent = '--';
+                potEl.className = 'font-mono text-xs font-bold text-gray-500 truncate';
+                return;
+            }
+
+            const dcfText = data.morgan_stanley || '';
+            const potValue = extractDcfPotential(dcfText);
+            potEl.textContent = potValue;
+
+            if (potValue.includes('-') && !potValue.includes('bis')) {
+                potEl.className = 'font-mono text-xs font-bold text-rose-400 truncate';
+            } else if (potValue !== '--') {
+                potEl.className = 'font-mono text-xs font-bold text-emerald-400 truncate';
+            } else {
+                potEl.className = 'font-mono text-xs font-bold text-gray-500 truncate';
+            }
+        }
+
+        function extractStockScreenerShowcase(screenerText) {
+            if (!screenerText) return { pe: '--', growth: '--', targets: '--' };
+            const clean = screenerText.replace(/```[a-z]*\n?/gi, '').replace(/[*_#]/g, '').trim();
+
+            let pe = '--';
+            let growth = '--';
+            let targets = '--';
+
+            // 1. P/E Analysis (Current vs 5Y Avg)
+            const peMatch = clean.match(/(?:P\/E\s*Analysis|P\/E|PE|KGV-Analyse|KGV):\s*([^\n]+)/i);
+            if (peMatch) {
+                const line = peMatch[1].trim();
+                const peValues = line.match(/(?:P\/E|KGV)?\s*(\d+(?:[.,]\d+)?)\s*(?:vs\.?|vs|\/|und|;|,|\(|5Y|5J)\s*(?:5Y\s*Avg|5J\s*Ø|Avg|historisch|Average)?\s*:?\s*(\d+(?:[.,]\d+)?)/i);
+                if (peValues) {
+                    pe = `${peValues[1]} / ${peValues[2]}`;
+                } else {
+                    const singlePe = line.match(/(\d+(?:[.,]\d+)?)/);
+                    if (singlePe) pe = singlePe[1];
+                    else pe = line.split(/[,;(]/)[0].trim().substring(0, 16);
+                }
+            }
+
+            // 2. 5Y Growth
+            const growthMatch = clean.match(/(?:5Y\s*Growth|5J\s*Wachstum|5-Jahres-Wachstum|Growth|Wachstum|CAGR):\s*([^\n]+)/i);
+            if (growthMatch) {
+                const line = growthMatch[1].trim();
+                const pctMatch = line.match(/([+\-]?\d+(?:[.,]\d+)?\s*%\s*(?:CAGR)?)/i);
+                if (pctMatch) {
+                    growth = pctMatch[1].trim();
+                } else {
+                    growth = line.split(/[,;(]/)[0].trim().substring(0, 16);
+                }
+            }
+
+            // 3. Bull/Bear Targets
+            const targetMatch = clean.match(/(?:Bull\/Bear\s*Targets|Bull\/Bear|Targets|Kursziele):\s*([^\n]+)/i);
+            if (targetMatch) {
+                const line = targetMatch[1].trim();
+                const bbMatch = line.match(/Bull\s*:?\s*([$€]?\d+(?:[.,]\d+)?(?:\s*[$€])?)\s*(?:\/|vs\.?|und|;)\s*Bear\s*:?\s*([$€]?\d+(?:[.,]\d+)?(?:\s*[$€])?)/i);
+                if (bbMatch) {
+                    targets = `${bbMatch[1]} / ${bbMatch[2]}`;
+                } else {
+                    const priceMatches = line.match(/([$€]?\d+(?:[.,]\d+)?(?:\s*[$€])?)/g);
+                    if (priceMatches && priceMatches.length >= 2) {
+                        targets = `${priceMatches[0]} / ${priceMatches[1]}`;
+                    } else {
+                        targets = line.split(/[,;(]/)[0].trim().substring(0, 16);
+                    }
+                }
+            }
+
+            return { pe, growth, targets };
+        }
+
+        function updateStockScreenerShowcaseDisplay(data) {
+            const peEl = document.getElementById('id_showcase_pe');
+            const growthEl = document.getElementById('id_showcase_growth');
+            const targetsEl = document.getElementById('id_showcase_targets');
+            if (!peEl || !growthEl || !targetsEl) return;
+
+            if (!data) {
+                peEl.textContent = '--';
+                growthEl.textContent = '--';
+                targetsEl.textContent = '--';
+                return;
+            }
+
+            const screenerText = data.goldman_sachs || '';
+            const showcase = extractStockScreenerShowcase(screenerText);
+            peEl.textContent = showcase.pe;
+            growthEl.textContent = showcase.growth;
+            targetsEl.textContent = showcase.targets;
+        }
+
+        function renderIdentity(text, allData = null) {
+            if (!text && !allData) return;
+
+            if (text) {
+                const getValue = (key) => {
+                    const match = text.match(new RegExp(`${key}:\\s*(.*)`, 'i'));
+                    return match ? match[1].trim() : '--';
+                };
+
+                document.getElementById('id_name').textContent = getValue('Name');
+                document.getElementById('id_codes').textContent = `${getValue('ISIN')} / ${getValue('WKN')}`;
+                document.getElementById('id_sector').textContent = getValue('Sektor');
+                document.getElementById('id_hq').textContent = getValue('HQ');
+                document.getElementById('id_desc').textContent = getValue('Profil');
+                document.getElementById('id_price').textContent = getValue('Aktueller Kurs');
+            }
+
+            const data = allData || CURRENT_ANALYSIS_DATA;
+            updateStockScreenerShowcaseDisplay(data);
+            updateDcfPotentialDisplay(data);
+            renderAgentFazits(data);
         }
 
         function renderWidgets(data) {
@@ -2360,6 +2697,7 @@ CRITICAL: Add this exact sentence at the end: "DISCLAIMER: Diese Analyse ist ein
             CARDS.forEach(card => {
                 const content = data[card.id];
                 const widget = document.createElement('div');
+                widget.id = `widget_${card.id}`;
                 widget.className = `widget-card rounded-lg flex flex-col fade-up ${card.id === 'executive_summary' ? 'md:col-span-2 xl:col-span-3 border-gold-500/20' : ''}`;
 
                 if (!content) {
@@ -2439,6 +2777,10 @@ CRITICAL: Add this exact sentence at the end: "DISCLAIMER: Diese Analyse ist ein
                 }
                 grid.appendChild(widget);
             });
+
+            updateStockScreenerShowcaseDisplay(data);
+            updateDcfPotentialDisplay(data);
+            renderAgentFazits(data);
         }
 
         // Legacy state manager removed
@@ -2511,7 +2853,7 @@ CRITICAL: Add this exact sentence at the end: "DISCLAIMER: Diese Analyse ist ein
                 };
                 item.onclick = () => {
                     CURRENT_ANALYSIS_DATA = entry.data;
-                    renderIdentity(entry.data.company_identity);
+                    renderIdentity(entry.data.company_identity, entry.data);
                     renderWidgets(entry.data);
                     setUIState('results');
                     toggleArchive();
@@ -2760,4 +3102,4 @@ CRITICAL: Add this exact sentence at the end: "DISCLAIMER: Diese Analyse ist ein
         });
     </script>
 </body>
-</html>
+</html>
