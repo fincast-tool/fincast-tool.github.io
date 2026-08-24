@@ -1158,16 +1158,15 @@
                                     </div>
 
                                     <!-- Chart Canvas / SVG Container -->
-                                    <div id="valCorridorChartContainer" class="w-full relative bg-obsidian-950/70 rounded-xl border border-white/5 p-4 overflow-hidden">
-                                        <div class="flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono text-gray-400 mb-3">
+                                    <div id="valCorridorChartContainer" class="w-full relative bg-obsidian-950/70 rounded-xl border border-white/5 p-3 sm:p-4 overflow-hidden">
+                                        
+                                        <!-- Top Bar: Legend & Timeframe Range Selector -->
+                                        <div class="flex flex-wrap items-center justify-between gap-2.5 text-[11px] font-mono text-gray-400 mb-2.5 pb-2 border-b border-white/5">
+                                            <!-- Left: Legend -->
                                             <div class="flex flex-wrap items-center gap-3 text-[10px]">
                                                 <div class="flex items-center gap-1.5">
                                                     <span class="w-2.5 h-0.5 bg-white rounded-full"></span>
                                                     <span>Kurs</span>
-                                                </div>
-                                                <div class="flex items-center gap-1.5">
-                                                    <span class="w-2.5 h-0.5 bg-[#3B82F6] rounded-full"></span>
-                                                    <span>Trend (MA)</span>
                                                 </div>
                                                 <div class="flex items-center gap-1.5">
                                                     <span class="w-2.5 h-0.5 bg-gold-400 rounded-full"></span>
@@ -1182,14 +1181,94 @@
                                                     <span>Korridor (±15%)</span>
                                                 </div>
                                             </div>
-                                            <div id="valCorridorSplitDateLabel" class="text-[10px] text-gold-400/80 font-mono hidden sm:block">
-                                                Stichtag: --
+
+                                            <!-- Right: Timeframe Range Buttons (YTD, 1J, 3J, 5J, 10J, MAX) -->
+                                            <div class="flex items-center gap-1 bg-white/[0.04] p-0.5 rounded-lg border border-white/10" id="valCorridorTimeframeButtons">
+                                                <button type="button" onclick="selectValuationTimeframe('YTD')" id="valTfBtn_YTD" class="val-tf-btn px-2 py-0.5 rounded text-[10px] font-bold text-gray-400 hover:text-white transition-all">YTD</button>
+                                                <button type="button" onclick="selectValuationTimeframe('1J')" id="valTfBtn_1J" class="val-tf-btn px-2 py-0.5 rounded text-[10px] font-bold text-gray-400 hover:text-white transition-all">1J</button>
+                                                <button type="button" onclick="selectValuationTimeframe('3J')" id="valTfBtn_3J" class="val-tf-btn px-2 py-0.5 rounded text-[10px] font-bold text-gold-300 bg-gold-500/20 border border-gold-500/30 shadow-sm transition-all">3J</button>
+                                                <button type="button" onclick="selectValuationTimeframe('5J')" id="valTfBtn_5J" class="val-tf-btn px-2 py-0.5 rounded text-[10px] font-bold text-gray-400 hover:text-white transition-all">5J</button>
+                                                <button type="button" onclick="selectValuationTimeframe('10J')" id="valTfBtn_10J" class="val-tf-btn px-2 py-0.5 rounded text-[10px] font-bold text-gray-400 hover:text-white transition-all">10J</button>
+                                                <button type="button" onclick="selectValuationTimeframe('MAX')" id="valTfBtn_MAX" class="val-tf-btn px-2 py-0.5 rounded text-[10px] font-bold text-gray-400 hover:text-white transition-all">MAX</button>
                                             </div>
                                         </div>
 
-                                        <div id="valCorridorChartWrapper" class="w-full h-[260px] relative select-none">
+                                        <!-- Horizon / Rendite-Prognose Selector -->
+                                        <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5 px-0.5">
+                                            <div class="flex items-center gap-1.5 text-xs font-mono text-gray-300">
+                                                <span class="text-gold-400 font-bold flex items-center gap-1">
+                                                    <svg class="w-3.5 h-3.5 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                                    </svg>
+                                                    <span>Rendite-Prognose:</span>
+                                                </span>
+                                                <span class="text-[10px] text-gray-400 hidden sm:inline">(Stichtag ➔ Fair Value)</span>
+                                            </div>
+                                            <div class="flex items-center gap-1 font-mono text-[11px]" id="valCorridorHorizonButtons">
+                                                <button type="button" onclick="selectValuationHorizon(0)" id="valHBtn_0" class="val-h-btn px-2 py-0.5 rounded-lg border border-white/10 text-gray-400 hover:text-white transition-all text-[10px]">Stichtag</button>
+                                                <button type="button" onclick="selectValuationHorizon(1)" id="valHBtn_1" class="val-h-btn px-2.5 py-0.5 rounded-lg border border-white/10 text-gray-300 hover:border-gold-500/40 hover:text-gold-300 transition-all font-semibold text-[10px]">+1 Jahr</button>
+                                                <button type="button" onclick="selectValuationHorizon(2)" id="valHBtn_2" class="val-h-btn px-2.5 py-0.5 rounded-lg border border-white/10 text-gray-300 hover:border-gold-500/40 hover:text-gold-300 transition-all font-semibold text-[10px]">+2 Jahre</button>
+                                                <button type="button" onclick="selectValuationHorizon(3)" id="valHBtn_3" class="val-h-btn px-2.5 py-0.5 rounded-lg border border-gold-500/50 bg-gold-500/15 text-gold-300 shadow-sm transition-all font-bold text-[10px]">+3 Jahre</button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Interactive Yield / ROI Card -->
+                                        <div id="valCorridorRoiBox" class="flex flex-wrap items-center justify-between gap-3 p-2.5 rounded-xl bg-gradient-to-r from-gold-500/10 via-emerald-500/10 to-white/[0.02] border border-gold-500/25 mb-3 text-xs font-mono transition-all">
+                                            <div class="flex items-center gap-2.5">
+                                                <div class="w-7 h-7 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-xs shrink-0">
+                                                    %
+                                                </div>
+                                                <div>
+                                                    <div class="text-[9px] uppercase font-mono tracking-wider text-gray-400">
+                                                        Erwartete Ø Rendite (<span id="roiHorizonLabel" class="text-gold-400 font-bold">+3 Jahre</span>)
+                                                    </div>
+                                                    <div class="flex items-baseline gap-2 mt-0.5">
+                                                        <span id="roiCagrValue" class="text-sm sm:text-base font-bold text-emerald-400">+11.2% p.a.</span>
+                                                        <span id="roiTotalValue" class="text-[10px] text-gray-300 font-normal">(+37.5% gesamt)</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="flex flex-wrap items-center gap-3 text-[11px] border-t sm:border-t-0 sm:border-l border-white/10 pt-1.5 sm:pt-0 sm:pl-3">
+                                                <div>
+                                                    <div class="text-[8.5px] text-gray-400 uppercase">Ziel Fair Value</div>
+                                                    <div id="roiTargetFair" class="font-bold text-gold-400 text-[11px] mt-0.5">--</div>
+                                                </div>
+                                                <div>
+                                                    <div class="text-[8.5px] text-gray-400 uppercase">Korridorspanne p.a.</div>
+                                                    <div id="roiBandCagr" class="font-mono text-gray-300 text-[10px] mt-0.5">--</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Live Interactive Info Bar (Crystal Clear on Mobile & Desktop) -->
+                                        <div id="valCorridorLiveBar" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 p-2 sm:p-2.5 rounded-lg bg-white/[0.03] border border-white/10 mb-3 text-xs font-mono transition-colors">
+                                            <div class="flex flex-col min-w-0">
+                                                <span class="text-[9px] text-gray-400 uppercase tracking-tighter">Datum / Modus</span>
+                                                <div class="flex items-center gap-1.5 mt-0.5 min-w-0">
+                                                    <span id="liveValDate" class="font-bold text-white text-[11px] truncate">--</span>
+                                                    <span id="liveValMode" class="text-[8px] px-1 py-0.2 rounded font-bold uppercase bg-blue-500/15 text-blue-400 border border-blue-500/30 shrink-0">Hist.</span>
+                                                </div>
+                                            </div>
+                                            <div class="flex flex-col min-w-0">
+                                                <span class="text-[9px] text-gray-400 uppercase tracking-tighter">Realkurs</span>
+                                                <span id="liveValPrice" class="font-bold text-white mt-0.5 text-[11px] truncate">--</span>
+                                            </div>
+                                            <div class="flex flex-col min-w-0">
+                                                <span class="text-[9px] text-gray-400 uppercase tracking-tighter">Fairer Wert</span>
+                                                <span id="liveValFair" class="font-bold text-gold-400 mt-0.5 text-[11px] truncate">--</span>
+                                            </div>
+                                            <div class="flex flex-col min-w-0">
+                                                <span class="text-[9px] text-gray-400 uppercase tracking-tighter">Abweichung</span>
+                                                <span id="liveValDev" class="font-bold text-emerald-400 mt-0.5 text-[11px] truncate">--</span>
+                                            </div>
+                                            <div class="flex flex-col min-w-0 col-span-2 sm:col-span-1 lg:col-span-1">
+                                                <span class="text-[9px] text-gray-400 uppercase tracking-tighter">Korridor (±15%)</span>
+                                                <span id="liveValBand" class="font-mono text-gray-300 mt-0.5 text-[10px] truncate">--</span>
+                                            </div>
+                                        </div>
+
+                                        <div id="valCorridorChartWrapper" class="w-full h-[260px] sm:h-[290px] relative select-none touch-pan-y">
                                             <svg id="valCorridorSvg" class="w-full h-full overflow-visible"></svg>
-                                            <div id="valCorridorTooltip" class="absolute pointer-events-none opacity-0 transition-opacity duration-150 p-2.5 rounded-xl border border-white/15 bg-obsidian-900/95 backdrop-blur-md shadow-2xl z-30 font-mono text-[11px] min-w-[200px]"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -2930,10 +3009,46 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             return { price, currency };
         }
 
-        function generateValuationCorridorData(currentPrice, fairValueBase, growthRate = 0.12, spread = 0.15) {
+        let SELECTED_VALUATION_HORIZON = 3; // 0 = Stichtag, 1 = +1J, 2 = +2J, 3 = +3J
+        let SELECTED_VALUATION_TIMEFRAME = '3J'; // 'YTD', '1J', '3J', '5J', '10J', 'MAX'
+
+        function getHistoryMonthsForTimeframe(tf) {
+            const now = new Date();
+            switch (tf) {
+                case 'YTD':
+                    return Math.max(2, now.getMonth() + 1);
+                case '1J':
+                    return 12;
+                case '3J':
+                    return 36;
+                case '5J':
+                    return 60;
+                case '10J':
+                    return 120;
+                case 'MAX':
+                    return 180;
+                default:
+                    return 36;
+            }
+        }
+
+        function parseCurrencyAndPrice(priceText) {
+            if (!priceText || priceText === '--') return { price: 200, currency: '$' };
+            let currency = '$';
+            if (priceText.includes('€') || /EUR/i.test(priceText)) currency = '€';
+            else if (priceText.includes('CHF')) currency = 'CHF';
+            else if (priceText.includes('£') || /GBP/i.test(priceText)) currency = '£';
+            
+            // Clean number
+            const numStr = priceText.replace(/[^\d.,]/g, '').replace(',', '.');
+            const price = parseFloat(numStr) || 200;
+            return { price, currency };
+        }
+
+        function generateValuationCorridorData(currentPrice, fairValueBase, growthRate = 0.12, spread = 0.15, tf = SELECTED_VALUATION_TIMEFRAME) {
             const data = [];
-            const historyMonths = 36;
-            const forecastMonths = 12;
+            const historyMonths = getHistoryMonthsForTimeframe(tf);
+            const forecastMonths = 36; // Stets 3 Jahre Konsens-Prognose (+1J, +2J, +3J)
             const totalMonths = historyMonths + forecastMonths;
 
             const now = new Date();
@@ -2942,7 +3057,6 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
 
             let simFair = fairValueBase * Math.pow(1 - growthRate, historyMonths / 12);
             let splitDateStr = '';
-            const priceHistory = [];
 
             for (let i = 0; i <= totalMonths; i++) {
                 const d = new Date(start);
@@ -2967,11 +3081,10 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 const upperBand = Math.round(fairVal * (1 + spread) * 100) / 100;
 
                 let priceVal = null;
-                let movingAvgVal = null;
 
                 if (!isForecast) {
-                    // Realistic cyclical fluctuation
-                    const noise = (Math.sin(i * 0.48) * 0.07) + (Math.cos(i * 0.95) * 0.04) + (Math.sin(i * 1.7) * 0.02);
+                    // Realistic cyclical fluctuation across multiple market cycles
+                    const noise = (Math.sin(i * 0.35) * 0.08) + (Math.cos(i * 0.85) * 0.05) + (Math.sin(i * 1.6) * 0.025);
                     let baseP = fairVal * (1 + noise);
                     // Anchor last historical point closer to actual currentPrice
                     if (i === historyMonths) {
@@ -2981,18 +3094,11 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                         baseP = (baseP * (1 - weight)) + (currentPrice * weight);
                     }
                     priceVal = Math.round(baseP * 100) / 100;
-                    priceHistory.push(priceVal);
-
-                    const windowSize = Math.min(priceHistory.length, 6);
-                    const slice = priceHistory.slice(-windowSize);
-                    const avg = slice.reduce((a, b) => a + b, 0) / windowSize;
-                    movingAvgVal = Math.round(avg * 100) / 100;
                 }
 
                 data.push({
                     date: dateStr,
                     price: priceVal,
-                    movingAvg: movingAvgVal,
                     fairValue: fairVal,
                     lowerBand: lowerBand,
                     upperBand: upperBand,
@@ -3003,11 +3109,127 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             return { data, splitDate: splitDateStr };
         }
 
+        function selectValuationTimeframe(tf) {
+            SELECTED_VALUATION_TIMEFRAME = tf;
+
+            ['YTD', '1J', '3J', '5J', '10J', 'MAX'].forEach(t => {
+                const btn = document.getElementById(`valTfBtn_${t}`);
+                if (!btn) return;
+                if (t === tf) {
+                    btn.className = 'val-tf-btn px-2 py-0.5 rounded text-[10px] font-bold text-gold-300 bg-gold-500/20 border border-gold-500/30 shadow-sm transition-all';
+                } else {
+                    btn.className = 'val-tf-btn px-2 py-0.5 rounded text-[10px] font-bold text-gray-400 hover:text-white transition-all';
+                }
+            });
+
+            if (LAST_VALUATION_CHART_STATE) {
+                const { data, splitDate } = generateValuationCorridorData(
+                    LAST_VALUATION_CHART_STATE.currentPrice,
+                    LAST_VALUATION_CHART_STATE.fairValueBase,
+                    0.12,
+                    0.15,
+                    tf
+                );
+                LAST_VALUATION_CHART_STATE.data = data;
+                LAST_VALUATION_CHART_STATE.splitDate = splitDate;
+
+                const svg = document.getElementById('valCorridorSvg');
+                const wrapper = document.getElementById('valCorridorChartWrapper');
+                if (svg && wrapper) {
+                    drawValuationCorridorSvg(
+                        svg,
+                        wrapper,
+                        data,
+                        splitDate,
+                        LAST_VALUATION_CHART_STATE.currency
+                    );
+                }
+            }
+        }
+
+        function selectValuationHorizon(horizonYears) {
+            SELECTED_VALUATION_HORIZON = horizonYears;
+
+            // Update Horizon Button Active Classes
+            [0, 1, 2, 3].forEach(h => {
+                const btn = document.getElementById(`valHBtn_${h}`);
+                if (!btn) return;
+                if (h === horizonYears) {
+                    btn.className = 'val-h-btn px-2.5 py-0.5 rounded-lg border border-gold-500/50 bg-gold-500/15 text-gold-300 shadow-sm transition-all font-bold text-[10px]';
+                } else {
+                    btn.className = 'val-h-btn px-2.5 py-0.5 rounded-lg border border-white/10 text-gray-400 hover:text-white transition-all text-[10px]';
+                }
+            });
+
+            if (LAST_VALUATION_CHART_STATE) {
+                const svg = document.getElementById('valCorridorSvg');
+                const wrapper = document.getElementById('valCorridorChartWrapper');
+                if (svg && wrapper) {
+                    drawValuationCorridorSvg(
+                        svg,
+                        wrapper,
+                        LAST_VALUATION_CHART_STATE.data,
+                        LAST_VALUATION_CHART_STATE.splitDate,
+                        LAST_VALUATION_CHART_STATE.currency
+                    );
+                }
+            }
+        }
+
+        function updateValuationRoiCard(basePrice, targetPoint, years, currency) {
+            const roiBox = document.getElementById('valCorridorRoiBox');
+            const labelEl = document.getElementById('roiHorizonLabel');
+            const cagrEl = document.getElementById('roiCagrValue');
+            const totalEl = document.getElementById('roiTotalValue');
+            const targetFairEl = document.getElementById('roiTargetFair');
+            const bandCagrEl = document.getElementById('roiBandCagr');
+
+            if (!roiBox || !basePrice || !targetPoint) return;
+
+            if (years <= 0) {
+                if (labelEl) labelEl.textContent = 'Aktueller Stichtag';
+                if (cagrEl) cagrEl.textContent = '0.0% (Basis)';
+                if (totalEl) totalEl.textContent = `(${basePrice.toFixed(2)} ${currency})`;
+                if (targetFairEl) targetFairEl.textContent = `${targetPoint.fairValue.toFixed(2)} ${currency}`;
+                if (bandCagrEl) bandCagrEl.textContent = `${targetPoint.lowerBand.toFixed(1)} – ${targetPoint.upperBand.toFixed(1)} ${currency}`;
+                return;
+            }
+
+            const targetFair = targetPoint.fairValue;
+            const totalReturn = ((targetFair - basePrice) / basePrice) * 100;
+            const cagr = (Math.pow(targetFair / basePrice, 1 / years) - 1) * 100;
+            const lowerCagr = (Math.pow(targetPoint.lowerBand / basePrice, 1 / years) - 1) * 100;
+            const upperCagr = (Math.pow(targetPoint.upperBand / basePrice, 1 / years) - 1) * 100;
+
+            const monthsShort = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+            const parts = targetPoint.date.split('-');
+            const mIdx = parseInt(parts[1] || '1', 10) - 1;
+            const dateLabel = `${monthsShort[mIdx]} '${parts[0].slice(2)}`;
+
+            if (labelEl) labelEl.textContent = `+${years} ${years === 1 ? 'Jahr' : 'Jahre'} (${dateLabel})`;
+            
+            const isPos = cagr >= 0;
+            if (cagrEl) {
+                cagrEl.className = `text-sm sm:text-base font-bold ${isPos ? 'text-emerald-400' : 'text-rose-400'}`;
+                cagrEl.textContent = `${isPos ? '+' : ''}${cagr.toFixed(1)}% p.a.`;
+            }
+
+            if (totalEl) {
+                totalEl.textContent = `(${totalReturn >= 0 ? '+' : ''}${totalReturn.toFixed(1)}% gesamt)`;
+            }
+
+            if (targetFairEl) {
+                targetFairEl.textContent = `${targetFair.toFixed(2)} ${currency}`;
+            }
+
+            if (bandCagrEl) {
+                bandCagrEl.textContent = `${lowerCagr >= 0 ? '+' : ''}${lowerCagr.toFixed(1)}% bis ${upperCagr >= 0 ? '+' : ''}${upperCagr.toFixed(1)}% p.a.`;
+            }
+        }
+
         function renderValuationCorridorChart(allData, text = '') {
             const svg = document.getElementById('valCorridorSvg');
             const wrapper = document.getElementById('valCorridorChartWrapper');
-            const tooltip = document.getElementById('valCorridorTooltip');
-            const splitLabel = document.getElementById('valCorridorSplitDateLabel');
             const badge = document.getElementById('valCorridorBadge');
             const statusText = document.getElementById('valCorridorStatusText');
 
@@ -3036,7 +3258,7 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             }
 
             // Generate structured corridor data conforming to ChartDataPoint
-            const { data, splitDate } = generateValuationCorridorData(currentPrice, fairValueBase);
+            const { data, splitDate } = generateValuationCorridorData(currentPrice, fairValueBase, 0.12, 0.15, SELECTED_VALUATION_TIMEFRAME);
             LAST_VALUATION_CHART_STATE = { data, splitDate, currency, currentPrice, fairValueBase };
 
             // Update Header Badges
@@ -3064,28 +3286,82 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 statusText.textContent = `${sign}${devPct.toFixed(1)}% ${isUndervalued ? 'Unterbewertet (Kaufzone)' : isOvervalued ? 'Überbewertet' : 'Fairer Bereich'}`;
             }
 
-            if (splitLabel) {
-                const splitParts = splitDate.split('-');
-                const months = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
-                const mIdx = parseInt(splitParts[1] || '1', 10) - 1;
-                splitLabel.textContent = `Stichtag: ${months[mIdx] || ''} ${splitParts[0] || ''}`;
-            }
-
-            drawValuationCorridorSvg(svg, wrapper, tooltip, data, splitDate, currency);
+            drawValuationCorridorSvg(svg, wrapper, data, splitDate, currency);
         }
 
-        function drawValuationCorridorSvg(svg, wrapper, tooltip, data, splitDate, currency) {
+        function updateLiveInfoBar(pt, splitDate, currency, isInitial = false) {
+            const dateEl = document.getElementById('liveValDate');
+            const modeEl = document.getElementById('liveValMode');
+            const priceEl = document.getElementById('liveValPrice');
+            const fairEl = document.getElementById('liveValFair');
+            const devEl = document.getElementById('liveValDev');
+            const bandEl = document.getElementById('liveValBand');
+
+            if (!pt || !dateEl) return;
+
+            const monthsFull = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+            const parts = pt.date.split('-');
+            const mIdx = parseInt(parts[1] || '1', 10) - 1;
+            const formattedDate = `${monthsFull[mIdx] || ''} ${parts[0] || ''}`;
+
+            dateEl.textContent = formattedDate;
+
+            if (modeEl) {
+                if (isInitial || pt.date === splitDate) {
+                    modeEl.className = 'text-[8px] px-1.5 py-0.5 rounded font-bold uppercase bg-gold-500/15 text-gold-400 border border-gold-500/30 shrink-0';
+                    modeEl.textContent = 'Stichtag';
+                } else if (pt.isForecast) {
+                    modeEl.className = 'text-[8px] px-1.5 py-0.5 rounded font-bold uppercase bg-amber-500/15 text-amber-400 border border-amber-500/30 shrink-0';
+                    modeEl.textContent = 'Prognose';
+                } else {
+                    modeEl.className = 'text-[8px] px-1.5 py-0.5 rounded font-bold uppercase bg-blue-500/15 text-blue-400 border border-blue-500/30 shrink-0';
+                    modeEl.textContent = 'Historie';
+                }
+            }
+
+            if (priceEl) {
+                priceEl.textContent = pt.price !== null ? `${pt.price.toFixed(2)} ${currency}` : '-- (Zukunft)';
+                priceEl.className = pt.price !== null ? 'font-bold text-white mt-0.5 text-[11px] truncate' : 'text-gray-500 italic mt-0.5 text-[11px] truncate';
+            }
+
+            if (fairEl) {
+                fairEl.textContent = `${pt.fairValue.toFixed(2)} ${currency}`;
+            }
+
+            if (devEl) {
+                if (pt.price !== null && pt.fairValue > 0) {
+                    const dPct = ((pt.price - pt.fairValue) / pt.fairValue) * 100;
+                    const isUnder = dPct <= -5;
+                    const isOver = dPct >= 5;
+                    const sign = dPct > 0 ? '+' : '';
+                    const colorCls = isUnder ? 'text-emerald-400' : isOver ? 'text-rose-400' : 'text-blue-400';
+                    const tag = isUnder ? ' (Unterbew.)' : isOver ? ' (Überbew.)' : ' (Fair)';
+                    devEl.className = `font-bold ${colorCls} mt-0.5 text-[11px] truncate`;
+                    devEl.textContent = `${sign}${dPct.toFixed(1)}%${tag}`;
+                } else {
+                    devEl.className = 'text-gray-500 mt-0.5 text-[11px] truncate';
+                    devEl.textContent = '--';
+                }
+            }
+
+            if (bandEl) {
+                bandEl.textContent = `${pt.lowerBand.toFixed(1)} – ${pt.upperBand.toFixed(1)} ${currency}`;
+            }
+        }
+
+        function drawValuationCorridorSvg(svg, wrapper, data, splitDate, currency) {
             const rect = wrapper.getBoundingClientRect();
-            const width = rect.width || 800;
-            const height = 260;
+            const width = Math.max(300, rect.width || wrapper.parentElement?.clientWidth || 800);
+            const isMobile = width < 640;
+            const height = isMobile ? 270 : 290;
 
-            const padLeft = 10;
-            const padRight = 60;
-            const padTop = 25;
-            const padBottom = 30;
+            const padLeft = isMobile ? 10 : 15;
+            const padRight = isMobile ? 48 : 65;
+            const padTop = isMobile ? 22 : 28;
+            const padBottom = isMobile ? 28 : 32;
 
-            const chartW = width - padLeft - padRight;
-            const chartH = height - padTop - padBottom;
+            const chartW = Math.max(10, width - padLeft - padRight);
+            const chartH = Math.max(10, height - padTop - padBottom);
 
             // Find min/max values
             let minVal = Infinity;
@@ -3093,7 +3369,6 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
 
             data.forEach(d => {
                 if (d.price !== null) { minVal = Math.min(minVal, d.price); maxVal = Math.max(maxVal, d.price); }
-                if (d.movingAvg !== null) { minVal = Math.min(minVal, d.movingAvg); maxVal = Math.max(maxVal, d.movingAvg); }
                 minVal = Math.min(minVal, d.lowerBand, d.fairValue);
                 maxVal = Math.max(maxVal, d.upperBand, d.fairValue);
             });
@@ -3106,7 +3381,24 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             const getY = (val) => padTop + chartH - ((val - minVal) / (maxVal - minVal)) * chartH;
 
             const splitIndex = data.findIndex(d => d.date === splitDate);
-            const splitX = splitIndex >= 0 ? getX(splitIndex) : getX(Math.floor(data.length * 0.75));
+            const splitX = splitIndex >= 0 ? getX(splitIndex) : getX(Math.floor(data.length * 0.5));
+            const splitPt = (splitIndex >= 0 ? data[splitIndex] : data[0]);
+            const basePrice = splitPt.price || splitPt.fairValue;
+
+            // Target Index based on SELECTED_VALUATION_HORIZON
+            let targetIndex = splitIndex;
+            let horizonYears = SELECTED_VALUATION_HORIZON;
+            if (horizonYears > 0) {
+                targetIndex = Math.min(data.length - 1, splitIndex + Math.round(horizonYears * 12));
+            }
+            const targetPt = data[targetIndex] || data[data.length - 1];
+
+            // Update ROI Card
+            updateValuationRoiCard(basePrice, targetPt, horizonYears, currency);
+
+            // Set initial Live Info Bar state to Stichtag / Current
+            const initialPoint = (splitIndex >= 0 ? data[splitIndex] : data[data.length - 1]);
+            updateLiveInfoBar(initialPoint, splitDate, currency, true);
 
             // Generate Path for Upper & Lower Corridor Band
             let bandPath = `M ${getX(0)} ${getY(data[0].upperBand)}`;
@@ -3117,20 +3409,6 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 bandPath += ` L ${getX(i)} ${getY(data[i].lowerBand)}`;
             }
             bandPath += ' Z';
-
-            // Generate Path for Moving Average
-            let maPath = '';
-            let maStarted = false;
-            data.forEach((d, i) => {
-                if (d.movingAvg !== null) {
-                    if (!maStarted) {
-                        maPath += `M ${getX(i)} ${getY(d.movingAvg)}`;
-                        maStarted = true;
-                    } else {
-                        maPath += ` L ${getX(i)} ${getY(d.movingAvg)}`;
-                    }
-                }
-            });
 
             // Generate Path for Fair Value (History: Solid)
             let fvHistPath = `M ${getX(0)} ${getY(data[0].fairValue)}`;
@@ -3161,30 +3439,87 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 }
             });
 
-            // Grid lines & Y Axis labels (4 horizontal steps)
+            // Grid lines & Y Axis labels
             let gridHtml = '';
-            const steps = 4;
+            const steps = isMobile ? 3 : 4;
             for (let s = 0; s <= steps; s++) {
                 const val = minVal + (s / steps) * (maxVal - minVal);
                 const y = getY(val);
                 gridHtml += `
                     <line x1="${padLeft}" y1="${y}" x2="${width - padRight}" y2="${y}" stroke="rgba(255,255,255,0.05)" stroke-dasharray="3,3" />
-                    <text x="${width - padRight + 8}" y="${y + 3}" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace">${Math.round(val)} ${currency}</text>
+                    <text x="${width - padRight + 6}" y="${y + 3.5}" fill="#64748B" font-size="${isMobile ? 8.5 : 9.5}" font-family="'JetBrains Mono', monospace">${Math.round(val)} ${currency}</text>
                 `;
             }
 
-            // X Axis date labels (every 8 months)
+            // X Axis date labels (Responsive & Adaptive for YTD, 1J, 3J, 5J, 10J, MAX)
             let xLabelsHtml = '';
             const monthsShort = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
-            const stepInterval = Math.max(1, Math.floor(data.length / 6));
+            const totalPoints = data.length;
+            const targetTicks = isMobile ? 3 : (totalPoints > 80 ? 7 : 5);
+            const stepInterval = Math.max(1, Math.floor((totalPoints - 1) / targetTicks));
+            
             for (let i = 0; i < data.length; i += stepInterval) {
                 const d = data[i];
                 const parts = d.date.split('-');
                 const mIdx = parseInt(parts[1], 10) - 1;
-                const label = `${monthsShort[mIdx]} '${parts[0].slice(2)}`;
+                let label = `${monthsShort[mIdx]} '${parts[0].slice(2)}`;
+                if (totalPoints > 60) {
+                    label = `'${parts[0].slice(2)}`;
+                }
                 const x = getX(i);
                 xLabelsHtml += `
-                    <text x="${x}" y="${height - 8}" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">${label}</text>
+                    <text x="${x}" y="${height - 6}" fill="#64748B" font-size="${isMobile ? 8.5 : 9.5}" font-family="'JetBrains Mono', monospace" text-anchor="middle">${label}</text>
+                `;
+            }
+
+            // Target Horizon Anchor Nodes (+1J, +2J, +3J)
+            let horizonNodesHtml = '';
+            const horizons = [
+                { y: 1, idx: splitIndex + 12, label: '+1J' },
+                { y: 2, idx: splitIndex + 24, label: '+2J' },
+                { y: 3, idx: splitIndex + 36, label: '+3J' }
+            ];
+
+            horizons.forEach(h => {
+                if (h.idx < data.length) {
+                    const ptH = data[h.idx];
+                    const hX = getX(h.idx);
+                    const hY = getY(ptH.fairValue);
+                    const isSelected = (SELECTED_VALUATION_HORIZON === h.y);
+
+                    horizonNodesHtml += `
+                        <g class="cursor-pointer" onclick="selectValuationHorizon(${h.y})">
+                            <circle cx="${hX}" cy="${hY}" r="${isSelected ? 6 : 4}" fill="${isSelected ? '#10B981' : '#D4AF37'}" stroke="#0F1420" stroke-width="2" />
+                            ${isSelected ? `<circle cx="${hX}" cy="${hY}" r="9" fill="none" stroke="#10B981" stroke-width="1.5" opacity="0.6" stroke-dasharray="2,2" />` : ''}
+                            <rect x="${hX - 12}" y="${hY - 20}" width="24" height="14" rx="4" fill="${isSelected ? 'rgba(16, 185, 129, 0.9)' : 'rgba(15, 20, 32, 0.85)'}" stroke="${isSelected ? '#10B981' : 'rgba(212, 175, 55, 0.4)'}" stroke-width="1" />
+                            <text x="${hX}" y="${hY - 10}" fill="${isSelected ? '#FFFFFF' : '#D4AF37'}" font-size="8.5" font-weight="bold" font-family="'JetBrains Mono', monospace" text-anchor="middle">${h.label}</text>
+                        </g>
+                    `;
+                }
+            });
+
+            // Projection Ray from Stichtag to Target Point
+            let projectionRayHtml = '';
+            if (horizonYears > 0 && targetIndex > splitIndex) {
+                const startX = splitX;
+                const startY = getY(basePrice);
+                const endX = getX(targetIndex);
+                const endY = getY(targetPt.fairValue);
+                const cagr = (Math.pow(targetPt.fairValue / basePrice, 1 / horizonYears) - 1) * 100;
+                const sign = cagr >= 0 ? '+' : '';
+
+                projectionRayHtml = `
+                    <!-- Projection Line -->
+                    <line x1="${startX}" y1="${startY}" x2="${endX}" y2="${endY}" stroke="#10B981" stroke-width="2" stroke-dasharray="4,3" opacity="0.85" />
+                    
+                    <!-- Pulsating Start Point Anchor -->
+                    <circle cx="${startX}" cy="${startY}" r="4" fill="#FFFFFF" stroke="#10B981" stroke-width="2" />
+                    
+                    <!-- Target Highlight ROI Badge -->
+                    <g transform="translate(${Math.min(width - padRight - 70, endX + 8)}, ${Math.max(padTop + 10, endY - 14)})">
+                        <rect x="0" y="0" width="70" height="20" rx="6" fill="#0F1420" stroke="#10B981" stroke-width="1.5" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.5))" />
+                        <text x="35" y="13.5" fill="#34D399" font-size="9" font-weight="bold" font-family="'JetBrains Mono', monospace" text-anchor="middle">${sign}${cagr.toFixed(1)}% p.a.</text>
+                    </g>
                 `;
             }
 
@@ -3198,7 +3533,7 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                     </linearGradient>
                     <linearGradient id="forecastBgGrad" x1="0" y1="0" x2="1" y2="0">
                         <stop offset="0%" stop-color="#D4AF37" stop-opacity="0.015" />
-                        <stop offset="100%" stop-color="#D4AF37" stop-opacity="0.07" />
+                        <stop offset="100%" stop-color="#D4AF37" stop-opacity="0.08" />
                     </linearGradient>
                 </defs>
 
@@ -3210,49 +3545,55 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 <rect x="${splitX}" y="${padTop}" width="${width - padRight - splitX}" height="${chartH}" fill="url(#forecastBgGrad)" />
 
                 <!-- Vertical Split Reference Line -->
-                <line x1="${splitX}" y1="${padTop}" x2="${splitX}" y2="${padTop + chartH}" stroke="rgba(212, 175, 55, 0.45)" stroke-dasharray="3,3" stroke-width="1.5" />
-                <text x="${splitX + 6}" y="${padTop + 12}" fill="#D4AF37" font-size="9" font-weight="bold" font-family="'JetBrains Mono', monospace">Konsens-Prognose ➔</text>
+                <line x1="${splitX}" y1="${padTop}" x2="${splitX}" y2="${padTop + chartH}" stroke="rgba(212, 175, 55, 0.5)" stroke-dasharray="3,3" stroke-width="1.5" />
+                <text x="${splitX + 6}" y="${padTop + 12}" fill="#D4AF37" font-size="${isMobile ? 8.5 : 9.5}" font-weight="bold" font-family="'JetBrains Mono', monospace">Konsens-Prognose ➔</text>
 
                 <!-- 1. Fair Value Corridor Band -->
                 <path d="${bandPath}" fill="url(#corridorFillGrad)" stroke="rgba(212, 175, 55, 0.2)" stroke-width="1" />
 
-                <!-- 2. Trendline / Moving Average (Blue) -->
-                ${maPath ? `<path d="${maPath}" fill="none" stroke="#3B82F6" stroke-width="1.75" stroke-linejoin="round" />` : ''}
-
-                <!-- 3. Fair Value Solid (History) -->
+                <!-- 2. Fair Value Solid (History) -->
                 <path d="${fvHistPath}" fill="none" stroke="#D4AF37" stroke-width="2" stroke-linejoin="round" />
 
-                <!-- 3b. Fair Value Dashed (Forecast) -->
+                <!-- 2b. Fair Value Dashed (Forecast) -->
                 ${fvForePath ? `<path d="${fvForePath}" fill="none" stroke="#D4AF37" stroke-width="2" stroke-dasharray="4,4" stroke-linejoin="round" />` : ''}
 
-                <!-- 4. Real Price Line (Solid Off-White) -->
+                <!-- 3. Real Price Line (Solid Off-White) -->
                 ${pricePath ? `<path d="${pricePath}" fill="none" stroke="#F8FAFC" stroke-width="2.25" stroke-linejoin="round" />` : ''}
 
+                <!-- 4. Target Horizon Nodes (+1J, +2J, +3J) -->
+                ${horizonNodesHtml}
+
+                <!-- 5. Active Projection Ray & ROI Badge -->
+                ${projectionRayHtml}
+
                 <!-- Dynamic Hover Cursor Elements -->
-                <line id="valHoverLine" x1="0" y1="${padTop}" x2="0" y2="${padTop + chartH}" stroke="rgba(255,255,255,0.3)" stroke-width="1" stroke-dasharray="2,2" style="display:none;" />
-                <circle id="valHoverDotPrice" r="4.5" fill="#FFFFFF" stroke="#0F1420" stroke-width="2" style="display:none;" />
-                <circle id="valHoverDotFair" r="4" fill="#D4AF37" stroke="#0F1420" stroke-width="2" style="display:none;" />
+                <line id="valHoverLine" x1="0" y1="${padTop}" x2="0" y2="${padTop + chartH}" stroke="rgba(255,255,255,0.4)" stroke-width="1" stroke-dasharray="2,2" style="display:none; pointer-events: none;" />
+                <circle id="valHoverDotPrice" r="4.5" fill="#FFFFFF" stroke="#0F1420" stroke-width="2" style="display:none; pointer-events: none;" />
+                <circle id="valHoverDotFair" r="4" fill="#D4AF37" stroke="#0F1420" stroke-width="2" style="display:none; pointer-events: none;" />
+
+                <!-- Full Area Transparent Touch/Mouse Catch Surface -->
+                <rect id="valHoverSurface" x="0" y="0" width="${width}" height="${height}" fill="transparent" style="cursor: crosshair; touch-action: pan-y;" />
             `;
 
-            // Setup Mouse / Touch Interaction for Tooltip
             const hoverLine = svg.querySelector('#valHoverLine');
             const hoverDotPrice = svg.querySelector('#valHoverDotPrice');
             const hoverDotFair = svg.querySelector('#valHoverDotFair');
+            const hoverSurface = svg.querySelector('#valHoverSurface');
 
-            const monthsFull = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+            let animationFrameId = null;
 
-            const onPointerMove = (evt) => {
+            const handlePointer = (clientX) => {
+                if (clientX === undefined || clientX === null) return;
                 const bRect = wrapper.getBoundingClientRect();
-                const clientX = evt.clientX || (evt.touches && evt.touches[0].clientX);
-                if (clientX === undefined) return;
-
                 const relX = clientX - bRect.left;
-                if (relX < padLeft || relX > width - padRight) {
+
+                if (relX < padLeft - 10 || relX > width - padRight + 10) {
                     onPointerLeave();
                     return;
                 }
 
-                const ratio = Math.max(0, Math.min(1, (relX - padLeft) / chartW));
+                const clampedX = Math.max(padLeft, Math.min(width - padRight, relX));
+                const ratio = Math.max(0, Math.min(1, (clampedX - padLeft) / chartW));
                 const idx = Math.round(ratio * (data.length - 1));
                 const pt = data[idx];
                 if (!pt) return;
@@ -3273,106 +3614,71 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 }
 
                 if (pt.price !== null && hoverDotPrice) {
-                    const ptYPrice = getY(pt.price);
                     hoverDotPrice.setAttribute('cx', ptX);
-                    hoverDotPrice.setAttribute('cy', ptYPrice);
+                    hoverDotPrice.setAttribute('cy', getY(pt.price));
                     hoverDotPrice.style.display = 'block';
                 } else if (hoverDotPrice) {
                     hoverDotPrice.style.display = 'none';
                 }
 
-                // Render Tooltip Content
-                const parts = pt.date.split('-');
-                const mIdx = parseInt(parts[1], 10) - 1;
-                const formattedDate = `${monthsFull[mIdx]} ${parts[0]}`;
+                // Update Live Info Bar
+                updateLiveInfoBar(pt, splitDate, currency, false);
+            };
 
-                let devHtml = '';
-                if (pt.price !== null && pt.fairValue > 0) {
-                    const dPct = ((pt.price - pt.fairValue) / pt.fairValue) * 100;
-                    const isUnder = dPct <= -3;
-                    const isF = Math.abs(dPct) < 3;
-                    const colorCls = isUnder ? 'text-emerald-400' : isF ? 'text-blue-400' : 'text-rose-400';
-                    const sign = dPct > 0 ? '+' : '';
-                    devHtml = `
-                        <div class="flex items-center justify-between gap-3 pt-1 border-t border-white/5">
-                            <span class="text-gray-400">Abweichung:</span>
-                            <span class="font-bold ${colorCls}">${sign}${dPct.toFixed(2)}% <span class="text-[9px] font-normal">${isUnder ? '(Unterbew.)' : isF ? '(Fair)' : '(Überbew.)'}</span></span>
-                        </div>
-                    `;
+            const onPointerMove = (evt) => {
+                const clientX = evt.clientX !== undefined ? evt.clientX : (evt.touches && evt.touches[0] ? evt.touches[0].clientX : null);
+                if (clientX === null) return;
+                
+                if (animationFrameId) cancelAnimationFrame(animationFrameId);
+                animationFrameId = requestAnimationFrame(() => handlePointer(clientX));
+            };
+
+            const onPointerClick = (evt) => {
+                const clientX = evt.clientX !== undefined ? evt.clientX : (evt.touches && evt.touches[0] ? evt.touches[0].clientX : null);
+                if (clientX === null) return;
+                const bRect = wrapper.getBoundingClientRect();
+                const relX = clientX - bRect.left;
+                const clampedX = Math.max(padLeft, Math.min(width - padRight, relX));
+                const ratio = Math.max(0, Math.min(1, (clampedX - padLeft) / chartW));
+                const idx = Math.round(ratio * (data.length - 1));
+
+                if (idx <= splitIndex) {
+                    selectValuationHorizon(0);
+                } else {
+                    const deltaMonths = idx - splitIndex;
+                    const approxYears = Math.max(1, Math.min(3, Math.round(deltaMonths / 12)));
+                    selectValuationHorizon(approxYears);
                 }
-
-                tooltip.innerHTML = `
-                    <div class="flex items-center justify-between gap-2 pb-1.5 mb-1.5 border-b border-white/10">
-                        <span class="font-bold text-white text-[11px]">${formattedDate}</span>
-                        <span class="text-[9px] px-1.5 py-0.5 rounded font-bold uppercase ${pt.isForecast ? 'bg-gold-500/15 text-gold-400 border border-gold-500/30' : 'bg-blue-500/15 text-blue-400 border border-blue-500/30'}">${pt.isForecast ? 'Prognose' : 'Historie'}</span>
-                    </div>
-                    <div class="space-y-1">
-                        ${pt.price !== null ? `
-                            <div class="flex items-center justify-between gap-3">
-                                <span class="text-gray-400 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-white"></span>Kurs:</span>
-                                <span class="font-bold text-white">${pt.price.toFixed(2)} ${currency}</span>
-                            </div>
-                        ` : `
-                            <div class="flex items-center justify-between gap-3 text-gray-500 italic text-[10px]">
-                                <span>Kurs:</span>
-                                <span>-- (Zukunft)</span>
-                            </div>
-                        `}
-                        ${pt.movingAvg !== null ? `
-                            <div class="flex items-center justify-between gap-3">
-                                <span class="text-gray-400 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-[#3B82F6]"></span>Trend (MA):</span>
-                                <span class="font-medium text-blue-300">${pt.movingAvg.toFixed(2)} ${currency}</span>
-                            </div>
-                        ` : ''}
-                        <div class="flex items-center justify-between gap-3">
-                            <span class="text-gray-400 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-gold-400"></span>Fair Value:</span>
-                            <span class="font-bold text-gold-400">${pt.fairValue.toFixed(2)} ${currency}</span>
-                        </div>
-                        ${devHtml}
-                        <div class="flex items-center justify-between gap-3 pt-1 border-t border-white/5 text-[10px] text-gray-400">
-                            <span>Korridor (±15%):</span>
-                            <span class="text-gray-300 font-mono">${pt.lowerBand.toFixed(1)} – ${pt.upperBand.toFixed(1)} ${currency}</span>
-                        </div>
-                    </div>
-                `;
-
-                // Position tooltip nicely avoiding overflow
-                let tipX = ptX + 15;
-                if (tipX + 210 > width) {
-                    tipX = ptX - 220;
-                }
-                const tipY = Math.max(10, Math.min(height - 130, ptYFair - 50));
-
-                tooltip.style.left = `${tipX}px`;
-                tooltip.style.top = `${tipY}px`;
-                tooltip.classList.remove('opacity-0');
-                tooltip.classList.add('opacity-100');
             };
 
             const onPointerLeave = () => {
                 if (hoverLine) hoverLine.style.display = 'none';
                 if (hoverDotPrice) hoverDotPrice.style.display = 'none';
                 if (hoverDotFair) hoverDotFair.style.display = 'none';
-                tooltip.classList.remove('opacity-100');
-                tooltip.classList.add('opacity-0');
+                // Reset Live Info Bar to default Stichtag
+                const defaultPt = (splitIndex >= 0 ? data[splitIndex] : data[data.length - 1]);
+                updateLiveInfoBar(defaultPt, splitDate, currency, true);
             };
 
-            wrapper.onmousemove = onPointerMove;
-            wrapper.onmouseleave = onPointerLeave;
-            wrapper.ontouchmove = onPointerMove;
-            wrapper.ontouchend = onPointerLeave;
+            if (hoverSurface) {
+                hoverSurface.onpointermove = onPointerMove;
+                hoverSurface.onpointerdown = onPointerMove;
+                hoverSurface.onclick = onPointerClick;
+                hoverSurface.onpointerleave = onPointerLeave;
+                hoverSurface.ontouchmove = onPointerMove;
+                hoverSurface.ontouchstart = onPointerMove;
+                hoverSurface.ontouchend = onPointerLeave;
+            }
         }
 
         window.addEventListener('resize', () => {
             if (LAST_VALUATION_CHART_STATE) {
                 const svg = document.getElementById('valCorridorSvg');
                 const wrapper = document.getElementById('valCorridorChartWrapper');
-                const tooltip = document.getElementById('valCorridorTooltip');
-                if (svg && wrapper && tooltip) {
+                if (svg && wrapper) {
                     drawValuationCorridorSvg(
                         svg,
                         wrapper,
-                        tooltip,
                         LAST_VALUATION_CHART_STATE.data,
                         LAST_VALUATION_CHART_STATE.splitDate,
                         LAST_VALUATION_CHART_STATE.currency
@@ -3380,6 +3686,7 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 }
             }
         });
+
 
 
         function renderWidgets(data) {

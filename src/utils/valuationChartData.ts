@@ -1,4 +1,27 @@
-import { ChartDataPoint, ValuationMetrics } from '../types/valuation-chart';
+import { ChartDataPoint, ValuationMetrics, ForecastReturnMetrics, ValuationHistoryTimeframe } from '../types/valuation-chart';
+
+/**
+ * Ermittelt die Anzahl an historischen Monaten für einen gewählten Zeithorizont.
+ */
+export function getHistoryMonthsForTimeframe(tf: ValuationHistoryTimeframe): number {
+  const now = new Date(2026, 7, 25);
+  switch (tf) {
+    case 'YTD':
+      return Math.max(2, now.getMonth() + 1);
+    case '1J':
+      return 12;
+    case '3J':
+      return 36;
+    case '5J':
+      return 60;
+    case '10J':
+      return 120;
+    case 'MAX':
+      return 180;
+    default:
+      return 36;
+  }
+}
 
 /**
  * Berechnet Metriken wie Abweichung, Korridorbreite und Status für einen Datenpunkt oder Stichtag.
@@ -55,7 +78,7 @@ export function calculateValuationMetrics(
 /**
  * Formatiert Datumsstrings ('YYYY-MM-DD') für X-Achsen und Tooltips ('Monat Jahr').
  */
-export function formatChartDate(dateStr: string, format: 'short' | 'full' = 'short'): string {
+export function formatChartDate(dateStr: string, format: 'short' | 'full' = 'short', isYearOnly: boolean = false): string {
   if (!dateStr) return '';
   const parts = dateStr.split('-');
   if (parts.length < 3) return dateStr;
@@ -77,7 +100,12 @@ export function formatChartDate(dateStr: string, format: 'short' | 'full' = 'sho
   if (format === 'full') {
     return `${parseInt(day, 10)}. ${monthsFull[monthIdx] || ''} ${year}`;
   }
-  return `${monthsShort[monthIdx] || ''} ${year.slice(2)}`;
+
+  if (isYearOnly) {
+    return `'${year.slice(2)}`;
+  }
+
+  return `${monthsShort[monthIdx] || ''} '${year.slice(2)}`;
 }
 
 /**
@@ -89,6 +117,58 @@ export function formatCurrencyValue(val: number | null | undefined, currency = '
 }
 
 /**
+ * Berechnet Rendite-Kennzahlen (Total Return & CAGR p.a.) von einem Basispreis zu einem Zielpunkt.
+ */
+export function calculateForecastReturn(
+  basePrice: number,
+  targetPoint: ChartDataPoint,
+  splitDate: string,
+  targetYears?: number
+): ForecastReturnMetrics | null {
+  if (!basePrice || basePrice <= 0 || !targetPoint || targetPoint.fairValue <= 0) {
+    return null;
+  }
+
+  // Ermittle Zeitabstand in Jahren
+  let years = targetYears;
+  if (years === undefined || years === null || years <= 0) {
+    const splitParts = splitDate.split('-').map((p) => parseInt(p, 10));
+    const targetParts = targetPoint.date.split('-').map((p) => parseInt(p, 10));
+
+    if (splitParts.length >= 2 && targetParts.length >= 2) {
+      const splitMonths = splitParts[0] * 12 + splitParts[1];
+      const targetMonths = targetParts[0] * 12 + targetParts[1];
+      const deltaMonths = targetMonths - splitMonths;
+      years = Math.max(0.25, deltaMonths / 12);
+    } else {
+      years = 1;
+    }
+  }
+
+  const targetFairValue = targetPoint.fairValue;
+  const targetLowerBand = targetPoint.lowerBand;
+  const targetUpperBand = targetPoint.upperBand;
+
+  const totalReturnPercent = ((targetFairValue - basePrice) / basePrice) * 100;
+  const annualizedReturnPercent = (Math.pow(targetFairValue / basePrice, 1 / years) - 1) * 100;
+  const lowerAnnualizedReturnPercent = (Math.pow(targetLowerBand / basePrice, 1 / years) - 1) * 100;
+  const upperAnnualizedReturnPercent = (Math.pow(targetUpperBand / basePrice, 1 / years) - 1) * 100;
+
+  return {
+    targetDate: targetPoint.date,
+    targetYears: Math.round(years * 10) / 10,
+    basePrice,
+    targetFairValue,
+    targetLowerBand,
+    targetUpperBand,
+    totalReturnPercent,
+    annualizedReturnPercent,
+    lowerAnnualizedReturnPercent,
+    upperAnnualizedReturnPercent,
+  };
+}
+
+/**
  * Generiert realitätsnahe Chart-Daten für Schnellanalysen basierend auf Fundamentaldaten & KGV-Multiplikator.
  */
 export function generateSampleGrowthData(
@@ -96,21 +176,20 @@ export function generateSampleGrowthData(
   basePrice: number = 225.5,
   baseFairValue: number = 210.0,
   annualGrowth: number = 0.12,
-  corridorSpread: number = 0.15
+  corridorSpread: number = 0.15,
+  timeframe: ValuationHistoryTimeframe = '3J'
 ): { splitDate: string; data: ChartDataPoint[] } {
   const data: ChartDataPoint[] = [];
-  const totalMonths = 48; // 36 Monate Historie + 12 Monate Prognose
-  const historyMonths = 36;
+  const historyMonths = getHistoryMonthsForTimeframe(timeframe);
+  const forecastMonths = 36; // 36 Monate Konsens-Prognose (1J, 2J, 3J)
+  const totalMonths = historyMonths + forecastMonths;
   
   const today = new Date(2026, 7, 25); // Aktueller Stichtag
   const startDate = new Date(today);
   startDate.setMonth(startDate.getMonth() - historyMonths);
 
-  let currentSimPrice = basePrice * Math.pow(1 - annualGrowth, historyMonths / 12) * 0.95;
   let currentSimFair = baseFairValue * Math.pow(1 - annualGrowth, historyMonths / 12);
-  
   let splitDateStr = '';
-  const priceHistory: number[] = [];
 
   for (let i = 0; i <= totalMonths; i++) {
     const d = new Date(startDate);
@@ -136,26 +215,23 @@ export function generateSampleGrowthData(
     const upperBand = Math.round(fairValRound * (1 + corridorSpread) * 100) / 100;
 
     let priceVal: number | null = null;
-    let movingAvgVal: number | null = null;
 
     if (!isForecast) {
-      // Zyklische und stochastische Preisschwankung um den Fair Value
-      const noise = (Math.sin(i * 0.5) * 0.06) + ((Math.cos(i * 0.9) * 0.04)) + ((Math.sin(i * 1.8) * 0.03));
-      currentSimPrice = fairValRound * (1 + noise);
-      priceVal = Math.round(currentSimPrice * 100) / 100;
-      priceHistory.push(priceVal);
-
-      // Gleitender Durchschnitt (EMA-Glättung über die letzten 6 Datenpunkte)
-      const windowSize = Math.min(priceHistory.length, 6);
-      const slice = priceHistory.slice(-windowSize);
-      const sum = slice.reduce((acc, p) => acc + p, 0);
-      movingAvgVal = Math.round((sum / windowSize) * 100) / 100;
+      // Realistische zyklische Marktbewegung
+      const noise = (Math.sin(i * 0.35) * 0.08) + ((Math.cos(i * 0.85) * 0.05)) + ((Math.sin(i * 1.6) * 0.025));
+      let baseP = fairValRound * (1 + noise);
+      if (i === historyMonths) {
+        baseP = basePrice;
+      } else if (i >= historyMonths - 3) {
+        const weight = (i - (historyMonths - 3)) / 3;
+        baseP = (baseP * (1 - weight)) + (basePrice * weight);
+      }
+      priceVal = Math.round(baseP * 100) / 100;
     }
 
     data.push({
       date: dateStr,
       price: priceVal,
-      movingAvg: movingAvgVal,
       fairValue: fairValRound,
       lowerBand,
       upperBand,
