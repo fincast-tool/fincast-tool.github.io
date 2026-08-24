@@ -2296,7 +2296,8 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                         throw new Error(errMsg || `API_ERROR: ${res.status}`);
                     }
 
-                    return errData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                    const parts = errData.candidates?.[0]?.content?.parts;
+                    return Array.isArray(parts) ? parts.map(p => p.text || '').join('') : '';
                 } catch (e) {
                     if (i === retries || e.message.includes('504')) throw e; // Bei 504 keinen blind retry machen!
                     console.warn(`Attempt ${i + 1} failed: ${e.message}. Retrying...`);
