@@ -28,9 +28,9 @@ export const MultiplesChart: React.FC<MultiplesChartProps> = ({
 }) => {
   const [activeMetrics, setActiveMetrics] = useState({
     pe_adj: true,
+    pe_rep: true,
     pcf: true,
-    ps: true,
-    pe_rep: false
+    ps: true
   });
   const [timeframe, setTimeframe] = useState<MultiplesHistoryTimeframe>(selectedTimeframe);
   const [activePoint, setActivePoint] = useState<MultiplesDataPoint | null>(null);
@@ -79,26 +79,30 @@ export const MultiplesChart: React.FC<MultiplesChartProps> = ({
           </div>
         </div>
 
-        {/* Badges */}
-        <div className="flex flex-wrap items-center gap-2 text-[10px]">
-          {averages?.pe_adj && (
-            <div className="px-2 py-0.5 rounded-lg border bg-amber-500/10 border-amber-500/30 text-amber-400 font-bold flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-              <span>KGV ber. {splitPoint?.pe_adj?.toFixed(1) || '--'} (Ø {averages.pe_adj.toFixed(1)})</span>
-            </div>
-          )}
-          {averages?.pcf && (
-            <div className="px-2 py-0.5 rounded-lg border bg-yellow-500/10 border-yellow-500/30 text-yellow-300 font-bold flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-yellow-400" />
-              <span>KCV {splitPoint?.pcf?.toFixed(1) || '--'} (Ø {averages.pcf.toFixed(1)})</span>
-            </div>
-          )}
-          {averages?.ps && (
-            <div className="px-2 py-0.5 rounded-lg border bg-emerald-500/10 border-emerald-500/30 text-emerald-400 font-bold flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              <span>KUV {splitPoint?.ps?.toFixed(1) || '--'} (Ø {averages.ps.toFixed(1)})</span>
-            </div>
-          )}
+        {/* Assessment Status Badge */}
+        <div className="flex items-center gap-2">
+          <div className={`px-2.5 py-1 rounded-lg border text-[10px] font-mono font-bold flex items-center gap-1.5 shadow-sm ${
+            peDiffPct !== null && peDiffPct <= -5
+              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+              : peDiffPct !== null && peDiffPct >= 5
+              ? 'bg-rose-500/10 border-rose-500/30 text-rose-400'
+              : 'bg-amber-500/10 border-amber-500/30 text-amber-400'
+          }`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${
+              peDiffPct !== null && peDiffPct <= -5
+                ? 'bg-emerald-400'
+                : peDiffPct !== null && peDiffPct >= 5
+                ? 'bg-rose-400'
+                : 'bg-amber-400'
+            }`} />
+            <span>
+              {peDiffPct !== null && peDiffPct <= -5
+                ? `Historischer Abschlag (${peDiffPct.toFixed(1)}%)`
+                : peDiffPct !== null && peDiffPct >= 5
+                ? `Bewertungsprämie (+${peDiffPct.toFixed(1)}%)`
+                : `Faire Bewertung (${peDiffPct !== null && peDiffPct >= 0 ? '+' : ''}${peDiffPct?.toFixed(1) || '0.0'}%)`}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -178,7 +182,7 @@ export const MultiplesChart: React.FC<MultiplesChartProps> = ({
       </div>
 
       {/* Live Info Bar */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 p-2 rounded-lg bg-white/[0.03] border border-white/10 mb-3 text-[11px]">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 p-2 rounded-lg bg-white/[0.03] border border-white/10 mb-3 text-[11px]">
         <div>
           <span className="text-[9px] text-gray-400 uppercase">Datum / Modus</span>
           <div className="font-bold text-white mt-0.5">{formatChartDate(currentPt?.date || '', 'short')}</div>
@@ -186,6 +190,10 @@ export const MultiplesChart: React.FC<MultiplesChartProps> = ({
         <div>
           <span className="text-[9px] text-amber-400 uppercase">KGV bereinigt</span>
           <div className="font-bold text-amber-300 mt-0.5">{currentPt?.pe_adj?.toFixed(1) || '--'}</div>
+        </div>
+        <div>
+          <span className="text-[9px] text-slate-400 uppercase">KGV bilanziert</span>
+          <div className="font-bold text-slate-300 mt-0.5">{currentPt?.pe_rep?.toFixed(1) || '--'}</div>
         </div>
         <div>
           <span className="text-[9px] text-yellow-400 uppercase">KCV (Cashflow)</span>
@@ -252,6 +260,14 @@ export const MultiplesChart: React.FC<MultiplesChartProps> = ({
                 stroke="#F59E0B"
                 strokeDasharray="3 3"
                 label={{ value: `Ø KGV: ${averages.pe_adj}`, fill: '#F59E0B', fontSize: 9, position: 'right' }}
+              />
+            )}
+            {activeMetrics.pe_rep && averages?.pe_rep && (
+              <ReferenceLine
+                y={averages.pe_rep}
+                stroke="#94A3B8"
+                strokeDasharray="3 3"
+                label={{ value: `Ø KGV bil.: ${averages.pe_rep}`, fill: '#94A3B8', fontSize: 9, position: 'right' }}
               />
             )}
             {activeMetrics.pcf && averages?.pcf && (

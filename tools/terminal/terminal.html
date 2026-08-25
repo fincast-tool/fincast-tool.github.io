@@ -1332,7 +1332,7 @@
 
                                 <!-- Valuation Corridor & Forecast Chart Strip -->
                                 <div id="valuationCorridorSection" class="mt-6 pt-6 border-t border-gold-500/15">
-                                    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                                    <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
                                         <div class="flex items-center gap-2.5">
                                             <div class="w-6 h-6 rounded-lg bg-gold-500/10 border border-gold-500/30 flex items-center justify-center text-gold-400">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -1342,13 +1342,13 @@
                                             <div>
                                                 <h3 class="text-xs font-bold text-white tracking-wide uppercase flex items-center gap-2">
                                                     <span data-de="Bewertungskorridor &amp; Schnellanalyse" data-en="Valuation Corridor &amp; Quick Analysis" data-fr="Couloir d'Évaluation &amp; Analyse Rapide" data-es="Corredor de Valoración &amp; Análisis Rápido">Bewertungskorridor &amp; Schnellanalyse</span>
-                                                    <span class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-400">Fair Value Corridor &amp; Prognose</span>
+                                                    <span class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-400">Fair Value Corridor</span>
                                                 </h3>
                                             </div>
                                         </div>
                                         
                                         <div class="flex items-center gap-2">
-                                            <div id="valCorridorBadge" class="px-2.5 py-1 rounded-lg border text-[10px] font-mono font-bold flex items-center gap-1.5 bg-gold-500/10 border-gold-500/30 text-gold-400">
+                                            <div id="valCorridorBadge" class="px-2.5 py-1 rounded-lg border text-[10px] font-mono font-bold flex items-center gap-1.5 bg-gold-500/10 border-gold-500/30 text-gold-400 shadow-sm">
                                                 <span class="w-1.5 h-1.5 rounded-full bg-gold-400"></span>
                                                 <span id="valCorridorStatusText">Fair Value Modell</span>
                                             </div>
@@ -1358,25 +1358,39 @@
                                     <!-- Chart Canvas / SVG Container -->
                                     <div id="valCorridorChartContainer" class="w-full relative bg-obsidian-950/70 rounded-xl border border-white/5 p-3 sm:p-4 overflow-hidden">
                                         
-                                        <!-- Top Bar: Legend & Timeframe Range Selector -->
-                                        <div class="flex flex-wrap items-center justify-between gap-2.5 text-[11px] font-mono text-gray-400 mb-2.5 pb-2 border-b border-white/5">
-                                            <!-- Left: Legend -->
+                                        <!-- Top Bar: Horizon Selector, Legend & Timeframe Selector -->
+                                        <div class="flex flex-wrap items-center justify-between gap-2.5 text-[11px] font-mono text-gray-400 mb-2.5 pb-2.5 border-b border-white/5">
+                                            <!-- Left: Horizon Selector & Legend Chips -->
                                             <div class="flex flex-wrap items-center gap-3 text-[10px]">
                                                 <div class="flex items-center gap-1.5">
-                                                    <span class="w-2.5 h-0.5 bg-white rounded-full"></span>
-                                                    <span>Kurs</span>
+                                                    <span class="text-gray-400 text-[10px] uppercase font-bold">Horizont:</span>
+                                                    <div class="flex items-center gap-1" id="valCorridorHorizonButtons">
+                                                        <button type="button" onclick="selectValuationHorizon(0)" id="valHBtn_0" class="val-h-btn px-2 py-0.5 rounded border border-white/10 text-gray-400 hover:text-white transition-all text-[10px]">Stichtag</button>
+                                                        <button type="button" onclick="selectValuationHorizon(1)" id="valHBtn_1" class="val-h-btn px-2 py-0.5 rounded border border-white/10 text-gray-300 hover:text-white transition-all text-[10px]">+1J</button>
+                                                        <button type="button" onclick="selectValuationHorizon(2)" id="valHBtn_2" class="val-h-btn px-2 py-0.5 rounded border border-white/10 text-gray-300 hover:text-white transition-all text-[10px]">+2J</button>
+                                                        <button type="button" onclick="selectValuationHorizon(3)" id="valHBtn_3" class="val-h-btn px-2 py-0.5 rounded border border-gold-500/50 bg-gold-500/15 text-gold-300 shadow-sm transition-all font-bold text-[10px]">+3J</button>
+                                                    </div>
                                                 </div>
-                                                <div class="flex items-center gap-1.5">
-                                                    <span class="w-2.5 h-0.5 bg-gold-400 rounded-full"></span>
-                                                    <span>Fair Value</span>
-                                                </div>
-                                                <div class="flex items-center gap-1.5">
-                                                    <span class="w-2.5 h-0.5 border-t border-dashed border-gold-400"></span>
-                                                    <span>Konsens-Prognose</span>
-                                                </div>
-                                                <div class="flex items-center gap-1.5">
-                                                    <span class="w-2.5 h-2 rounded-sm bg-emerald-500/20 border border-gold-400/30"></span>
-                                                    <span>Korridor (±15%)</span>
+
+                                                <div class="hidden sm:block w-px h-3.5 bg-white/10"></div>
+
+                                                <div class="hidden md:flex items-center gap-2.5 text-[10px]">
+                                                    <div class="flex items-center gap-1.5">
+                                                        <span class="w-2.5 h-0.5 bg-white rounded-full"></span>
+                                                        <span>Kurs</span>
+                                                    </div>
+                                                    <div class="flex items-center gap-1.5">
+                                                        <span class="w-2.5 h-0.5 bg-gold-400 rounded-full"></span>
+                                                        <span>Fair Value</span>
+                                                    </div>
+                                                    <div class="flex items-center gap-1.5">
+                                                        <span class="w-2.5 h-0.5 border-t border-dashed border-gold-400"></span>
+                                                        <span>Prognose</span>
+                                                    </div>
+                                                    <div class="flex items-center gap-1.5">
+                                                        <span class="w-2.5 h-2 rounded-sm bg-emerald-500/20 border border-gold-400/30"></span>
+                                                        <span>Korridor (±15%)</span>
+                                                    </div>
                                                 </div>
                                             </div>
 
@@ -1391,54 +1405,7 @@
                                             </div>
                                         </div>
 
-                                        <!-- Horizon / Rendite-Prognose Selector -->
-                                        <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5 px-0.5">
-                                            <div class="flex items-center gap-1.5 text-xs font-mono text-gray-300">
-                                                <span class="text-gold-400 font-bold flex items-center gap-1">
-                                                    <svg class="w-3.5 h-3.5 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                                                    </svg>
-                                                    <span>Rendite-Prognose:</span>
-                                                </span>
-                                                <span class="text-[10px] text-gray-400 hidden sm:inline">(Stichtag ➔ Fair Value)</span>
-                                            </div>
-                                            <div class="flex items-center gap-1 font-mono text-[11px]" id="valCorridorHorizonButtons">
-                                                <button type="button" onclick="selectValuationHorizon(0)" id="valHBtn_0" class="val-h-btn px-2 py-0.5 rounded-lg border border-white/10 text-gray-400 hover:text-white transition-all text-[10px]">Stichtag</button>
-                                                <button type="button" onclick="selectValuationHorizon(1)" id="valHBtn_1" class="val-h-btn px-2.5 py-0.5 rounded-lg border border-white/10 text-gray-300 hover:border-gold-500/40 hover:text-gold-300 transition-all font-semibold text-[10px]">+1 Jahr</button>
-                                                <button type="button" onclick="selectValuationHorizon(2)" id="valHBtn_2" class="val-h-btn px-2.5 py-0.5 rounded-lg border border-white/10 text-gray-300 hover:border-gold-500/40 hover:text-gold-300 transition-all font-semibold text-[10px]">+2 Jahre</button>
-                                                <button type="button" onclick="selectValuationHorizon(3)" id="valHBtn_3" class="val-h-btn px-2.5 py-0.5 rounded-lg border border-gold-500/50 bg-gold-500/15 text-gold-300 shadow-sm transition-all font-bold text-[10px]">+3 Jahre</button>
-                                            </div>
-                                        </div>
-
-                                        <!-- Interactive Yield / ROI Card -->
-                                        <div id="valCorridorRoiBox" class="flex flex-wrap items-center justify-between gap-3 p-2.5 rounded-xl bg-gradient-to-r from-gold-500/10 via-emerald-500/10 to-white/[0.02] border border-gold-500/25 mb-3 text-xs font-mono transition-all">
-                                            <div class="flex items-center gap-2.5">
-                                                <div class="w-7 h-7 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-xs shrink-0">
-                                                    %
-                                                </div>
-                                                <div>
-                                                    <div class="text-[9px] uppercase font-mono tracking-wider text-gray-400">
-                                                        Erwartete Ø Rendite (<span id="roiHorizonLabel" class="text-gold-400 font-bold">+3 Jahre</span>)
-                                                    </div>
-                                                    <div class="flex items-baseline gap-2 mt-0.5">
-                                                        <span id="roiCagrValue" class="text-sm sm:text-base font-bold text-emerald-400">+11.2% p.a.</span>
-                                                        <span id="roiTotalValue" class="text-[10px] text-gray-300 font-normal">(+37.5% gesamt)</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="flex flex-wrap items-center gap-3 text-[11px] border-t sm:border-t-0 sm:border-l border-white/10 pt-1.5 sm:pt-0 sm:pl-3">
-                                                <div>
-                                                    <div class="text-[8.5px] text-gray-400 uppercase">Ziel Fair Value</div>
-                                                    <div id="roiTargetFair" class="font-bold text-gold-400 text-[11px] mt-0.5">--</div>
-                                                </div>
-                                                <div>
-                                                    <div class="text-[8.5px] text-gray-400 uppercase">Korridorspanne p.a.</div>
-                                                    <div id="roiBandCagr" class="font-mono text-gray-300 text-[10px] mt-0.5">--</div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Live Interactive Info Bar (Crystal Clear on Mobile & Desktop) -->
+                                        <!-- Live Interactive Info Bar (Smart HUD) -->
                                         <div id="valCorridorLiveBar" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 p-2 sm:p-2.5 rounded-lg bg-white/[0.03] border border-white/10 mb-3 text-xs font-mono transition-colors">
                                             <div class="flex flex-col min-w-0">
                                                 <span class="text-[9px] text-gray-400 uppercase tracking-tighter">Datum / Modus</span>
@@ -1452,11 +1419,11 @@
                                                 <span id="liveValPrice" class="font-bold text-white mt-0.5 text-[11px] truncate">--</span>
                                             </div>
                                             <div class="flex flex-col min-w-0">
-                                                <span class="text-[9px] text-gray-400 uppercase tracking-tighter">Fairer Wert</span>
-                                                <span id="liveValFair" class="font-bold text-gold-400 mt-0.5 text-[11px] truncate">--</span>
+                                                <span class="text-[9px] text-gold-400 uppercase tracking-tighter">Fairer Wert</span>
+                                                <span id="liveValFair" class="font-bold text-gold-300 mt-0.5 text-[11px] truncate">--</span>
                                             </div>
                                             <div class="flex flex-col min-w-0">
-                                                <span class="text-[9px] text-gray-400 uppercase tracking-tighter">Abweichung</span>
+                                                <span class="text-[9px] text-emerald-400 uppercase tracking-tighter">Bewertung</span>
                                                 <span id="liveValDev" class="font-bold text-emerald-400 mt-0.5 text-[11px] truncate">--</span>
                                             </div>
                                             <div class="flex flex-col min-w-0 col-span-2 sm:col-span-1 lg:col-span-1">
@@ -1465,7 +1432,8 @@
                                             </div>
                                         </div>
 
-                                        <div id="valCorridorChartWrapper" class="w-full h-[260px] sm:h-[290px] relative select-none touch-pan-y">
+                                        <!-- Chart Wrapper & SVG Element -->
+                                        <div id="valCorridorChartWrapper" class="w-full h-[260px] sm:h-[300px] relative select-none touch-pan-y">
                                             <svg id="valCorridorSvg" class="w-full h-full overflow-visible"></svg>
                                         </div>
                                     </div>
@@ -1474,7 +1442,7 @@
                                 <!-- Multiples Chart Strip (Aktienfinder Methodik) -->
                                 <div id="multiplesChartSection" class="mt-6 pt-6 border-t border-gold-500/15">
                                     <!-- Header -->
-                                    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                                    <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
                                         <div class="flex items-center gap-2.5">
                                             <div class="w-6 h-6 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -1484,24 +1452,16 @@
                                             <div>
                                                 <h3 class="text-xs font-bold text-white tracking-wide uppercase flex items-center gap-2">
                                                     <span id="multiplesHeaderTitle">Multiples von Unternehmen</span>
-                                                    <span id="multiplesHeaderSubtext" class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400">Historischer Bewertungsvergleich (3 Jahre Datenbasis)</span>
+                                                    <span id="multiplesHeaderSubtext" class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400">Historischer Bewertungsvergleich</span>
                                                 </h3>
                                             </div>
                                         </div>
                                         
-                                        <!-- Header Metric Badges (KGV bereinigt, KCV, KUV & Selected Period) -->
-                                        <div class="flex flex-wrap items-center gap-2" id="multiplesHeaderBadges">
-                                            <div id="multiplesBadge_pe" class="px-2.5 py-1 rounded-lg border text-[10px] font-mono font-bold flex items-center gap-1.5 bg-amber-500/10 border-amber-500/30 text-amber-400 shadow-sm">
-                                                <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                                                <span id="multiplesBadgePeText">KGV bereinigt: -- (Ø --)</span>
-                                            </div>
-                                            <div id="multiplesBadge_pcf" class="px-2.5 py-1 rounded-lg border text-[10px] font-mono font-bold flex items-center gap-1.5 bg-yellow-500/10 border-yellow-500/30 text-yellow-300 shadow-sm">
-                                                <span class="w-1.5 h-1.5 rounded-full bg-yellow-400"></span>
-                                                <span id="multiplesBadgePcfText">KCV: -- (Ø --)</span>
-                                            </div>
-                                            <div id="multiplesBadge_ps" class="px-2.5 py-1 rounded-lg border text-[10px] font-mono font-bold flex items-center gap-1.5 bg-emerald-500/10 border-emerald-500/30 text-emerald-400 shadow-sm">
+                                        <!-- Header Multiples Assessment Status Pill -->
+                                        <div class="flex items-center gap-2">
+                                            <div id="multiplesAssessmentBadge" class="px-2.5 py-1 rounded-lg border text-[10px] font-mono font-bold flex items-center gap-1.5 bg-emerald-500/10 border-emerald-500/30 text-emerald-400 shadow-sm">
                                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                                                <span id="multiplesBadgePsText">KUV: -- (Ø --)</span>
+                                                <span id="multiplesAssessmentBadgeText">Historischer Bewertungsvergleich</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1509,20 +1469,18 @@
                                     <!-- Chart Canvas / SVG Container -->
                                     <div id="multiplesChartContainer" class="w-full relative bg-obsidian-950/70 rounded-xl border border-white/5 p-3 sm:p-4 overflow-hidden">
                                         
-                                        <!-- Top Bar: Mode Tabs, Metric Toggles & Timeframe Range Selector -->
+                                        <!-- Top Bar: Metric Toggles & Timeframe Range Selector -->
                                         <div class="flex flex-wrap items-center justify-between gap-2.5 text-[11px] font-mono text-gray-400 mb-2.5 pb-2.5 border-b border-white/5">
-                                            <!-- Left: Mode Tabs & Clickable Legend Chips -->
+                                            <!-- Left: Clickable Metric Legend Pills -->
                                             <div class="flex flex-wrap items-center gap-2 text-[10px]">
-                                                <!-- Mode Tabs -->
-                                                <div class="flex items-center gap-1 bg-white/[0.04] p-0.5 rounded-lg border border-white/10 mr-1.5">
-                                                    <button type="button" onclick="setMultiplesViewMode('multiples')" id="multiplesModeBtn_multiples" class="px-2 py-0.5 rounded text-[10px] font-bold text-gold-300 bg-gold-500/20 border border-gold-500/30 shadow-sm transition-all">Multiples</button>
-                                                    <button type="button" onclick="setMultiplesViewMode('compare')" id="multiplesModeBtn_compare" class="px-2 py-0.5 rounded text-[10px] font-bold text-gray-400 hover:text-white transition-all">Vergleich</button>
-                                                </div>
-
-                                                <!-- Metric Toggle Pills (Click to Show/Hide) -->
                                                 <button type="button" onclick="toggleMultiplesMetric('pe_adj')" id="multiplesToggle_pe_adj" class="flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-amber-500/50 bg-amber-500/20 text-amber-300 font-bold transition-all text-[10px] shadow-sm">
                                                     <span class="w-2 h-2 rounded-sm bg-amber-400"></span>
                                                     <span>KGV bereinigt</span>
+                                                </button>
+
+                                                <button type="button" onclick="toggleMultiplesMetric('pe_rep')" id="multiplesToggle_pe_rep" class="flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-slate-400/50 bg-slate-500/20 text-slate-200 font-bold transition-all text-[10px] shadow-sm">
+                                                    <span class="w-2 h-2 rounded-sm bg-slate-400"></span>
+                                                    <span>KGV bilanziert</span>
                                                 </button>
 
                                                 <button type="button" onclick="toggleMultiplesMetric('pcf')" id="multiplesToggle_pcf" class="flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-yellow-500/50 bg-yellow-500/20 text-yellow-300 font-bold transition-all text-[10px] shadow-sm">
@@ -1533,11 +1491,6 @@
                                                 <button type="button" onclick="toggleMultiplesMetric('ps')" id="multiplesToggle_ps" class="flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-emerald-500/50 bg-emerald-500/20 text-emerald-300 font-bold transition-all text-[10px] shadow-sm">
                                                     <span class="w-2 h-2 rounded-sm bg-emerald-400"></span>
                                                     <span>KUV</span>
-                                                </button>
-
-                                                <button type="button" onclick="toggleMultiplesMetric('pe_rep')" id="multiplesToggle_pe_rep" class="flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-white/10 text-gray-500 hover:text-gray-300 transition-all text-[10px]">
-                                                    <span class="w-2 h-2 rounded-sm bg-slate-500"></span>
-                                                    <span>KGV bilanziert</span>
                                                 </button>
                                             </div>
 
@@ -1552,40 +1505,8 @@
                                             </div>
                                         </div>
 
-                                        <!-- Multiples Assessment Summary Card -->
-                                        <div id="multiplesAssessmentCard" class="flex flex-wrap items-center justify-between gap-3 p-2.5 rounded-xl bg-gradient-to-r from-amber-500/10 via-gold-500/10 to-white/[0.02] border border-amber-500/25 mb-3 text-xs font-mono transition-all">
-                                            <div class="flex items-center gap-2.5">
-                                                <div class="w-7 h-7 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold text-xs shrink-0">
-                                                    M
-                                                </div>
-                                                <div>
-                                                    <div class="text-[9px] uppercase font-mono tracking-wider text-gray-400 flex items-center gap-2">
-                                                        <span>Historische Bewertungseinstufung</span>
-                                                        <span class="text-gold-400 font-bold" id="multiplesAssessmentPeriod">(Letzte 3 Jahre – Datenbasis)</span>
-                                                    </div>
-                                                    <div class="flex items-baseline gap-2 mt-0.5">
-                                                        <span id="multiplesAssessmentHeadline" class="text-xs sm:text-sm font-bold text-emerald-400">Historischer Bewertungs-Abschlag (-38.5% unter Ø)</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="flex flex-wrap items-center gap-3 text-[11px] border-t sm:border-t-0 sm:border-l border-white/10 pt-1.5 sm:pt-0 sm:pl-3">
-                                                <div>
-                                                    <div class="text-[8.5px] text-gray-400 uppercase">KGV vs Ø</div>
-                                                    <div id="multiplesPeSummary" class="font-bold text-amber-400 text-[11px] mt-0.5">--</div>
-                                                </div>
-                                                <div>
-                                                    <div class="text-[8.5px] text-gray-400 uppercase">KCV vs Ø</div>
-                                                    <div id="multiplesPcfSummary" class="font-bold text-yellow-300 text-[11px] mt-0.5">--</div>
-                                                </div>
-                                                <div>
-                                                    <div class="text-[8.5px] text-gray-400 uppercase">KUV vs Ø</div>
-                                                    <div id="multiplesPsSummary" class="font-bold text-emerald-400 text-[11px] mt-0.5">--</div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Live Interactive Info Bar for Multiples (Synchronized on Hover / Touch) -->
-                                        <div id="multiplesLiveBar" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 p-2 sm:p-2.5 rounded-lg bg-white/[0.03] border border-white/10 mb-3 text-xs font-mono transition-colors">
+                                        <!-- Live Interactive Info Bar for Multiples (Smart HUD) -->
+                                        <div id="multiplesLiveBar" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 p-2 sm:p-2.5 rounded-lg bg-white/[0.03] border border-white/10 mb-3 text-xs font-mono transition-colors">
                                             <div class="flex flex-col min-w-0">
                                                 <span class="text-[9px] text-gray-400 uppercase tracking-tighter">Datum / Modus</span>
                                                 <div class="flex items-center gap-1.5 mt-0.5 min-w-0">
@@ -1596,6 +1517,10 @@
                                             <div class="flex flex-col min-w-0">
                                                 <span class="text-[9px] text-amber-400 uppercase tracking-tighter">KGV bereinigt</span>
                                                 <span id="liveMultPe" class="font-bold text-amber-300 mt-0.5 text-[11px] truncate">--</span>
+                                            </div>
+                                            <div class="flex flex-col min-w-0">
+                                                <span class="text-[9px] text-slate-400 uppercase tracking-tighter">KGV bilanziert</span>
+                                                <span id="liveMultPeRep" class="font-bold text-slate-300 mt-0.5 text-[11px] truncate">--</span>
                                             </div>
                                             <div class="flex flex-col min-w-0">
                                                 <span class="text-[9px] text-yellow-400 uppercase tracking-tighter">KCV (Cashflow)</span>
@@ -3872,53 +3797,40 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
         }
 
         function updateValuationRoiCard(basePrice, targetPoint, years, currency) {
-            const roiBox = document.getElementById('valCorridorRoiBox');
-            const labelEl = document.getElementById('roiHorizonLabel');
-            const cagrEl = document.getElementById('roiCagrValue');
-            const totalEl = document.getElementById('roiTotalValue');
-            const targetFairEl = document.getElementById('roiTargetFair');
-            const bandCagrEl = document.getElementById('roiBandCagr');
+            const badge = document.getElementById('valCorridorBadge');
+            const statusText = document.getElementById('valCorridorStatusText');
 
-            if (!roiBox || !basePrice || !targetPoint) return;
+            if (!basePrice || !targetPoint) return;
 
             if (years <= 0) {
-                if (labelEl) labelEl.textContent = 'Aktueller Stichtag';
-                if (cagrEl) cagrEl.textContent = '0.0% (Basis)';
-                if (totalEl) totalEl.textContent = `(${basePrice.toFixed(2)} ${currency})`;
-                if (targetFairEl) targetFairEl.textContent = `${targetPoint.fairValue.toFixed(2)} ${currency}`;
-                if (bandCagrEl) bandCagrEl.textContent = `${targetPoint.lowerBand.toFixed(1)} – ${targetPoint.upperBand.toFixed(1)} ${currency}`;
+                const devPct = ((basePrice - targetPoint.fairValue) / targetPoint.fairValue) * 100;
+                const isUndervalued = devPct <= -5;
+                const isOvervalued = devPct >= 5;
+                if (badge && statusText) {
+                    badge.className = `px-2.5 py-1 rounded-lg border text-[10px] font-mono font-bold flex items-center gap-1.5 shadow-sm ${
+                        isUndervalued ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' :
+                        isOvervalued ? 'bg-amber-500/10 border-amber-500/30 text-amber-400' :
+                        'bg-blue-500/10 border-blue-500/30 text-blue-400'
+                    }`;
+                    const dot = badge.querySelector('span');
+                    if (dot) dot.className = `w-1.5 h-1.5 rounded-full ${isUndervalued ? 'bg-emerald-400' : isOvervalued ? 'bg-amber-400' : 'bg-blue-400'}`;
+                    const sign = devPct > 0 ? '+' : '';
+                    statusText.textContent = `${sign}${devPct.toFixed(1)}% ${isUndervalued ? 'Unterbewertet (Günstig)' : isOvervalued ? 'Überbewertet (Prämie)' : 'Fair bewertet'}`;
+                }
                 return;
             }
 
             const targetFair = targetPoint.fairValue;
-            const totalReturn = ((targetFair - basePrice) / basePrice) * 100;
             const cagr = (Math.pow(targetFair / basePrice, 1 / years) - 1) * 100;
-            const lowerCagr = (Math.pow(targetPoint.lowerBand / basePrice, 1 / years) - 1) * 100;
-            const upperCagr = (Math.pow(targetPoint.upperBand / basePrice, 1 / years) - 1) * 100;
-
-            const monthsShort = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
-            const parts = targetPoint.date.split('-');
-            const mIdx = parseInt(parts[1] || '1', 10) - 1;
-            const dateLabel = `${monthsShort[mIdx]} '${parts[0].slice(2)}`;
-
-            if (labelEl) labelEl.textContent = `+${years} ${years === 1 ? 'Jahr' : 'Jahre'} (${dateLabel})`;
-            
             const isPos = cagr >= 0;
-            if (cagrEl) {
-                cagrEl.className = `text-sm sm:text-base font-bold ${isPos ? 'text-emerald-400' : 'text-rose-400'}`;
-                cagrEl.textContent = `${isPos ? '+' : ''}${cagr.toFixed(1)}% p.a.`;
-            }
 
-            if (totalEl) {
-                totalEl.textContent = `(${totalReturn >= 0 ? '+' : ''}${totalReturn.toFixed(1)}% gesamt)`;
-            }
-
-            if (targetFairEl) {
-                targetFairEl.textContent = `${targetFair.toFixed(2)} ${currency}`;
-            }
-
-            if (bandCagrEl) {
-                bandCagrEl.textContent = `${lowerCagr >= 0 ? '+' : ''}${lowerCagr.toFixed(1)}% bis ${upperCagr >= 0 ? '+' : ''}${upperCagr.toFixed(1)}% p.a.`;
+            if (badge && statusText) {
+                badge.className = `px-2.5 py-1 rounded-lg border text-[10px] font-mono font-bold flex items-center gap-1.5 shadow-sm ${
+                    isPos ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-rose-500/10 border-rose-500/30 text-rose-400'
+                }`;
+                const dot = badge.querySelector('span');
+                if (dot) dot.className = `w-1.5 h-1.5 rounded-full ${isPos ? 'bg-emerald-400' : 'bg-rose-400'}`;
+                statusText.textContent = `Ø Rendite: ${isPos ? '+' : ''}${cagr.toFixed(1)}% p.a. (+${years}J Ziel: ${targetFair.toFixed(2)} ${currency})`;
             }
         }
 
@@ -3959,31 +3871,6 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             // Generate structured corridor data conforming to ChartDataPoint
             const { data, splitDate } = generateValuationCorridorData(currentPrice, fairValueBase, 0.12, 0.15, SELECTED_VALUATION_TIMEFRAME, AVAILABLE_HISTORY_YEARS);
             LAST_VALUATION_CHART_STATE = { data, splitDate, currency, currentPrice, fairValueBase };
-
-            // Update Header Badges
-            const devPct = ((currentPrice - fairValueBase) / fairValueBase) * 100;
-            if (badge && statusText) {
-                const isUndervalued = devPct <= -5;
-                const isOvervalued = devPct >= 5;
-                
-                badge.className = `px-2.5 py-1 rounded-lg border text-[10px] font-mono font-bold flex items-center gap-1.5 shadow-sm ${
-                    isUndervalued ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' :
-                    isOvervalued ? 'bg-amber-500/10 border-amber-500/30 text-amber-400' :
-                    'bg-blue-500/10 border-blue-500/30 text-blue-400'
-                }`;
-
-                const dot = badge.querySelector('span');
-                if (dot) {
-                    dot.className = `w-1.5 h-1.5 rounded-full ${
-                        isUndervalued ? 'bg-emerald-400' :
-                        isOvervalued ? 'bg-amber-400' :
-                        'bg-blue-400'
-                    }`;
-                }
-
-                const sign = devPct > 0 ? '+' : '';
-                statusText.textContent = `${sign}${devPct.toFixed(1)}% ${isUndervalued ? 'Unterbewertet (Günstiger Bereich)' : isOvervalued ? 'Überbewertet (Prämienbereich)' : 'Fairer Bewertungsbereich'}`;
-            }
 
             drawValuationCorridorSvg(svg, wrapper, data, splitDate, currency);
 
@@ -4055,13 +3942,13 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                     const isUnder = dPct <= -5;
                     const isOver = dPct >= 5;
                     const sign = dPct > 0 ? '+' : '';
-                    const colorCls = isUnder ? 'text-emerald-400' : isOver ? 'text-rose-400' : 'text-blue-400';
+                    const colorCls = isUnder ? 'text-emerald-400' : isOver ? 'text-rose-400' : 'text-amber-400';
                     const tag = isUnder ? ' (Unterbew.)' : isOver ? ' (Überbew.)' : ' (Fair)';
                     devEl.className = `font-bold ${colorCls} mt-0.5 text-[11px] truncate`;
                     devEl.textContent = `${sign}${dPct.toFixed(1)}%${tag}`;
                 } else {
-                    devEl.className = 'text-gray-500 mt-0.5 text-[11px] truncate';
-                    devEl.textContent = '--';
+                    devEl.className = 'font-bold text-gold-400 mt-0.5 text-[11px] truncate';
+                    devEl.textContent = 'Fair Value Ziel';
                 }
             }
 
@@ -4419,12 +4306,11 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
         // ==================== MULTIPLES CHART & HISTORICAL AVERAGES ENGINE (AKTIENFINDER METHODIK) ====================
         let LAST_MULTIPLES_CHART_STATE = null;
         let SELECTED_MULTIPLES_TIMEFRAME = '3J';
-        let SELECTED_MULTIPLES_VIEW_MODE = 'multiples';
         let ACTIVE_MULTIPLES_METRICS = {
             pe_adj: true,
+            pe_rep: true,
             pcf: true,
-            ps: true,
-            pe_rep: false
+            ps: true
         };
 
         function getMultiplesHistoryMonths(tf, maxYears = AVAILABLE_HISTORY_YEARS) {
@@ -4590,7 +4476,7 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 LAST_MULTIPLES_CHART_STATE.splitDate = splitDate;
                 LAST_MULTIPLES_CHART_STATE.timeframe = tf;
 
-                updateMultiplesHeaderBadges(data, averages, splitDate, tf);
+                updateMultiplesAssessment(data, averages, splitDate, tf);
 
                 const svg = document.getElementById('multiplesChartSvg');
                 const wrapper = document.getElementById('multiplesChartWrapper');
@@ -4610,6 +4496,10 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                     btn.className = isActive
                         ? 'flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-amber-500/50 bg-amber-500/20 text-amber-300 font-bold transition-all text-[10px] shadow-sm'
                         : 'flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-white/10 text-gray-500 hover:text-gray-300 transition-all text-[10px]';
+                } else if (metric === 'pe_rep') {
+                    btn.className = isActive
+                        ? 'flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-slate-400/50 bg-slate-500/20 text-slate-200 font-bold transition-all text-[10px] shadow-sm'
+                        : 'flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-white/10 text-gray-500 hover:text-gray-300 transition-all text-[10px]';
                 } else if (metric === 'pcf') {
                     btn.className = isActive
                         ? 'flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-yellow-500/50 bg-yellow-500/20 text-yellow-300 font-bold transition-all text-[10px] shadow-sm'
@@ -4617,10 +4507,6 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 } else if (metric === 'ps') {
                     btn.className = isActive
                         ? 'flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-emerald-500/50 bg-emerald-500/20 text-emerald-300 font-bold transition-all text-[10px] shadow-sm'
-                        : 'flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-white/10 text-gray-500 hover:text-gray-300 transition-all text-[10px]';
-                } else if (metric === 'pe_rep') {
-                    btn.className = isActive
-                        ? 'flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-slate-400/50 bg-slate-500/20 text-slate-200 font-bold transition-all text-[10px] shadow-sm'
                         : 'flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-white/10 text-gray-500 hover:text-gray-300 transition-all text-[10px]';
                 }
             }
@@ -4641,82 +4527,39 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             }
         }
 
-        function setMultiplesViewMode(mode) {
-            SELECTED_MULTIPLES_VIEW_MODE = mode;
-            const multBtn = document.getElementById('multiplesModeBtn_multiples');
-            const compBtn = document.getElementById('multiplesModeBtn_compare');
-
-            if (mode === 'multiples') {
-                if (multBtn) multBtn.className = 'px-2 py-0.5 rounded text-[10px] font-bold text-gold-300 bg-gold-500/20 border border-gold-500/30 shadow-sm transition-all';
-                if (compBtn) compBtn.className = 'px-2 py-0.5 rounded text-[10px] font-bold text-gray-400 hover:text-white transition-all';
-            } else {
-                if (multBtn) multBtn.className = 'px-2 py-0.5 rounded text-[10px] font-bold text-gray-400 hover:text-white transition-all';
-                if (compBtn) compBtn.className = 'px-2 py-0.5 rounded text-[10px] font-bold text-gold-300 bg-gold-500/20 border border-gold-500/30 shadow-sm transition-all';
-            }
-        }
-
-        function updateMultiplesHeaderBadges(data, averages, splitDate, tf) {
+        function updateMultiplesAssessment(data, averages, splitDate, tf) {
             const splitPt = data.find(d => d.date === splitDate) || data[0];
             if (!splitPt || !averages) return;
 
-            const peBadgeText = document.getElementById('multiplesBadgePeText');
-            const pcfBadgeText = document.getElementById('multiplesBadgePcfText');
-            const psBadgeText = document.getElementById('multiplesBadgePsText');
+            const badge = document.getElementById('multiplesAssessmentBadge');
+            const badgeText = document.getElementById('multiplesAssessmentBadgeText');
+            const subtext = document.getElementById('multiplesHeaderSubtext');
 
-            if (peBadgeText) {
-                peBadgeText.textContent = `KGV bereinigt ${splitPt.pe_adj != null ? splitPt.pe_adj.toFixed(1) : '--'} (Ø ${averages.pe_adj.toFixed(1)})`;
-            }
-            if (pcfBadgeText) {
-                pcfBadgeText.textContent = `KCV ${splitPt.pcf != null ? splitPt.pcf.toFixed(1) : '--'} (Ø ${averages.pcf.toFixed(1)})`;
-            }
-            if (psBadgeText) {
-                psBadgeText.textContent = `KUV ${splitPt.ps != null ? splitPt.ps.toFixed(1) : '--'} (Ø ${averages.ps.toFixed(1)})`;
+            if (subtext) {
+                subtext.textContent = `Historischer Bewertungsvergleich (${AVAILABLE_HISTORY_YEARS}J Datenbasis)`;
             }
 
-            // Update Assessment Card
-            updateMultiplesAssessmentCard(averages, splitPt, tf);
-        }
+            const peDiffPct = (averages.pe_adj > 0 && splitPt.pe_adj != null) ? ((splitPt.pe_adj - averages.pe_adj) / averages.pe_adj) * 100 : 0;
+            const peRepDiffPct = (averages.pe_rep > 0 && splitPt.pe_rep != null) ? ((splitPt.pe_rep - averages.pe_rep) / averages.pe_rep) * 100 : 0;
+            const pcfDiffPct = (averages.pcf > 0 && splitPt.pcf != null) ? ((splitPt.pcf - averages.pcf) / averages.pcf) * 100 : 0;
+            const psDiffPct = (averages.ps > 0 && splitPt.ps != null) ? ((splitPt.ps - averages.ps) / averages.ps) * 100 : 0;
 
-        function updateMultiplesAssessmentCard(averages, currentPoint, tf) {
-            const periodLabel = document.getElementById('multiplesAssessmentPeriod');
-            const headline = document.getElementById('multiplesAssessmentHeadline');
-            const peSummary = document.getElementById('multiplesPeSummary');
-            const pcfSummary = document.getElementById('multiplesPcfSummary');
-            const psSummary = document.getElementById('multiplesPsSummary');
+            const compositeDiff = (peDiffPct * 0.35) + (peRepDiffPct * 0.25) + (pcfDiffPct * 0.25) + (psDiffPct * 0.15);
 
-            if (!currentPoint || !averages) return;
-
-            const tfLabelMap = { '3J': '3 Jahre', '5J': '5 Jahre', '8J': '8 Jahre', '10J': '10 Jahre', '15J': '15 Jahre', 'MAX': 'Gesamthistorie' };
-            if (periodLabel) periodLabel.textContent = `(Letzte ${tfLabelMap[tf] || tf} – ${AVAILABLE_HISTORY_YEARS}J Datenbasis)`;
-
-            const peDiffPct = (averages.pe_adj > 0 && currentPoint.pe_adj != null) ? ((currentPoint.pe_adj - averages.pe_adj) / averages.pe_adj) * 100 : 0;
-            const pcfDiffPct = (averages.pcf > 0 && currentPoint.pcf != null) ? ((currentPoint.pcf - averages.pcf) / averages.pcf) * 100 : 0;
-            const psDiffPct = (averages.ps > 0 && currentPoint.ps != null) ? ((currentPoint.ps - averages.ps) / averages.ps) * 100 : 0;
-
-            const formatDiff = (diff) => {
-                const isUnder = diff <= -5;
-                const isOver = diff >= 5;
-                const sign = diff > 0 ? '+' : '';
-                const color = isUnder ? 'text-emerald-400' : isOver ? 'text-rose-400' : 'text-amber-400';
-                return `<span class="${color}">${sign}${diff.toFixed(1)}%</span>`;
-            };
-
-            if (peSummary) peSummary.innerHTML = `${currentPoint.pe_adj != null ? currentPoint.pe_adj.toFixed(1) : '--'} vs Ø ${averages.pe_adj.toFixed(1)} (${formatDiff(peDiffPct)})`;
-            if (pcfSummary) pcfSummary.innerHTML = `${currentPoint.pcf != null ? currentPoint.pcf.toFixed(1) : '--'} vs Ø ${averages.pcf.toFixed(1)} (${formatDiff(pcfDiffPct)})`;
-            if (psSummary) psSummary.innerHTML = `${currentPoint.ps != null ? currentPoint.ps.toFixed(1) : '--'} vs Ø ${averages.ps.toFixed(1)} (${formatDiff(psDiffPct)})`;
-
-            // Composite assessment
-            const compositeDiff = (peDiffPct * 0.5) + (pcfDiffPct * 0.3) + (psDiffPct * 0.2);
-            if (headline) {
-                if (compositeDiff <= -10) {
-                    headline.className = 'text-xs sm:text-sm font-bold text-emerald-400';
-                    headline.textContent = `Historischer Bewertungs-Abschlag (${compositeDiff.toFixed(1)}% unter Ø) ➔ Attraktive relative Einstiegschance`;
-                } else if (compositeDiff >= 10) {
-                    headline.className = 'text-xs sm:text-sm font-bold text-rose-400';
-                    headline.textContent = `Historischer Bewertungs-Aufschlag (+${compositeDiff.toFixed(1)}% über Ø) ➔ Bewertungsprämie gegenüber Historie`;
+            if (badge && badgeText) {
+                const dot = badge.querySelector('span');
+                if (compositeDiff <= -5) {
+                    badge.className = 'px-2.5 py-1 rounded-lg border text-[10px] font-mono font-bold flex items-center gap-1.5 bg-emerald-500/10 border-emerald-500/30 text-emerald-400 shadow-sm';
+                    if (dot) dot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400';
+                    badgeText.textContent = `Historischer Abschlag (${compositeDiff.toFixed(1)}% unter Ø)`;
+                } else if (compositeDiff >= 5) {
+                    badge.className = 'px-2.5 py-1 rounded-lg border text-[10px] font-mono font-bold flex items-center gap-1.5 bg-rose-500/10 border-rose-500/30 text-rose-400 shadow-sm';
+                    if (dot) dot.className = 'w-1.5 h-1.5 rounded-full bg-rose-400';
+                    badgeText.textContent = `Bewertungsprämie (+${compositeDiff.toFixed(1)}% über Ø)`;
                 } else {
-                    headline.className = 'text-xs sm:text-sm font-bold text-amber-400';
-                    headline.textContent = `Faire historische Bewertung (${compositeDiff >= 0 ? '+' : ''}${compositeDiff.toFixed(1)}% im Bereich des Ø)`;
+                    badge.className = 'px-2.5 py-1 rounded-lg border text-[10px] font-mono font-bold flex items-center gap-1.5 bg-amber-500/10 border-amber-500/30 text-amber-400 shadow-sm';
+                    if (dot) dot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400';
+                    badgeText.textContent = `Faire historische Bewertung (${compositeDiff >= 0 ? '+' : ''}${compositeDiff.toFixed(1)}% im Ø-Bereich)`;
                 }
             }
         }
@@ -4725,6 +4568,7 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             const dateEl = document.getElementById('liveMultDate');
             const modeEl = document.getElementById('liveMultMode');
             const peEl = document.getElementById('liveMultPe');
+            const peRepEl = document.getElementById('liveMultPeRep');
             const pcfEl = document.getElementById('liveMultPcf');
             const psEl = document.getElementById('liveMultPs');
             const devEl = document.getElementById('liveMultDeviation');
@@ -4736,8 +4580,10 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             const mIdx = parseInt(parts[1] || '1', 10) - 1;
             dateEl.textContent = `${monthsFull[mIdx] || ''} ${parts[0] || ''}`;
 
+            const isCurrent = isInitial || pt.date === splitDate;
+
             if (modeEl) {
-                if (isInitial || pt.date === splitDate) {
+                if (isCurrent) {
                     modeEl.className = 'text-[8px] px-1.5 py-0.5 rounded font-bold uppercase bg-gold-500/15 text-gold-400 border border-gold-500/30 shrink-0';
                     modeEl.textContent = 'Stichtag';
                 } else if (pt.isForecast) {
@@ -4751,23 +4597,46 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
 
             if (peEl) {
                 const peVal = pt.pe_adj != null ? pt.pe_adj.toFixed(1) : '--';
-                const diff = (averages && averages.pe_adj > 0 && pt.pe_adj != null) ? ((pt.pe_adj - averages.pe_adj) / averages.pe_adj) * 100 : null;
-                const diffStr = diff != null ? ` (${diff >= 0 ? '+' : ''}${diff.toFixed(0)}%)` : '';
-                peEl.textContent = `${peVal}${diffStr}`;
+                if (isCurrent && averages && averages.pe_adj > 0) {
+                    peEl.textContent = `${peVal} (Ø ${averages.pe_adj.toFixed(1)})`;
+                } else {
+                    const diff = (averages && averages.pe_adj > 0 && pt.pe_adj != null) ? ((pt.pe_adj - averages.pe_adj) / averages.pe_adj) * 100 : null;
+                    const diffStr = diff != null ? ` (${diff >= 0 ? '+' : ''}${diff.toFixed(0)}%)` : '';
+                    peEl.textContent = `${peVal}${diffStr}`;
+                }
+            }
+
+            if (peRepEl) {
+                const peRepVal = pt.pe_rep != null ? pt.pe_rep.toFixed(1) : '--';
+                if (isCurrent && averages && averages.pe_rep > 0) {
+                    peRepEl.textContent = `${peRepVal} (Ø ${averages.pe_rep.toFixed(1)})`;
+                } else {
+                    const diff = (averages && averages.pe_rep > 0 && pt.pe_rep != null) ? ((pt.pe_rep - averages.pe_rep) / averages.pe_rep) * 100 : null;
+                    const diffStr = diff != null ? ` (${diff >= 0 ? '+' : ''}${diff.toFixed(0)}%)` : '';
+                    peRepEl.textContent = `${peRepVal}${diffStr}`;
+                }
             }
 
             if (pcfEl) {
                 const pcfVal = pt.pcf != null ? pt.pcf.toFixed(1) : '--';
-                const diff = (averages && averages.pcf > 0 && pt.pcf != null) ? ((pt.pcf - averages.pcf) / averages.pcf) * 100 : null;
-                const diffStr = diff != null ? ` (${diff >= 0 ? '+' : ''}${diff.toFixed(0)}%)` : '';
-                pcfEl.textContent = `${pcfVal}${diffStr}`;
+                if (isCurrent && averages && averages.pcf > 0) {
+                    pcfEl.textContent = `${pcfVal} (Ø ${averages.pcf.toFixed(1)})`;
+                } else {
+                    const diff = (averages && averages.pcf > 0 && pt.pcf != null) ? ((pt.pcf - averages.pcf) / averages.pcf) * 100 : null;
+                    const diffStr = diff != null ? ` (${diff >= 0 ? '+' : ''}${diff.toFixed(0)}%)` : '';
+                    pcfEl.textContent = `${pcfVal}${diffStr}`;
+                }
             }
 
             if (psEl) {
                 const psVal = pt.ps != null ? pt.ps.toFixed(1) : '--';
-                const diff = (averages && averages.ps > 0 && pt.ps != null) ? ((pt.ps - averages.ps) / averages.ps) * 100 : null;
-                const diffStr = diff != null ? ` (${diff >= 0 ? '+' : ''}${diff.toFixed(0)}%)` : '';
-                psEl.textContent = `${psVal}${diffStr}`;
+                if (isCurrent && averages && averages.ps > 0) {
+                    psEl.textContent = `${psVal} (Ø ${averages.ps.toFixed(1)})`;
+                } else {
+                    const diff = (averages && averages.ps > 0 && pt.ps != null) ? ((pt.ps - averages.ps) / averages.ps) * 100 : null;
+                    const diffStr = diff != null ? ` (${diff >= 0 ? '+' : ''}${diff.toFixed(0)}%)` : '';
+                    psEl.textContent = `${psVal}${diffStr}`;
+                }
             }
 
             if (devEl && averages && averages.pe_adj > 0 && pt.pe_adj != null) {
@@ -4775,7 +4644,7 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 const isUnder = diff <= -5;
                 const isOver = diff >= 5;
                 const color = isUnder ? 'text-emerald-400' : isOver ? 'text-rose-400' : 'text-amber-400';
-                const text = isUnder ? 'Unter Ø (Günstig)' : isOver ? 'Über Ø (Prämie)' : 'Im Bereich des Ø';
+                const text = isUnder ? `Unter Ø (${diff.toFixed(0)}%)` : isOver ? `Über Ø (+${diff.toFixed(0)}%)` : `Im Ø-Bereich (${diff >= 0 ? '+' : ''}${diff.toFixed(0)}%)`;
                 devEl.className = `font-bold ${color} mt-0.5 text-[11px] truncate`;
                 devEl.textContent = text;
             }
@@ -5207,8 +5076,8 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 timeframe: SELECTED_MULTIPLES_TIMEFRAME
             };
 
-            // Update Header Metric Badges
-            updateMultiplesHeaderBadges(data, averages, splitDate, SELECTED_MULTIPLES_TIMEFRAME);
+            // Update Assessment Badge
+            updateMultiplesAssessment(data, averages, splitDate, SELECTED_MULTIPLES_TIMEFRAME);
 
             // Draw SVG
             drawMultiplesChartSvg(svg, wrapper, data, averages, splitDate, ACTIVE_MULTIPLES_METRICS);
