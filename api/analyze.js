@@ -60,7 +60,7 @@ module.exports = async function handler(req, res) {
 
                     console.log(`[Backend] Starting fetches for ${symbol}...`);
 
-                    const [profileRes, quoteRes, metricsRes, ttmRes, earnRes, rsiRes, macdRes, cfRes, incomeRes, histRes] = await Promise.all([
+                    const [profileRes, quoteRes, metricsRes, ttmRes, earnRes, rsiRes, macdRes, cfRes, incomeRes, histRes, estRes] = await Promise.all([
                         fetch(`https://financialmodelingprep.com/stable/profile?symbol=${symbol}&apikey=${fmpKey}`).catch(e => { console.error("Profile Fetch Error:", e); return null; }),
                         fetch(`https://financialmodelingprep.com/stable/quote?symbol=${symbol}&apikey=${fmpKey}`).catch(e => { console.error("Quote Fetch Error:", e); return null; }),
                         fetch(`https://financialmodelingprep.com/stable/key-metrics?symbol=${symbol}&limit=5&apikey=${fmpKey}`).catch(e => { console.error("Metrics Fetch Error:", e); return null; }),
@@ -70,7 +70,8 @@ module.exports = async function handler(req, res) {
                         fetch(`https://financialmodelingprep.com/api/v3/technical-indicators/daily/${symbol}?type=macd&apikey=${fmpKey}`).catch(e => { console.error("MACD Fetch Error:", e); return null; }),
                         fetch(`https://financialmodelingprep.com/stable/cash-flow-statement?symbol=${symbol}&limit=5&apikey=${fmpKey}`).catch(e => { console.error("CF Fetch Error:", e); return null; }),
                         fetch(`https://financialmodelingprep.com/stable/income-statement?symbol=${symbol}&limit=5&apikey=${fmpKey}`).catch(e => { console.error("Income Fetch Error:", e); return null; }),
-                        fetch(`https://financialmodelingprep.com/api/v3/historical-price-full/${symbol}?timeseries=20&apikey=${fmpKey}`).catch(e => { console.error("Hist Fetch Error:", e); return null; })
+                        fetch(`https://financialmodelingprep.com/api/v3/historical-price-full/${symbol}?timeseries=20&apikey=${fmpKey}`).catch(e => { console.error("Hist Fetch Error:", e); return null; }),
+                        fetch(`https://financialmodelingprep.com/stable/analyst-estimates?symbol=${symbol}&limit=5&apikey=${fmpKey}`).catch(e => { console.error("Estimates Fetch Error:", e); return null; })
                     ]);
 
 
@@ -93,6 +94,7 @@ module.exports = async function handler(req, res) {
                     const cfData = (cfRes && cfRes.ok) ? await cfRes.json().catch(() => []) : [];
                     const incomeData = (incomeRes && incomeRes.ok) ? await incomeRes.json().catch(() => []) : [];
                     const histDataRaw = (histRes && histRes.ok) ? await histRes.json().catch(() => null) : null;
+                    const estData = (estRes && estRes.ok) ? await estRes.json().catch(() => []) : [];
 
 
                 const hasProfile = Array.isArray(profileData) && profileData.length > 0;
@@ -151,6 +153,23 @@ module.exports = async function handler(req, res) {
                         }
                     }
 
+                    // Calculate Analyst Consensus Growth (EPS or Revenue Growth estimate)
+                    let analystConsensusGrowth = 'N/A';
+                    if (Array.isArray(estData) && estData.length >= 2) {
+                        const curEst = estData[0];
+                        const nextEst = estData[1];
+                        if (curEst.estimatedEpsAvg && nextEst.estimatedEpsAvg && curEst.estimatedEpsAvg > 0) {
+                            const epsGrowth = ((nextEst.estimatedEpsAvg - curEst.estimatedEpsAvg) / curEst.estimatedEpsAvg) * 100;
+                            analystConsensusGrowth = epsGrowth.toFixed(1) + '%';
+                        } else if (curEst.estimatedRevenueAvg && nextEst.estimatedRevenueAvg && curEst.estimatedRevenueAvg > 0) {
+                            const revGrowth = ((nextEst.estimatedRevenueAvg - curEst.estimatedRevenueAvg) / curEst.estimatedRevenueAvg) * 100;
+                            analystConsensusGrowth = revGrowth.toFixed(1) + '%';
+                        }
+                    }
+                    if (analystConsensusGrowth === 'N/A' && revenueCAGR !== 'N/A') {
+                        analystConsensusGrowth = revenueCAGR;
+                    }
+
                     const fmpContext = `
 [FMP API BLOCK]
 Name: ${profile.companyName || 'N/A'}
@@ -167,6 +186,7 @@ Market Cap: ${quote.marketCap ? `${(quote.marketCap / 1e9).toFixed(2)} Billion $
 --- FINANCIAL TRENDS ---
 Revenue (5Y): ${incomeData.slice(0, 5).map(y => (y.revenue / 1e9).toFixed(2) + 'B').reverse().join(' -> ')}
 5Y Revenue CAGR: ${revenueCAGR}
+Analyst Consensus Growth: ${analystConsensusGrowth}
 Op. Margins (5Y): ${incomeData.slice(0, 5).map(y => ((y.operatingIncome / y.revenue) * 100).toFixed(1) + '%').reverse().join(' -> ')}
 FCF Trend (5Y): ${cfData.slice(0, 5).map(y => (y.freeCashFlow / 1e9).toFixed(2) + 'B').reverse().join(' -> ')}
 EPS Surprise History:
@@ -182,6 +202,7 @@ ROE: ${ttm.roeTTM ? (Number(ttm.roeTTM) * 100).toFixed(2) + '%' : 'N/A'}
 Dividend Yield: ${quote.dividendYield ? (Number(quote.dividendYield) * 100).toFixed(2) + '%' : 'N/A'}
 Payout Ratio: ${ttm.payoutRatioTTM ? (Number(ttm.payoutRatioTTM) * 100).toFixed(2) + '%' : 'N/A'}
 DCF Fair Value Estimate: ${profile.dcf != null ? `${Number(profile.dcf).toFixed(2)} ${currency}` : 'N/A'}
+
 
 --- TECHNICAL INDICATORS ---
 14-Day RSI: ${rsiData !== 'N/A' ? Number(rsiData).toFixed(2) : 'N/A'}
