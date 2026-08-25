@@ -2856,7 +2856,7 @@ Aktueller Kurs: [Use 'Current Price' with currency from FMP API BLOCK, e.g. '209
 ROLE: Senior Equity Analyst (Fundamental Value)
 - Thesis: [1 sentence investment case]
 - P/E Analysis: [Use 'Current P/E' and '5Y Average P/E' from FMP API BLOCK; compare vs Sector]
-- 5Y Growth: [Use '5Y Revenue CAGR' from FMP API BLOCK]
+- 5Y Growth: [Use 'Analyst Consensus Growth' or '5Y Revenue CAGR' from FMP API BLOCK; state expected growth, e.g. '5.4% p.a.']
 - Financial Health: [Use 'Debt to Equity' from FMP API BLOCK; check sustainability]
 - Dividend: [Use 'Dividend Yield' and 'Payout Ratio' from FMP API BLOCK]
 - Competitive Moat: [Rating: WEAK/MODERATE/STRONG + 1 sentence why]
@@ -2870,7 +2870,7 @@ ROLE: Senior Equity Analyst (Fundamental Value)
             if (agentIds.includes('morgan_stanley')) {
                 prompt += `<morgan_stanley>
 ROLE: VP-Level Investment Banker (DCF Valuation)
-- 5Y Projection: [Use 'Historical Trends' from FMP API BLOCK to est. Revenue & Margin]
+- 5Y Projection: [Use 'Historical Trends' and 'Analyst Consensus Growth' from FMP API BLOCK to est. Revenue & Margin]
 - FCF Forecast: [Year-by-year FCF simulation for next 5 years]
 - WACC & Terminal: [WACC derivation & Terminal Value (Exit vs Perpetuity)]
 - DCF Fair Value: [Use 'DCF Fair Value Estimate' from FMP API BLOCK vs your simulation, in the EXACT SAME currency as 'Aktueller Kurs']
@@ -2886,7 +2886,7 @@ ROLE: VP-Level Investment Banker (DCF Valuation)
 ROLE: Senior Equity Research Analyst (Earnings Specialist)
 - Earnings History: [Use 'EPS Surprise History' from FMP API BLOCK; include Beat/Miss trends]
 - Stock Reaction: [Recherche: Stock price reaction (gain/loss) after last 4 earnings]
-- Upcoming Consensus: [Use 'Upcoming Consensus' from FMP API BLOCK]
+- Upcoming Consensus: [Use 'Upcoming Consensus' and 'Analyst Consensus Growth' from FMP API BLOCK]
 - Wall Street Focus: [Identify 2 key metrics the street is watching for this company]
 - Segment Analysis: [Use 'Sector' from FMP API BLOCK; breakdown revenue & growth]
 - Guidance & Options: [Guidance summary & Options implied move for earnings day]
@@ -3492,7 +3492,18 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 potentials = `${bullSign}${bullPct.toFixed(1)}% / ${bearSign}${bearPct.toFixed(1)}%`;
             }
 
-            return { peLabel, pe, growth, dividend, targets, potentials, bullPct, bearPct };
+            return {
+                peLabel,
+                pe,
+                growth,
+                dividend,
+                targets,
+                potentials,
+                bullPct,
+                bearPct,
+                currentPeNum: currentPe ? parseFloat(currentPe.replace(',', '.')) : null,
+                avgPeNum: avgPe ? parseFloat(avgPe.replace(',', '.')) : null
+            };
         }
 
         function updateStockScreenerShowcaseDisplay(data) {
@@ -3673,7 +3684,42 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             return Math.min(target, maxYears * 12);
         }
 
-        function generateValuationCorridorData(currentPrice, fairValueBase, growthRate = 0.12, spread = 0.15, tf = SELECTED_VALUATION_TIMEFRAME, maxYears = AVAILABLE_HISTORY_YEARS) {
+        function extractConsensusGrowthRate(allData, fallback = 0.06) {
+            if (!allData) return fallback;
+            const fullText = `${allData.goldman_sachs || ''} ${allData.morgan_stanley || ''} ${allData.jpmorgan || ''} ${allData.citadel || ''} ${allData.executive_summary || ''} ${allData.rawAnalysis || ''}`;
+            
+            // 1. Check for Analyst Consensus Growth / Konsens-Wachstum
+            const consMatch = fullText.match(/(?:Analyst\s*Consensus\s*Growth|Consensus\s*Growth|Konsens[\s-]*(?:Wachstum|CAGR|Rate)|EPS[\s-]*(?:Growth|Wachstum)|Wachstums[\s-]*Konsens)[:\s]*([+\-]?\d+(?:[.,]\d+)?)\s*%/i);
+            if (consMatch && consMatch[1]) {
+                const val = parseFloat(consMatch[1].replace(',', '.'));
+                if (!isNaN(val) && val > -30 && val < 100) {
+                    return val / 100;
+                }
+            }
+
+            // 2. Check for 5Y Revenue CAGR / 5Y Growth
+            const cagrMatch = fullText.match(/(?:5Y\s*Revenue\s*CAGR|5Y\s*CAGR|5Y\s*Growth|5J\s*Wachstum|CAGR)[:\s]*([+\-]?\d+(?:[.,]\d+)?)\s*%/i);
+            if (cagrMatch && cagrMatch[1]) {
+                const val = parseFloat(cagrMatch[1].replace(',', '.'));
+                if (!isNaN(val) && val > -30 && val < 100) {
+                    return val / 100;
+                }
+            }
+
+            // 3. Check showcase element in DOM
+            const showcaseGrowth = document.getElementById('id_showcase_growth')?.textContent || '';
+            const m = showcaseGrowth.match(/([+\-]?\d+(?:[.,]\d+)?)\s*%/);
+            if (m && m[1]) {
+                const val = parseFloat(m[1].replace(',', '.'));
+                if (!isNaN(val) && val > -30 && val < 100) {
+                    return val / 100;
+                }
+            }
+
+            return fallback;
+        }
+
+        function generateValuationCorridorData(currentPrice, fairValueBase, growthRate = 0.06, spread = 0.15, tf = SELECTED_VALUATION_TIMEFRAME, maxYears = AVAILABLE_HISTORY_YEARS) {
             const data = [];
             const historyMonths = getHistoryMonthsForTimeframe(tf, maxYears);
             const forecastMonths = 36; // Stets 3 Jahre Konsens-Prognose (+1J, +2J, +3J)
@@ -3683,7 +3729,8 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             const start = new Date(now);
             start.setMonth(start.getMonth() - historyMonths);
 
-            let simFair = fairValueBase * Math.pow(1 - growthRate, historyMonths / 12);
+            const safeGrowth = Math.max(-0.15, Math.min(0.50, growthRate));
+            let simFair = fairValueBase * Math.pow(1 / (1 + safeGrowth), historyMonths / 12);
             let splitDateStr = '';
 
             for (let i = 0; i <= totalMonths; i++) {
@@ -3700,8 +3747,8 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                     splitDateStr = dateStr;
                 }
 
-                // Monthly compounding
-                const monthlyGrowth = Math.pow(1 + growthRate, 1 / 12) - 1;
+                // Monthly compounding based on Analyst Consensus Growth
+                const monthlyGrowth = Math.pow(1 + safeGrowth, 1 / 12) - 1;
                 simFair = simFair * (1 + monthlyGrowth);
 
                 const fairVal = Math.round(simFair * 100) / 100;
@@ -3742,10 +3789,11 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             updateChartTimeframeButtonStates(AVAILABLE_HISTORY_YEARS);
 
             if (LAST_VALUATION_CHART_STATE) {
+                const growth = LAST_VALUATION_CHART_STATE.growthRate != null ? LAST_VALUATION_CHART_STATE.growthRate : 0.06;
                 const { data, splitDate } = generateValuationCorridorData(
                     LAST_VALUATION_CHART_STATE.currentPrice,
                     LAST_VALUATION_CHART_STATE.fairValueBase,
-                    0.12,
+                    growth,
                     0.15,
                     tf,
                     AVAILABLE_HISTORY_YEARS
@@ -3868,9 +3916,12 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             AVAILABLE_HISTORY_YEARS = getAvailableHistoryYears(allData);
             updateChartTimeframeButtonStates(AVAILABLE_HISTORY_YEARS);
 
+            // Extract Analyst Consensus Growth Rate
+            const consensusGrowth = extractConsensusGrowthRate(allData, 0.06);
+
             // Generate structured corridor data conforming to ChartDataPoint
-            const { data, splitDate } = generateValuationCorridorData(currentPrice, fairValueBase, 0.12, 0.15, SELECTED_VALUATION_TIMEFRAME, AVAILABLE_HISTORY_YEARS);
-            LAST_VALUATION_CHART_STATE = { data, splitDate, currency, currentPrice, fairValueBase };
+            const { data, splitDate } = generateValuationCorridorData(currentPrice, fairValueBase, consensusGrowth, 0.15, SELECTED_VALUATION_TIMEFRAME, AVAILABLE_HISTORY_YEARS);
+            LAST_VALUATION_CHART_STATE = { data, splitDate, currency, currentPrice, fairValueBase, growthRate: consensusGrowth };
 
             drawValuationCorridorSvg(svg, wrapper, data, splitDate, currency);
 
@@ -4328,7 +4379,7 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             return Math.min(targetMonths, maxYears * 12);
         }
 
-        function generateMultiplesChartData(ticker, companyName, currentPrice, basePeAdj, basePcf, basePs, basePeRep, growthRate = 0.12, tf = SELECTED_MULTIPLES_TIMEFRAME, maxYears = AVAILABLE_HISTORY_YEARS) {
+        function generateMultiplesChartData(ticker, companyName, currentPrice, basePeAdj, basePcf, basePs, basePeRep, growthRate = 0.06, tf = SELECTED_MULTIPLES_TIMEFRAME, maxYears = AVAILABLE_HISTORY_YEARS, histAvgPe = null) {
             const data = [];
             const historyMonths = getMultiplesHistoryMonths(tf, maxYears);
             const forecastMonths = 36; // 36 Monate Konsens-Prognose
@@ -4345,6 +4396,10 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             const safePcf = (basePcf && basePcf > 2 && basePcf < 150) ? basePcf : Math.max(4, safePeAdj * 0.72);
             const safePs = (basePs && basePs > 0.2 && basePs < 80) ? basePs : Math.max(1.2, safePeAdj * 0.22);
             const safePeRep = (basePeRep && basePeRep > 2 && basePeRep < 250) ? basePeRep : safePeAdj * 1.08;
+
+            // If genuine historical average is available from FMP / Analyst Screener
+            const targetHistPe = (histAvgPe && histAvgPe > 2 && histAvgPe < 200) ? histAvgPe : safePeAdj;
+            const peRatioHist = targetHistPe / safePeAdj;
 
             // Raw arrays for outlier-cleaned historical averages
             const rawPeAdjList = [];
@@ -4376,12 +4431,12 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                     const cycle1 = Math.sin((i / 12) * 2.1) * 0.22;
                     const cycle2 = Math.cos((i / 12) * 4.3) * 0.12;
                     const noise = (Math.sin(i * 0.7) * 0.05);
-                    const multiFactor = 1 + cycle1 + cycle2 + noise;
+                    const multiFactor = (1 + cycle1 + cycle2 + noise) * peRatioHist;
 
                     let rawPe = safePeAdj * multiFactor;
-                    let rawPcf = safePcf * (1 + cycle1 * 0.9 + cycle2 * 1.1 + noise * 0.8);
-                    let rawPs = safePs * (1 + cycle1 * 0.7 + cycle2 * 0.8 + noise * 0.5);
-                    let rawPeRep = safePeRep * (1 + cycle1 * 1.25 + cycle2 * 1.4 + noise * 1.2);
+                    let rawPcf = safePcf * (1 + cycle1 * 0.9 + cycle2 * 1.1 + noise * 0.8) * Math.sqrt(peRatioHist);
+                    let rawPs = safePs * (1 + cycle1 * 0.7 + cycle2 * 0.8 + noise * 0.5) * Math.sqrt(peRatioHist);
+                    let rawPeRep = safePeRep * (1 + cycle1 * 1.25 + cycle2 * 1.4 + noise * 1.2) * peRatioHist;
 
                     // Anchor smoothly to the current multiple at Stichtag (last historical point)
                     if (i === historyMonths) {
@@ -4407,11 +4462,12 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                     rawPsList.push(psVal);
                     rawPeRepList.push(peRepVal);
                 } else {
-                    // Forecast period: Forward multiples compress as fundamental metrics (EPS, CF, Rev) grow
+                    // Forecast period: Forward multiples compress as fundamental metrics (EPS, CF, Rev) grow based on Analyst Consensus Growth
                     const fYears = (i - historyMonths) / 12;
-                    const epsCompound = Math.pow(1 + Math.max(0.02, growthRate), fYears);
-                    const cfCompound = Math.pow(1 + Math.max(0.02, growthRate * 0.95), fYears);
-                    const revCompound = Math.pow(1 + Math.max(0.02, growthRate * 0.85), fYears);
+                    const safeG = Math.max(0.01, Math.min(0.40, growthRate));
+                    const epsCompound = Math.pow(1 + safeG, fYears);
+                    const cfCompound = Math.pow(1 + Math.max(0.01, safeG * 0.95), fYears);
+                    const revCompound = Math.pow(1 + Math.max(0.01, safeG * 0.85), fYears);
 
                     // Forward multiples at current stock price
                     peAdjVal = Math.max(1, Math.round((safePeAdj / epsCompound) * 10) / 10);
@@ -4458,6 +4514,9 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             updateChartTimeframeButtonStates(AVAILABLE_HISTORY_YEARS);
 
             if (LAST_MULTIPLES_CHART_STATE) {
+                const growth = LAST_MULTIPLES_CHART_STATE.growthRate != null ? LAST_MULTIPLES_CHART_STATE.growthRate : 0.06;
+                const histPe = LAST_MULTIPLES_CHART_STATE.histAvgPe || null;
+
                 const { data, averages, splitDate } = generateMultiplesChartData(
                     LAST_MULTIPLES_CHART_STATE.ticker,
                     LAST_MULTIPLES_CHART_STATE.companyName,
@@ -4466,9 +4525,10 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                     LAST_MULTIPLES_CHART_STATE.basePcf,
                     LAST_MULTIPLES_CHART_STATE.basePs,
                     LAST_MULTIPLES_CHART_STATE.basePeRep,
-                    LAST_MULTIPLES_CHART_STATE.growthRate,
+                    growth,
                     tf,
-                    AVAILABLE_HISTORY_YEARS
+                    AVAILABLE_HISTORY_YEARS,
+                    histPe
                 );
 
                 LAST_MULTIPLES_CHART_STATE.data = data;
@@ -4992,28 +5052,31 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             const rawPriceText = document.getElementById('id_price')?.textContent || '';
             const { price: currentPrice } = parseCurrencyAndPrice(rawPriceText);
 
-            // Extract Valuation Multiples from Goldman / Showcase / FMP context
+            // Extract Valuation Multiples & Analyst Consensus Growth
             let basePeAdj = 25.0;
+            let histAvgPe = null;
             let basePcf = 20.0;
             let basePs = 6.0;
             let basePeRep = 27.0;
-            let growthRate = 0.12;
 
             // 1. P/E extraction
-            const showcasePe = document.getElementById('id_showcase_pe')?.textContent || '';
-            const peMatch = showcasePe.match(/(\d+(?:[.,]\d+)?)/);
-            if (peMatch) {
-                const parsedPe = parseFloat(peMatch[1].replace(',', '.'));
-                if (parsedPe > 1 && parsedPe < 300) basePeAdj = parsedPe;
+            const showcase = extractStockScreenerShowcase(allData?.goldman_sachs || '', rawPriceText);
+            if (showcase.currentPeNum && showcase.currentPeNum > 1 && showcase.currentPeNum < 300) {
+                basePeAdj = showcase.currentPeNum;
+            } else {
+                const showcasePe = document.getElementById('id_showcase_pe')?.textContent || '';
+                const peMatch = showcasePe.match(/(\d+(?:[.,]\d+)?)/);
+                if (peMatch) {
+                    const parsedPe = parseFloat(peMatch[1].replace(',', '.'));
+                    if (parsedPe > 1 && parsedPe < 300) basePeAdj = parsedPe;
+                }
+            }
+            if (showcase.avgPeNum && showcase.avgPeNum > 1 && showcase.avgPeNum < 300) {
+                histAvgPe = showcase.avgPeNum;
             }
 
-            // 2. Growth extraction
-            const showcaseGrowth = document.getElementById('id_showcase_growth')?.textContent || '';
-            const growthMatch = showcaseGrowth.match(/(\d+(?:[.,]\d+)?)%/);
-            if (growthMatch) {
-                const parsedGrowth = parseFloat(growthMatch[1].replace(',', '.'));
-                if (parsedGrowth > 0 && parsedGrowth < 100) growthRate = parsedGrowth / 100;
-            }
+            // 2. Dynamic Analyst Consensus Growth extraction
+            let growthRate = extractConsensusGrowthRate(allData, 0.06);
 
             // 3. P/S and P/CF extraction from raw agent text
             const fullText = (allData?.citadel || '') + ' ' + (allData?.goldman_sachs || '') + ' ' + (allData?.morgan_stanley || '') + ' ' + text;
@@ -5057,7 +5120,8 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 basePeRep,
                 growthRate,
                 SELECTED_MULTIPLES_TIMEFRAME,
-                AVAILABLE_HISTORY_YEARS
+                AVAILABLE_HISTORY_YEARS,
+                histAvgPe
             );
 
             LAST_MULTIPLES_CHART_STATE = {
@@ -5072,6 +5136,7 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 basePs,
                 basePeRep,
                 growthRate,
+                histAvgPe,
                 activeMetrics: ACTIVE_MULTIPLES_METRICS,
                 timeframe: SELECTED_MULTIPLES_TIMEFRAME
             };
