@@ -1484,7 +1484,7 @@
                                             <div>
                                                 <h3 class="text-xs font-bold text-white tracking-wide uppercase flex items-center gap-2">
                                                     <span id="multiplesHeaderTitle">Multiples von Unternehmen</span>
-                                                    <span class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400">Historischer Bewertungsvergleich</span>
+                                                    <span id="multiplesHeaderSubtext" class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400">Historischer Bewertungsvergleich (3 Jahre Datenbasis)</span>
                                                 </h3>
                                             </div>
                                         </div>
@@ -1543,10 +1543,10 @@
 
                                             <!-- Right: Timeframe Range Buttons (3J, 5J, 8J, 10J, 15J, MAX) -->
                                             <div class="flex items-center gap-1 bg-white/[0.04] p-0.5 rounded-lg border border-white/10" id="multiplesTimeframeButtons">
-                                                <button type="button" onclick="selectMultiplesTimeframe('3J')" id="multTfBtn_3J" class="mult-tf-btn px-2 py-0.5 rounded text-[10px] font-bold text-gray-400 hover:text-white transition-all">3J</button>
+                                                <button type="button" onclick="selectMultiplesTimeframe('3J')" id="multTfBtn_3J" class="mult-tf-btn px-2 py-0.5 rounded text-[10px] font-bold text-gold-300 bg-gold-500/20 border border-gold-500/30 shadow-sm transition-all">3J</button>
                                                 <button type="button" onclick="selectMultiplesTimeframe('5J')" id="multTfBtn_5J" class="mult-tf-btn px-2 py-0.5 rounded text-[10px] font-bold text-gray-400 hover:text-white transition-all">5J</button>
                                                 <button type="button" onclick="selectMultiplesTimeframe('8J')" id="multTfBtn_8J" class="mult-tf-btn px-2 py-0.5 rounded text-[10px] font-bold text-gray-400 hover:text-white transition-all">8J</button>
-                                                <button type="button" onclick="selectMultiplesTimeframe('10J')" id="multTfBtn_10J" class="mult-tf-btn px-2 py-0.5 rounded text-[10px] font-bold text-gold-300 bg-gold-500/20 border border-gold-500/30 shadow-sm transition-all">10J</button>
+                                                <button type="button" onclick="selectMultiplesTimeframe('10J')" id="multTfBtn_10J" class="mult-tf-btn px-2 py-0.5 rounded text-[10px] font-bold text-gray-400 hover:text-white transition-all">10J</button>
                                                 <button type="button" onclick="selectMultiplesTimeframe('15J')" id="multTfBtn_15J" class="mult-tf-btn px-2 py-0.5 rounded text-[10px] font-bold text-gray-400 hover:text-white transition-all">15J</button>
                                                 <button type="button" onclick="selectMultiplesTimeframe('MAX')" id="multTfBtn_MAX" class="mult-tf-btn px-2 py-0.5 rounded text-[10px] font-bold text-gray-400 hover:text-white transition-all">MAX</button>
                                             </div>
@@ -1561,7 +1561,7 @@
                                                 <div>
                                                     <div class="text-[9px] uppercase font-mono tracking-wider text-gray-400 flex items-center gap-2">
                                                         <span>Historische Bewertungseinstufung</span>
-                                                        <span class="text-gold-400 font-bold" id="multiplesAssessmentPeriod">(Letzte 10 Jahre)</span>
+                                                        <span class="text-gold-400 font-bold" id="multiplesAssessmentPeriod">(Letzte 3 Jahre – Datenbasis)</span>
                                                     </div>
                                                     <div class="flex items-baseline gap-2 mt-0.5">
                                                         <span id="multiplesAssessmentHeadline" class="text-xs sm:text-sm font-bold text-emerald-400">Historischer Bewertungs-Abschlag (-38.5% unter Ø)</span>
@@ -3652,42 +3652,72 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
         }
 
         // ==================== VALUATION CORRIDOR & FORECAST CHART ====================
+        let AVAILABLE_HISTORY_YEARS = 3; // Dynamische Datenbasis (3 Jahre im Trial-/Entwicklungsmodus)
         let LAST_VALUATION_CHART_STATE = null;
-
-        function parseCurrencyAndPrice(priceText) {
-            if (!priceText || priceText === '--') return { price: 200, currency: '$' };
-            let currency = '$';
-            if (priceText.includes('€') || /EUR/i.test(priceText)) currency = '€';
-            else if (priceText.includes('CHF')) currency = 'CHF';
-            else if (priceText.includes('£') || /GBP/i.test(priceText)) currency = '£';
-            
-            // Clean number
-            const numStr = priceText.replace(/[^\d.,]/g, '').replace(',', '.');
-            const price = parseFloat(numStr) || 200;
-            return { price, currency };
-        }
-
         let SELECTED_VALUATION_HORIZON = 3; // 0 = Stichtag, 1 = +1J, 2 = +2J, 3 = +3J
         let SELECTED_VALUATION_TIMEFRAME = '3J'; // 'YTD', '1J', '3J', '5J', '10J', 'MAX'
 
-        function getHistoryMonthsForTimeframe(tf) {
-            const now = new Date();
-            switch (tf) {
-                case 'YTD':
-                    return Math.max(2, now.getMonth() + 1);
-                case '1J':
-                    return 12;
-                case '3J':
-                    return 36;
-                case '5J':
-                    return 60;
-                case '10J':
-                    return 120;
-                case 'MAX':
-                    return 180;
-                default:
-                    return 36;
+        function getAvailableHistoryYears(allData = null) {
+            if (allData?.incomeData && Array.isArray(allData.incomeData) && allData.incomeData.length >= 5) {
+                return Math.min(20, allData.incomeData.length);
             }
+            return 3; // 3 Jahre im aktuellen Entwicklungs-/Trial-Modus
+        }
+
+        function updateChartTimeframeButtonStates(maxYears = AVAILABLE_HISTORY_YEARS) {
+            // 1. Valuation Corridor Timeframe Buttons
+            const valTimeframes = [
+                { id: 'valTfBtn_YTD', minYears: 0 },
+                { id: 'valTfBtn_1J', minYears: 1 },
+                { id: 'valTfBtn_3J', minYears: 3 },
+                { id: 'valTfBtn_5J', minYears: 5 },
+                { id: 'valTfBtn_10J', minYears: 10 },
+                { id: 'valTfBtn_MAX', minYears: 0, label: `MAX (${maxYears}J)` }
+            ];
+            valTimeframes.forEach(item => {
+                const btn = document.getElementById(item.id);
+                if (!btn) return;
+                if (item.label) btn.textContent = item.label;
+                if (item.minYears > maxYears) {
+                    btn.disabled = true;
+                    btn.title = `Nicht verfügbar (Nur ${maxYears}J Datenbasis vorhanden)`;
+                    btn.className = 'val-tf-btn px-2 py-0.5 rounded text-[10px] font-bold text-gray-600 opacity-30 cursor-not-allowed pointer-events-none transition-all';
+                } else {
+                    btn.disabled = false;
+                    btn.title = '';
+                    const isActive = (item.id === `valTfBtn_${SELECTED_VALUATION_TIMEFRAME}`);
+                    btn.className = isActive
+                        ? 'val-tf-btn px-2 py-0.5 rounded text-[10px] font-bold text-gold-300 bg-gold-500/20 border border-gold-500/30 shadow-sm transition-all'
+                        : 'val-tf-btn px-2 py-0.5 rounded text-[10px] font-bold text-gray-400 hover:text-white transition-all';
+                }
+            });
+
+            // 2. Multiples Chart Timeframe Buttons
+            const multTimeframes = [
+                { id: 'multTfBtn_3J', minYears: 3 },
+                { id: 'multTfBtn_5J', minYears: 5 },
+                { id: 'multTfBtn_8J', minYears: 8 },
+                { id: 'multTfBtn_10J', minYears: 10 },
+                { id: 'multTfBtn_15J', minYears: 15 },
+                { id: 'multTfBtn_MAX', minYears: 0, label: `MAX (${maxYears}J)` }
+            ];
+            multTimeframes.forEach(item => {
+                const btn = document.getElementById(item.id);
+                if (!btn) return;
+                if (item.label) btn.textContent = item.label;
+                if (item.minYears > maxYears) {
+                    btn.disabled = true;
+                    btn.title = `Nicht verfügbar (Nur ${maxYears}J Datenbasis vorhanden)`;
+                    btn.className = 'mult-tf-btn px-2 py-0.5 rounded text-[10px] font-bold text-gray-600 opacity-30 cursor-not-allowed pointer-events-none transition-all';
+                } else {
+                    btn.disabled = false;
+                    btn.title = '';
+                    const isActive = (item.id === `multTfBtn_${SELECTED_MULTIPLES_TIMEFRAME}`);
+                    btn.className = isActive
+                        ? 'mult-tf-btn px-2 py-0.5 rounded text-[10px] font-bold text-gold-300 bg-gold-500/20 border border-gold-500/30 shadow-sm transition-all'
+                        : 'mult-tf-btn px-2 py-0.5 rounded text-[10px] font-bold text-gray-400 hover:text-white transition-all';
+                }
+            });
         }
 
         function parseCurrencyAndPrice(priceText) {
@@ -3703,9 +3733,24 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             return { price, currency };
         }
 
-        function generateValuationCorridorData(currentPrice, fairValueBase, growthRate = 0.12, spread = 0.15, tf = SELECTED_VALUATION_TIMEFRAME) {
+        function getHistoryMonthsForTimeframe(tf, maxYears = AVAILABLE_HISTORY_YEARS) {
+            const now = new Date();
+            let target = 36;
+            switch (tf) {
+                case 'YTD': target = Math.max(2, now.getMonth() + 1); break;
+                case '1J': target = 12; break;
+                case '3J': target = 36; break;
+                case '5J': target = 60; break;
+                case '10J': target = 120; break;
+                case 'MAX': target = maxYears * 12; break;
+                default: target = 36; break;
+            }
+            return Math.min(target, maxYears * 12);
+        }
+
+        function generateValuationCorridorData(currentPrice, fairValueBase, growthRate = 0.12, spread = 0.15, tf = SELECTED_VALUATION_TIMEFRAME, maxYears = AVAILABLE_HISTORY_YEARS) {
             const data = [];
-            const historyMonths = getHistoryMonthsForTimeframe(tf);
+            const historyMonths = getHistoryMonthsForTimeframe(tf, maxYears);
             const forecastMonths = 36; // Stets 3 Jahre Konsens-Prognose (+1J, +2J, +3J)
             const totalMonths = historyMonths + forecastMonths;
 
@@ -3741,7 +3786,7 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 let priceVal = null;
 
                 if (!isForecast) {
-                    // Realistic cyclical fluctuation across multiple market cycles
+                    // Realistic cyclical fluctuation across market cycles
                     const noise = (Math.sin(i * 0.35) * 0.08) + (Math.cos(i * 0.85) * 0.05) + (Math.sin(i * 1.6) * 0.025);
                     let baseP = fairVal * (1 + noise);
                     // Anchor last historical point closer to actual currentPrice
@@ -3769,16 +3814,7 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
 
         function selectValuationTimeframe(tf) {
             SELECTED_VALUATION_TIMEFRAME = tf;
-
-            ['YTD', '1J', '3J', '5J', '10J', 'MAX'].forEach(t => {
-                const btn = document.getElementById(`valTfBtn_${t}`);
-                if (!btn) return;
-                if (t === tf) {
-                    btn.className = 'val-tf-btn px-2 py-0.5 rounded text-[10px] font-bold text-gold-300 bg-gold-500/20 border border-gold-500/30 shadow-sm transition-all';
-                } else {
-                    btn.className = 'val-tf-btn px-2 py-0.5 rounded text-[10px] font-bold text-gray-400 hover:text-white transition-all';
-                }
-            });
+            updateChartTimeframeButtonStates(AVAILABLE_HISTORY_YEARS);
 
             if (LAST_VALUATION_CHART_STATE) {
                 const { data, splitDate } = generateValuationCorridorData(
@@ -3786,7 +3822,8 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                     LAST_VALUATION_CHART_STATE.fairValueBase,
                     0.12,
                     0.15,
-                    tf
+                    tf,
+                    AVAILABLE_HISTORY_YEARS
                 );
                 LAST_VALUATION_CHART_STATE.data = data;
                 LAST_VALUATION_CHART_STATE.splitDate = splitDate;
@@ -3915,8 +3952,12 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 }
             }
 
+            // Detect available history depth & update UI timeframe buttons
+            AVAILABLE_HISTORY_YEARS = getAvailableHistoryYears(allData);
+            updateChartTimeframeButtonStates(AVAILABLE_HISTORY_YEARS);
+
             // Generate structured corridor data conforming to ChartDataPoint
-            const { data, splitDate } = generateValuationCorridorData(currentPrice, fairValueBase, 0.12, 0.15, SELECTED_VALUATION_TIMEFRAME);
+            const { data, splitDate } = generateValuationCorridorData(currentPrice, fairValueBase, 0.12, 0.15, SELECTED_VALUATION_TIMEFRAME, AVAILABLE_HISTORY_YEARS);
             LAST_VALUATION_CHART_STATE = { data, splitDate, currency, currentPrice, fairValueBase };
 
             // Update Header Badges
@@ -4377,7 +4418,7 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
 
         // ==================== MULTIPLES CHART & HISTORICAL AVERAGES ENGINE (AKTIENFINDER METHODIK) ====================
         let LAST_MULTIPLES_CHART_STATE = null;
-        let SELECTED_MULTIPLES_TIMEFRAME = '10J';
+        let SELECTED_MULTIPLES_TIMEFRAME = '3J';
         let SELECTED_MULTIPLES_VIEW_MODE = 'multiples';
         let ACTIVE_MULTIPLES_METRICS = {
             pe_adj: true,
@@ -4386,21 +4427,24 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             pe_rep: false
         };
 
-        function getMultiplesHistoryMonths(tf) {
+        function getMultiplesHistoryMonths(tf, maxYears = AVAILABLE_HISTORY_YEARS) {
+            let targetMonths = 36;
             switch (tf) {
-                case '3J': return 36;
-                case '5J': return 60;
-                case '8J': return 96;
-                case '10J': return 120;
-                case '15J': return 180;
-                case 'MAX': return 240;
-                default: return 120;
+                case '1J': targetMonths = 12; break;
+                case '3J': targetMonths = 36; break;
+                case '5J': targetMonths = 60; break;
+                case '8J': targetMonths = 96; break;
+                case '10J': targetMonths = 120; break;
+                case '15J': targetMonths = 180; break;
+                case 'MAX': targetMonths = maxYears * 12; break;
+                default: targetMonths = 36; break;
             }
+            return Math.min(targetMonths, maxYears * 12);
         }
 
-        function generateMultiplesChartData(ticker, companyName, currentPrice, basePeAdj, basePcf, basePs, basePeRep, growthRate = 0.12, tf = SELECTED_MULTIPLES_TIMEFRAME) {
+        function generateMultiplesChartData(ticker, companyName, currentPrice, basePeAdj, basePcf, basePs, basePeRep, growthRate = 0.12, tf = SELECTED_MULTIPLES_TIMEFRAME, maxYears = AVAILABLE_HISTORY_YEARS) {
             const data = [];
-            const historyMonths = getMultiplesHistoryMonths(tf);
+            const historyMonths = getMultiplesHistoryMonths(tf, maxYears);
             const forecastMonths = 36; // 36 Monate Konsens-Prognose
             const totalMonths = historyMonths + forecastMonths;
 
@@ -4525,16 +4569,7 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
 
         function selectMultiplesTimeframe(tf) {
             SELECTED_MULTIPLES_TIMEFRAME = tf;
-
-            ['3J', '5J', '8J', '10J', '15J', 'MAX'].forEach(t => {
-                const btn = document.getElementById(`multTfBtn_${t}`);
-                if (!btn) return;
-                if (t === tf) {
-                    btn.className = 'mult-tf-btn px-2 py-0.5 rounded text-[10px] font-bold text-gold-300 bg-gold-500/20 border border-gold-500/30 shadow-sm transition-all';
-                } else {
-                    btn.className = 'mult-tf-btn px-2 py-0.5 rounded text-[10px] font-bold text-gray-400 hover:text-white transition-all';
-                }
-            });
+            updateChartTimeframeButtonStates(AVAILABLE_HISTORY_YEARS);
 
             if (LAST_MULTIPLES_CHART_STATE) {
                 const { data, averages, splitDate } = generateMultiplesChartData(
@@ -4546,7 +4581,8 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                     LAST_MULTIPLES_CHART_STATE.basePs,
                     LAST_MULTIPLES_CHART_STATE.basePeRep,
                     LAST_MULTIPLES_CHART_STATE.growthRate,
-                    tf
+                    tf,
+                    AVAILABLE_HISTORY_YEARS
                 );
 
                 LAST_MULTIPLES_CHART_STATE.data = data;
@@ -4651,7 +4687,7 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             if (!currentPoint || !averages) return;
 
             const tfLabelMap = { '3J': '3 Jahre', '5J': '5 Jahre', '8J': '8 Jahre', '10J': '10 Jahre', '15J': '15 Jahre', 'MAX': 'Gesamthistorie' };
-            if (periodLabel) periodLabel.textContent = `(Letzte ${tfLabelMap[tf] || tf})`;
+            if (periodLabel) periodLabel.textContent = `(Letzte ${tfLabelMap[tf] || tf} – ${AVAILABLE_HISTORY_YEARS}J Datenbasis)`;
 
             const peDiffPct = (averages.pe_adj > 0 && currentPoint.pe_adj != null) ? ((currentPoint.pe_adj - averages.pe_adj) / averages.pe_adj) * 100 : 0;
             const pcfDiffPct = (averages.pcf > 0 && currentPoint.pcf != null) ? ((currentPoint.pcf - averages.pcf) / averages.pcf) * 100 : 0;
@@ -5132,6 +5168,15 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
 
             const ticker = document.getElementById('id_codes')?.textContent?.split('/')[0]?.trim() || 'EQUITY';
 
+            // Detect available history depth & update UI timeframe buttons
+            AVAILABLE_HISTORY_YEARS = getAvailableHistoryYears(allData);
+            updateChartTimeframeButtonStates(AVAILABLE_HISTORY_YEARS);
+
+            const subtextEl = document.getElementById('multiplesHeaderSubtext');
+            if (subtextEl) {
+                subtextEl.textContent = `Historischer Bewertungsvergleich (${AVAILABLE_HISTORY_YEARS} Jahre Datenbasis)`;
+            }
+
             // Generate structured dataset conforming to Aktienfinder methodology
             const { data, averages, splitDate } = generateMultiplesChartData(
                 ticker,
@@ -5142,7 +5187,8 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 basePs,
                 basePeRep,
                 growthRate,
-                SELECTED_MULTIPLES_TIMEFRAME
+                SELECTED_MULTIPLES_TIMEFRAME,
+                AVAILABLE_HISTORY_YEARS
             );
 
             LAST_MULTIPLES_CHART_STATE = {

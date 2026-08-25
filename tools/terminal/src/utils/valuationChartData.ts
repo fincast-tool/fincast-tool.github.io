@@ -1,26 +1,36 @@
 import { ChartDataPoint, ValuationMetrics, ForecastReturnMetrics, ValuationHistoryTimeframe } from '../types/valuation-chart';
 
 /**
- * Ermittelt die Anzahl an historischen Monaten für einen gewählten Zeithorizont.
+ * Ermittelt die Anzahl an historischen Monaten für einen gewählten Zeithorizont,
+ * begrenzt auf die maximal verfügbare Historie.
  */
-export function getHistoryMonthsForTimeframe(tf: ValuationHistoryTimeframe): number {
+export function getHistoryMonthsForTimeframe(tf: ValuationHistoryTimeframe, maxAvailableYears: number = 3): number {
   const now = new Date(2026, 7, 25);
+  let targetMonths = 36;
   switch (tf) {
     case 'YTD':
-      return Math.max(2, now.getMonth() + 1);
+      targetMonths = Math.max(2, now.getMonth() + 1);
+      break;
     case '1J':
-      return 12;
+      targetMonths = 12;
+      break;
     case '3J':
-      return 36;
+      targetMonths = 36;
+      break;
     case '5J':
-      return 60;
+      targetMonths = 60;
+      break;
     case '10J':
-      return 120;
+      targetMonths = 120;
+      break;
     case 'MAX':
-      return 180;
+      targetMonths = maxAvailableYears * 12;
+      break;
     default:
-      return 36;
+      targetMonths = 36;
+      break;
   }
+  return Math.min(targetMonths, maxAvailableYears * 12);
 }
 
 /**
