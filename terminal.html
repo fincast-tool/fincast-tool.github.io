@@ -184,9 +184,11 @@
         }
 
         .archive-drawer.open {
-            width: 300px;
+            width: 320px;
             border-right-width: 1px;
             padding: 20px;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch;
         }
 
         .archive-drawer-content {
@@ -198,6 +200,81 @@
 
         .archive-drawer.open .archive-drawer-content {
             opacity: 1;
+        }
+
+        /* Screener Drawer — integrated secondary panel with smooth scroll */
+        .screener-drawer {
+            width: 0;
+            height: 100vh;
+            background: #0d111a;
+            border-right: 0 solid rgba(212, 175, 55, 0.2);
+            z-index: 50;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .screener-drawer.open {
+            width: 380px;
+            border-right-width: 1px;
+            padding: 18px 16px;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+        }
+
+        @media (min-width: 1280px) {
+            .screener-drawer.open {
+                width: 440px;
+                padding: 20px 18px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .screener-drawer.open {
+                position: fixed;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 100vw;
+                z-index: 95;
+                padding: 16px;
+            }
+        }
+
+        .screener-drawer-content {
+            min-width: 320px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            display: flex;
+            flex-direction: column;
+            min-height: 100%;
+        }
+
+        .screener-drawer.open .screener-drawer-content {
+            opacity: 1;
+        }
+
+        .screener-drawer-item {
+            background: #141926;
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 12px;
+            padding: 12px 14px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+        }
+
+        .screener-drawer-item:hover {
+            border-color: rgba(212, 175, 55, 0.5);
+            background: #1a2133;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(212, 175, 55, 0.12);
         }
 
         .archive-item {
@@ -843,12 +920,12 @@
     <!-- ========== MAIN APP (hidden until login) ========== -->
     <div id="mainApp" class="hidden">
 
-        <div class="flex h-screen overflow-hidden">
-
-            <!-- Sidebar -->
+                    <!-- Sidebar -->
             <aside id="appSidebar" class="app-sidebar py-8 gap-5">
                 <div class="w-10 h-10 rounded-xl logo-shiny overflow-hidden flex items-center justify-center shadow-lg">
-                    <img src="portfoliomanager - Symbol.png" class="w-full h-full object-contain opac                <nav class="flex flex-col gap-6 text-gray-500">
+                    <img src="portfoliomanager - Symbol.png" class="w-full h-full object-contain opacity-90" alt="Logo">
+                </div>
+                <nav class="flex flex-col gap-6 text-gray-500">
                     <div class="p-2 cursor-pointer hover:text-gold-500 transition-all hover:scale-110"
                         onclick="setUIState('welcome')" title="Home"><svg class="w-6 h-6" fill="none"
                             stroke="currentColor" viewBox="0 0 24 24">
@@ -856,7 +933,7 @@
                                 d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                         </svg></div>
                     <div class="p-2 cursor-pointer hover:text-gold-500 transition-all hover:scale-110"
-                        onclick="setUIState('screener')" title="Stock Screener"><svg class="w-6 h-6" fill="none"
+                        onclick="toggleScreener()" title="Stock Screener"><svg class="w-6 h-6" fill="none"
                             stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5M9 9.75h6M9 12.75h3" />
@@ -893,6 +970,86 @@
                 </div>
             </aside>
 
+            <!-- Screener Drawer (Integrated Secondary Panel) -->
+            <div id="screenerDrawer" class="screener-drawer">
+                <div class="screener-drawer-content">
+                    <div class="flex justify-between items-center mb-4 pb-3 border-b border-white/10 shrink-0">
+                        <div class="flex items-center gap-2">
+                            <div class="w-6 h-6 rounded-lg bg-gold-500/10 border border-gold-500/30 flex items-center justify-center text-gold-400">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5M9 9.75h6M9 12.75h3" />
+                                </svg>
+                            </div>
+                            <h3 class="text-xs font-bold font-mono text-gold-500 tracking-wider uppercase">
+                                Global Screener
+                            </h3>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span id="screenerDrawerCountBadge" class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-400">0 Aktien</span>
+                            <button onclick="toggleScreener()" class="text-gray-500 hover:text-white p-1 rounded hover:bg-white/5 transition-colors" title="Schließen">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Missing Stock Banner (Requirement 6) -->
+                    <div class="mb-3.5 p-3 rounded-xl bg-gold-500/10 border border-gold-500/25 flex flex-col gap-1.5 shrink-0">
+                        <div class="flex items-start gap-2">
+                            <div class="w-5 h-5 rounded-md bg-gold-500/20 text-gold-400 flex items-center justify-center shrink-0 mt-0.5">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
+                                </svg>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="text-[10px] font-bold text-white uppercase tracking-tight block">Unternehmen fehlt?</span>
+                                <span class="text-[8.5px] text-gray-300 font-mono leading-tight block mt-0.5">Starte einfach oben eine Analyse – sobald fertig, erscheint die Aktie hier automatisch für alle.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Search & Filter Controls -->
+                    <div class="space-y-2 mb-3.5 shrink-0">
+                        <div class="relative">
+                            <input id="screenerDrawerSearch" type="text" placeholder="Suche (Name, Ticker, ISIN)..."
+                                class="terminal-input font-mono text-[11px] py-1.5 px-3 pl-7 w-full" oninput="filterScreenerDrawer()" autocomplete="off">
+                            <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none text-gray-500">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-1.5">
+                            <select id="screenerDrawerSector" class="terminal-input text-[9.5px] py-1 px-1.5 w-full font-mono" onchange="filterScreenerDrawer()">
+                                <option value="ALL">Alle Sektoren</option>
+                            </select>
+                            <select id="screenerDrawerRegion" class="terminal-input text-[9.5px] py-1 px-1.5 w-full font-mono" onchange="filterScreenerDrawer()">
+                                <option value="ALL">Alle Regionen</option>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-1.5">
+                            <select id="screenerDrawerVerdict" class="terminal-input text-[9.5px] py-1 px-1.5 w-full font-mono" onchange="filterScreenerDrawer()">
+                                <option value="ALL">Alle Verdicts</option>
+                                <option value="buy">Buy / Strong Buy</option>
+                                <option value="hold">Hold / Fair / Wait</option>
+                                <option value="sell">Sell / Strong Sell</option>
+                            </select>
+                            <select id="screenerDrawerSort" class="terminal-input text-[9.5px] py-1 px-1.5 w-full font-mono" onchange="filterScreenerDrawer()">
+                                <option value="newest">Zuletzt analysiert</option>
+                                <option value="potential_desc">Höchstes Kurspotenzial</option>
+                                <option value="pe_asc">Niedrigstes KGV</option>
+                                <option value="growth_desc">Höchstes 5J Wachstum</option>
+                                <option value="name_asc">Name A-Z</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Scrollable List -->
+                    <div id="screenerDrawerList" class="flex flex-col gap-2.5 overflow-y-auto pr-0.5 pb-24 flex-1">
+                        <div class="py-10 flex justify-center"><div class="w-4 h-4 border-2 border-gold-500/30 border-t-gold-500 rounded-full animate-spin"></div></div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Archive Drawer (Integrated Secondary Panel) -->
             <div id="archiveDrawer" class="archive-drawer overflow-y-auto">
                 <div class="archive-drawer-content">
@@ -920,7 +1077,7 @@
                             d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
                 </div>
-                <div onclick="setUIState('screener')" title="Stock Screener">
+                <div onclick="toggleScreener()" title="Stock Screener">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5M9 9.75h6M9 12.75h3" />
@@ -932,7 +1089,7 @@
                             d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                     </svg>
                 </div>
-                <div id="adminBtnMobile" class="hidden" onclick="toggleAdmin()">
+                <div id="adminBtnMobile" class="hidden" onclick="toggleAdmin()" title="Admin">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -942,8 +1099,8 @@
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                 </div>
                 <div onclick="doLogout()" title="Abmelden">
@@ -972,12 +1129,6 @@
                                 </svg>
                                 <span>Terminal</span>
                             </a>
-                            <button onclick="setUIState('screener')" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white font-mono text-[11px] font-medium transition-all">
-                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5M9 9.75h6M9 12.75h3" />
-                                </svg>
-                                <span>Screener</span>
-                            </button>
                             <a href="abracadabra/hype.html" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white font-mono text-[11px] font-medium transition-all">
                                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z" />
@@ -1033,7 +1184,7 @@
                                 </div>
 
                                 <!-- Prominent Global Stock Screener Card on Welcome Screen -->
-                                <div class="mt-8 w-full bg-gradient-to-r from-obsidian-900/90 via-obsidian-800/90 to-obsidian-900/90 border border-gold-500/30 rounded-2xl p-4 sm:p-6 shadow-2xl relative overflow-hidden group hover:border-gold-500/60 transition-all cursor-pointer text-left" onclick="setUIState('screener')">
+                                <div class="mt-8 w-full bg-gradient-to-r from-obsidian-900/90 via-obsidian-800/90 to-obsidian-900/90 border border-gold-500/30 rounded-2xl p-4 sm:p-6 shadow-2xl relative overflow-hidden group hover:border-gold-500/60 transition-all cursor-pointer text-left" onclick="toggleScreener(true)">
                                     <div class="absolute -right-10 -bottom-10 w-36 h-36 bg-gold-500/10 rounded-full blur-2xl pointer-events-none group-hover:bg-gold-500/20 transition-all"></div>
                                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
                                         <div class="flex items-center gap-3.5 sm:gap-4">
@@ -1061,7 +1212,6 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>          </div>
                         </div>
 
                         <!-- Skeleton -->
@@ -4204,6 +4354,25 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             viewMode: 'grid'
         };
 
+        function toggleScreener(forceOpen = null) {
+            const screenerDrawer = document.getElementById('screenerDrawer');
+            const archiveDrawer = document.getElementById('archiveDrawer');
+            if (!screenerDrawer) return;
+
+            // If archive is open, close it
+            if (archiveDrawer && archiveDrawer.classList.contains('open')) {
+                archiveDrawer.classList.remove('open');
+            }
+
+            const shouldOpen = forceOpen !== null ? forceOpen : !screenerDrawer.classList.contains('open');
+            if (shouldOpen) {
+                screenerDrawer.classList.add('open');
+                loadGlobalScreenerData();
+            } else {
+                screenerDrawer.classList.remove('open');
+            }
+        }
+
         function focusTickerInput() {
             const input = document.getElementById('tickerInput');
             if (input) {
@@ -4219,9 +4388,9 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
         async function loadGlobalScreenerData(forceRefresh = false) {
             const loadingEl = document.getElementById('screenerLoadingState');
             const cardsContainer = document.getElementById('screenerCardsContainer');
-            const tableContainer = document.getElementById('screenerTableContainer');
             const emptyEl = document.getElementById('screenerEmptyState');
             const refreshIcon = document.getElementById('screenerRefreshIcon');
+            const drawerList = document.getElementById('screenerDrawerList');
 
             if (refreshIcon) refreshIcon.classList.add('animate-spin');
 
@@ -4229,6 +4398,9 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 if (loadingEl) loadingEl.classList.remove('hidden');
                 if (cardsContainer) cardsContainer.innerHTML = '';
                 if (emptyEl) emptyEl.classList.add('hidden');
+                if (drawerList && drawerList.innerHTML.indexOf('animate-spin') === -1) {
+                    drawerList.innerHTML = '<div class="py-10 flex justify-center"><div class="w-4 h-4 border-2 border-gold-500/30 border-t-gold-500 rounded-full animate-spin"></div></div>';
+                }
             }
 
             try {
@@ -4272,40 +4444,53 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                     }
                 });
 
-                // Update Counter Badge
+                // Update Counter Badges
                 const countBadge = document.getElementById('screenerCountText');
                 if (countBadge) {
                     countBadge.textContent = `${GLOBAL_SCREENER_PARSED_LIST.length} ${GLOBAL_SCREENER_PARSED_LIST.length === 1 ? 'Aktie' : 'Aktien'} analysiert`;
                 }
+                const drawerCountBadge = document.getElementById('screenerDrawerCountBadge');
+                if (drawerCountBadge) {
+                    drawerCountBadge.textContent = `${GLOBAL_SCREENER_PARSED_LIST.length} ${GLOBAL_SCREENER_PARSED_LIST.length === 1 ? 'Aktie' : 'Aktien'}`;
+                }
 
-                // Populate Dynamic Sector Filter
-                const sectorSelect = document.getElementById('screenerSectorFilter');
-                if (sectorSelect) {
-                    const currentSector = sectorSelect.value || 'ALL';
-                    sectorSelect.innerHTML = '<option value="ALL">Alle Sektoren</option>';
+                // Populate Dynamic Sector Filters (Main & Drawer)
+                const sectorSelects = [
+                    document.getElementById('screenerSectorFilter'),
+                    document.getElementById('screenerDrawerSector')
+                ].filter(Boolean);
+
+                sectorSelects.forEach(sel => {
+                    const currentVal = sel.value || 'ALL';
+                    sel.innerHTML = '<option value="ALL">Alle Sektoren</option>';
                     Array.from(sectorsSet).sort().forEach(sec => {
                         const opt = document.createElement('option');
                         opt.value = sec;
                         opt.textContent = sec;
-                        if (sec === currentSector) opt.selected = true;
-                        sectorSelect.appendChild(opt);
+                        if (sec === currentVal) opt.selected = true;
+                        sel.appendChild(opt);
                     });
-                }
+                });
 
-                // Populate Dynamic Region Filter
-                const regionSelect = document.getElementById('screenerRegionFilter');
-                if (regionSelect) {
-                    const currentRegion = regionSelect.value || 'ALL';
-                    regionSelect.innerHTML = '<option value="ALL">Alle Regionen</option>';
+                // Populate Dynamic Region Filters (Main & Drawer)
+                const regionSelects = [
+                    document.getElementById('screenerRegionFilter'),
+                    document.getElementById('screenerDrawerRegion')
+                ].filter(Boolean);
+
+                regionSelects.forEach(sel => {
+                    const currentVal = sel.value || 'ALL';
+                    sel.innerHTML = '<option value="ALL">Alle Regionen</option>';
                     Array.from(regionsSet).sort().forEach(reg => {
                         const opt = document.createElement('option');
                         opt.value = reg;
                         opt.textContent = reg;
-                        if (reg === currentRegion) opt.selected = true;
-                        regionSelect.appendChild(opt);
+                        if (reg === currentVal) opt.selected = true;
+                        sel.appendChild(opt);
                     });
-                }
+                });
 
+                filterScreenerDrawer();
                 filterAndSortScreener();
             } catch (err) {
                 console.error('Failed to load global screener:', err);
@@ -4313,6 +4498,200 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 if (loadingEl) loadingEl.classList.add('hidden');
                 if (refreshIcon) refreshIcon.classList.remove('animate-spin');
             }
+        }
+
+        function filterScreenerDrawer() {
+            const listContainer = document.getElementById('screenerDrawerList');
+            if (!listContainer) return;
+
+            const searchInput = document.getElementById('screenerDrawerSearch');
+            const sectorSelect = document.getElementById('screenerDrawerSector');
+            const regionSelect = document.getElementById('screenerDrawerRegion');
+            const verdictSelect = document.getElementById('screenerDrawerVerdict');
+            const sortSelect = document.getElementById('screenerDrawerSort');
+
+            const query = (searchInput?.value || '').trim().toLowerCase();
+            const sectorFilter = sectorSelect?.value || 'ALL';
+            const regionFilter = regionSelect?.value || 'ALL';
+            const verdictFilter = verdictSelect?.value || 'ALL';
+            const sortMode = sortSelect?.value || 'newest';
+
+            let filtered = GLOBAL_SCREENER_PARSED_LIST.filter(item => {
+                // 1. Search Query
+                if (query) {
+                    const matchQuery =
+                        item.ticker.toLowerCase().includes(query) ||
+                        item.name.toLowerCase().includes(query) ||
+                        item.isin.toLowerCase().includes(query) ||
+                        item.wkn.toLowerCase().includes(query) ||
+                        item.sector.toLowerCase().includes(query) ||
+                        item.hq.toLowerCase().includes(query);
+                    if (!matchQuery) return false;
+                }
+
+                // 2. Sector Filter
+                if (sectorFilter !== 'ALL') {
+                    if (item.sector.toLowerCase() !== sectorFilter.toLowerCase()) return false;
+                }
+
+                // 3. Region Filter
+                if (regionFilter !== 'ALL') {
+                    if (!item.hq.toLowerCase().includes(regionFilter.toLowerCase())) return false;
+                }
+
+                // 4. Verdict Filter
+                if (verdictFilter !== 'ALL') {
+                    if (verdictFilter === 'buy' && item.verdict.type !== 'buy') return false;
+                    if (verdictFilter === 'hold' && item.verdict.type !== 'hold' && item.verdict.type !== 'wait') return false;
+                    if (verdictFilter === 'sell' && item.verdict.type !== 'sell') return false;
+                }
+
+                return true;
+            });
+
+            // Sorting
+            filtered.sort((a, b) => {
+                if (sortMode === 'potential_desc') {
+                    const aVal = a.dcfNum !== null ? a.dcfNum : -9999;
+                    const bVal = b.dcfNum !== null ? b.dcfNum : -9999;
+                    return bVal - aVal;
+                } else if (sortMode === 'pe_asc') {
+                    return a.peNum - b.peNum;
+                } else if (sortMode === 'growth_desc') {
+                    return b.growthNum - a.growthNum;
+                } else if (sortMode === 'name_asc') {
+                    return a.name.localeCompare(b.name);
+                }
+                return 0; // 'newest' default
+            });
+
+            const countBadge = document.getElementById('screenerDrawerCountBadge');
+            if (countBadge) {
+                countBadge.textContent = `${filtered.length} / ${GLOBAL_SCREENER_PARSED_LIST.length} ${GLOBAL_SCREENER_PARSED_LIST.length === 1 ? 'Aktie' : 'Aktien'}`;
+            }
+
+            if (filtered.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="py-12 px-3 text-center">
+                        <p class="text-[10px] text-gray-500 font-mono uppercase tracking-wider">Keine Treffer im Screener.</p>
+                        <button onclick="resetScreenerDrawerFilters()" class="mt-3 text-[9px] text-gold-400 hover:text-gold-300 underline font-mono">Filter zurücksetzen</button>
+                    </div>
+                `;
+                return;
+            }
+
+            listContainer.innerHTML = '';
+            filtered.forEach(item => {
+                let verdictBadgeStyles = 'bg-slate-500/15 text-slate-300 border-slate-500/30';
+                let verdictDot = 'bg-slate-400';
+                if (item.verdict.type === 'buy') {
+                    verdictBadgeStyles = 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30';
+                    verdictDot = 'bg-emerald-400';
+                } else if (item.verdict.type === 'sell') {
+                    verdictBadgeStyles = 'bg-rose-500/15 text-rose-400 border-rose-500/30';
+                    verdictDot = 'bg-rose-400';
+                } else if (item.verdict.type === 'hold') {
+                    verdictBadgeStyles = 'bg-amber-500/15 text-amber-400 border-amber-500/30';
+                    verdictDot = 'bg-amber-400';
+                }
+
+                let dcfBadgeStyles = 'bg-slate-500/15 text-slate-400 border-slate-500/30';
+                if (item.dcfPotential !== '--') {
+                    if (item.dcfPotential.includes('-') && !item.dcfPotential.includes('bis') && !item.dcfPotential.includes('to')) {
+                        dcfBadgeStyles = 'bg-rose-500/15 text-rose-400 border-rose-500/30';
+                    } else {
+                        dcfBadgeStyles = 'bg-gold-500/15 text-gold-400 border-gold-500/30';
+                    }
+                }
+
+                const card = document.createElement('div');
+                card.className = 'screener-drawer-item group';
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="min-w-0 flex-1 pr-2">
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="font-black text-white text-xs tracking-tight">${item.ticker}</span>
+                                <span class="text-[8px] font-mono px-1.5 py-0.2 rounded bg-white/5 border border-white/10 text-gray-400 truncate max-w-[100px]">${item.sector}</span>
+                            </div>
+                            <h4 class="text-[10px] font-bold text-gray-300 uppercase truncate mt-0.5" title="${item.name}">${item.name}</h4>
+                        </div>
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            <button class="share-screener-btn text-gray-500 hover:text-gold-400 p-1 rounded hover:bg-white/5 transition-colors" title="Analyse Teilen">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
+                            </button>
+                            <span class="text-[7.5px] text-gray-500 font-mono">${item.timestamp}</span>
+                        </div>
+                    </div>
+
+                    <!-- Verdict & Potential Badges -->
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                        <span class="px-2 py-0.5 rounded border ${verdictBadgeStyles} font-mono font-bold text-[8.5px] uppercase tracking-wide flex items-center gap-1 truncate max-w-[130px]" title="AI Verdict: ${item.verdict.label}">
+                            <span class="w-1.5 h-1.5 rounded-full ${verdictDot}"></span>
+                            ${item.verdict.label}
+                        </span>
+                        <span class="px-2 py-0.5 rounded border ${dcfBadgeStyles} font-mono font-bold text-[8.5px] uppercase tracking-wide truncate max-w-[120px]" title="DCF Potenzial: ${item.dcfPotential}">
+                            ${item.dcfPotential !== '--' ? `DCF: ${item.dcfPotential}` : 'DCF: --'}
+                        </span>
+                    </div>
+
+                    <!-- Eyecatcher Key Data Grid -->
+                    <div class="grid grid-cols-2 gap-1.5 p-2 rounded-lg bg-black/40 border border-white/5 text-[9px] font-mono">
+                        <div>
+                            <span class="text-[7.5px] text-gray-500 block leading-tight">Kurs</span>
+                            <span class="font-bold text-white text-[9.5px] block truncate">${item.priceStr}</span>
+                        </div>
+                        <div>
+                            <span class="text-[7.5px] text-gray-500 block leading-tight">KGV (Akt./Ø)</span>
+                            <span class="font-bold text-gray-300 text-[9.5px] block truncate">${item.showcase.pe}</span>
+                        </div>
+                        <div>
+                            <span class="text-[7.5px] text-gray-500 block leading-tight">5J Wachstum</span>
+                            <span class="font-bold text-emerald-400 text-[9.5px] block truncate">${item.showcase.growth}</span>
+                        </div>
+                        <div>
+                            <span class="text-[7.5px] text-gray-500 block leading-tight">Dividende</span>
+                            <span class="font-bold text-gray-300 text-[9.5px] block truncate">${item.showcase.dividend || '--'}</span>
+                        </div>
+                        <div class="col-span-2 pt-1 border-t border-white/5 flex items-center justify-between gap-1 text-[8px]">
+                            <span class="text-gray-500">Bull / Bear:</span>
+                            <span class="text-gold-400 font-bold truncate">${item.showcase.targets}</span>
+                        </div>
+                    </div>
+                `;
+
+                const shareBtn = card.querySelector('.share-screener-btn');
+                if (shareBtn) {
+                    shareBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        shareScreenerStock(item.key);
+                    };
+                }
+
+                card.onclick = () => {
+                    openScreenerReport(item.key);
+                    if (window.innerWidth < 1024) {
+                        toggleScreener(false);
+                    }
+                };
+
+                listContainer.appendChild(card);
+            });
+        }
+
+        function resetScreenerDrawerFilters() {
+            const searchInput = document.getElementById('screenerDrawerSearch');
+            const sectorSelect = document.getElementById('screenerDrawerSector');
+            const regionSelect = document.getElementById('screenerDrawerRegion');
+            const verdictSelect = document.getElementById('screenerDrawerVerdict');
+            const sortSelect = document.getElementById('screenerDrawerSort');
+
+            if (searchInput) searchInput.value = '';
+            if (sectorSelect) sectorSelect.value = 'ALL';
+            if (regionSelect) regionSelect.value = 'ALL';
+            if (verdictSelect) verdictSelect.value = 'ALL';
+            if (sortSelect) sortSelect.value = 'newest';
+
+            filterScreenerDrawer();
         }
 
         function parseScreenerItem(key, entry) {
@@ -4769,10 +5148,23 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
         }
 
         // ==================== ARCHIVE LOGIC ====================
-        function toggleArchive() {
-            const drawer = document.getElementById('archiveDrawer');
-            drawer.classList.toggle('open');
-            if (drawer.classList.contains('open')) renderArchiveList();
+        function toggleArchive(forceOpen = null) {
+            const archiveDrawer = document.getElementById('archiveDrawer');
+            const screenerDrawer = document.getElementById('screenerDrawer');
+            if (!archiveDrawer) return;
+
+            // If screener is open, close it
+            if (screenerDrawer && screenerDrawer.classList.contains('open')) {
+                screenerDrawer.classList.remove('open');
+            }
+
+            const shouldOpen = forceOpen !== null ? forceOpen : !archiveDrawer.classList.contains('open');
+            if (shouldOpen) {
+                archiveDrawer.classList.add('open');
+                renderArchiveList();
+            } else {
+                archiveDrawer.classList.remove('open');
+            }
         }
 
         // Cloud Archive is handled directly in startAnalysis via apiCall('save_archive')
