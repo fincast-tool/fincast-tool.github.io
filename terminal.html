@@ -2288,6 +2288,7 @@ TASK: Deep-Dive Analysis for "${query}". \n\n`;
 
             prompt += `STRICT INSTRUCTIONS (NO NOVELS, NO FLUFF):
 - Use the provided [FMP API BLOCK] as your primary and absolute source of truth for all financial data, company identifiers, and metrics.
+- CURRENCY CONSISTENCY (CRITICAL): All financial amounts, price targets, and current prices across ALL agents MUST use the EXACT SAME native trading/reporting currency from the FMP API BLOCK (e.g. NOK, CHF, EUR, USD, GBP). Always state the currency code/symbol with every price (e.g. '305.50 NOK', '45.00 EUR', '209.17 USD'). NEVER convert or mix different currencies across sections (e.g. DO NOT compare a EUR price against a NOK target).
 - Use the google_search tool ONLY to supplement the analysis with very recent news (last 24-48h), current market sentiment, or specific qualitative information not found in the FMP block.
 - DO NOT use google_search for data that is already provided in the FMP block.
 - If data in the FMP block and google_search conflicts, prioritize the FMP block for financial metrics.
@@ -2315,7 +2316,7 @@ WKN: [WKN]
 Sektor: [Use 'Sector/Industry' from FMP API BLOCK]
 HQ: [Use 'HQ' from FMP API BLOCK]
 Profil: [A highly condensed 2-sentence summary of the core business model and USPs. MAX 40 words. Do NOT copy the full description.]
-Aktueller Kurs: [Use 'Current Price' from FMP API BLOCK]
+Aktueller Kurs: [Use 'Current Price' with currency from FMP API BLOCK, e.g. '209.17 USD' or '305.50 NOK' or '45.00 EUR']
 </company_identity>\n\n`;
             }
 
@@ -2329,9 +2330,9 @@ ROLE: Senior Equity Analyst (Fundamental Value)
 - Financial Health: [Use 'Debt to Equity' from FMP API BLOCK; check sustainability]
 - Dividend: [Use 'Dividend Yield' and 'Payout Ratio' from FMP API BLOCK]
 - Competitive Moat: [Rating: WEAK/MODERATE/STRONG + 1 sentence why]
-- Bull/Bear Targets: [Use 'Bull Case' and 'Bear Case' price targets from FMP API BLOCK]
+- Bull/Bear Targets: [Use 'Bull Case' and 'Bear Case' price targets in the EXACT SAME currency as 'Aktueller Kurs', e.g. 'Bull 450 NOK / Bear 250 NOK' or 'Bull $260 / Bear $190']
 - Risk Score: [Scale 1-10 + primary risk factor]
-- Trade Zones: [Entry Zone & Suggested Stop-Loss]
+- Trade Zones: [Entry Zone & Suggested Stop-Loss in the same currency]
 - AI Sentiment: [POSITIVE/NEUTRAL/NEGATIVE]
 </goldman_sachs>\n\n`;
             }
@@ -2342,9 +2343,9 @@ ROLE: VP-Level Investment Banker (DCF Valuation)
 - 5Y Projection: [Use 'Historical Trends' from FMP API BLOCK to est. Revenue & Margin]
 - FCF Forecast: [Year-by-year FCF simulation for next 5 years]
 - WACC & Terminal: [WACC derivation & Terminal Value (Exit vs Perpetuity)]
-- DCF Fair Value: [Use 'DCF Fair Value Estimate' from FMP API BLOCK vs your simulation]
+- DCF Fair Value: [Use 'DCF Fair Value Estimate' from FMP API BLOCK vs your simulation, in the EXACT SAME currency as 'Aktueller Kurs']
 - Sensitivity Table: [Matrix of Fair Value at +/- 1% WACC variance]
-- Market Check: [Use 'Current Price' from FMP API BLOCK; check % Upside/Downside]
+- Market Check: [Compare Current Price vs DCF Fair Value in the EXACT SAME currency; check % Upside/Downside]
 - Break-Case: [Identify 2 key assumptions that could break this model]
 - AI Outlook: [UNDERVALUED/FAIRLY VALUED/OVERVALUED]
 </morgan_stanley>\n\n`;
@@ -2734,6 +2735,21 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             }
         }
 
+        function extractCurrency(str) {
+            if (!str) return '';
+            const codeMatch = str.match(/\b(USD|EUR|NOK|CHF|GBP|GBp|SEK|DKK|JPY|CAD|AUD|NZD|PLN|CZK|HUF|SGD|HKD|KRW|INR|BRL|ZAR)\b/i);
+            if (codeMatch) return codeMatch[1].toUpperCase();
+
+            if (/\$|USD/i.test(str)) return 'USD';
+            if (/€|EUR/i.test(str)) return 'EUR';
+            if (/£|GBP/i.test(str)) return 'GBP';
+            if (/¥|JPY/i.test(str)) return 'JPY';
+            if (/kr\b/i.test(str)) return 'NOK';
+            if (/CHF/i.test(str)) return 'CHF';
+
+            return '';
+        }
+
         function parsePriceNumber(str) {
             if (!str) return null;
             // 1. Remove date expressions or parenthesis content like "(Stand: 21.08.2026)" or "2026-08-21"
@@ -2879,29 +2895,48 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
 
             // 4. Bull/Bear Targets
             const targetMatch = clean.match(/(?:Bull\/Bear\s*Targets|Bull\/Bear|Targets|Kursziele):\s*([^\n]+)/i);
+            let targetCurrency = '';
             if (targetMatch) {
                 const line = targetMatch[1].trim();
-                const bbMatch = line.match(/Bull\s*:?\s*([$€]?\d+(?:[.,]\d+)?(?:\s*[$€])?)\s*(?:\/|vs\.?|und|;)\s*Bear\s*:?\s*([$€]?\d+(?:[.,]\d+)?(?:\s*[$€])?)/i);
+                targetCurrency = extractCurrency(line);
+                const bbMatch = line.match(/Bull\s*:?\s*([A-Za-z$€£¥]*\s*\d+(?:[.,]\d+)?(?:\s*[A-Za-z$€£¥]+)?)\s*(?:\/|vs\.?|und|;)\s*Bear\s*:?\s*([A-Za-z$€£¥]*\s*\d+(?:[.,]\d+)?(?:\s*[A-Za-z$€£¥]+)?)/i);
                 if (bbMatch) {
-                    targets = `${bbMatch[1]} / ${bbMatch[2]}`;
+                    targets = `${bbMatch[1].trim()} / ${bbMatch[2].trim()}`;
                     bullNum = parsePriceNumber(bbMatch[1]);
                     bearNum = parsePriceNumber(bbMatch[2]);
+                    if (!targetCurrency) targetCurrency = extractCurrency(bbMatch[1]) || extractCurrency(bbMatch[2]);
                 } else {
-                    const priceMatches = line.match(/([$€]?\d+(?:[.,]\d+)?(?:\s*[$€])?)/g);
+                    const priceMatches = line.match(/([A-Za-z$€£¥]*\s*\d+(?:[.,]\d+)?(?:\s*[A-Za-z$€£¥]+)?)/g);
                     if (priceMatches && priceMatches.length >= 2) {
-                        targets = `${priceMatches[0]} / ${priceMatches[1]}`;
+                        targets = `${priceMatches[0].trim()} / ${priceMatches[1].trim()}`;
                         bullNum = parsePriceNumber(priceMatches[0]);
                         bearNum = parsePriceNumber(priceMatches[1]);
+                        if (!targetCurrency) targetCurrency = extractCurrency(priceMatches[0]) || extractCurrency(priceMatches[1]);
                     } else {
                         targets = line.split(/[,;(]/)[0].trim().substring(0, 16);
                     }
                 }
             }
 
-            // 5. Calculate Bull / Bear Potentials from Current Price
+            // 5. Calculate Bull / Bear Potentials from Current Price with Currency Safeguards
             let bullPct = null;
             let bearPct = null;
-            const currentPriceNum = parsePriceNumber(currentPriceText);
+            let currentPriceNum = parsePriceNumber(currentPriceText);
+            const currentCurrency = extractCurrency(currentPriceText);
+
+            if (currentCurrency && targetCurrency && currentCurrency !== targetCurrency) {
+                const nativePriceMatch = clean.match(new RegExp(`(?:Aktueller\\s*Kurs|Current\\s*Price|Entry|Kurs|Price)[^\\n]*?(\\d+(?:[.,]\\d+)?)\\s*${targetCurrency}`, 'i')) ||
+                                         clean.match(new RegExp(`${targetCurrency}\\s*(\\d+(?:[.,]\\d+)?)`, 'i'));
+                if (nativePriceMatch) {
+                    currentPriceNum = parsePriceNumber(nativePriceMatch[1]);
+                } else {
+                    const rawBullPct = currentPriceNum ? ((bullNum - currentPriceNum) / currentPriceNum) * 100 : 0;
+                    if (Math.abs(rawBullPct) > 300) {
+                        currentPriceNum = null; // Suppress broken calculation across currencies
+                    }
+                }
+            }
+
             if (currentPriceNum && currentPriceNum > 0 && bullNum !== null && bearNum !== null) {
                 bullPct = ((bullNum - currentPriceNum) / currentPriceNum) * 100;
                 bearPct = ((bearNum - currentPriceNum) / currentPriceNum) * 100;

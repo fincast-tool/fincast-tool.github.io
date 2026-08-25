@@ -124,8 +124,10 @@ module.exports = async function handler(req, res) {
                         ? earnData.slice(0, 4).map(e => `Q-Date: ${e.date?.split(' ')[0]} | Est: ${e.estimatedEarning} | Act: ${e.actualEarning}`).join('\n')
                         : 'N/A';
 
+                    const currency = (profile.currency || quote.currency || '').trim().toUpperCase() || 'USD';
+
                     const histString = (histData && histData.length > 0)
-                        ? histData.slice(0, 15).map(h => `Date: ${h.date} | Close: $${h.close} | High: $${h.high} | Low: $${h.low} | Vol: ${(h.volume / 1e6).toFixed(2)}M`).join('\n')
+                        ? histData.slice(0, 15).map(h => `Date: ${h.date} | Close: ${h.close} ${currency} | High: ${h.high} ${currency} | Low: ${h.low} ${currency} | Vol: ${(h.volume / 1e6).toFixed(2)}M`).join('\n')
                         : 'N/A';
 
 
@@ -155,11 +157,12 @@ Name: ${profile.companyName || 'N/A'}
 Symbol: ${symbol}
 ISIN: ${profile.isin || 'N/A'}
 WKN: ${profile.cusip || 'N/A'}
+Currency: ${currency}
 Sector/Industry: ${profile.sector || 'N/A'} / ${profile.industry || 'N/A'}
 HQ: ${profile.city || 'N/A'}, ${profile.country || 'N/A'}
 Description: ${profile.description || 'N/A'}
-Current Price: $${quote.price || 'N/A'}
-Market Cap: ${quote.marketCap ? '$' + (quote.marketCap / 1e9).toFixed(2) + ' Billion' : 'N/A'}
+Current Price: ${quote.price != null ? `${quote.price} ${currency}` : 'N/A'}
+Market Cap: ${quote.marketCap ? `${(quote.marketCap / 1e9).toFixed(2)} Billion ${currency}` : 'N/A'}
 
 --- FINANCIAL TRENDS ---
 Revenue (5Y): ${incomeData.slice(0, 5).map(y => (y.revenue / 1e9).toFixed(2) + 'B').reverse().join(' -> ')}
@@ -178,13 +181,13 @@ Debt to Equity: ${ttm.debtToEquityTTM ? Number(ttm.debtToEquityTTM).toFixed(2) :
 ROE: ${ttm.roeTTM ? (Number(ttm.roeTTM) * 100).toFixed(2) + '%' : 'N/A'}
 Dividend Yield: ${quote.dividendYield ? (Number(quote.dividendYield) * 100).toFixed(2) + '%' : 'N/A'}
 Payout Ratio: ${ttm.payoutRatioTTM ? (Number(ttm.payoutRatioTTM) * 100).toFixed(2) + '%' : 'N/A'}
-DCF Fair Value Estimate: $${profile.dcf ? Number(profile.dcf).toFixed(2) : 'N/A'}
+DCF Fair Value Estimate: ${profile.dcf != null ? `${Number(profile.dcf).toFixed(2)} ${currency}` : 'N/A'}
 
 --- TECHNICAL INDICATORS ---
 14-Day RSI: ${rsiData !== 'N/A' ? Number(rsiData).toFixed(2) : 'N/A'}
 MACD: ${macdData !== 'N/A' ? Number(macdData).toFixed(2) : 'N/A'}
-50-DMA: $${quote.priceAvg50 || 'N/A'}
-200-DMA: $${quote.priceAvg200 || 'N/A'}
+50-DMA: ${quote.priceAvg50 != null ? `${quote.priceAvg50} ${currency}` : 'N/A'}
+200-DMA: ${quote.priceAvg200 != null ? `${quote.priceAvg200} ${currency}` : 'N/A'}
 Short Interest: ${quote.sharesOutstanding ? ((quote.volume / quote.sharesOutstanding) * 100).toFixed(2) + '%' : 'N/A'} (Volume Proxy)
 Next Earnings: ${quote.earningsAnnouncement || 'N/A'}
 
