@@ -3326,11 +3326,24 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
         }
 
         function extractStockScreenerShowcase(screenerText, currentPriceText = '') {
-            if (!screenerText) return { peLabel: 'KGV (Akt. / Ø):', pe: '--', growth: '--', dividend: null, targets: '--', potentials: '--', bullPct: null, bearPct: null };
-            const clean = screenerText.replace(/```[a-z]*\n?/gi, '').replace(/[*_#]/g, '').trim();
+            if (!screenerText) return {
+                peLabel: 'KGV (Akt. / Ø):',
+                pe: '--',
+                growth: '--',
+                dividend: null,
+                targets: '--',
+                potentials: '--',
+                bullPct: null,
+                bearPct: null,
+                currentPeNum: null,
+                avgPeNum: null
+            };
+            const clean = String(screenerText || '').replace(/```[a-z]*\n?/gi, '').replace(/[*_#]/g, '').trim();
 
             let peLabel = 'KGV (Akt. / Ø):';
             let pe = '--';
+            let currentPe = null;
+            let avgPe = null;
             let growth = '--';
             let dividend = null;
             let targets = '--';
@@ -3342,8 +3355,6 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             const peMatch = clean.match(/(?:P\/E\s*Analysis|P\/E|PE|KGV-Analyse|KGV):\s*([^\n]+)/i);
             if (peMatch) {
                 const line = peMatch[1].trim();
-                let currentPe = null;
-                let avgPe = null;
                 let avgType = 'Ø';
 
                 // Check for 5Y / 5J Avg specifically
