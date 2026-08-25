@@ -50,3 +50,35 @@ export interface ForecastReturnMetrics {
   upperAnnualizedReturnPercent: number;
 }
 
+export type MultiplesHistoryTimeframe = '3J' | '5J' | '8J' | '10J' | '15J' | 'MAX';
+
+export interface MultiplesDataPoint {
+  date: string;
+  pe_adj: number | null;
+  pcf: number | null;
+  ps: number | null;
+  pe_rep: number | null;
+  isForecast: boolean;
+}
+
+export interface MultiplesAverages {
+  pe_adj: number;
+  pcf: number;
+  ps: number;
+  pe_rep: number;
+}
+
+export interface MultiplesChartProps {
+  ticker: string;
+  companyName: string;
+  splitDate: string;
+  data: MultiplesDataPoint[];
+  averages: MultiplesAverages;
+  height?: number;
+  className?: string;
+  isDarkMode?: boolean;
+  selectedTimeframe?: MultiplesHistoryTimeframe;
+  onTimeframeSelect?: (tf: MultiplesHistoryTimeframe) => void;
+  onMetricToggle?: (metric: string) => void;
+}
+
