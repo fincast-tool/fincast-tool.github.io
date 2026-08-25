@@ -19,12 +19,36 @@ module.exports = async function handler(req, res) {
                 });
                 await redis.set('terminal_users', JSON.stringify(usersArray));
             }
-            // Strip sensitive fields (passwords, salts, verification codes) before returning
+            // Strip sensitive credentials (passwords, salts, verification tokens) before returning
+            // Note: verificationCode and emailVerified are included so admin can inspect & unlock users in Master Control
             const safeUsers = usersArray.map(u => {
-                const { password, passwordHash, salt, verificationCode, verificationToken, verificationExpires, ...safe } = u;
-                return safe;
+                const { password, passwordHash, salt, verificationToken, ...safe } = u;
+                return {
+                    ...safe,
+                    emailVerified: u.emailVerified !== undefined ? u.emailVerified : true
+                };
             });
             return res.status(200).json(safeUsers);
+        }
+
+        if (action === 'admin_verify_user') {
+            const targetEmail = (req.body.email || email || '').trim().toLowerCase();
+            const setVerified = req.body.verified !== undefined ? Boolean(req.body.verified) : true;
+
+            let users = await redis.get('terminal_users');
+            let usersArray = users ? JSON.parse(users) : [];
+            const index = usersArray.findIndex(u => u.email === targetEmail);
+            if (index > -1) {
+                usersArray[index].emailVerified = setVerified;
+                if (setVerified) {
+                    usersArray[index].emailVerifiedAt = new Date().toISOString();
+                    usersArray[index].verificationCode = null;
+                    usersArray[index].verificationExpires = null;
+                }
+                await redis.set('terminal_users', JSON.stringify(usersArray));
+                return res.status(200).json({ success: true, emailVerified: setVerified });
+            }
+            return res.status(404).json({ error: 'Benutzer nicht gefunden.' });
         }
 
         if (action === 'save_user') {
@@ -36,16 +60,16 @@ module.exports = async function handler(req, res) {
                 usersArray[index] = { 
                     ...existing, 
                     ...data,
-                    // Preserve existing credentials and verification status unless explicitly managed by auth API
+                    // Preserve existing credentials unless explicitly updated
                     password: existing.password,
                     passwordHash: existing.passwordHash,
-                    emailVerified: existing.emailVerified !== undefined ? existing.emailVerified : true
+                    emailVerified: data.emailVerified !== undefined ? data.emailVerified : (existing.emailVerified !== undefined ? existing.emailVerified : true)
                 }; 
             } else { 
                 usersArray.push({
                     tier: 'free',
                     isAdmin: false,
-                    emailVerified: true,
+                    emailVerified: data.emailVerified !== undefined ? data.emailVerified : true,
                     model: 'gemini-3.5-flash',
                     ...data
                 }); 
