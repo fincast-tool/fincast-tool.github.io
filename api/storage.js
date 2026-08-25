@@ -229,6 +229,15 @@ module.exports = async function handler(req, res) {
         }
 
         // --- GLOBAL STOCK SCREENER LOGIC ---
+        function isCompletedScreenerEntry(item) {
+            if (!item || typeof item !== 'object') return false;
+            const data = item.data || item;
+            if (!data || typeof data !== 'object') return false;
+            const execText = (data.executive_summary || data.citadel || data.morgan_stanley || data.goldman_sachs || '').toString().trim();
+            if (!execText || execText.length < 15 || execText.toUpperCase() === 'PENDING') return false;
+            return true;
+        }
+
         if (action === 'get_global_screener') {
             const raw = await redis.get('global_stock_screener');
             let screenerMap = {};
@@ -242,7 +251,22 @@ module.exports = async function handler(req, res) {
                     screenerMap = {};
                 }
             }
-            return res.status(200).json(screenerMap);
+
+            let hasInvalid = false;
+            const validMap = {};
+            for (const [k, v] of Object.entries(screenerMap)) {
+                if (isCompletedScreenerEntry(v)) {
+                    validMap[k] = v;
+                } else {
+                    hasInvalid = true;
+                }
+            }
+
+            if (hasInvalid) {
+                await redis.set('global_stock_screener', JSON.stringify(validMap)).catch(() => {});
+            }
+
+            return res.status(200).json(validMap);
         }
 
         if (action === 'save_global_screener') {
@@ -256,6 +280,10 @@ module.exports = async function handler(req, res) {
             const normalizedKey = String(rawKey).trim().toUpperCase();
             if (!normalizedKey) {
                 return res.status(400).json({ error: 'Invalid key' });
+            }
+
+            if (!isCompletedScreenerEntry(itemData)) {
+                return res.status(400).json({ error: 'Cannot save screener item without completed AI analysis' });
             }
 
             const raw = await redis.get('global_stock_screener');
@@ -323,7 +351,7 @@ module.exports = async function handler(req, res) {
                         for (const item of list) {
                             try {
                                 const parsed = typeof item === 'string' ? JSON.parse(item) : item;
-                                if (parsed && typeof parsed === 'object') {
+                                if (parsed && typeof parsed === 'object' && isCompletedScreenerEntry(parsed)) {
                                     const ticker = (parsed.ticker || parsed.symbol || '').toString().trim().toUpperCase();
                                     if (ticker && ticker !== 'UNKNOWN') {
                                         screenerMap[ticker] = { ...(screenerMap[ticker] || {}), ...parsed };
@@ -341,7 +369,7 @@ module.exports = async function handler(req, res) {
                             if (parsedArchive && typeof parsedArchive === 'object') {
                                 if (Array.isArray(parsedArchive)) {
                                     for (const item of parsedArchive) {
-                                        if (item && typeof item === 'object') {
+                                        if (item && typeof item === 'object' && isCompletedScreenerEntry(item)) {
                                             const ticker = (item.ticker || item.symbol || '').toString().trim().toUpperCase();
                                             if (ticker && ticker !== 'UNKNOWN') {
                                                 screenerMap[ticker] = { ...(screenerMap[ticker] || {}), ...item };
@@ -351,7 +379,7 @@ module.exports = async function handler(req, res) {
                                     }
                                 } else {
                                     for (const [subKey, item] of Object.entries(parsedArchive)) {
-                                        if (item && typeof item === 'object') {
+                                        if (item && typeof item === 'object' && isCompletedScreenerEntry(item)) {
                                             const ticker = (item.ticker || item.symbol || subKey).toString().trim().toUpperCase();
                                             if (ticker && ticker !== 'UNKNOWN') {
                                                 screenerMap[ticker] = { ...(screenerMap[ticker] || {}), ...item };
@@ -368,8 +396,15 @@ module.exports = async function handler(req, res) {
                 }
             }
 
-            await redis.set('global_stock_screener', JSON.stringify(screenerMap));
-            return res.status(200).json({ success: true, syncedCount, totalCount: Object.keys(screenerMap).length });
+            const cleanScreenerMap = {};
+            for (const [k, v] of Object.entries(screenerMap)) {
+                if (isCompletedScreenerEntry(v)) {
+                    cleanScreenerMap[k] = v;
+                }
+            }
+
+            await redis.set('global_stock_screener', JSON.stringify(cleanScreenerMap));
+            return res.status(200).json({ success: true, syncedCount, totalCount: Object.keys(cleanScreenerMap).length });
         }
 
         res.status(400).json({ error: 'Unknown action: ' + action });

@@ -4432,7 +4432,7 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 entries.forEach(([key, entry]) => {
                     if (entry) {
                         const parsed = parseScreenerItem(key, entry);
-                        if (parsed) {
+                        if (parsed && parsed.verdict && parsed.verdict.label && parsed.verdict.label !== 'PENDING') {
                             GLOBAL_SCREENER_PARSED_LIST.push(parsed);
                             if (parsed.sector && parsed.sector !== 'Unbekannt') {
                                 sectorsSet.add(parsed.sector);
@@ -4519,6 +4519,8 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             const sortMode = sortSelect?.value || 'newest';
 
             let filtered = GLOBAL_SCREENER_PARSED_LIST.filter(item => {
+                if (!item || !item.verdict || !item.verdict.label || item.verdict.label === 'PENDING') return false;
+
                 // 1. Search Query
                 if (query) {
                     const matchQuery =
@@ -4697,8 +4699,22 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
         }
 
         function parseScreenerItem(key, entry) {
+            if (!entry) return null;
             const data = entry.data || entry || {};
             const identityText = data.company_identity || '';
+
+            // AI Verdict
+            const execText = (data.executive_summary || data.citadel || data.morgan_stanley || data.goldman_sachs || '').toString().trim();
+            if (!execText || execText.length < 15 || execText.toUpperCase() === 'PENDING') {
+                return null;
+            }
+
+            const verdict = extractAgentVerdict('executive_summary', execText);
+
+            // Filter out items without a completed AI Verdict (e.g. PENDING, empty, or incomplete)
+            if (!verdict || !verdict.label || verdict.label === 'PENDING' || verdict.label.trim() === '') {
+                return null;
+            }
 
             const getName = () => {
                 const m = identityText.match(/Name:\s*(.*)/i);
@@ -4717,10 +4733,6 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             const rawPrice = getField('Aktueller Kurs');
             const priceNum = parsePriceNumber(rawPrice);
             const currency = extractCurrency(rawPrice) || '$';
-
-            // AI Verdict
-            const execText = data.executive_summary || data.citadel || data.morgan_stanley || data.goldman_sachs || '';
-            const verdict = extractAgentVerdict('executive_summary', execText);
 
             // DCF Potential
             const dcfText = data.morgan_stanley || data.citadel || data.executive_summary || '';
@@ -4789,6 +4801,8 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             SCREENER_FILTERS.sort = sortMode;
 
             let filtered = GLOBAL_SCREENER_PARSED_LIST.filter(item => {
+                if (!item || !item.verdict || !item.verdict.label || item.verdict.label === 'PENDING') return false;
+
                 // 1. Text Search
                 if (query) {
                     const matchQuery =
