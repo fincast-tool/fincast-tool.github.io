@@ -391,7 +391,7 @@
             border-bottom: none;
         }
 
-        /* Badges (BUY/HOLD/SELL) */
+        /* Badges (Analytische Sentiment- & Bewertungs-Badges) */
         .badge {
             display: inline-block;
             padding: 3px 10px;
@@ -404,19 +404,19 @@
             vertical-align: middle;
         }
 
-        .badge-buy {
+        .badge-buy, .badge-positive {
             background: rgba(34, 197, 94, 0.15);
             color: #22c55e;
             border: 1px solid rgba(34, 197, 94, 0.3);
         }
 
-        .badge-hold {
+        .badge-hold, .badge-neutral {
             background: rgba(234, 179, 8, 0.15);
             color: #eab308;
             border: 1px solid rgba(234, 179, 8, 0.3);
         }
 
-        .badge-sell {
+        .badge-sell, .badge-negative {
             background: rgba(239, 68, 68, 0.15);
             color: #ef4444;
             border: 1px solid rgba(239, 68, 68, 0.3);
@@ -1031,9 +1031,9 @@
                         <div class="grid grid-cols-2 gap-1.5">
                             <select id="screenerDrawerVerdict" class="terminal-input text-[9.5px] py-1 px-1.5 w-full font-mono" onchange="filterScreenerDrawer()">
                                 <option value="ALL">Alle Verdicts</option>
-                                <option value="buy">Buy / Strong Buy</option>
-                                <option value="hold">Hold / Fair / Wait</option>
-                                <option value="sell">Sell / Strong Sell</option>
+                                <option value="buy">Positiv / Unterbewertet</option>
+                                <option value="hold">Neutral / Fair bewertet</option>
+                                <option value="sell">Negativ / Überbewertet</option>
                             </select>
                             <select id="screenerDrawerSort" class="terminal-input text-[9.5px] py-1 px-1.5 w-full font-mono" onchange="filterScreenerDrawer()">
                                 <option value="newest">Zuletzt analysiert</option>
@@ -1659,13 +1659,13 @@
                                         <span class="data-label text-[9px] text-gray-500 mr-1">AI Verdict:</span>
                                         <button onclick="setScreenerVerdictFilter('ALL')" id="verdictPill_ALL" class="screener-pill px-2.5 py-1 rounded-lg border border-gold-500/50 bg-gold-500/15 text-gold-300 font-bold transition-all text-[10px]">Alle</button>
                                         <button onclick="setScreenerVerdictFilter('buy')" id="verdictPill_buy" class="screener-pill px-2.5 py-1 rounded-lg border border-white/10 text-gray-400 hover:text-emerald-400 hover:border-emerald-500/40 transition-all text-[10px] flex items-center gap-1.5">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Buy / Strong Buy
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Positiv / Unterbewertet
                                         </button>
                                         <button onclick="setScreenerVerdictFilter('hold')" id="verdictPill_hold" class="screener-pill px-2.5 py-1 rounded-lg border border-white/10 text-gray-400 hover:text-amber-400 hover:border-amber-500/40 transition-all text-[10px] flex items-center gap-1.5">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Hold / Fair / Wait
+                                            <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Neutral / Fair bewertet
                                         </button>
                                         <button onclick="setScreenerVerdictFilter('sell')" id="verdictPill_sell" class="screener-pill px-2.5 py-1 rounded-lg border border-white/10 text-gray-400 hover:text-rose-400 hover:border-rose-500/40 transition-all text-[10px] flex items-center gap-1.5">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span> Sell / Strong Sell
+                                            <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span> Negativ / Überbewertet
                                         </button>
 
                                         <div class="h-4 w-[1px] bg-white/10 mx-1 hidden md:block"></div>
@@ -2776,7 +2776,7 @@ ROLE: Senior Equity Analyst (Fundamental Value)
 - Competitive Moat: [Rating: WEAK/MODERATE/STRONG + 1 sentence why]
 - Bull/Bear Targets: [Use 'Bull Case' and 'Bear Case' price targets in the EXACT SAME currency as 'Aktueller Kurs', e.g. 'Bull 450 NOK / Bear 250 NOK' or 'Bull $260 / Bear $190']
 - Risk Score: [Scale 1-10 + primary risk factor]
-- Trade Zones: [Entry Zone & Suggested Stop-Loss in the same currency]
+- Valuation Zones: [Key Support & Resistance levels in the same currency]
 - AI Sentiment: [POSITIVE/NEUTRAL/NEGATIVE]
 </goldman_sachs>\n\n`;
             }
@@ -2818,7 +2818,7 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
 - Volume & Strength: [Volume trend analysis & Buyer vs Seller strength]
 - Chart Patterns: [Identify potential patterns like Head & Shoulders, Cup & Handle, etc.]
 - Fibonacci & Levels: [Key Support/Resistance & Fibonacci retracement bounce zones]
-- Trade Execution: [Ideal Entry, Stop-Loss, and Profit Target price points]
+- Key Price Levels: [Charttechnische Unterstützungs-, Widerstands- und Pivotmarken]
 - Risk Management: [Calculate Risk-to-Reward Ratio for this setup]
 - Technical Signal: [EXACTLY ONE BADGE: [STRONG BULLISH], [BULLISH], [NEUTRAL], [BEARISH], [STRONG BEARISH]]
 </citadel>\n\n`;
@@ -2828,14 +2828,14 @@ ROLE: Senior Quantitative Trader (Market Microstructure)
                 prompt += `<executive_summary>
 ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Framework)
 - Agent Consensus: [1-2 sentences cross-synthesis combining Fundamental Screener, DCF, Earnings and Technical findings]
-- Circle of Competence: [Classification: INVESTIEREN / BEOBACHTEN / TOO HARD BOX + 1 sentence on core cashflow predictability and business model]
+- Circle of Competence: [Classification: HOHE TRANSPARENZ / BEOBACHTEN / TOO HARD BOX + 1 sentence on core cashflow predictability and business model]
 - Economic Moat: [Moat type (Pricing Power, Network Effects, Switching Costs, Cost Advantages) & 10-15Y durability: STRONG / MODERATE / WEAK]
 - Capital Allocation: [ROIC vs WACC, capital discipline with buybacks/dividends vs share dilution, and management integrity]
 - Inversion (Pre-Mortem Risk): [The #1 structural or existential risk that could permanently impair or destroy the business model]
 - Valuation & Fair Value: [State 'Current Price' vs. 'DCF Fair Value Estimate' from FMP API BLOCK (e.g. Current: $XX.XX | DCF Fair Value: $YY.YY)]
-- Margin of Safety & Target Buy Price: [Specify required safety margin in % AND calculate exact target buy price: e.g. "Sicherheitsabschlag von XX% -> Ziel-Kaufkurs: $ZZ.ZZ (Aktueller Kurs liegt XX% über/unter dieser Kaufmarke)"]
-- Institutional Master Conclusion: [Charlie Munger unvarnished verdict in 2 concise sentences: Pragmatic investment decision]
-- Final Terminal Sentiment: [EXACTLY ONE BADGE: [BUY], [STRONG POSITIVE], [POSITIVE], [HOLD], [FAIRLY VALUED], [UNDERVALUED], [OVERVALUED], [NEUTRAL], [WAIT], [SELL], [STRONG NEGATIVE]]
+- Margin of Safety & Target Valuation Level: [Specify required safety margin in % AND calculate fair model entry level: e.g. "Sicherheitsabschlag von XX% -> Modellwert (Fair Entry): $ZZ.ZZ (Aktueller Kurs liegt XX% über/unter diesem Modellwert)"]
+- Institutional Master Conclusion: [Charlie Munger unvarnished verdict in 2 concise sentences: Pragmatic fundamental evaluation]
+- Final Terminal Sentiment: [EXACTLY ONE BADGE: [STRONG POSITIVE], [POSITIVE], [UNDERVALUED], [FAIRLY VALUED], [NEUTRAL], [CONSOLIDATING], [OVERVALUED], [NEGATIVE], [STRONG NEGATIVE]]
 </executive_summary>\n\n`;
             }
 
@@ -3006,6 +3006,13 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             // Clean brackets
             verdict = verdict.replace(/[\[\]]/g, '').trim().toUpperCase();
 
+            // Neutralize any direct call-to-action verdicts into analytical descriptions
+            if (verdict === 'STRONG BUY' || verdict === 'STARK KAUFEN') verdict = 'STRONG POSITIVE';
+            if (verdict === 'BUY' || verdict === 'KAUFEN' || verdict === 'KAUF') verdict = 'UNDERVALUED';
+            if (verdict === 'HOLD' || verdict === 'HALTEN') verdict = 'FAIRLY VALUED';
+            if (verdict === 'SELL' || verdict === 'VERKAUFEN' || verdict === 'VERKAUF') verdict = 'OVERVALUED';
+            if (verdict === 'STRONG SELL' || verdict === 'STARK VERKAUFEN') verdict = 'STRONG NEGATIVE';
+
             // Language translation for German if USER_LANG is de
             const isDe = (USER_LANG || '').startsWith('de');
             if (isDe) {
@@ -3017,7 +3024,6 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 else if (verdict === 'OVERVALUED') verdict = 'ÜBERBEWERTET';
                 else if (verdict === 'FAIRLY VALUED' || verdict === 'FAIR VALUED') verdict = 'FAIR BEWERTET';
                 else if (verdict === 'WAIT') verdict = 'ABWARTEN';
-                else if (verdict === 'HOLD') verdict = 'HALTEN';
                 else if (verdict === 'STRONG BULLISH') verdict = 'STARK BULLISH';
                 else if (verdict === 'STRONG BEARISH') verdict = 'STARK BEARISH';
             }
@@ -3030,7 +3036,7 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 type = 'buy';
             } else if (/^(STRONG NEGATIVE|STARK NEGATIV|STRONG SELL|SELL|VERKAUFEN|NEGATIVE|NEGATIV|BEARISH|STRONG BEARISH|OVERVALUED|ÜBERBEWERTET|MISS)$/i.test(verdict) || /bearish|negative|negativ|overvalued|überbewertet|sell/i.test(verdict)) {
                 type = 'sell';
-            } else if (/^(HOLD|HALTEN|NEUTRAL|FAIRLY VALUED|FAIR VALUED|FAIR BEWERTET|WAIT|ABWARTEN|WARTEN|CONSOLIDATION|SIDEWAYS)$/i.test(verdict) || /hold|halten|neutral|fair|wait|abwarten/i.test(verdict)) {
+            } else if (/^(HOLD|HALTEN|NEUTRAL|FAIRLY VALUED|FAIR VALUED|FAIR BEWERTET|WAIT|ABWARTEN|WARTEN|CONSOLIDATION|SIDEWAYS)$/i.test(verdict) || /hold|halten|neutral|fair|wait|abwarten|konsolid/i.test(verdict)) {
                 type = 'hold';
             }
 
@@ -3773,7 +3779,7 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 }
 
                 const sign = devPct > 0 ? '+' : '';
-                statusText.textContent = `${sign}${devPct.toFixed(1)}% ${isUndervalued ? 'Unterbewertet (Kaufzone)' : isOvervalued ? 'Überbewertet' : 'Fairer Bereich'}`;
+                statusText.textContent = `${sign}${devPct.toFixed(1)}% ${isUndervalued ? 'Unterbewertet (Günstiger Bereich)' : isOvervalued ? 'Überbewertet (Prämienbereich)' : 'Fairer Bewertungsbereich'}`;
             }
 
             drawValuationCorridorSvg(svg, wrapper, data, splitDate, currency);
