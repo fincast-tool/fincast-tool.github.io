@@ -848,14 +848,18 @@
             <!-- Sidebar -->
             <aside id="appSidebar" class="app-sidebar py-8 gap-5">
                 <div class="w-10 h-10 rounded-xl logo-shiny overflow-hidden flex items-center justify-center shadow-lg">
-                    <img src="portfoliomanager - Symbol.png" class="w-full h-full object-contain opacity-90" alt="Logo">
-                </div>
-                <nav class="flex flex-col gap-6 text-gray-500">
+                    <img src="portfoliomanager - Symbol.png" class="w-full h-full object-contain opac                <nav class="flex flex-col gap-6 text-gray-500">
                     <div class="p-2 cursor-pointer hover:text-gold-500 transition-all hover:scale-110"
                         onclick="setUIState('welcome')" title="Home"><svg class="w-6 h-6" fill="none"
                             stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg></div>
+                    <div class="p-2 cursor-pointer hover:text-gold-500 transition-all hover:scale-110"
+                        onclick="setUIState('screener')" title="Stock Screener"><svg class="w-6 h-6" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5M9 9.75h6M9 12.75h3" />
                         </svg></div>
                     <div class="p-2 cursor-pointer hover:text-gold-500 transition-all hover:scale-110"
                         onclick="toggleArchive()" title="Archive"><svg class="w-6 h-6" fill="none" stroke="currentColor"
@@ -910,13 +914,19 @@
 
             <!-- Mobile Bottom Navigation -->
             <nav class="mobile-nav">
-                <div onclick="setUIState('welcome')">
+                <div onclick="setUIState('welcome')" title="Home">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
                 </div>
-                <div onclick="toggleArchive()">
+                <div onclick="setUIState('screener')" title="Stock Screener">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5M9 9.75h6M9 12.75h3" />
+                    </svg>
+                </div>
+                <div onclick="toggleArchive()" title="Archiv">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
@@ -928,15 +938,15 @@
                             d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                     </svg>
                 </div>
-                <div onclick="toggleSettings()">
+                <div onclick="toggleSettings()" title="Einstellungen">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                 </div>
-                <div onclick="doLogout()">
+                <div onclick="doLogout()" title="Abmelden">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -962,6 +972,12 @@
                                 </svg>
                                 <span>Terminal</span>
                             </a>
+                            <button onclick="setUIState('screener')" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white font-mono text-[11px] font-medium transition-all">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5M9 9.75h6M9 12.75h3" />
+                                </svg>
+                                <span>Screener</span>
+                            </button>
                             <a href="abracadabra/hype.html" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white font-mono text-[11px] font-medium transition-all">
                                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z" />
@@ -1015,7 +1031,37 @@
                                     class="flex items-center justify-center gap-3 text-gold-500/30 text-[9px] font-mono uppercase tracking-[0.3em]">
                                     <span class="w-1.5 h-1.5 rounded-full bg-gold-500/20"></span> Ready for execution
                                 </div>
+
+                                <!-- Prominent Global Stock Screener Card on Welcome Screen -->
+                                <div class="mt-8 w-full bg-gradient-to-r from-obsidian-900/90 via-obsidian-800/90 to-obsidian-900/90 border border-gold-500/30 rounded-2xl p-4 sm:p-6 shadow-2xl relative overflow-hidden group hover:border-gold-500/60 transition-all cursor-pointer text-left" onclick="setUIState('screener')">
+                                    <div class="absolute -right-10 -bottom-10 w-36 h-36 bg-gold-500/10 rounded-full blur-2xl pointer-events-none group-hover:bg-gold-500/20 transition-all"></div>
+                                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
+                                        <div class="flex items-center gap-3.5 sm:gap-4">
+                                            <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gold-500/15 border border-gold-500/40 flex items-center justify-center text-gold-400 shrink-0 group-hover:scale-105 transition-transform shadow-inner">
+                                                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5M9 9.75h6M9 12.75h3" />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                                    <span class="text-xs sm:text-sm font-bold text-white uppercase tracking-tight group-hover:text-gold-400 transition-colors">Global Stock Screener</span>
+                                                    <span class="text-[8.5px] sm:text-[9px] font-mono font-bold px-2 py-0.5 rounded bg-gold-500/15 text-gold-400 border border-gold-500/30 uppercase">Community Hub</span>
+                                                </div>
+                                                <p class="text-[10px] sm:text-[11px] text-gray-400 font-mono leading-relaxed">
+                                                    Durchsuche alle bisher analysierten Aktien mit KI-Verdicts, DCF-Potenzial &amp; Kennzahlen.
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <button class="search-btn px-3.5 py-2 sm:px-4 sm:py-2.5 text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider shrink-0 flex items-center gap-1.5 group-hover:bg-gold-400">
+                                            <span>Screener öffnen</span>
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
+                        </div>          </div>
                         </div>
 
                         <!-- Skeleton -->
@@ -1333,6 +1379,212 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- ==================== GLOBAL STOCK SCREENER STATE ==================== -->
+                        <div id="screenerState" class="state-hidden pb-12 fade-up">
+                            
+                            <!-- 1. Screener Hero Header -->
+                            <div class="mb-6 sm:mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-white/[0.06] pb-6">
+                                <div>
+                                    <div class="flex items-center gap-3 mb-1.5 flex-wrap">
+                                        <h2 class="text-xl sm:text-2xl lg:text-3xl font-black text-white uppercase italic tracking-tight flex items-center gap-2.5">
+                                            <span>Global</span> <span class="text-gold-500">Stock Screener</span>
+                                        </h2>
+                                        <div id="screenerCountBadge" class="px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-400 font-mono text-[10px] sm:text-xs font-bold flex items-center gap-2 shadow-sm">
+                                            <span class="w-2 h-2 rounded-full bg-gold-400 animate-pulse"></span>
+                                            <span id="screenerCountText">0 Aktien analysiert</span>
+                                        </div>
+                                    </div>
+                                    <p class="text-xs sm:text-sm text-gray-400 font-mono">
+                                        Echtzeit-Übersicht aller institutionell analysierten Aktien der Fincast-Community mit KI-Verdicts &amp; DCF-Modellen
+                                    </p>
+                                </div>
+
+                                <div class="flex items-center gap-2 self-start md:self-auto shrink-0">
+                                    <button onclick="loadGlobalScreenerData(true)" id="screenerRefreshBtn" class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-obsidian-900/90 hover:bg-obsidian-800 border border-white/10 hover:border-gold-500/40 text-gray-300 hover:text-white font-mono text-xs transition-all shadow-sm group">
+                                        <svg id="screenerRefreshIcon" class="w-3.5 h-3.5 text-gold-400 group-hover:rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                                        </svg>
+                                        <span>Aktualisieren</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 2. Missing Stock Callout Banner (Requirement 6) -->
+                            <div class="mb-6 rounded-2xl border border-gold-500/30 bg-gradient-to-r from-gold-500/10 via-obsidian-900/90 to-obsidian-900/90 p-4 sm:p-5 shadow-xl relative overflow-hidden">
+                                <div class="absolute -right-8 -bottom-8 w-32 h-32 bg-gold-500/10 rounded-full blur-xl pointer-events-none"></div>
+                                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
+                                    <div class="flex items-start sm:items-center gap-3.5">
+                                        <div class="w-10 h-10 rounded-xl bg-gold-500/20 border border-gold-500/40 flex items-center justify-center text-gold-400 shrink-0 shadow-inner">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-xs sm:text-sm font-bold text-white uppercase tracking-tight flex items-center gap-2">
+                                                <span>Unternehmen fehlt im Screener?</span>
+                                                <span class="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-gold-500/20 text-gold-400 border border-gold-500/30 uppercase">Auto-Sync</span>
+                                            </h4>
+                                            <p class="text-[11px] sm:text-xs text-gray-300 font-mono mt-0.5 leading-relaxed">
+                                                Starte einfach oben in der Suchleiste eine neue Analyse. Sobald die KI fertig ist, wird die Aktie automatisch hier für alle gelistet.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <button onclick="focusTickerInput()" class="search-btn px-4 py-2 text-xs font-mono font-bold uppercase tracking-wider shrink-0 flex items-center gap-2 shadow-md hover:scale-105 active:scale-95 transition-all">
+                                        <span>Jetzt analysieren</span>
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 3. Search & Filter Control Bar -->
+                            <div class="bg-obsidian-900/90 border border-white/10 rounded-2xl p-4 sm:p-5 shadow-xl backdrop-blur-md mb-6 space-y-4">
+                                
+                                <!-- Search and Primary Dropdowns & View Toggle -->
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3">
+                                    
+                                    <!-- Search Input -->
+                                    <div class="lg:col-span-4 relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-500">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                                            </svg>
+                                        </div>
+                                        <input id="screenerSearchInput" type="text" placeholder="Name, Ticker (z.B. AAPL, NVDA), ISIN, WKN..."
+                                            class="terminal-input font-mono text-xs py-2.5 px-4 pl-10 w-full" oninput="filterAndSortScreener()" autocomplete="off">
+                                    </div>
+
+                                    <!-- Sector Dropdown -->
+                                    <div class="lg:col-span-3">
+                                        <select id="screenerSectorFilter" class="terminal-input text-xs py-2.5 px-3 w-full" onchange="filterAndSortScreener()">
+                                            <option value="ALL">Alle Sektoren</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Region Dropdown -->
+                                    <div class="lg:col-span-2">
+                                        <select id="screenerRegionFilter" class="terminal-input text-xs py-2.5 px-3 w-full" onchange="filterAndSortScreener()">
+                                            <option value="ALL">Alle Regionen</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Sort Dropdown -->
+                                    <div class="lg:col-span-2">
+                                        <select id="screenerSortSelect" class="terminal-input text-xs py-2.5 px-3 w-full" onchange="filterAndSortScreener()">
+                                            <option value="newest">Zuletzt analysiert</option>
+                                            <option value="potential_desc">Höchstes Kurspotenzial (DCF)</option>
+                                            <option value="pe_asc">Niedrigstes KGV</option>
+                                            <option value="growth_desc">Höchstes 5J Wachstum</option>
+                                            <option value="name_asc">Name A-Z</option>
+                                            <option value="price_desc">Kurs (Höchster)</option>
+                                            <option value="price_asc">Kurs (Niedrigster)</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- View Mode Switcher -->
+                                    <div class="lg:col-span-1 flex items-center justify-end gap-1 bg-obsidian-950 p-1 rounded-lg border border-white/10 shrink-0">
+                                        <button id="screenerViewGridBtn" onclick="setScreenerViewMode('grid')" class="p-1.5 rounded text-gold-400 bg-gold-500/20 transition-colors" title="Kachelansicht (Cards)">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
+                                            </svg>
+                                        </button>
+                                        <button id="screenerViewTableBtn" onclick="setScreenerViewMode('table')" class="p-1.5 rounded text-gray-500 hover:text-gray-300 transition-colors" title="Tabellenansicht (Table)">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Filter Pills: Verdicts & Kurspotenzial -->
+                                <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-white/5 text-xs font-mono">
+                                    
+                                    <!-- Left: AI Verdict & Potential Pills -->
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="data-label text-[9px] text-gray-500 mr-1">AI Verdict:</span>
+                                        <button onclick="setScreenerVerdictFilter('ALL')" id="verdictPill_ALL" class="screener-pill px-2.5 py-1 rounded-lg border border-gold-500/50 bg-gold-500/15 text-gold-300 font-bold transition-all text-[10px]">Alle</button>
+                                        <button onclick="setScreenerVerdictFilter('buy')" id="verdictPill_buy" class="screener-pill px-2.5 py-1 rounded-lg border border-white/10 text-gray-400 hover:text-emerald-400 hover:border-emerald-500/40 transition-all text-[10px] flex items-center gap-1.5">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Buy / Strong Buy
+                                        </button>
+                                        <button onclick="setScreenerVerdictFilter('hold')" id="verdictPill_hold" class="screener-pill px-2.5 py-1 rounded-lg border border-white/10 text-gray-400 hover:text-amber-400 hover:border-amber-500/40 transition-all text-[10px] flex items-center gap-1.5">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Hold / Fair / Wait
+                                        </button>
+                                        <button onclick="setScreenerVerdictFilter('sell')" id="verdictPill_sell" class="screener-pill px-2.5 py-1 rounded-lg border border-white/10 text-gray-400 hover:text-rose-400 hover:border-rose-500/40 transition-all text-[10px] flex items-center gap-1.5">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span> Sell / Strong Sell
+                                        </button>
+
+                                        <div class="h-4 w-[1px] bg-white/10 mx-1 hidden md:block"></div>
+
+                                        <span class="data-label text-[9px] text-gray-500 mr-1">DCF Potenzial:</span>
+                                        <button onclick="setScreenerPotentialFilter('ALL')" id="potPill_ALL" class="screener-pot-pill px-2.5 py-1 rounded-lg border border-gold-500/50 bg-gold-500/15 text-gold-300 font-bold transition-all text-[10px]">Alle</button>
+                                        <button onclick="setScreenerPotentialFilter('pos')" id="potPill_pos" class="screener-pot-pill px-2.5 py-1 rounded-lg border border-white/10 text-gray-400 hover:text-emerald-400 hover:border-emerald-500/40 transition-all text-[10px]">&gt; 0%</button>
+                                        <button onclick="setScreenerPotentialFilter('high')" id="potPill_high" class="screener-pot-pill px-2.5 py-1 rounded-lg border border-white/10 text-gray-400 hover:text-emerald-400 hover:border-emerald-500/40 transition-all text-[10px]">&gt; +15%</button>
+                                        <button onclick="setScreenerPotentialFilter('top')" id="potPill_top" class="screener-pot-pill px-2.5 py-1 rounded-lg border border-white/10 text-gray-400 hover:text-gold-400 hover:border-gold-500/40 transition-all text-[10px]">&gt; +30%</button>
+                                        <button onclick="setScreenerPotentialFilter('undervalued')" id="potPill_undervalued" class="screener-pot-pill px-2.5 py-1 rounded-lg border border-white/10 text-gray-400 hover:text-emerald-400 hover:border-emerald-500/40 transition-all text-[10px]">Unterbewertet</button>
+                                    </div>
+
+                                    <!-- Right: Reset Button -->
+                                    <div>
+                                        <button onclick="resetScreenerFilters()" class="text-[10px] text-gray-500 hover:text-gold-400 underline transition-colors">
+                                            Filter zurücksetzen
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 4. Loading State for Screener -->
+                            <div id="screenerLoadingState" class="hidden flex flex-col items-center justify-center py-20">
+                                <div class="w-12 h-12 border-4 border-gold-500/10 border-t-gold-500 rounded-full animate-spin mb-4"></div>
+                                <span class="text-gold-400 font-mono text-xs uppercase tracking-widest animate-pulse">Lade Global Stock Screener...</span>
+                            </div>
+
+                            <!-- 5. Cards / Grid View Container -->
+                            <div id="screenerCardsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <!-- Cards dynamically populated via renderScreenerCards -->
+                            </div>
+
+                            <!-- 6. Table View Container -->
+                            <div id="screenerTableContainer" class="hidden overflow-x-auto bg-obsidian-900/80 rounded-2xl border border-white/10 shadow-xl">
+                                <table class="w-full text-left text-xs font-mono border-collapse">
+                                    <thead>
+                                        <tr class="border-b border-white/10 bg-obsidian-950/70 text-gray-400 text-[10px] uppercase tracking-wider">
+                                            <th class="py-3 px-4 font-bold">Symbol &amp; Name</th>
+                                            <th class="py-3 px-4 font-bold">Sektor &amp; Region</th>
+                                            <th class="py-3 px-4 font-bold">Aktueller Kurs</th>
+                                            <th class="py-3 px-4 font-bold">AI Verdict</th>
+                                            <th class="py-3 px-4 font-bold">DCF Potenzial</th>
+                                            <th class="py-3 px-4 font-bold">KGV (Akt. / Ø)</th>
+                                            <th class="py-3 px-4 font-bold">5J CAGR</th>
+                                            <th class="py-3 px-4 font-bold">Dividende</th>
+                                            <th class="py-3 px-4 font-bold">Stand</th>
+                                            <th class="py-3 px-4 font-bold text-right">Aktion</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="screenerTableBody" class="divide-y divide-white/5">
+                                        <!-- Table rows dynamically populated -->
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- 7. Empty State -->
+                            <div id="screenerEmptyState" class="hidden flex flex-col items-center justify-center py-16 px-4 text-center">
+                                <div class="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-500 mb-4 shadow-inner">
+                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607ZM10.5 7.5v6m3-3h-6" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-base font-bold text-white uppercase tracking-tight mb-1">Keine Aktien gefunden</h3>
+                                <p class="text-xs text-gray-400 font-mono max-w-md mb-5 leading-relaxed">
+                                    Keine analysierte Aktie entspricht deinen aktuellen Filter- oder Suchkriterien.
+                                </p>
+                                <button onclick="resetScreenerFilters()" class="search-btn px-5 py-2.5 text-xs uppercase tracking-wider font-mono font-bold">
+                                    Filter zurücksetzen
+                                </button>
+                            </div>
+
                         </div>
                     </div>
                 </main>
@@ -2103,6 +2355,12 @@
             await updateFooter(user);
             updateLanguageUI();
             updateResetTimeDisplay();
+
+            // Handle URL tab navigation (e.g. ?tab=screener or ?view=screener)
+            const tabParam = urlParams.get('tab') || urlParams.get('view');
+            if (!shareId && (tabParam === 'screener' || tabParam === 'stock_screener')) {
+                setUIState('screener');
+            }
         }
 
         function updateLanguageUI() {
@@ -2175,13 +2433,14 @@
             const welcome = document.getElementById('welcomeState');
             const skeleton = document.getElementById('skeletonState');
             const results = document.getElementById('resultsState');
+            const screener = document.getElementById('screenerState');
             const execBtn = document.getElementById('execBtn');
 
             // Synchronize with the 'state-hidden' class used in HTML
             const hideClass = 'state-hidden';
 
             // Reset all using the failsafe class
-            [welcome, skeleton, results].forEach(el => {
+            [welcome, skeleton, results, screener].forEach(el => {
                 if (el) el.classList.add(hideClass);
             });
 
@@ -2217,6 +2476,11 @@
                         }
                     });
                 });
+            } else if (state === 'screener' && screener) {
+                screener.classList.remove(hideClass);
+                screener.style.display = 'block';
+                if (execBtn) execBtn.classList.remove('btn-loading');
+                loadGlobalScreenerData();
             }
         }
 
@@ -2285,6 +2549,14 @@
                     data: results
                 };
                 await apiCall('save_archive', { email: user.email, key: resolvedName, data: archiveEntry }).catch(e => console.warn('Archive save failed:', e));
+
+                // Auto-Save to Global Stock Screener if valid AI Verdict is present
+                if (results.company_identity && results.executive_summary) {
+                    const execVerdict = extractAgentVerdict('executive_summary', results.executive_summary);
+                    if (execVerdict && execVerdict.label && execVerdict.label !== 'PENDING') {
+                        await apiCall('save_global_screener', { key: resolvedName, data: archiveEntry }).catch(e => console.warn('Global screener save failed:', e));
+                    }
+                }
 
                 await incrementQuery(user.email, MODEL_ID).catch(() => { });
                 await updateFooter(user).catch(() => { });
@@ -3917,6 +4189,583 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 cachedCurrentUser = null;
                 location.reload();
             }
+        }
+
+        // ==================== GLOBAL STOCK SCREENER LOGIC ====================
+        let GLOBAL_SCREENER_RAW_DATA = {};
+        let GLOBAL_SCREENER_PARSED_LIST = [];
+        let SCREENER_FILTERS = {
+            search: '',
+            sector: 'ALL',
+            region: 'ALL',
+            verdict: 'ALL',
+            potential: 'ALL',
+            sort: 'newest',
+            viewMode: 'grid'
+        };
+
+        function focusTickerInput() {
+            const input = document.getElementById('tickerInput');
+            if (input) {
+                input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                input.focus();
+                input.classList.add('ring-2', 'ring-gold-500', 'border-gold-500');
+                setTimeout(() => {
+                    input.classList.remove('ring-2', 'ring-gold-500', 'border-gold-500');
+                }, 2000);
+            }
+        }
+
+        async function loadGlobalScreenerData(forceRefresh = false) {
+            const loadingEl = document.getElementById('screenerLoadingState');
+            const cardsContainer = document.getElementById('screenerCardsContainer');
+            const tableContainer = document.getElementById('screenerTableContainer');
+            const emptyEl = document.getElementById('screenerEmptyState');
+            const refreshIcon = document.getElementById('screenerRefreshIcon');
+
+            if (refreshIcon) refreshIcon.classList.add('animate-spin');
+
+            if (forceRefresh || Object.keys(GLOBAL_SCREENER_RAW_DATA).length === 0) {
+                if (loadingEl) loadingEl.classList.remove('hidden');
+                if (cardsContainer) cardsContainer.innerHTML = '';
+                if (emptyEl) emptyEl.classList.add('hidden');
+            }
+
+            try {
+                let res = await apiCall('get_global_screener');
+
+                // If empty map, attempt one-time auto-sync from user archives to seed global screener
+                if (!res || res.error || typeof res !== 'object' || Object.keys(res).length === 0) {
+                    const syncRes = await apiCall('sync_archives_to_screener');
+                    if (syncRes && syncRes.success) {
+                        res = await apiCall('get_global_screener');
+                    }
+                }
+
+                if (res && typeof res === 'object' && !res.error) {
+                    GLOBAL_SCREENER_RAW_DATA = res;
+                } else {
+                    GLOBAL_SCREENER_RAW_DATA = {};
+                }
+
+                // Process and parse all entries
+                const entries = Object.entries(GLOBAL_SCREENER_RAW_DATA);
+                GLOBAL_SCREENER_PARSED_LIST = [];
+
+                const sectorsSet = new Set();
+                const regionsSet = new Set();
+
+                entries.forEach(([key, entry]) => {
+                    if (entry) {
+                        const parsed = parseScreenerItem(key, entry);
+                        if (parsed) {
+                            GLOBAL_SCREENER_PARSED_LIST.push(parsed);
+                            if (parsed.sector && parsed.sector !== 'Unbekannt') {
+                                sectorsSet.add(parsed.sector);
+                            }
+                            if (parsed.hq && parsed.hq !== 'Global') {
+                                const parts = parsed.hq.split(/[,/]/).map(s => s.trim()).filter(Boolean);
+                                const mainRegion = parts.length > 1 ? parts[parts.length - 1] : parts[0];
+                                if (mainRegion) regionsSet.add(mainRegion);
+                            }
+                        }
+                    }
+                });
+
+                // Update Counter Badge
+                const countBadge = document.getElementById('screenerCountText');
+                if (countBadge) {
+                    countBadge.textContent = `${GLOBAL_SCREENER_PARSED_LIST.length} ${GLOBAL_SCREENER_PARSED_LIST.length === 1 ? 'Aktie' : 'Aktien'} analysiert`;
+                }
+
+                // Populate Dynamic Sector Filter
+                const sectorSelect = document.getElementById('screenerSectorFilter');
+                if (sectorSelect) {
+                    const currentSector = sectorSelect.value || 'ALL';
+                    sectorSelect.innerHTML = '<option value="ALL">Alle Sektoren</option>';
+                    Array.from(sectorsSet).sort().forEach(sec => {
+                        const opt = document.createElement('option');
+                        opt.value = sec;
+                        opt.textContent = sec;
+                        if (sec === currentSector) opt.selected = true;
+                        sectorSelect.appendChild(opt);
+                    });
+                }
+
+                // Populate Dynamic Region Filter
+                const regionSelect = document.getElementById('screenerRegionFilter');
+                if (regionSelect) {
+                    const currentRegion = regionSelect.value || 'ALL';
+                    regionSelect.innerHTML = '<option value="ALL">Alle Regionen</option>';
+                    Array.from(regionsSet).sort().forEach(reg => {
+                        const opt = document.createElement('option');
+                        opt.value = reg;
+                        opt.textContent = reg;
+                        if (reg === currentRegion) opt.selected = true;
+                        regionSelect.appendChild(opt);
+                    });
+                }
+
+                filterAndSortScreener();
+            } catch (err) {
+                console.error('Failed to load global screener:', err);
+            } finally {
+                if (loadingEl) loadingEl.classList.add('hidden');
+                if (refreshIcon) refreshIcon.classList.remove('animate-spin');
+            }
+        }
+
+        function parseScreenerItem(key, entry) {
+            const data = entry.data || entry || {};
+            const identityText = data.company_identity || '';
+
+            const getName = () => {
+                const m = identityText.match(/Name:\s*(.*)/i);
+                return m && m[1] ? m[1].trim() : key;
+            };
+            const getField = (fieldName) => {
+                const m = identityText.match(new RegExp(`${fieldName}:\\s*(.*)`, 'i'));
+                return m && m[1] ? m[1].trim() : '--';
+            };
+
+            const name = getName();
+            const isin = getField('ISIN');
+            const wkn = getField('WKN');
+            const sector = getField('Sektor');
+            const hq = getField('HQ');
+            const rawPrice = getField('Aktueller Kurs');
+            const priceNum = parsePriceNumber(rawPrice);
+            const currency = extractCurrency(rawPrice) || '$';
+
+            // AI Verdict
+            const execText = data.executive_summary || data.citadel || data.morgan_stanley || data.goldman_sachs || '';
+            const verdict = extractAgentVerdict('executive_summary', execText);
+
+            // DCF Potential
+            const dcfText = data.morgan_stanley || data.citadel || data.executive_summary || '';
+            const dcfPotential = extractDcfPotential(dcfText);
+
+            let dcfNum = null;
+            if (dcfPotential !== '--') {
+                const mPct = dcfPotential.match(/([+\-]?\d+(?:[.,]\d+)?)\s*%/);
+                if (mPct) {
+                    dcfNum = parseFloat(mPct[1].replace(',', '.'));
+                }
+            }
+
+            // Key Data Showcase
+            const screenerText = data.goldman_sachs || '';
+            const showcase = extractStockScreenerShowcase(screenerText, rawPrice);
+
+            let peNum = null;
+            if (showcase.pe && showcase.pe !== '--') {
+                const mPe = showcase.pe.match(/(\d+(?:[.,]\d+)?)/);
+                if (mPe) peNum = parseFloat(mPe[1].replace(',', '.'));
+            }
+
+            let growthNum = null;
+            if (showcase.growth && showcase.growth !== '--') {
+                const mGr = showcase.growth.match(/([+\-]?\d+(?:[.,]\d+)?)\s*%/);
+                if (mGr) growthNum = parseFloat(mGr[1].replace(',', '.'));
+            }
+
+            return {
+                key: key.toUpperCase(),
+                name,
+                ticker: key.toUpperCase(),
+                isin: isin !== '--' ? isin : '',
+                wkn: wkn !== '--' ? wkn : '',
+                sector: sector !== '--' ? sector : 'Unbekannt',
+                hq: hq !== '--' ? hq : 'Global',
+                priceStr: rawPrice !== '--' ? rawPrice : (priceNum ? `${priceNum.toFixed(2)} ${currency}` : '--'),
+                priceNum: priceNum || 0,
+                currency,
+                timestamp: entry.timestamp || 'Kürzlich',
+                verdict,
+                dcfPotential,
+                dcfNum,
+                showcase,
+                peNum: peNum !== null ? peNum : 9999,
+                growthNum: growthNum !== null ? growthNum : -9999,
+                rawEntry: entry
+            };
+        }
+
+        function filterAndSortScreener() {
+            const searchInput = document.getElementById('screenerSearchInput');
+            const sectorSelect = document.getElementById('screenerSectorFilter');
+            const regionSelect = document.getElementById('screenerRegionFilter');
+            const sortSelect = document.getElementById('screenerSortSelect');
+
+            const query = (searchInput?.value || '').trim().toLowerCase();
+            const sectorFilter = sectorSelect?.value || 'ALL';
+            const regionFilter = regionSelect?.value || 'ALL';
+            const sortMode = sortSelect?.value || 'newest';
+
+            SCREENER_FILTERS.search = query;
+            SCREENER_FILTERS.sector = sectorFilter;
+            SCREENER_FILTERS.region = regionFilter;
+            SCREENER_FILTERS.sort = sortMode;
+
+            let filtered = GLOBAL_SCREENER_PARSED_LIST.filter(item => {
+                // 1. Text Search
+                if (query) {
+                    const matchQuery =
+                        item.ticker.toLowerCase().includes(query) ||
+                        item.name.toLowerCase().includes(query) ||
+                        item.isin.toLowerCase().includes(query) ||
+                        item.wkn.toLowerCase().includes(query) ||
+                        item.sector.toLowerCase().includes(query) ||
+                        item.hq.toLowerCase().includes(query);
+                    if (!matchQuery) return false;
+                }
+
+                // 2. Sector Filter
+                if (sectorFilter !== 'ALL') {
+                    if (item.sector.toLowerCase() !== sectorFilter.toLowerCase()) return false;
+                }
+
+                // 3. Region Filter
+                if (regionFilter !== 'ALL') {
+                    if (!item.hq.toLowerCase().includes(regionFilter.toLowerCase())) return false;
+                }
+
+                // 4. AI Verdict Filter
+                if (SCREENER_FILTERS.verdict !== 'ALL') {
+                    if (SCREENER_FILTERS.verdict === 'buy' && item.verdict.type !== 'buy') return false;
+                    if (SCREENER_FILTERS.verdict === 'hold' && item.verdict.type !== 'hold' && item.verdict.type !== 'wait') return false;
+                    if (SCREENER_FILTERS.verdict === 'sell' && item.verdict.type !== 'sell') return false;
+                }
+
+                // 5. Kurspotenzial Filter
+                if (SCREENER_FILTERS.potential !== 'ALL') {
+                    if (SCREENER_FILTERS.potential === 'pos') {
+                        if (item.dcfNum === null || item.dcfNum <= 0) return false;
+                    } else if (SCREENER_FILTERS.potential === 'high') {
+                        if (item.dcfNum === null || item.dcfNum < 15) return false;
+                    } else if (SCREENER_FILTERS.potential === 'top') {
+                        if (item.dcfNum === null || item.dcfNum < 30) return false;
+                    } else if (SCREENER_FILTERS.potential === 'undervalued') {
+                        const isUnder = item.verdict.label.includes('UNTERBEWERTET') ||
+                                        item.verdict.label.includes('UNDERVALUED') ||
+                                        (item.dcfNum !== null && item.dcfNum > 0);
+                        if (!isUnder) return false;
+                    }
+                }
+
+                return true;
+            });
+
+            // Sorting
+            filtered.sort((a, b) => {
+                if (sortMode === 'potential_desc') {
+                    const aVal = a.dcfNum !== null ? a.dcfNum : -9999;
+                    const bVal = b.dcfNum !== null ? b.dcfNum : -9999;
+                    return bVal - aVal;
+                } else if (sortMode === 'pe_asc') {
+                    return a.peNum - b.peNum;
+                } else if (sortMode === 'growth_desc') {
+                    return b.growthNum - a.growthNum;
+                } else if (sortMode === 'name_asc') {
+                    return a.name.localeCompare(b.name);
+                } else if (sortMode === 'price_desc') {
+                    return b.priceNum - a.priceNum;
+                } else if (sortMode === 'price_asc') {
+                    return a.priceNum - b.priceNum;
+                }
+                return 0; // 'newest' default
+            });
+
+            const emptyEl = document.getElementById('screenerEmptyState');
+            const cardsContainer = document.getElementById('screenerCardsContainer');
+            const tableContainer = document.getElementById('screenerTableContainer');
+
+            if (filtered.length === 0) {
+                if (emptyEl) emptyEl.classList.remove('hidden');
+                if (cardsContainer) cardsContainer.classList.add('hidden');
+                if (tableContainer) tableContainer.classList.add('hidden');
+            } else {
+                if (emptyEl) emptyEl.classList.add('hidden');
+                if (SCREENER_FILTERS.viewMode === 'grid') {
+                    if (cardsContainer) {
+                        cardsContainer.classList.remove('hidden');
+                        renderScreenerCards(filtered);
+                    }
+                    if (tableContainer) tableContainer.classList.add('hidden');
+                } else {
+                    if (tableContainer) {
+                        tableContainer.classList.remove('hidden');
+                        renderScreenerTable(filtered);
+                    }
+                    if (cardsContainer) cardsContainer.classList.add('hidden');
+                }
+            }
+        }
+
+        function renderScreenerCards(items) {
+            const container = document.getElementById('screenerCardsContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            items.forEach(item => {
+                let verdictBadgeStyles = 'bg-slate-500/15 text-slate-300 border-slate-500/30';
+                let verdictDot = 'bg-slate-400';
+                if (item.verdict.type === 'buy') {
+                    verdictBadgeStyles = 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30 shadow-emerald-500/10';
+                    verdictDot = 'bg-emerald-400';
+                } else if (item.verdict.type === 'sell') {
+                    verdictBadgeStyles = 'bg-rose-500/15 text-rose-400 border-rose-500/30 shadow-rose-500/10';
+                    verdictDot = 'bg-rose-400';
+                } else if (item.verdict.type === 'hold') {
+                    verdictBadgeStyles = 'bg-amber-500/15 text-amber-400 border-amber-500/30 shadow-amber-500/10';
+                    verdictDot = 'bg-amber-400';
+                }
+
+                let dcfBadgeStyles = 'bg-slate-500/15 text-slate-400 border-slate-500/30';
+                if (item.dcfPotential !== '--') {
+                    if (item.dcfPotential.includes('-') && !item.dcfPotential.includes('bis') && !item.dcfPotential.includes('to')) {
+                        dcfBadgeStyles = 'bg-rose-500/15 text-rose-400 border-rose-500/30 shadow-rose-500/10';
+                    } else {
+                        dcfBadgeStyles = 'bg-gold-500/15 text-gold-400 border-gold-500/30 shadow-gold-500/10';
+                    }
+                }
+
+                const card = document.createElement('div');
+                card.className = 'widget-card p-5 rounded-2xl flex flex-col justify-between group hover:border-gold-500/50 hover:shadow-2xl hover:shadow-gold-500/10 transition-all duration-300';
+                card.innerHTML = `
+                    <div>
+                        <!-- Card Top Header -->
+                        <div class="flex items-start justify-between gap-3 mb-2.5">
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span class="font-mono text-base sm:text-lg font-black text-gold-400 tracking-tight">${item.ticker}</span>
+                                    <span class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-gray-400 truncate max-w-[120px]">${item.sector}</span>
+                                </div>
+                                <h4 class="text-sm font-bold text-white uppercase tracking-tight truncate mt-0.5" title="${item.name}">${item.name}</h4>
+                            </div>
+                            <div class="text-right shrink-0">
+                                <span class="text-[9px] font-mono text-gray-500 block">${item.timestamp}</span>
+                                <span class="text-[9px] font-mono text-gray-400 mt-0.5 block truncate max-w-[100px]">${item.hq}</span>
+                            </div>
+                        </div>
+
+                        <!-- Verdict & Potential Badges -->
+                        <div class="flex items-center gap-2 flex-wrap mb-4 mt-1">
+                            <span class="px-2.5 py-1 rounded-lg border ${verdictBadgeStyles} font-mono font-extrabold text-[10px] uppercase tracking-wider shadow-sm flex items-center gap-1.5 truncate max-w-[170px]" title="AI Verdict: ${item.verdict.label}">
+                                <span class="w-1.5 h-1.5 rounded-full ${verdictDot}"></span>
+                                ${item.verdict.label}
+                            </span>
+                            <span class="px-2.5 py-1 rounded-lg border ${dcfBadgeStyles} font-mono font-extrabold text-[10px] uppercase tracking-wider shadow-sm truncate max-w-[150px]" title="DCF Potenzial: ${item.dcfPotential}">
+                                ${item.dcfPotential !== '--' ? `DCF: ${item.dcfPotential}` : 'DCF: --'}
+                            </span>
+                        </div>
+
+                        <!-- Eyecatcher Key Data Grid -->
+                        <div class="grid grid-cols-2 gap-2 p-3 rounded-xl bg-obsidian-950/70 border border-white/5 mb-4 text-xs font-mono">
+                            <div>
+                                <span class="data-label text-[8.5px] text-gray-500 block leading-tight">Aktueller Kurs</span>
+                                <span class="font-bold text-white text-xs mt-0.5 block truncate">${item.priceStr}</span>
+                            </div>
+                            <div>
+                                <span class="data-label text-[8.5px] text-gray-500 block leading-tight">KGV (Akt. / Ø)</span>
+                                <span class="font-bold text-gray-300 text-xs mt-0.5 block truncate">${item.showcase.pe}</span>
+                            </div>
+                            <div>
+                                <span class="data-label text-[8.5px] text-gray-500 block leading-tight">5J Umsatz-CAGR</span>
+                                <span class="font-bold text-emerald-400 text-xs mt-0.5 block truncate">${item.showcase.growth}</span>
+                            </div>
+                            <div>
+                                <span class="data-label text-[8.5px] text-gray-500 block leading-tight">Dividende</span>
+                                <span class="font-bold text-gray-300 text-xs mt-0.5 block truncate">${item.showcase.dividend || '--'}</span>
+                            </div>
+                            <div class="col-span-2 pt-1.5 border-t border-white/5 flex items-center justify-between gap-2">
+                                <span class="data-label text-[8.5px] text-gray-500 shrink-0">Bull / Bear</span>
+                                <span class="font-bold text-gold-400 text-[10px] truncate text-right">${item.showcase.targets}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex items-center gap-2 pt-2 border-t border-white/5">
+                        <button onclick="openScreenerReport('${item.key}')" class="flex-1 search-btn py-2 text-[11px] font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-1.5">
+                            <span>Bericht öffnen</span>
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
+                        </button>
+                        <button onclick="shareScreenerStock('${item.key}')" class="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-gold-400 border border-white/10 transition-colors shrink-0" title="Analyse Teilen">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderScreenerTable(items) {
+            const tbody = document.getElementById('screenerTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            items.forEach(item => {
+                let verdictBadgeStyles = 'bg-slate-500/15 text-slate-300 border-slate-500/30';
+                let verdictDot = 'bg-slate-400';
+                if (item.verdict.type === 'buy') {
+                    verdictBadgeStyles = 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30';
+                    verdictDot = 'bg-emerald-400';
+                } else if (item.verdict.type === 'sell') {
+                    verdictBadgeStyles = 'bg-rose-500/15 text-rose-400 border-rose-500/30';
+                    verdictDot = 'bg-rose-400';
+                } else if (item.verdict.type === 'hold') {
+                    verdictBadgeStyles = 'bg-amber-500/15 text-amber-400 border-amber-500/30';
+                    verdictDot = 'bg-amber-400';
+                }
+
+                let dcfBadgeStyles = 'bg-slate-500/15 text-slate-400 border-slate-500/30';
+                if (item.dcfPotential !== '--') {
+                    if (item.dcfPotential.includes('-') && !item.dcfPotential.includes('bis') && !item.dcfPotential.includes('to')) {
+                        dcfBadgeStyles = 'bg-rose-500/15 text-rose-400 border-rose-500/30';
+                    } else {
+                        dcfBadgeStyles = 'bg-gold-500/15 text-gold-400 border-gold-500/30';
+                    }
+                }
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-white/[0.04] border-b border-white/5 transition-colors group cursor-pointer';
+                tr.onclick = () => openScreenerReport(item.key);
+
+                tr.innerHTML = `
+                    <td class="py-3.5 px-4">
+                        <div class="flex items-center gap-2">
+                            <span class="font-black text-gold-400 text-xs">${item.ticker}</span>
+                            <span class="text-white font-medium truncate max-w-[140px] sm:max-w-[180px]">${item.name}</span>
+                        </div>
+                    </td>
+                    <td class="py-3.5 px-4 text-gray-400">
+                        <div class="flex flex-col">
+                            <span class="text-gray-300 text-[11px] truncate max-w-[120px]">${item.sector}</span>
+                            <span class="text-[9px] text-gray-500 truncate max-w-[120px]">${item.hq}</span>
+                        </div>
+                    </td>
+                    <td class="py-3.5 px-4 font-bold text-white whitespace-nowrap">${item.priceStr}</td>
+                    <td class="py-3.5 px-4">
+                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded ${verdictBadgeStyles} text-[9px] font-bold uppercase tracking-wider whitespace-nowrap">
+                            <span class="w-1.5 h-1.5 rounded-full ${verdictDot}"></span>
+                            ${item.verdict.label}
+                        </span>
+                    </td>
+                    <td class="py-3.5 px-4">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded ${dcfBadgeStyles} text-[9px] font-bold uppercase whitespace-nowrap">
+                            ${item.dcfPotential !== '--' ? item.dcfPotential : '--'}
+                        </span>
+                    </td>
+                    <td class="py-3.5 px-4 text-gray-300 whitespace-nowrap">${item.showcase.pe}</td>
+                    <td class="py-3.5 px-4 text-emerald-400 whitespace-nowrap font-bold">${item.showcase.growth}</td>
+                    <td class="py-3.5 px-4 text-gray-400 whitespace-nowrap">${item.showcase.dividend || '--'}</td>
+                    <td class="py-3.5 px-4 text-gray-500 text-[10px] whitespace-nowrap">${item.timestamp}</td>
+                    <td class="py-3.5 px-4 text-right whitespace-nowrap" onclick="event.stopPropagation()">
+                        <div class="flex items-center justify-end gap-1.5">
+                            <button onclick="openScreenerReport('${item.key}')" class="px-2.5 py-1 rounded-lg bg-gold-500/10 hover:bg-gold-500 text-gold-400 hover:text-obsidian-950 border border-gold-500/30 text-[10px] font-bold uppercase tracking-wider transition-all inline-flex items-center gap-1">
+                                <span>Öffnen</span>
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
+                            </button>
+                            <button onclick="shareScreenerStock('${item.key}')" class="p-1 rounded-lg hover:bg-white/10 text-gray-500 hover:text-gold-400 transition-colors" title="Teilen">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function setScreenerVerdictFilter(val) {
+            SCREENER_FILTERS.verdict = val;
+            ['ALL', 'buy', 'hold', 'sell'].forEach(v => {
+                const btn = document.getElementById(`verdictPill_${v}`);
+                if (!btn) return;
+                if (v === val) {
+                    btn.className = 'screener-pill px-2.5 py-1 rounded-lg border border-gold-500/50 bg-gold-500/15 text-gold-300 font-bold transition-all text-[10px] flex items-center gap-1.5';
+                } else {
+                    btn.className = 'screener-pill px-2.5 py-1 rounded-lg border border-white/10 text-gray-400 hover:text-white transition-all text-[10px] flex items-center gap-1.5';
+                }
+            });
+            filterAndSortScreener();
+        }
+
+        function setScreenerPotentialFilter(val) {
+            SCREENER_FILTERS.potential = val;
+            ['ALL', 'pos', 'high', 'top', 'undervalued'].forEach(p => {
+                const btn = document.getElementById(`potPill_${p}`);
+                if (!btn) return;
+                if (p === val) {
+                    btn.className = 'screener-pot-pill px-2.5 py-1 rounded-lg border border-gold-500/50 bg-gold-500/15 text-gold-300 font-bold transition-all text-[10px]';
+                } else {
+                    btn.className = 'screener-pot-pill px-2.5 py-1 rounded-lg border border-white/10 text-gray-400 hover:text-white transition-all text-[10px]';
+                }
+            });
+            filterAndSortScreener();
+        }
+
+        function setScreenerViewMode(mode) {
+            SCREENER_FILTERS.viewMode = mode;
+            const gridBtn = document.getElementById('screenerViewGridBtn');
+            const tableBtn = document.getElementById('screenerViewTableBtn');
+            if (mode === 'grid') {
+                if (gridBtn) gridBtn.className = 'p-1.5 rounded text-gold-400 bg-gold-500/20 transition-colors';
+                if (tableBtn) tableBtn.className = 'p-1.5 rounded text-gray-500 hover:text-gray-300 transition-colors';
+            } else {
+                if (gridBtn) gridBtn.className = 'p-1.5 rounded text-gray-500 hover:text-gray-300 transition-colors';
+                if (tableBtn) tableBtn.className = 'p-1.5 rounded text-gold-400 bg-gold-500/20 transition-colors';
+            }
+            filterAndSortScreener();
+        }
+
+        function resetScreenerFilters() {
+            SCREENER_FILTERS = {
+                search: '',
+                sector: 'ALL',
+                region: 'ALL',
+                verdict: 'ALL',
+                potential: 'ALL',
+                sort: 'newest',
+                viewMode: SCREENER_FILTERS.viewMode || 'grid'
+            };
+
+            const searchInput = document.getElementById('screenerSearchInput');
+            const sectorSelect = document.getElementById('screenerSectorFilter');
+            const regionSelect = document.getElementById('screenerRegionFilter');
+            const sortSelect = document.getElementById('screenerSortSelect');
+
+            if (searchInput) searchInput.value = '';
+            if (sectorSelect) sectorSelect.value = 'ALL';
+            if (regionSelect) regionSelect.value = 'ALL';
+            if (sortSelect) sortSelect.value = 'newest';
+
+            setScreenerVerdictFilter('ALL');
+            setScreenerPotentialFilter('ALL');
+        }
+
+        function openScreenerReport(key) {
+            if (!GLOBAL_SCREENER_RAW_DATA) return;
+            const normalizedKey = String(key || '').trim().toUpperCase();
+            const entry = GLOBAL_SCREENER_RAW_DATA[normalizedKey] || GLOBAL_SCREENER_RAW_DATA[key];
+            if (!entry) return;
+
+            const loadedData = entry.data || entry;
+            CURRENT_ANALYSIS_DATA = loadedData;
+            if (loadedData.company_identity) {
+                renderIdentity(loadedData.company_identity, loadedData);
+            }
+            renderWidgets(loadedData);
+            setUIState('results');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function shareScreenerStock(key) {
+            if (!GLOBAL_SCREENER_RAW_DATA) return;
+            const normalizedKey = String(key || '').trim().toUpperCase();
+            const entry = GLOBAL_SCREENER_RAW_DATA[normalizedKey] || GLOBAL_SCREENER_RAW_DATA[key];
+            if (!entry) return;
+            shareAnalysisData(entry.data || entry);
         }
 
         // ==================== ARCHIVE LOGIC ====================
