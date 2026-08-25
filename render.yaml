@@ -2,6 +2,6 @@ services:
   - type: web
     name: fincast-hype-barometer
     env: python
-    rootDir: abracadabra
+    rootDir: tools/hype-barometer
     buildCommand: pip install -r requirements.txt
     startCommand: python main.py

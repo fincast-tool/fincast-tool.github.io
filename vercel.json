@@ -3,6 +3,126 @@
     {
       "source": "/api/(.*)",
       "destination": "/api/$1"
+    },
+    {
+      "source": "/terminal",
+      "destination": "/tools/terminal/terminal.html"
+    },
+    {
+      "source": "/terminal.html",
+      "destination": "/tools/terminal/terminal.html"
+    },
+    {
+      "source": "/calculator",
+      "destination": "/tools/calculator/calculator.html"
+    },
+    {
+      "source": "/calculator.html",
+      "destination": "/tools/calculator/calculator.html"
+    },
+    {
+      "source": "/hype",
+      "destination": "/tools/hype-barometer/hype.html"
+    },
+    {
+      "source": "/hype.html",
+      "destination": "/tools/hype-barometer/hype.html"
+    },
+    {
+      "source": "/abracadabra/hype.html",
+      "destination": "/tools/hype-barometer/hype.html"
+    },
+    {
+      "source": "/showcase",
+      "destination": "/tools/calculator/valuation_corridor_showcase.html"
+    },
+    {
+      "source": "/valuation_corridor_showcase.html",
+      "destination": "/tools/calculator/valuation_corridor_showcase.html"
+    },
+    {
+      "source": "/faq",
+      "destination": "/pages/FAQ.html"
+    },
+    {
+      "source": "/FAQ.html",
+      "destination": "/pages/FAQ.html"
+    },
+    {
+      "source": "/impressum",
+      "destination": "/pages/Impressum.html"
+    },
+    {
+      "source": "/Impressum.html",
+      "destination": "/pages/Impressum.html"
+    },
+    {
+      "source": "/ebook",
+      "destination": "/pages/ebook.html"
+    },
+    {
+      "source": "/ebook.html",
+      "destination": "/pages/ebook.html"
+    },
+    {
+      "source": "/podcast",
+      "destination": "/pages/podcast.html"
+    },
+    {
+      "source": "/podcast.html",
+      "destination": "/pages/podcast.html"
+    },
+    {
+      "source": "/video",
+      "destination": "/pages/video.html"
+    },
+    {
+      "source": "/video.html",
+      "destination": "/pages/video.html"
+    },
+    {
+      "source": "/Wealth_Titel.png",
+      "destination": "/assets/media/Wealth_Titel.png"
+    },
+    {
+      "source": "/Wealth_Podcast.m4a",
+      "destination": "/assets/media/Wealth_Podcast.m4a"
+    },
+    {
+      "source": "/theme-toggle-portfoliomanager.png",
+      "destination": "/assets/brand/theme-toggle-portfoliomanager.png"
+    },
+    {
+      "source": "/theme-toggle-icon.png",
+      "destination": "/assets/brand/theme-toggle-icon.png"
+    },
+    {
+      "source": "/theme-toggle-language.png",
+      "destination": "/assets/brand/theme-toggle-language.png"
+    },
+    {
+      "source": "/portfoliomanager - Symbol.png",
+      "destination": "/assets/brand/portfoliomanager - Symbol.png"
+    },
+    {
+      "source": "/favicon_48.png",
+      "destination": "/assets/favicons/favicon_48.png"
+    },
+    {
+      "source": "/favicon_192.png",
+      "destination": "/assets/favicons/favicon_192.png"
+    },
+    {
+      "source": "/favicon_512.png",
+      "destination": "/assets/favicons/favicon_512.png"
+    },
+    {
+      "source": "/favicon.png",
+      "destination": "/assets/favicons/favicon.png"
+    },
+    {
+      "source": "/favicon2.png",
+      "destination": "/assets/favicons/favicon2.png"
     }
   ],
   "crons": [

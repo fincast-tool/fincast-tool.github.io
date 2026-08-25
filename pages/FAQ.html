@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>fincast FAQ | Hilfe zu Terminal, Rechner &amp; Analyse</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description"
+        content="Häufige Fragen zu fincast: Erfahre alles über das Strategic Intelligence Terminal, DCF-Modelle, Fair Value Korridore, Zinseszinsberechnung und Datenschutz.">
+    <meta name="keywords"
+        content="FAQ, Hilfe, Terminal Hilfe, DCF Modell FAQ, Fair Value Korridor, Aktienanalyse FAQ, Zinseszinsrechner FAQ, fincast Support">
+    <meta name="author" content="Nikolai Bretthauer">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="https://fincast-tool.vercel.app/pages/FAQ.html">
+
+    <link rel="icon" type="image/png" href="../assets/brand/portfoliomanager%20-%20Symbol.png">
+    <link rel="shortcut icon" href="../assets/brand/portfoliomanager%20-%20Symbol.png">
+    <link rel="apple-touch-icon" href="../assets/brand/portfoliomanager%20-%20Symbol.png">
+    <link rel="manifest" href="../manifest.json">
+
+    <link rel="alternate" hreflang="de" href="https://fincast-tool.vercel.app/pages/FAQ.html">
+    <link rel="alternate" hreflang="en" href="https://fincast-tool.vercel.app/pages/FAQ.html">
+
+    <!-- Open Graph / Social Media Meta Tags -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="fincast Hub">
+    <meta property="og:url" content="https://fincast-tool.vercel.app/pages/FAQ.html">
+    <meta property="og:title" content="fincast FAQ | Hilfe zu Terminal, Rechner &amp; Tools">
+    <meta property="og:description"
+        content="Alle Antworten zur Bedienung und Berechnungsmethodik von fincast: Strategic Intelligence Terminal, DCF-Bewertung, Zinseszins und Hype-Barometer.">
+    <meta property="og:image" content="https://fincast-tool.vercel.app/assets/brand/theme-toggle-portfoliomanager.png">
+
+    <!-- Twitter / X Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="fincast FAQ | Hilfe zu Terminal, Rechner &amp; Tools">
+    <meta name="twitter:description"
+        content="Alle Antworten zur Bedienung und Berechnungsmethodik von fincast: Strategic Intelligence Terminal, DCF-Bewertung, Zinseszins und Hype-Barometer.">
+    <meta name="twitter:image" content="https://fincast-tool.vercel.app/assets/brand/theme-toggle-portfoliomanager.png">
+
+    <!-- Structured Data / JSON-LD -->
+    <script type="application/ld+json">
+    [
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "fincast FAQ & Hilfe",
+        "url": "https://fincast-tool.vercel.app/FAQ.html",
+        "description": "Häufige Fragen zu den fincast Finanztools, dem Strategic Intelligence Terminal und Berechnungsmodellen."
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Was ist das fincast Strategic Intelligence Terminal?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Das Terminal ist eine Analyseplattform für Aktieninvestoren, die fundamentale Unternehmensdaten, DCF-Bewertungsmodelle, quantitative Qualitätskennzahlen und automatisierte Multi-Perspektiven-Analysen bündelt."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Wie wird der faire Wert (Fair Value) und das DCF-Kurspotenzial ermittelt?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Zur Ermittlung des inneren Werts wird ein Discounted-Cashflow-Modell (DCF) angewendet. Prognostizierte freie Cashflows werden mit einem risikoadjustierten Kapitalkostensatz (WACC) abgezinst."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Was visualisiert der Bewertungskorridor?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Der Bewertungskorridor stellt den aktuellen Kurs im historischen Kontext dar und projiziert fundamentale Bewertungsspannen für 1, 2 und 3 Jahre auf Basis von Bull-, Base- und Bear-Szenarien."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Wie genau ist die Berechnung des Finanzsimulators?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Der Simulator nutzt mathematische Standardformeln für Zinseszins und Inflation unter Berücksichtigung von Steuern und automatischer Reinvestition."
+            }
+          }
+        ]
+      }
+    ]
+    </script>
+
+    <!-- Tailwind CSS & Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    },
+                    colors: {
+                        obsidian: {
+                            700: '#23293a',
+                            800: '#1a1f2e',
+                            850: '#141926',
+                            900: '#0f1420',
+                            950: '#0a0d14'
+                        },
+                        gold: {
+                            400: '#facc15',
+                            500: '#d4af37',
+                            600: '#b08d2b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0d14;
+            color: #e2e8f0;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .widget-card {
+            background: #0f1420;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .widget-card:hover {
+            border-color: rgba(212, 175, 55, 0.3);
+            background: #141926;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+        }
+
+        .logo-box {
+            background: radial-gradient(circle at center, rgba(212, 175, 55, 0.2), rgba(10, 13, 20, 0.6));
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
+        }
+
+        .faq-accordion summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .faq-accordion details[open] summary svg {
+            transform: rotate(180deg);
+        }
+
+        .tab-btn.active {
+            background-color: rgba(212, 175, 55, 0.15);
+            border-color: rgba(212, 175, 55, 0.5);
+            color: #facc15;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
+        }
+    </style>
+</head>
+
+<body class="flex flex-col min-h-screen">
+
+    <!-- ═══ STANDARDIZED WEBAPP HEADER ═══ -->
+    <header class="sticky top-0 z-50 w-full border-b border-white/[0.06] bg-[#0a0d14]/90 backdrop-blur-xl transition-all">
+        <div class="max-w-[1500px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+            
+            <div class="flex items-center gap-3">
+                <a href="../index.html" class="flex items-center gap-3 group focus:outline-none">
+                    <div class="w-9 h-9 rounded-xl logo-box flex items-center justify-center shadow-lg transition-transform group-hover:scale-105">
+                        <img src="../assets/brand/portfoliomanager%20-%20Symbol.png" class="w-7 h-7 object-contain opacity-90" alt="fincast logo">
+                    </div>
+                    <div class="flex flex-col">
+                        <div class="flex items-center gap-1.5 leading-none">
+                            <span class="text-base font-extrabold tracking-tight text-white">fincast</span>
+                            <span class="text-[10px] font-mono uppercase tracking-widest text-gold-400 font-bold px-1.5 py-0.5 rounded bg-gold-500/10 border border-gold-500/20">Knowledge Base</span>
+                        </div>
+                        <span class="text-[9px] font-mono text-slate-500 uppercase tracking-widest mt-0.5 hidden sm:inline">FAQ &amp; Dokumentation</span>
+                    </div>
+                </a>
+            </div>
+
+            <nav class="hidden md:flex items-center gap-1.5 bg-obsidian-900/80 p-1 rounded-xl border border-white/[0.06]">
+                <a href="../index.html" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white font-mono text-xs font-medium transition-all">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                    </svg>
+                    <span>Hub</span>
+                </a>
+                <a href="../tools/terminal/terminal.html" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white font-mono text-xs font-medium transition-all">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5" />
+                    </svg>
+                    <span>Terminal</span>
+                </a>
+                <a href="../tools/hype-barometer/hype.html" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white font-mono text-xs font-medium transition-all">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z" />
+                    </svg>
+                    <span>Hype-Barometer</span>
+                </a>
+                <a href="../tools/calculator/calculator.html" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white font-mono text-xs font-medium transition-all">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                    <span>Simulator</span>
+                </a>
+            </nav>
+
+            <div class="flex items-center gap-3">
+                <button onclick="toggleLanguage()" id="lang-toggle-btn"
+                    class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-obsidian-900 hover:bg-obsidian-800 border border-white/[0.08] hover:border-gold-500/40 text-slate-300 hover:text-gold-400 transition-all text-xs font-mono cursor-pointer"
+                    title="Sprache wechseln / Switch Language">
+                    <svg class="w-4 h-4 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 2a14.5 14.5 0 0 0 0 20M12 2a14.5 14.5 0 0 1 0 20M2 12h20" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span id="lang-label" class="font-bold tracking-wider">DE</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ═══ MAIN CONTENT ═══ -->
+    <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-10">
+
+        <!-- Title Section -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-400 font-mono text-xs uppercase tracking-widest mb-3">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" />
+                </svg>
+                <span>Support &amp; Knowledge Base</span>
+            </div>
+            <h1 class="text-2xl sm:text-4xl font-black text-white tracking-tight mb-3" id="t-title">
+                Häufig gestellte Fragen (FAQ)
+            </h1>
+            <p class="text-sm text-slate-400 max-w-xl mx-auto leading-relaxed" id="t-subtitle">
+                Hier findest du alle Antworten zu den Berechnungsmodellen, den Bewertungs-Frameworks und der Plattformarchitektur von fincast.
+            </p>
+        </div>
+
+        <!-- Category Selector Tabs -->
+        <div class="flex flex-wrap items-center justify-center gap-2 mb-8 bg-obsidian-900/90 p-1.5 rounded-2xl border border-white/[0.06] max-w-2xl mx-auto">
+            <button onclick="setCategory('terminal')" id="cat-tab-terminal"
+                class="tab-btn active flex-1 min-w-[130px] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-transparent text-xs font-mono font-bold tracking-wider uppercase transition-all duration-200 cursor-pointer">
+                <svg class="w-4 h-4 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5" />
+                </svg>
+                <span id="t-cat-terminal">Terminal</span>
+            </button>
+            <button onclick="setCategory('calculator')" id="cat-tab-calculator"
+                class="tab-btn flex-1 min-w-[130px] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-transparent text-slate-400 hover:text-white text-xs font-mono font-bold tracking-wider uppercase transition-all duration-200 cursor-pointer">
+                <svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
+                <span id="t-cat-calculator">Simulator</span>
+            </button>
+            <button onclick="setCategory('general')" id="cat-tab-general"
+                class="tab-btn flex-1 min-w-[130px] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-transparent text-slate-400 hover:text-white text-xs font-mono font-bold tracking-wider uppercase transition-all duration-200 cursor-pointer">
+                <svg class="w-4 h-4 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />
+                </svg>
+                <span id="t-cat-general">Plattform &amp; Datenschutz</span>
+            </button>
+        </div>
+
+        <!-- Dynamic Category Banner Card -->
+        <div class="widget-card p-6 sm:p-8 mb-8 border-gold-500/20 bg-gradient-to-br from-obsidian-900 via-obsidian-850 to-obsidian-900">
+            <div class="flex items-center gap-3 mb-4 pb-3 border-b border-white/[0.06]">
+                <div id="banner-icon" class="w-8 h-8 rounded-lg bg-gold-500/10 border border-gold-500/30 flex items-center justify-center text-gold-400 font-bold font-mono text-sm">
+                    ◆
+                </div>
+                <h2 class="text-base sm:text-lg font-bold font-mono text-gold-400 uppercase tracking-wider" id="t-banner-title">
+                    Terminal Analyse-Frameworks &amp; Methodik
+                </h2>
+            </div>
+            <div id="banner-content" class="text-xs sm:text-sm text-slate-300 space-y-3 leading-relaxed">
+                <!-- Dynamically populated via JS -->
+            </div>
+        </div>
+
+        <!-- Interactive FAQ Accordions -->
+        <div class="space-y-4 mb-12 faq-accordion" id="faq-list">
+            <!-- Dynamically populated via JS -->
+        </div>
+
+        <!-- Disclaimer Banner -->
+        <div class="p-5 rounded-xl border border-white/[0.08] bg-obsidian-900/60 flex items-start gap-4">
+            <div class="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 shrink-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                </svg>
+            </div>
+            <div>
+                <h3 class="text-xs font-bold font-mono text-slate-200 uppercase tracking-wider mb-1" id="t-disc-title">
+                    Wichtiger Hinweis: Keine Anlageberatung
+                </h3>
+                <p class="text-xs text-slate-400 leading-relaxed" id="t-disc-text">
+                    Die bereitgestellten Analysen, DCF-Modelle, Simulationen und Kennzahlen dienen ausschließlich Informations- und Bildungszwecken zur eigenständigen Recherche. Sie stellen keine Anlageberatung oder Aufforderung zum Kauf oder Verkauf von Finanzinstrumenten dar. Finanzmärkte sind mit Risiken bis hin zum Totalverlust behaftet.
+                </p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ═══ STANDARDIZED WEBAPP FOOTER ═══ -->
+    <footer class="w-full border-t border-white/[0.06] bg-obsidian-950 py-6 mt-auto">
+        <div class="max-w-[1500px] mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3 text-center md:text-left">
+                <img src="../assets/brand/portfoliomanager%20-%20Symbol.png" class="w-5 h-5 object-contain opacity-80" alt="fincast symbol">
+                <div>
+                    <p class="text-xs font-mono text-slate-400 font-bold uppercase tracking-wider">
+                        fincast Institutional Grade Financial Software • v3.5
+                    </p>
+                    <p class="text-[11px] text-slate-600 mt-0.5">
+                        © 2026 Nikolai Bretthauer. Alle Rechte vorbehalten.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-6 text-xs font-mono uppercase tracking-wider text-slate-400">
+                <a href="../index.html" class="hover:text-gold-400 transition-colors flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></svg>
+                    <span>Hub</span>
+                </a>
+                <span class="text-slate-700">•</span>
+                <a href="FAQ.html" class="text-gold-400 font-bold flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-gold-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" /></svg>
+                    <span>FAQ</span>
+                </a>
+                <span class="text-slate-700">•</span>
+                <a href="Impressum.html" class="hover:text-gold-400 transition-colors flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" /></svg>
+                    <span>Impressum &amp; Datenschutz</span>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ═══ TRANSLATION & ACCORDION SCRIPT ═══ -->
+    <script>
+        let curLang = 'DE';
+        let curCategory = 'terminal';
+
+        const data = {
+            DE: {
+                title: "Häufig gestellte Fragen (FAQ)",
+                subtitle: "Hier findest du alle Antworten zu den Berechnungsmodellen, den Bewertungs-Frameworks und der Plattformarchitektur von fincast.",
+                catTerminal: "Terminal",
+                catCalculator: "Simulator",
+                catGeneral: "Plattform & Datenschutz",
+                discTitle: "Wichtiger Hinweis: Keine Anlageberatung",
+                discText: "Die bereitgestellten Analysen, DCF-Modelle, Simulationen und Kennzahlen dienen ausschließlich Informations- und Bildungszwecken zur eigenständigen Recherche. Sie stellen keine Anlageberatung oder Aufforderung zum Kauf oder Verkauf von Finanzinstrumenten dar. Finanzmärkte sind mit Risiken bis hin zum Totalverlust behaftet.",
+                categories: {
+                    terminal: {
+                        icon: "◆",
+                        bannerTitle: "Terminal Analyse-Frameworks & Methodik",
+                        bannerContent: `
+                            <p class="mb-2">So strukturiert das fincast Strategic Intelligence Terminal institutionelle Aktienbewertungen:</p>
+                            <ul class="space-y-2 list-disc list-inside text-slate-300">
+                                <li><strong class="text-white">Discounted-Cashflow (DCF):</strong> Ermittlung des fairen inneren Werts durch Abzinsung prognostizierter freier Cashflows mit einem risikoadjustierten Kapitalkostensatz (WACC).</li>
+                                <li><strong class="text-white">Fair Value Korridor:</strong> Visualisierung historischer Multiples und prognostizierter Bewertungskorridore für 1, 2 und 3 Jahre (Bull, Base & Bear Case).</li>
+                                <li><strong class="text-white">Fundamental- &amp; Bilanzanalyse:</strong> Strukturierte Bewertung von Margenstabilität (Brutto/EBITDA/Netto), Verschuldungsgrad (Net Debt / EBITDA) und Kapitalrenditen (ROIC/ROE).</li>
+                                <li><strong class="text-white">Qualitative Burggraben-Analyse (Moat):</strong> Einordnung von Preissetzungsmacht, Netzwerkeffekten, Skalenvorteilen und Wechselkosten nach bewährten Value-Prinzipien.</li>
+                                <li><strong class="text-white">Markt- &amp; Risikoprofil:</strong> Quantifizierung mikrostruktureller Risiken und Gesamtrisikoscores für fundierte Chance-Risiko-Verhältnisse.</li>
+                            </ul>
+                        `,
+                        faqs: [
+                            {
+                                q: "Was ist das fincast Strategic Intelligence Terminal?",
+                                a: "Das fincast Terminal ist eine KI-gestützte Research- und Bewertungsplattform für Aktien. Es aggregiert fundamentale Kennzahlen, Unternehmensberichte und Marktinformationen und bereitet diese nach anerkannten Bewertungs- und Risikomodellen in einem konsolidierten institutionellen Report auf."
+                            },
+                            {
+                                q: "Wie ermittelt das Terminal den fairen Wert (Fair Value) und das DCF-Potenzial?",
+                                a: "Zur Ermittlung des inneren Unternehmenswerts wird ein anerkanntes Discounted-Cashflow-Modell (DCF) angewendet. Prognostizierte freie Cashflows werden mit einem risikoadjustierten Kapitalkostensatz (WACC) auf den heutigen Barwert abgezinst. Das DCF-Potenzial beziffert die prozentuale Abweichung zwischen aktuellem Börsenkurs und dem rechnerischen fairen Wert."
+                            },
+                            {
+                                q: "Was visualisiert der Bewertungskorridor (Fair Value Corridor)?",
+                                a: "Der interaktive Bewertungskorridor stellt den aktuellen Kurs im historischen Kontext dar und projiziert fundamentale Bewertungsspannen für 1, 2 und 3 Jahre. Durch den Vergleich konservativer (Bear Case), konsensbasierter (Base Case) und optimistischer (Bull Case) Szenarien wird transparent, ob eine Aktie mit einem Bewertungsabschlag oder -aufschlag gehandelt wird."
+                            },
+                            {
+                                q: "Welche Analysemethoden und Kennzahlen fließen in die Berichte ein?",
+                                a: "Die Berichte kombinieren quantitative Finanzkennzahlen (operative Margen, Return on Invested Capital / ROIC, Verschuldungsgrad wie Net Debt / EBITDA), qualitative Moat-Kriterien (ökonomischer Burggraben, Preissetzungsmacht, Netzwerkeffekte), Ertragsszenarien (Bull-/Bear-Case) sowie strukturierte Risiko- und Qualitätsmetriken."
+                            },
+                            {
+                                q: "Aus welchen Quellen stammen die Finanz- und Unternehmensdaten?",
+                                a: "Das Terminal greift auf verifizierte Fundamentaldaten, offizielle Pflichtmitteilungen und Quartalsberichte (SEC Filings wie 10-K und 10-Q) sowie tagesaktuelle Marktinformationen über geprüfte Datenanbindungen und Live-Grounding zu."
+                            },
+                            {
+                                q: "Was bedeuten die KI-Verdicts (Unterbewertet, Fair bewertet, Überbewertet)?",
+                                a: "Das finale Verdict fasst die Gesamtergebnisse aus DCF-Bewertung, Margenentwicklung, Bilanzgesundheit und Risikoprofil zu einer prägnanten Einstufung zusammen. Es dient als orientierender Kompass für deine eigene Due Diligence und stellt keine Anlageberatung dar."
+                            },
+                            {
+                                q: "Wie nutze ich den Global Stock Screener und das Archiv?",
+                                a: "Im Screener kannst du analysierte Aktien nach Sektoren, Regionen, DCF-Potenzialen und Bewertungsurteilen filtern und vergleichen (wahlweise in Kachel- oder Tabellenansicht). Einmal durchgeführte Analysen werden im Archiv hinterlegt, sodass du frühere Reports jederzeit ohne Abzug deines Kontingents erneut aufrufen kannst."
+                            },
+                            {
+                                q: "Wie funktioniert das tägliche Abfragekontingent (Queries)?",
+                                a: "Um eine dauerhaft hohe Systemperformance und Datenqualität für alle Nutzer zu gewährleisten, steht im Free-Tier ein tägliches Abfragekontingent zur Verfügung. Dieses wird täglich automatisiert um 10:00 Uhr deutscher Zeit vollständig zurückgesetzt."
+                            },
+                            {
+                                q: "Werden meine Suchanfragen oder Nutzerdaten an Dritte weitergegeben?",
+                                a: "Nein. fincast legt höchsten Wert auf Datenschutz. Deine Historie und individuellen Einstellungen werden lokal in deinem Browser verwaltet. Persönliche Daten werden niemals an Werbenetzwerke oder unbefugte Dritte weitergegeben."
+                            },
+                            {
+                                q: "Bietet das fincast Terminal Anlageberatung an?",
+                                a: "Nein. Sämtliche bereitgestellten Kennzahlen, Modelle, Prognosen und Zusammenfassungen dienen ausschließlich Informations- und Bildungszwecken zur eigenständigen Analyse (Execution-Only) und begründen keine Anlageberatung."
+                            }
+                        ]
+                    },
+                    calculator: {
+                        icon: "∑",
+                        bannerTitle: "Simulator Berechnungsgrundlagen & Formeln",
+                        bannerContent: `
+                            <p class="mb-2">So berechnet der fincast Simulator deine finanzielle Zukunft:</p>
+                            <ul class="space-y-2 list-disc list-inside text-slate-300">
+                                <li><strong class="text-white">Berechnungsbasis:</strong> Für unterjährige Sparraten wird der Depotwert zum Jahresanfang plus die halbe Jahressparrate herangezogen.</li>
+                                <li><strong class="text-white">Kursgewinn:</strong> <code class="text-emerald-400 font-mono bg-obsidian-800 px-1.5 py-0.5 rounded">Basis × Kursrendite (%)</code></li>
+                                <li><strong class="text-white">Dividende (Brutto):</strong> <code class="text-gold-400 font-mono bg-obsidian-800 px-1.5 py-0.5 rounded">Basis × (Dividendenrendite × (1 + Dividendenwachstum)<sup>Jahr</sup>)</code></li>
+                                <li><strong class="text-white">Steuern (Zuflussprinzip):</strong> <code class="text-rose-400 font-mono bg-obsidian-800 px-1.5 py-0.5 rounded">(Erträge - Freibetrag) × Steuersatz</code></li>
+                                <li><strong class="text-white">Reinvestition (Thesaurierung):</strong> Netto-Dividenden und realisierte Erträge werden automatisch wieder im Portfolio angelegt.</li>
+                                <li><strong class="text-white">Inflation (Reale Kaufkraft):</strong> <code class="text-slate-300 font-mono bg-obsidian-800 px-1.5 py-0.5 rounded">Depotwert / (1 + Inflationsrate)<sup>Jahr</sup></code></li>
+                            </ul>
+                        `,
+                        faqs: [
+                            {
+                                q: "Werden meine eingegebenen Daten auf externen Servern gespeichert?",
+                                a: "Nein. Alle Berechnungen im Simulator finden zu 100% lokal in deinem Webbrowser statt. Es werden keinerlei persönliche Finanzdaten an externe Server übertragen."
+                            },
+                            {
+                                q: "Wie genau ist die Berechnung des Simulators im Vergleich zur Realität?",
+                                a: "Der Simulator nutzt anerkannte finanzmathematische Standardformeln für Zinseszins, stetige Sparraten und Steuerabzüge unter Berücksichtigung des Sparerpauschbetrags und der Abgeltungsteuer."
+                            },
+                            {
+                                q: "Was bedeutet 'Kaufkraft' und wie wird sie ermittelt?",
+                                a: "Die Kaufkraft zeigt an, was dein zukünftiges Endvermögen unter Berücksichtigung der jährlichen Inflation heute in realen Gütern wert wäre."
+                            },
+                            {
+                                q: "Wie wird die Besteuerung von Dividenden und Kursgewinnen simuliert?",
+                                a: "Erträge werden jährlich dem Zuflussprinzip folgend ermittelt. Übersteigen die Gesamterträge den eingestellten Sparerpauschbetrag, wird auf den Differenzbetrag der gewählte Steuersatz (inkl. Solidaritätszuschlag/Kirchensteuer) abgezogen."
+                            },
+                            {
+                                q: "Kann ich den Simulator für Entnahmepläne oder Dividendenstrategien nutzen?",
+                                a: "Ja. Du kannst über die Parameter für Dividendenrendite, Dividendenwachstum und Kursrendite sowohl Wachstumsdepots als auch cashflow-orientierte Dividendenportfolios mit Reinvestition simulieren."
+                            }
+                        ]
+                    },
+                    general: {
+                        icon: "⚙",
+                        bannerTitle: "Plattform, Datenschutz & Sicherheit",
+                        bannerContent: `
+                            <p class="mb-2">Sicherheit, Architektur und Datenschutz im fincast Hub:</p>
+                            <ul class="space-y-2 list-disc list-inside text-slate-300">
+                                <li><strong class="text-white">Client-Side Privacy:</strong> Persönliche Berechnungen, Archive und Filterpräferenzen verbleiben lokal in deinem Browser.</li>
+                                <li><strong class="text-white">Keine Weitergabe von Finanzprofilen:</strong> Wir erstellen keine persönlichen Werbeprofile und verkaufen keine Nutzerdaten.</li>
+                                <li><strong class="text-white">Echtzeit-Synchronisation:</strong> Verlässliche Datenanbindungen für Live-Preise, Fundamentaldaten und Hype-Indikatoren.</li>
+                                <li><strong class="text-white">Faire Kontingent-Modelle:</strong> Tägliche automatische Reset-Zyklen sichern gleichbleibende Hochverfügbarkeit.</li>
+                            </ul>
+                        `,
+                        faqs: [
+                            {
+                                q: "Sind die Tools im fincast Hub kostenlos nutzbar?",
+                                a: "Ja, die wesentlichen Funktionen im fincast Hub, Simulator, Terminal und Hype-Barometer sind frei zugänglich."
+                            },
+                            {
+                                q: "Wie funktioniert das Abracadabra Hype-Barometer?",
+                                a: "Das Hype-Barometer analysiert in Echtzeit Erwähnungen, Momentum und NLP-Stimmungsbilder auf Finanzforen und Social Media, um volumenbestätigte Breakout-Setups frühzeitig zu erkennen."
+                            },
+                            {
+                                q: "Wie schützt fincast meine Privatsphäre?",
+                                a: "fincast verzichtet auf aggressive Werbe-Tracker und speichert Nutzungsdaten sparsam. Berechnungsdaten im Simulator und Berichtsverläufe im Terminal werden im lokalen Browserspeicher gehalten."
+                            },
+                            {
+                                q: "Auf welchen Geräten kann ich fincast nutzen?",
+                                a: "fincast ist als moderne Progressive Web App (PWA) konzipiert und vollständig responsive für Desktop, Tablets und Smartphones optimiert."
+                            }
+                        ]
+                    }
+                }
+            },
+            EN: {
+                title: "Frequently Asked Questions (FAQ)",
+                subtitle: "Find detailed documentation on our financial calculation models, valuation frameworks, and platform architecture.",
+                catTerminal: "Terminal",
+                catCalculator: "Simulator",
+                catGeneral: "Platform & Privacy",
+                discTitle: "Important Notice: No Financial Advice",
+                discText: "Provided valuations, DCF calculations, simulations, and financial metrics are intended strictly for educational and self-directed research purposes. They do not constitute financial or investment advice. Financial markets involve risks including the potential loss of capital.",
+                categories: {
+                    terminal: {
+                        icon: "◆",
+                        bannerTitle: "Terminal Valuation Frameworks & Methodology",
+                        bannerContent: `
+                            <p class="mb-2">How the fincast Strategic Intelligence Terminal structures institutional equity research:</p>
+                            <ul class="space-y-2 list-disc list-inside text-slate-300">
+                                <li><strong class="text-white">Discounted Cash Flow (DCF):</strong> Computing intrinsic fair value by discounting projected free cash flows using a risk-adjusted cost of capital (WACC).</li>
+                                <li><strong class="text-white">Fair Value Corridor:</strong> Mapping historical valuation multiples and forward-looking valuation bands across 1, 2, and 3-year horizons (Bull, Base & Bear Case).</li>
+                                <li><strong class="text-white">Fundamental &amp; Balance Sheet Health:</strong> Structured evaluation of margin stability (Gross/EBITDA/Net), leverage (Net Debt / EBITDA), and capital returns (ROIC/ROE).</li>
+                                <li><strong class="text-white">Economic Moat Analysis:</strong> Assessing pricing power, network effects, scale advantages, and switching costs.</li>
+                                <li><strong class="text-white">Market &amp; Risk Profiling:</strong> Quantifying microstructure risk parameters and composite risk scores for risk-reward evaluation.</li>
+                            </ul>
+                        `,
+                        faqs: [
+                            {
+                                q: "What is the fincast Strategic Intelligence Terminal?",
+                                a: "The fincast Terminal is an AI-powered stock research and valuation platform. It consolidates fundamental company metrics, DCF valuation models, quantitative health scores, and structured equity research into an institutional dashboard."
+                            },
+                            {
+                                q: "How are the Fair Value and DCF price potential calculated?",
+                                a: "Intrinsic value is computed using standard Discounted Cash Flow (DCF) modeling. Projected free cash flows are discounted to present value using a risk-adjusted cost of capital (WACC). DCF potential reflects the percentage difference between current market price and intrinsic value."
+                            },
+                            {
+                                q: "What does the Valuation Corridor (Fair Value Corridor) show?",
+                                a: "The interactive valuation corridor maps current share prices against historical multiples and forward-looking fair value projections across 1-, 2-, and 3-year horizons. Comparing Bear, Base, and Bull cases reveals whether an equity is trading at a discount or premium."
+                            },
+                            {
+                                q: "Which analytical frameworks and metrics are included in the reports?",
+                                a: "The reports integrate fundamental metrics (operating margins, ROIC, Net Debt / EBITDA), qualitative moat assessment (pricing power, switching costs), scenario modeling (Bull/Bear case), and structured risk classifications."
+                            },
+                            {
+                                q: "Where do the financial and market data originate?",
+                                a: "The platform draws from verified market feeds, official corporate regulatory disclosures (SEC 10-K / 10-Q filings), earnings releases, and verified financial news streams via live search grounding."
+                            },
+                            {
+                                q: "What do the Verdict ratings indicate?",
+                                a: "The overall verdict synthesizes DCF valuation, balance sheet health, earnings sustainability, and risk metrics into a clear categorization (Undervalued, Fairly Valued, Overvalued) to assist personal due diligence."
+                            },
+                            {
+                                q: "How do the Global Stock Screener and Archive work?",
+                                a: "The Screener lets you filter, sort, and rank analyzed equities by sector, region, valuation upside, and verdict. Analyzed reports are stored in your Archive, allowing you to revisit previous reports anytime without consuming query quota."
+                            },
+                            {
+                                q: "How does the daily query quota operate?",
+                                a: "To maintain optimal server performance and institutional data quality, free tier accounts receive a daily allocation of queries, which resets automatically every day at 10:00 CET."
+                            },
+                            {
+                                q: "Is my user data and search history kept private?",
+                                a: "Yes. Your personal analysis history and settings are stored locally in your browser environment. We never sell user data or search profiles to third parties."
+                            },
+                            {
+                                q: "Does the terminal provide personalized investment advice?",
+                                a: "No. All calculations, valuations, charts, and AI summaries are for informational and educational purposes only (Execution-Only) and do not constitute investment advice."
+                            }
+                        ]
+                    },
+                    calculator: {
+                        icon: "∑",
+                        bannerTitle: "Simulator Calculation Basics & Formulas",
+                        bannerContent: `
+                            <p class="mb-2">How the fincast engine projects your wealth progression:</p>
+                            <ul class="space-y-2 list-disc list-inside text-slate-300">
+                                <li><strong class="text-white">Calculation Basis:</strong> For ongoing deposits, beginning-of-year portfolio value plus half of annual savings is used.</li>
+                                <li><strong class="text-white">Price Return:</strong> <code class="text-emerald-400 font-mono bg-obsidian-800 px-1.5 py-0.5 rounded">Basis × Price Return (%)</code></li>
+                                <li><strong class="text-white">Gross Dividend:</strong> <code class="text-gold-400 font-mono bg-obsidian-800 px-1.5 py-0.5 rounded">Basis × (Dividend Yield × (1 + Dividend Growth)<sup>Year</sup>)</code></li>
+                                <li><strong class="text-white">Taxes:</strong> <code class="text-rose-400 font-mono bg-obsidian-800 px-1.5 py-0.5 rounded">(Income - Allowance) × Tax Rate</code></li>
+                                <li><strong class="text-white">Reinvestment (DRIP):</strong> Net dividends and capital gains are automatically reinvested into the portfolio.</li>
+                                <li><strong class="text-white">Purchasing Power:</strong> <code class="text-slate-300 font-mono bg-obsidian-800 px-1.5 py-0.5 rounded">Portfolio Value / (1 + Inflation Rate)<sup>Year</sup></code></li>
+                            </ul>
+                        `,
+                        faqs: [
+                            {
+                                q: "Is my personal data transmitted or stored?",
+                                a: "No. All calculations run strictly client-side inside your browser engine. No financial data is sent to external servers."
+                            },
+                            {
+                                q: "How accurate is the financial simulation?",
+                                a: "The engine uses institutional-grade compounding formulas, annual tax drag, and inflation discount models."
+                            },
+                            {
+                                q: "What is 'Purchasing Power'?",
+                                a: "Purchasing power shows your projected future wealth discounted by inflation to reflect today's real purchasing value."
+                            },
+                            {
+                                q: "How is tax drag modeled?",
+                                a: "Annual earnings exceeding tax allowances are subject to capital gains tax calculations, accurately reflecting net compounding growth."
+                            },
+                            {
+                                q: "Can I simulate dividend income strategies?",
+                                a: "Yes. Customizing dividend yield, dividend growth, and reinvestment options enables precise modeling of both accumulation and income portfolios."
+                            }
+                        ]
+                    },
+                    general: {
+                        icon: "⚙",
+                        bannerTitle: "Platform Architecture, Security & Privacy",
+                        bannerContent: `
+                            <p class="mb-2">Security, architecture, and data privacy across fincast Hub:</p>
+                            <ul class="space-y-2 list-disc list-inside text-slate-300">
+                                <li><strong class="text-white">Client-Side Privacy:</strong> Simulation data and local filters remain securely on your device.</li>
+                                <li><strong class="text-white">No Profile Selling:</strong> We never monetize or sell personal investor profiles.</li>
+                                <li><strong class="text-white">Real-Time Sync:</strong> Verified data integrations for live prices, fundamentals, and hype sentiment.</li>
+                                <li><strong class="text-white">Fair Usage:</strong> Daily automated quota resets ensure reliable system availability.</li>
+                            </ul>
+                        `,
+                        faqs: [
+                            {
+                                q: "Are all fincast tools accessible for free?",
+                                a: "Yes, the essential suite across Hub, Simulator, Terminal, and Hype-Barometer is openly accessible."
+                            },
+                            {
+                                q: "How does the Abracadabra Hype-Barometer operate?",
+                                a: "Real-time NLP sentiment listening scans social discussions and momentum indicators to flag volume-backed momentum setups."
+                            },
+                            {
+                                q: "How does fincast protect user privacy?",
+                                a: "We operate with minimal data collection and keep calculation states client-side without intrusive advertising trackers."
+                            },
+                            {
+                                q: "Which devices are supported?",
+                                a: "fincast is engineered as a responsive Progressive Web App (PWA) compatible across desktops, tablets, and smartphones."
+                            }
+                        ]
+                    }
+                }
+            }
+        };
+
+        function setCategory(cat) {
+            curCategory = cat;
+            window.location.hash = cat;
+            updateCategoryTabs();
+            renderContent();
+        }
+
+        function updateCategoryTabs() {
+            const tabs = ['terminal', 'calculator', 'general'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`cat-tab-${t}`);
+                if (btn) {
+                    if (t === curCategory) {
+                        btn.className = "tab-btn active flex-1 min-w-[130px] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-transparent text-xs font-mono font-bold tracking-wider uppercase transition-all duration-200 cursor-pointer";
+                    } else {
+                        btn.className = "tab-btn flex-1 min-w-[130px] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-transparent text-slate-400 hover:text-white text-xs font-mono font-bold tracking-wider uppercase transition-all duration-200 cursor-pointer";
+                    }
+                }
+            });
+        }
+
+        function toggleLanguage() {
+            curLang = (curLang === 'DE') ? 'EN' : 'DE';
+            localStorage.setItem('fincast_lang', curLang);
+            renderContent();
+        }
+
+        function renderContent() {
+            const l = data[curLang];
+            const catData = l.categories[curCategory] || l.categories['terminal'];
+
+            const langLabel = document.getElementById('lang-label');
+            if (langLabel) langLabel.innerText = curLang;
+
+            if (document.getElementById('t-title')) document.getElementById('t-title').innerText = l.title;
+            if (document.getElementById('t-subtitle')) document.getElementById('t-subtitle').innerText = l.subtitle;
+            if (document.getElementById('t-cat-terminal')) document.getElementById('t-cat-terminal').innerText = l.catTerminal;
+            if (document.getElementById('t-cat-calculator')) document.getElementById('t-cat-calculator').innerText = l.catCalculator;
+            if (document.getElementById('t-cat-general')) document.getElementById('t-cat-general').innerText = l.catGeneral;
+            if (document.getElementById('t-disc-title')) document.getElementById('t-disc-title').innerText = l.discTitle;
+            if (document.getElementById('t-disc-text')) document.getElementById('t-disc-text').innerText = l.discText;
+
+            // Banner update
+            const bannerTitle = document.getElementById('t-banner-title');
+            const bannerContent = document.getElementById('banner-content');
+            const bannerIcon = document.getElementById('banner-icon');
+
+            if (bannerTitle) bannerTitle.innerText = catData.bannerTitle;
+            if (bannerContent) bannerContent.innerHTML = catData.bannerContent;
+            if (bannerIcon) bannerIcon.innerText = catData.icon;
+
+            // FAQs accordion update
+            let faqHtml = '';
+            catData.faqs.forEach((item, idx) => {
+                faqHtml += `
+                    <details class="widget-card p-4 sm:p-5 group cursor-pointer" ${idx === 0 ? 'open' : ''}>
+                        <summary class="flex items-center justify-between font-bold text-white text-xs sm:text-sm list-none select-none">
+                            <span class="flex items-center gap-3 pr-2">
+                                <span class="w-6 h-6 rounded-lg bg-gold-500/10 border border-gold-500/20 text-gold-400 font-mono text-xs flex items-center justify-center shrink-0">${idx + 1}</span>
+                                <span>${item.q}</span>
+                            </span>
+                            <svg class="w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                            </svg>
+                        </summary>
+                        <div class="mt-3.5 pt-3.5 border-t border-white/[0.04] text-xs sm:text-sm text-slate-400 leading-relaxed">
+                            ${item.a}
+                        </div>
+                    </details>
+                `;
+            });
+            const fList = document.getElementById('faq-list');
+            if (fList) fList.innerHTML = faqHtml;
+        }
+
+        window.onload = () => {
+            const savedLang = localStorage.getItem('fincast_lang');
+            if (savedLang && (savedLang === 'DE' || savedLang === 'EN')) {
+                curLang = savedLang;
+            }
+
+            // Check URL hash or query params for category
+            const urlParams = new URLSearchParams(window.location.search);
+            const tabParam = urlParams.get('tab') || urlParams.get('category');
+            const hash = window.location.hash.replace('#', '');
+
+            if (tabParam && ['terminal', 'calculator', 'general'].includes(tabParam)) {
+                curCategory = tabParam;
+            } else if (hash && ['terminal', 'calculator', 'general'].includes(hash)) {
+                curCategory = hash;
+            }
+
+            updateCategoryTabs();
+            renderContent();
+        };
+
+        window.onhashchange = () => {
+            const hash = window.location.hash.replace('#', '');
+            if (hash && ['terminal', 'calculator', 'general'].includes(hash)) {
+                curCategory = hash;
+                updateCategoryTabs();
+                renderContent();
+            }
+        };
+    </script>
+</body>
+
+</html>

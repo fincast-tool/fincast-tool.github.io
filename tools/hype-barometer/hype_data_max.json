@@ -1,0 +1,551 @@
+{
+  "meta": {
+    "last_updated": "2026-05-17T17:24:58.810501+00:00",
+    "window_minutes": 1440,
+    "min_mentions": 4,
+    "min_sentiment": 0.6,
+    "subreddits_monitored": "wallstreetbets+CryptoCurrency+stocks+pennystocks+SatoshiStreetBets",
+    "total_active_tickers": 53,
+    "total_mentions": 71
+  },
+  "tickers": [
+    {
+      "ticker": "GOOGL",
+      "mentions": 4,
+      "avg_sentiment": 0.503,
+      "sentiment_level": "SEHR POSITIV",
+      "subreddits": [
+        "stocks"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "AMD",
+      "mentions": 4,
+      "avg_sentiment": -0.032,
+      "sentiment_level": "NEUTRAL",
+      "subreddits": [
+        "stocks",
+        "wallstreetbets"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "NVDA",
+      "mentions": 3,
+      "avg_sentiment": 0.351,
+      "sentiment_level": "POSITIV",
+      "subreddits": [
+        "stocks"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "AMZN",
+      "mentions": 2,
+      "avg_sentiment": 0.084,
+      "sentiment_level": "NEUTRAL",
+      "subreddits": [
+        "stocks",
+        "wallstreetbets"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "USO",
+      "mentions": 2,
+      "avg_sentiment": -0.083,
+      "sentiment_level": "NEUTRAL",
+      "subreddits": [
+        "stocks",
+        "wallstreetbets"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "ETH",
+      "mentions": 2,
+      "avg_sentiment": 0.316,
+      "sentiment_level": "POSITIV",
+      "subreddits": [
+        "CryptoCurrency"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "BTC",
+      "mentions": 2,
+      "avg_sentiment": 0.316,
+      "sentiment_level": "POSITIV",
+      "subreddits": [
+        "CryptoCurrency"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "SOL",
+      "mentions": 2,
+      "avg_sentiment": 0.925,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "CryptoCurrency",
+        "SatoshiStreetBets"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "BNB",
+      "mentions": 2,
+      "avg_sentiment": 0.492,
+      "sentiment_level": "SEHR POSITIV",
+      "subreddits": [
+        "CryptoCurrency",
+        "SatoshiStreetBets"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "COIN",
+      "mentions": 2,
+      "avg_sentiment": 0.688,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "SatoshiStreetBets",
+        "stocks"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "MSFT",
+      "mentions": 2,
+      "avg_sentiment": 0.816,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "stocks"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "GME",
+      "mentions": 2,
+      "avg_sentiment": 0.834,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "SatoshiStreetBets",
+        "stocks"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "AMZE",
+      "mentions": 2,
+      "avg_sentiment": 0.328,
+      "sentiment_level": "POSITIV",
+      "subreddits": [
+        "pennystocks"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "SOFI",
+      "mentions": 1,
+      "avg_sentiment": 0.0,
+      "sentiment_level": "NEUTRAL",
+      "subreddits": [
+        "wallstreetbets"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "INTC",
+      "mentions": 1,
+      "avg_sentiment": 0.676,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "wallstreetbets"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "DRAM",
+      "mentions": 1,
+      "avg_sentiment": -0.799,
+      "sentiment_level": "NEGATIV",
+      "subreddits": [
+        "wallstreetbets"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "LULU",
+      "mentions": 1,
+      "avg_sentiment": -0.811,
+      "sentiment_level": "NEGATIV",
+      "subreddits": [
+        "wallstreetbets"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "LLY",
+      "mentions": 1,
+      "avg_sentiment": -0.811,
+      "sentiment_level": "NEGATIV",
+      "subreddits": [
+        "wallstreetbets"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "PLUG",
+      "mentions": 1,
+      "avg_sentiment": 0.7,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "wallstreetbets"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "BCH",
+      "mentions": 1,
+      "avg_sentiment": 0.813,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "CryptoCurrency"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "SPACE",
+      "mentions": 1,
+      "avg_sentiment": 0.612,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "CryptoCurrency"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "BNO",
+      "mentions": 1,
+      "avg_sentiment": 0.645,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "stocks"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "CBRS",
+      "mentions": 1,
+      "avg_sentiment": 0.645,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "stocks"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "SNOW",
+      "mentions": 1,
+      "avg_sentiment": 0.645,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "stocks"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "PYPL",
+      "mentions": 1,
+      "avg_sentiment": 0.998,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "stocks"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "APO",
+      "mentions": 1,
+      "avg_sentiment": 0.995,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "stocks"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "IONQ",
+      "mentions": 1,
+      "avg_sentiment": 0.972,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "stocks"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "META",
+      "mentions": 1,
+      "avg_sentiment": 0.979,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "stocks"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "GOOG",
+      "mentions": 1,
+      "avg_sentiment": 0.986,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "stocks"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "LUFFF",
+      "mentions": 1,
+      "avg_sentiment": 0.983,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "pennystocks"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "HERB",
+      "mentions": 1,
+      "avg_sentiment": 0.983,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "pennystocks"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "TLRY",
+      "mentions": 1,
+      "avg_sentiment": 0.983,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "pennystocks"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "OGI",
+      "mentions": 1,
+      "avg_sentiment": 0.983,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "pennystocks"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "TNYA",
+      "mentions": 1,
+      "avg_sentiment": 0.975,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "pennystocks"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "CYDY",
+      "mentions": 1,
+      "avg_sentiment": 0.904,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "pennystocks"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "HCWB",
+      "mentions": 1,
+      "avg_sentiment": 0.912,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "pennystocks"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "PIII",
+      "mentions": 1,
+      "avg_sentiment": 0.878,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "pennystocks"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "TRT",
+      "mentions": 1,
+      "avg_sentiment": 0.822,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "pennystocks"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "SEGG",
+      "mentions": 1,
+      "avg_sentiment": 0.902,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "pennystocks"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "HYLN",
+      "mentions": 1,
+      "avg_sentiment": 0.72,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "pennystocks"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "AGNMF",
+      "mentions": 1,
+      "avg_sentiment": -0.143,
+      "sentiment_level": "NEUTRAL",
+      "subreddits": [
+        "pennystocks"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "KOPN",
+      "mentions": 1,
+      "avg_sentiment": 0.989,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "pennystocks"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "RCEL",
+      "mentions": 1,
+      "avg_sentiment": 0.794,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "pennystocks"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "LFGO",
+      "mentions": 1,
+      "avg_sentiment": 0.933,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "SatoshiStreetBets"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "GIGA",
+      "mentions": 1,
+      "avg_sentiment": 0.494,
+      "sentiment_level": "SEHR POSITIV",
+      "subreddits": [
+        "SatoshiStreetBets"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "MEMA",
+      "mentions": 1,
+      "avg_sentiment": 0.974,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "SatoshiStreetBets"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "MUSK",
+      "mentions": 1,
+      "avg_sentiment": 0.806,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "SatoshiStreetBets"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "XRP",
+      "mentions": 1,
+      "avg_sentiment": 0.373,
+      "sentiment_level": "POSITIV",
+      "subreddits": [
+        "SatoshiStreetBets"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "AURA",
+      "mentions": 1,
+      "avg_sentiment": 0.373,
+      "sentiment_level": "POSITIV",
+      "subreddits": [
+        "SatoshiStreetBets"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "PEPE",
+      "mentions": 1,
+      "avg_sentiment": 0.867,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "SatoshiStreetBets"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "BONK",
+      "mentions": 1,
+      "avg_sentiment": 0.867,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "SatoshiStreetBets"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "SHIB",
+      "mentions": 1,
+      "avg_sentiment": 0.867,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "SatoshiStreetBets"
+      ],
+      "is_hype": false
+    },
+    {
+      "ticker": "WIF",
+      "mentions": 1,
+      "avg_sentiment": 0.867,
+      "sentiment_level": "EXTREM POSITIV",
+      "subreddits": [
+        "SatoshiStreetBets"
+      ],
+      "is_hype": false
+    }
+  ],
+  "alerts": []
+}

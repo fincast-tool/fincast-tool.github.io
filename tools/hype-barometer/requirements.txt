@@ -1,0 +1,11 @@
+# Abracadabra - Hype-Barometer Dependencies
+praw>=7.7.1
+python-dotenv>=1.0.1
+vaderSentiment>=3.3.2
+feedparser>=6.0.10
+fastapi>=0.100.0
+uvicorn>=0.22.0
+yfinance>=0.2.38
+pandas>=2.0.0
+pandas-ta-classic>=0.5.44
+requests>=2.31.0

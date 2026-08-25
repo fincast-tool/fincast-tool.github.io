@@ -1,0 +1,99 @@
+{
+  "meta": {
+    "last_updated": "2026-08-25T12:18:50.265030+00:00",
+    "window_minutes": 480,
+    "min_mentions": 4,
+    "min_sentiment": 0.6,
+    "subreddits_monitored": "wallstreetbets+CryptoCurrency+stocks+pennystocks+SatoshiStreetBets",
+    "total_active_tickers": 4,
+    "total_mentions": 10
+  },
+  "tickers": [
+    {
+      "ticker": "NVDA",
+      "mentions": 6,
+      "avg_sentiment": 0.299,
+      "sentiment_level": "POSITIV",
+      "subreddits": [
+        "stocks",
+        "wallstreetbets"
+      ],
+      "is_hype": false,
+      "ta": {
+        "ticker": "NVDA",
+        "asset_type": "stock",
+        "current_price": 208.46,
+        "rsi_value": 31.71,
+        "volume_spike_factor": 3.69,
+        "distance_to_local_ath_pct": 5.43,
+        "ema_9": 209.26,
+        "ema_20": 209.94,
+        "setup_label": "NEUTRAL"
+      }
+    },
+    {
+      "ticker": "BTC",
+      "mentions": 2,
+      "avg_sentiment": 0.101,
+      "sentiment_level": "NEUTRAL",
+      "subreddits": [
+        "CryptoCurrency"
+      ],
+      "is_hype": false,
+      "ta": {
+        "ticker": "BTC",
+        "asset_type": "crypto",
+        "current_price": 78914.0,
+        "rsi_value": 31.01,
+        "volume_spike_factor": 0.2,
+        "distance_to_local_ath_pct": 2.59,
+        "ema_9": 79192.1889,
+        "ema_20": 79487.6,
+        "setup_label": "NEUTRAL"
+      }
+    },
+    {
+      "ticker": "AMD",
+      "mentions": 1,
+      "avg_sentiment": 0.511,
+      "sentiment_level": "SEHR POSITIV",
+      "subreddits": [
+        "wallstreetbets"
+      ],
+      "is_hype": false,
+      "ta": {
+        "ticker": "AMD",
+        "asset_type": "stock",
+        "current_price": 456.76,
+        "rsi_value": 38.96,
+        "volume_spike_factor": 3.37,
+        "distance_to_local_ath_pct": 6.27,
+        "ema_9": 457.44,
+        "ema_20": 458.74,
+        "setup_label": "NEUTRAL"
+      }
+    },
+    {
+      "ticker": "SOL",
+      "mentions": 1,
+      "avg_sentiment": 0.178,
+      "sentiment_level": "NEUTRAL",
+      "subreddits": [
+        "CryptoCurrency"
+      ],
+      "is_hype": false,
+      "ta": {
+        "ticker": "SOL",
+        "asset_type": "crypto",
+        "current_price": 98.17,
+        "rsi_value": 29.8,
+        "volume_spike_factor": 0.19,
+        "distance_to_local_ath_pct": 4.37,
+        "ema_9": 98.9045,
+        "ema_20": 99.5587,
+        "setup_label": "NEUTRAL"
+      }
+    }
+  ],
+  "alerts": []
+}
