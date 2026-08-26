@@ -78,23 +78,57 @@
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
         rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+                    fontFamily: {
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    },
                     colors: {
-                        obsidian: { 800: '#1a1f2e', 900: '#0f1420', 950: '#0a0d14' },
-                        gold: { 400: '#e5c07b', 500: '#d4af37', 600: '#b08d2b' }
+                        obsidian: {
+                            950: '#0B0E12',
+                            900: '#11151B',
+                            850: '#141A22',
+                            800: '#171C23',
+                            700: '#202630',
+                            600: '#2D3748'
+                        },
+                        gold: {
+                            300: '#E5C07B',
+                            400: '#D6A83A',
+                            500: '#C2952B',
+                            600: '#A67D1E'
+                        }
                     }
                 }
             }
         }
     </script>
+
     <style>
+        :root {
+            --bg-primary: #0B0E12;
+            --bg-surface: #11151B;
+            --bg-surface-elevated: #171C23;
+            --border-subtle: #202630;
+            --border-strong: #2D3748;
+            --text-primary: #F1F3F5;
+            --text-secondary: #94A3B8;
+            --text-muted: #64748B;
+            --accent-primary: #D6A83A;
+            --positive: #34D399;
+            --negative: #F87171;
+            --warning: #FBBF24;
+            --info: #60A5FA;
+        }
+
         *,
         *::before,
         *::after {
@@ -104,107 +138,109 @@
         }
 
         body {
-            background-color: #0a0d14;
-            color: #e2e8f0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
             -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        /* ─── Widget Card System (terminal.html identisch) ─── */
         .widget-card {
-            background: #0f1420;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            transition: all 0.3s cubic-bezier(.4, 0, .2, 1);
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
             position: relative;
             overflow: hidden;
         }
 
         .widget-card:hover {
-            border-color: rgba(212, 175, 55, 0.3);
-            background: #141926;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border-color: var(--border-strong);
+            background: var(--bg-surface-elevated);
         }
 
         .widget-header {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-            padding: 14px 18px;
-            background: rgba(0, 0, 0, 0.15);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.2);
         }
 
         .data-label {
-            color: #64748b;
-            font-size: 10px;
-            font-weight: 700;
+            color: var(--text-muted);
+            font-size: 9.5px;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.05em;
             font-family: 'JetBrains Mono', monospace;
         }
 
-        /* ─── Badges ─── */
         .badge {
-            display: inline-block;
-            padding: 3px 10px;
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
             border-radius: 4px;
-            font-size: 10px;
-            font-weight: 800;
+            font-size: 9.5px;
+            font-weight: 600;
             font-family: 'JetBrains Mono', monospace;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.04em;
             text-transform: uppercase;
         }
 
         .badge-hype {
-            background: rgba(234, 179, 8, 0.15);
-            color: #eab308;
-            border: 1px solid rgba(234, 179, 8, 0.3);
+            background: rgba(214, 168, 58, 0.12);
+            color: #D6A83A;
+            border: 1px solid rgba(214, 168, 58, 0.25);
         }
 
         .badge-bullish {
-            background: rgba(34, 197, 94, 0.15);
-            color: #22c55e;
-            border: 1px solid rgba(34, 197, 94, 0.3);
+            background: rgba(52, 211, 153, 0.12);
+            color: #34D399;
+            border: 1px solid rgba(52, 211, 153, 0.25);
         }
 
         .badge-neutral {
-            background: rgba(100, 116, 139, 0.15);
-            color: #94a3b8;
-            border: 1px solid rgba(100, 116, 139, 0.3);
+            background: rgba(148, 163, 184, 0.12);
+            color: #94A3B8;
+            border: 1px solid rgba(148, 163, 184, 0.25);
         }
 
         .badge-bearish {
-            background: rgba(239, 68, 68, 0.15);
-            color: #ef4444;
-            border: 1px solid rgba(239, 68, 68, 0.3);
+            background: rgba(248, 113, 113, 0.12);
+            color: #F87171;
+            border: 1px solid rgba(248, 113, 113, 0.25);
         }
 
         .badge-buy {
-            background: rgba(34, 197, 94, 0.15);
-            color: #22c55e;
-            border: 1px solid rgba(34, 197, 94, 0.3);
+            background: rgba(52, 211, 153, 0.12);
+            color: #34D399;
+            border: 1px solid rgba(52, 211, 153, 0.25);
         }
 
         .badge-hold {
-            background: rgba(234, 179, 8, 0.15);
-            color: #eab308;
-            border: 1px solid rgba(234, 179, 8, 0.3);
+            background: rgba(251, 191, 36, 0.12);
+            color: #FBBF24;
+            border: 1px solid rgba(251, 191, 36, 0.25);
         }
 
         .badge-sell {
-            background: rgba(239, 68, 68, 0.15);
-            color: #ef4444;
-            border: 1px solid rgba(239, 68, 68, 0.3);
+            background: rgba(248, 113, 113, 0.12);
+            color: #F87171;
+            border: 1px solid rgba(248, 113, 113, 0.25);
         }
 
         .badge-wait {
-            background: rgba(100, 116, 139, 0.15);
-            color: #94a3b8;
-            border: 1px solid rgba(100, 116, 139, 0.3);
+            background: rgba(148, 163, 184, 0.12);
+            color: #94A3B8;
+            border: 1px solid rgba(148, 163, 184, 0.25);
         }
 
-        /* ─── Sentiment Gauge ─── */
         .gauge-track {
             height: 4px;
             border-radius: 2px;
-            background: #1a1f2e;
+            background: var(--bg-primary);
             overflow: hidden;
             position: relative;
         }
@@ -212,142 +248,51 @@
         .gauge-fill {
             height: 100%;
             border-radius: 2px;
-            transition: width 0.6s cubic-bezier(.4, 0, .2, 1);
+            transition: width 0.4s ease;
         }
 
-        /* ─── Ticker Row ─── */
         .ticker-row {
-            background: #0f1420;
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            border-radius: 10px;
-            padding: 14px 18px;
-            transition: all 0.25s cubic-bezier(.4, 0, .2, 1);
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 10px 14px;
+            transition: border-color 0.15s, background-color 0.15s;
             cursor: pointer;
         }
 
         .ticker-row:hover {
-            border-color: rgba(255, 255, 255, 0.08);
-            background: #111624;
+            border-color: var(--border-strong);
+            background: var(--bg-surface-elevated);
         }
 
         .ticker-row.is-hype {
-            border-color: rgba(212, 175, 55, 0.15);
-            background: linear-gradient(135deg, rgba(212, 175, 55, 0.04) 0%, #0f1420 100%);
+            border-color: rgba(214, 168, 58, 0.3);
+            background: rgba(214, 168, 58, 0.03);
         }
 
         .ticker-row.is-hype:hover {
-            border-color: rgba(212, 175, 55, 0.4);
-            box-shadow: 0 0 24px rgba(212, 175, 55, 0.06);
+            border-color: rgba(214, 168, 58, 0.5);
+            background: rgba(214, 168, 58, 0.06);
         }
 
-        /* ─── Alert Item ─── */
         .alert-item {
-            padding: 12px 14px;
-            border-radius: 8px;
-            border: 1px solid rgba(212, 175, 55, 0.1);
-            background: rgba(212, 175, 55, 0.03);
-            transition: all 0.2s;
+            padding: 10px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-subtle);
+            background: var(--bg-surface);
+            transition: border-color 0.15s;
             cursor: pointer;
         }
 
         .alert-item:hover {
-            border-color: rgba(212, 175, 55, 0.25);
-        }
-
-        /* ─── Citadel Drawer ─── */
-        .citadel-drawer {
-            position: fixed;
-            top: 0;
-            right: -420px;
-            width: 420px;
-            height: 100vh;
-            background: rgba(15, 20, 32, 0.95);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border-left: 1px solid rgba(212, 175, 55, 0.2);
-            z-index: 100;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            box-shadow: -10px 0 40px rgba(0, 0, 0, 0.6);
-        }
-
-        @media (max-width: 640px) {
-            .citadel-drawer {
-                width: 100%;
-                right: -100%;
-            }
-        }
-
-        .citadel-drawer.open {
-            right: 0;
-        }
-
-        .citadel-drawer-content {
-            opacity: 0;
-            transition: opacity 0.3s;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-
-        .citadel-drawer.open .citadel-drawer-content {
-            opacity: 1;
-        }
-
-        .drawer-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            z-index: 90;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-        }
-
-        .drawer-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .alert-item.new-glowing {
-            animation: alertPulse 2s infinite alternate;
-        }
-
-        @keyframes alertPulse {
-            0% {
-                border-color: rgba(212, 175, 55, 0.25);
-                box-shadow: 0 0 5px rgba(212, 175, 55, 0.1);
-            }
-
-            100% {
-                border-color: rgba(212, 175, 55, 0.85);
-                box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
-            }
-        }
-
-        /* ─── Status Indicator ─── */
-        @keyframes pulse-live {
-
-            0%,
-            100% {
-                opacity: 1
-            }
-
-            50% {
-                opacity: .35
-            }
+            border-color: var(--border-strong);
         }
 
         .status-live {
             width: 6px;
             height: 6px;
             border-radius: 50%;
-            background: #22c55e;
-            animation: pulse-live 2s ease-in-out infinite;
+            background: #34D399;
             flex-shrink: 0;
         }
 
@@ -355,155 +300,91 @@
             width: 6px;
             height: 6px;
             border-radius: 50%;
-            background: #ef4444;
+            background: #F87171;
             flex-shrink: 0;
         }
 
-        /* ─── Shimmer (terminal.html identisch) ─── */
-        .shimmer {
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
-            background-size: 200% 100%;
-            animation: shimmer 2s infinite;
-        }
-
-        @keyframes shimmer {
-            0% {
-                background-position: -200% 0
-            }
-
-            100% {
-                background-position: 200% 0
-            }
-        }
-
-        /* ─── Fade Animation ─── */
-        .fade-up {
-            animation: fadeUp 0.4s ease-out both;
-        }
-
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(12px)
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0)
-            }
-        }
-
-        /* ─── Metric Sparkline ─── */
-        .metric-value {
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 700;
-            color: #d4af37;
-        }
-
-        /* ─── Scrollbar (terminal.html identisch) ─── */
         ::-webkit-scrollbar {
-            width: 5px;
-            height: 5px;
+            width: 4px;
+            height: 4px;
         }
-
         ::-webkit-scrollbar-track {
             background: transparent;
         }
-
         ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.06);
-            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
         }
-
         ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.16);
         }
-
-        /* ─── Responsive ─── */
-        @media (max-width: 768px) {
-            .desktop-only {
-                display: none !important;
-            }
-
-            .main-grid {
-                grid-template-columns: 1fr !important;
-            }
-        }
-    </style>
-</head>
+    </style></head>
 
 <body class="font-sans">
 
     <!-- ═══ TOP BAR ═══ -->
-    <header class="sticky top-0 z-50 border-b border-white/[0.06] bg-[#0a0d14]/90 backdrop-blur-xl transition-all">
-        <div class="max-w-[1500px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
-            <!-- Left: Identity & Tool Switcher -->
-            <div class="flex items-center gap-3 sm:gap-6">
-                <a href="../../index.html" class="flex items-center gap-3 group focus:outline-none">
-                    <div class="w-8 h-8 rounded-xl bg-obsidian-900 border border-gold-500/30 flex items-center justify-center shadow-lg transition-transform group-hover:scale-105">
-                        <img src="../../assets/brand/portfoliomanager%20-%20Symbol.png" class="w-6 h-6 object-contain opacity-90" alt="fincast logo">
+    <header class="sticky top-0 z-50 w-full border-b border-[#202630] bg-[#0B0E12]/95 backdrop-blur-md transition-all">
+        <div class="max-w-[1500px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
+            
+            <div class="flex items-center gap-3">
+                <a href="../../index.html" class="flex items-center gap-2.5 group focus:outline-none">
+                    <div class="w-8 h-8 rounded-lg bg-white/5 border border-[#202630] flex items-center justify-center">
+                        <img src="../../assets/brand/portfoliomanager%20-%20Symbol.png" class="w-5 h-5 object-contain" alt="fincast logo">
                     </div>
                     <div class="flex flex-col">
                         <div class="flex items-center gap-1.5 leading-none">
-                            <span class="text-sm font-extrabold tracking-tight text-white">Hype<span class="text-gold-500">Barometer</span></span>
-                            <span class="text-[9px] font-mono uppercase tracking-widest text-gold-400 font-bold px-1 py-0.5 rounded bg-gold-500/10 border border-gold-500/20">Realtime</span>
+                            <span class="text-sm font-bold tracking-tight text-white">fincast</span>
+                            <span class="text-[9.5px] font-mono uppercase tracking-wider text-[#D6A83A] font-semibold px-1.5 py-0.2 rounded bg-[#D6A83A]/10 border border-[#D6A83A]/25">Hype</span>
                         </div>
-                        <span class="text-[9px] font-mono text-slate-500 uppercase tracking-widest mt-0.5 hidden sm:inline">Reddit Sentiment Engine</span>
+                        <span class="text-[9px] text-slate-400 mt-0.5 hidden sm:inline">Social Sentiment Engine</span>
                     </div>
                 </a>
-
-                <!-- Tool Switcher Pills -->
-                <nav class="hidden md:flex items-center gap-1.5 bg-obsidian-900/90 p-1 rounded-xl border border-white/[0.06]">
-                    <a href="../../index.html" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white font-mono text-[11px] font-medium transition-all">
-                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-                        </svg>
-                        <span>Hub</span>
-                    </a>
-                    <a href="../terminal/terminal.html" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white font-mono text-[11px] font-medium transition-all">
-                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5" />
-                        </svg>
-                        <span>Terminal</span>
-                    </a>
-                    <a href="hype.html" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gold-500/10 border border-gold-500/30 text-gold-400 font-mono text-[11px] font-semibold">
-                        <svg class="w-3.5 h-3.5 text-gold-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z" />
-                        </svg>
-                        <span>Hype-Barometer</span>
-                    </a>
-                    <a href="../calculator/calculator.html" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white font-mono text-[11px] font-medium transition-all">
-                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                        </svg>
-                        <span>Simulator</span>
-                    </a>
-                </nav>
             </div>
 
-            <!-- Right: Status + Controls -->
-            <div class="flex items-center gap-3">
-                <button id="pushToggleBtn" onclick="togglePushNotifications()"
-                    class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-obsidian-900 border border-white/[0.08] hover:border-gold-500/30 text-[10px] font-mono text-slate-400 hover:text-white uppercase tracking-wider transition-all"
-                    title="Push-Benachrichtigungen aktivieren">
-                    <svg id="bellIcon" class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2"
-                        viewBox="0 0 24 24">
-                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"
-                            stroke-linecap="round" stroke-linejoin="round" />
+            <nav class="hidden md:flex items-center gap-1 bg-[#11151B] p-1 rounded-lg border border-[#202630]">
+                <a href="../../index.html" class="flex items-center gap-1.5 px-2.5 py-1 rounded-md hover:bg-white/5 text-slate-400 hover:text-white text-xs font-medium transition-colors">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
                     </svg>
-                    <span id="pushToggleLabel">Push Off</span>
+                    <span>Hub</span>
+                </a>
+                <a href="../terminal/terminal.html" class="flex items-center gap-1.5 px-2.5 py-1 rounded-md hover:bg-white/5 text-slate-400 hover:text-white text-xs font-medium transition-colors">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5" />
+                    </svg>
+                    <span>Terminal</span>
+                </a>
+                <a href="hype.html" class="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#171C23] border border-[#2D3748] text-white text-xs font-semibold">
+                    <svg class="w-3.5 h-3.5 text-[#D6A83A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z" />
+                    </svg>
+                    <span>Hype</span>
+                </a>
+                <a href="../calculator/calculator.html" class="flex items-center gap-1.5 px-2.5 py-1 rounded-md hover:bg-white/5 text-slate-400 hover:text-white text-xs font-medium transition-colors">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                    <span>Simulator</span>
+                </a>
+            </nav>
+
+            <div class="flex items-center gap-2 sm:gap-3">
+                <button id="pushToggleBtn" onclick="togglePushNotifications()"
+                    class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#11151B] hover:bg-[#171C23] border border-[#202630] hover:border-[#2D3748] text-slate-300 hover:text-white transition-colors text-xs font-medium"
+                    title="Push-Benachrichtigungen">
+                    <svg id="bellIcon" class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span id="pushToggleLabel" class="font-mono text-[10px]">Push Off</span>
                 </button>
 
-                <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-obsidian-900 border border-white/[0.06]">
+                <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#11151B] border border-[#202630]">
                     <div id="statusDot" class="status-live"></div>
-                    <span id="statusLabel"
-                        class="text-[10px] font-mono text-slate-400 font-bold uppercase tracking-wider">Connecting</span>
+                    <span id="statusLabel" class="text-[10px] font-mono text-slate-400 font-semibold uppercase">Connecting</span>
                 </div>
-                <span id="lastUpdate" class="hidden sm:inline text-[10px] font-mono text-slate-500">--:--:--</span>
             </div>
         </div>
     </header>
-
     <!-- ═══ MAIN CONTENT ═══ -->
     <main class="max-w-[1400px] mx-auto px-4 sm:px-6 py-5">
 
@@ -534,7 +415,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <!-- Column 1: Social Listening & Sentiments -->
                     <div class="space-y-4">
-                        <div class="flex items-center gap-2.5 border-b border-white/5 pb-2.5">
+                        <div class="flex items-center gap-2.5 border-b border-[#202630] pb-2.5">
                             <svg class="w-4 h-4 text-gold-500/60" fill="none" stroke="currentColor" stroke-width="1.5"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -570,7 +451,7 @@
 
                     <!-- Column 2: Live Signal Feed & Triggering -->
                     <div class="space-y-4">
-                        <div class="flex items-center gap-2.5 border-b border-white/5 pb-2.5">
+                        <div class="flex items-center gap-2.5 border-b border-[#202630] pb-2.5">
                             <svg class="w-4 h-4 text-gold-500/60" fill="none" stroke="currentColor" stroke-width="1.5"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -608,7 +489,7 @@
 
                     <!-- Column 3: Swarm Intelligence & AI -->
                     <div class="space-y-4">
-                        <div class="flex items-center gap-2.5 border-b border-white/5 pb-2.5">
+                        <div class="flex items-center gap-2.5 border-b border-[#202630] pb-2.5">
                             <svg class="w-4 h-4 text-gold-500/60" fill="none" stroke="currentColor" stroke-width="1.5"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -647,7 +528,7 @@
                 <div class="w-full h-px bg-white/[0.04] my-6"></div>
                 
                 <!-- Quantitative Setup & Indicators Section -->
-                <div class="flex items-center gap-2.5 border-b border-white/5 pb-2.5 mb-5">
+                <div class="flex items-center gap-2.5 border-b border-[#202630] pb-2.5 mb-5">
                     <svg class="w-4 h-4 text-gold-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
                     </svg>
@@ -658,7 +539,7 @@
                 <div class="overflow-x-auto mb-6 bg-black/10 rounded-lg border border-white/[0.03] p-4">
                     <table class="w-full text-left border-collapse text-xs font-mono">
                         <thead>
-                            <tr class="border-b border-white/[0.06] text-gray-500 text-[10px] uppercase tracking-wider">
+                            <tr class="border-b border-[#202630] text-gray-500 text-[10px] uppercase tracking-wider">
                                 <th class="py-2.5 px-3">Setup</th>
                                 <th class="py-2.5 px-3">Bedingungen (Mathematisch)</th>
                                 <th class="py-2.5 px-3">Interpretation & Signal</th>
@@ -718,19 +599,19 @@
                     <div>
                         <h5 class="font-mono font-bold text-white uppercase tracking-wider text-[10px] mb-2">ERKLÄRUNG DER TA-INDIKATOREN</h5>
                         <ul class="space-y-3">
-                            <li class="border-l border-white/[0.06] pl-3">
+                            <li class="border-l border-[#202630] pl-3">
                                 <strong class="text-white font-mono">Preis:</strong> Der aktuellste Schlusskurs der letzten abgeschlossenen 15-Minuten-Kerze.
                             </li>
-                            <li class="border-l border-white/[0.06] pl-3">
+                            <li class="border-l border-[#202630] pl-3">
                                 <strong class="text-white font-mono">RSI (14):</strong> Der Relative Strength Index misst die Geschwindigkeit und Veränderung von Kursbewegungen auf einer Skala von 0 bis 100, um überkaufte oder überverkaufte Zustände zu bestimmen.
                             </li>
-                            <li class="border-l border-white/[0.06] pl-3">
+                            <li class="border-l border-[#202630] pl-3">
                                 <strong class="text-white font-mono">EMA 9 & 20:</strong> Die exponentiell gewichteten gleitenden Durchschnitte reagieren schneller auf jüngste Preisänderungen. Sie dienen als dynamischer Support/Widerstand. Eine Annäherung zeigt Trendberuhigung.
                             </li>
-                            <li class="border-l border-white/[0.06] pl-3">
+                            <li class="border-l border-[#202630] pl-3">
                                 <strong class="text-white font-mono">Vol-Spike:</strong> Berechnet das aktuelle Kerzenvolumen im Verhältnis zum gleitenden Durchschnitt der letzten 20 Kerzen (MA 20). Werte über 1.5x zeigen signifikant erhöhtes Handelsinteresse.
                             </li>
-                            <li class="border-l border-white/[0.06] pl-3">
+                            <li class="border-l border-[#202630] pl-3">
                                 <strong class="text-white font-mono">Distanz LH (Local High):</strong> Zeigt prozentual an, wie weit der aktuelle Kurs unter dem höchsten Schlusskurs (Lokales Hoch / Widerstandslinie) des abgerufenen historischen Zeitfensters liegt (5 Tage bei Aktien, 100 Kerzen bei Krypto). Dies ist die taktische Breakout-Schwelle.
                             </li>
                         </ul>
@@ -907,7 +788,7 @@
         </div>
 
         <!-- ── Standardized Institutional WebApp Footer ── -->
-        <footer class="mt-12 pt-6 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left mb-6">
+        <footer class="mt-12 pt-6 border-t border-[#202630] flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left mb-6">
             <div class="flex items-center gap-2">
                 <img src="../../assets/brand/portfoliomanager%20-%20Symbol.png" class="w-4 h-4 object-contain opacity-70" alt="symbol">
                 <span class="text-[10px] font-mono text-slate-500 uppercase tracking-wider">
@@ -983,6 +864,7 @@
     </div>
 
     <!-- ═══ JAVASCRIPT ═══ -->
+    
     <script>
         let currentTF = 'max'; // '15m' oder 'max'
         const REFRESH_MS = 600000; // 10 Minuten in Millisekunden (schont Akku und Datenvolumen)

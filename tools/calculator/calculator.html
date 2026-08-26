@@ -69,21 +69,23 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
                         mono: ['JetBrains Mono', 'monospace']
                     },
                     colors: {
                         obsidian: {
-                            700: '#23293a',
-                            800: '#1a1f2e',
-                            850: '#141926',
-                            900: '#0f1420',
-                            950: '#0a0d14'
+                            950: '#0B0E12',
+                            900: '#11151B',
+                            850: '#141A22',
+                            800: '#171C23',
+                            700: '#202630',
+                            600: '#2D3748'
                         },
                         gold: {
-                            400: '#facc15',
-                            500: '#d4af37',
-                            600: '#b08d2b'
+                            300: '#E5C07B',
+                            400: '#D6A83A',
+                            500: '#C2952B',
+                            600: '#A67D1E'
                         }
                     }
                 }
@@ -93,26 +95,33 @@
 
     <style>
         :root {
-            --obsidian-950: #0a0d14;
-            --obsidian-900: #0f1420;
-            --obsidian-800: #1a1f2e;
-            --gold-500: #d4af37;
-            --gold-400: #facc15;
-            --accent: #22c55e;
-            --accent-glow: rgba(34, 197, 94, 0.15);
+            --bg-primary: #0B0E12;
+            --bg-surface: #11151B;
+            --bg-surface-elevated: #171C23;
+            --border-subtle: #202630;
+            --border-strong: #2D3748;
+            --text-primary: #F1F3F5;
+            --text-secondary: #94A3B8;
+            --text-muted: #64748B;
+            --accent-primary: #D6A83A;
+            --positive: #34D399;
+            --negative: #F87171;
+            --warning: #FBBF24;
+            --info: #60A5FA;
         }
 
         *,
         *::before,
         *::after {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--obsidian-950);
-            color: #e2e8f0;
-            margin: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -128,24 +137,24 @@
 
         .tooltip-box {
             visibility: hidden;
-            width: 260px;
-            background-color: #0f1420;
-            color: #cbd5e1;
+            width: 240px;
+            background-color: var(--bg-surface-elevated);
+            color: var(--text-secondary);
             text-align: left;
-            border-radius: 10px;
-            padding: 12px 14px;
+            border-radius: 8px;
+            padding: 10px 12px;
             position: absolute;
             z-index: 9999;
             top: 125%;
             left: 50%;
             transform: translateX(-50%);
             opacity: 0;
-            transition: opacity 0.25s, transform 0.25s;
-            font-size: 0.75rem;
-            line-height: 1.45;
+            transition: opacity 0.2s, transform 0.2s;
+            font-size: 0.72rem;
+            line-height: 1.4;
             font-weight: normal;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7);
-            border: 1px solid rgba(212, 175, 55, 0.25);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-subtle);
             pointer-events: none;
             white-space: normal;
         }
@@ -155,10 +164,10 @@
             position: absolute;
             bottom: 100%;
             left: 50%;
-            margin-left: -6px;
-            border-width: 6px;
+            margin-left: -5px;
+            border-width: 5px;
             border-style: solid;
-            border-color: transparent transparent #0f1420 transparent;
+            border-color: transparent transparent var(--bg-surface-elevated) transparent;
         }
 
         .tooltip-container:hover .tooltip-box,
@@ -167,169 +176,138 @@
         .magic-badge:hover .tooltip-box {
             visibility: visible;
             opacity: 1;
-            transform: translateX(-50%) translateY(4px);
+            transform: translateX(-50%) translateY(3px);
         }
 
         .widget-card {
-            background: #0f1420;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 14px;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
             position: relative;
         }
 
         .widget-card:hover {
-            border-color: rgba(212, 175, 55, 0.3);
-            background: #141926;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+            border-color: var(--border-strong);
+            background: var(--bg-surface-elevated);
         }
 
         .calc-input {
-            background: #1a1f2e;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 8px;
-            padding: 8px 12px;
-            font-size: 13px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 12.5px;
             font-family: 'JetBrains Mono', monospace;
-            color: #22c55e;
-            transition: all 0.2s;
+            color: var(--text-primary);
+            transition: border-color 0.15s, box-shadow 0.15s;
             width: 100%;
             outline: none;
         }
 
         .calc-input:focus {
-            border-color: #22c55e;
-            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.15);
+            border-color: var(--positive);
+            box-shadow: 0 0 0 1px var(--positive);
         }
 
         select.calc-input {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2322c55e' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2334D399' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
-            background-position: right 12px center;
-            padding-right: 32px;
+            background-position: right 10px center;
+            padding-right: 28px;
             cursor: pointer;
-            color: #e2e8f0;
-        }
-
-        @keyframes pulse-live {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(0.9); }
-        }
-
-        .pulse-live {
-            animation: pulse-live 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            color: var(--text-primary);
         }
 
         ::-webkit-scrollbar {
-            width: 5px;
-            height: 5px;
+            width: 4px;
+            height: 4px;
         }
         ::-webkit-scrollbar-track {
             background: transparent;
         }
         ::-webkit-scrollbar-thumb {
             background: rgba(255, 255, 255, 0.08);
-            border-radius: 10px;
+            border-radius: 4px;
         }
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(255, 255, 255, 0.16);
         }
 
         .magic-badge {
-            background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(212, 175, 55, 0.05));
-            color: #facc15;
-            border: 1px solid rgba(212, 175, 55, 0.35);
-            padding: 8px 14px;
-            border-radius: 12px;
-            font-size: 0.75rem;
+            background: rgba(52, 211, 153, 0.1);
+            color: var(--positive);
+            border: 1px solid rgba(52, 211, 153, 0.25);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.72rem;
             font-family: 'JetBrains Mono', monospace;
-            font-weight: 700;
+            font-weight: 600;
             display: none;
             position: relative;
             cursor: help;
-            transition: all 0.2s ease;
         }
-
-        .magic-badge:hover {
-            transform: translateY(-2px);
-            border-color: #facc15;
-            box-shadow: 0 4px 15px rgba(250, 204, 21, 0.15);
-        }
-
-        .logo-box {
-            position: relative;
-            background: radial-gradient(circle at center, rgba(212, 175, 55, 0.2), rgba(10, 13, 20, 0.6));
-            border: 1px solid rgba(212, 175, 55, 0.4);
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
-            overflow: hidden;
-        }
-    </style>
-</head>
+    </style></head>
 
 <body class="flex flex-col min-h-screen">
 
-    <header class="sticky top-0 z-50 w-full border-b border-white/[0.06] bg-[#0a0d14]/90 backdrop-blur-xl transition-all">
-        <div class="max-w-[1500px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+    <header class="sticky top-0 z-50 w-full border-b border-[#202630] bg-[#0B0E12]/95 backdrop-blur-md transition-all">
+        <div class="max-w-[1500px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
             
             <div class="flex items-center gap-3">
-                <a href="../../index.html" class="flex items-center gap-3 group focus:outline-none">
-                    <div class="w-9 h-9 rounded-xl logo-box flex items-center justify-center shadow-lg transition-transform group-hover:scale-105">
-                        <img src="../../assets/brand/portfoliomanager%20-%20Symbol.png" class="w-7 h-7 object-contain opacity-90" alt="fincast logo">
+                <a href="../../index.html" class="flex items-center gap-2.5 group focus:outline-none">
+                    <div class="w-8 h-8 rounded-lg bg-white/5 border border-[#202630] flex items-center justify-center">
+                        <img src="../../assets/brand/portfoliomanager%20-%20Symbol.png" class="w-5 h-5 object-contain" alt="fincast logo">
                     </div>
                     <div class="flex flex-col">
                         <div class="flex items-center gap-1.5 leading-none">
-                            <span class="text-base font-extrabold tracking-tight text-white">fincast</span>
-                            <span class="text-[10px] font-mono uppercase tracking-widest text-emerald-400 font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">Simulator</span>
+                            <span class="text-sm font-bold tracking-tight text-white">fincast</span>
+                            <span class="text-[9.5px] font-mono uppercase tracking-wider text-emerald-400 font-semibold px-1.5 py-0.2 rounded bg-emerald-500/10 border border-emerald-500/25">Simulator</span>
                         </div>
-                        <span class="text-[9px] font-mono text-slate-500 uppercase tracking-widest mt-0.5 hidden sm:inline">Zinseszins & Dividenden</span>
+                        <span class="text-[9px] text-slate-400 mt-0.5 hidden sm:inline">Zinseszins &amp; Dividenden</span>
                     </div>
                 </a>
             </div>
 
-            <nav class="hidden md:flex items-center gap-1.5 bg-obsidian-900/80 p-1 rounded-xl border border-white/[0.06]">
-                <a href="../../index.html" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white font-mono text-xs font-medium transition-all">
-                    <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <nav class="hidden md:flex items-center gap-1 bg-[#11151B] p-1 rounded-lg border border-[#202630]">
+                <a href="../../index.html" class="flex items-center gap-1.5 px-2.5 py-1 rounded-md hover:bg-white/5 text-slate-400 hover:text-white text-xs font-medium transition-colors">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
                     </svg>
                     <span>Hub</span>
                 </a>
-                <a href="../terminal/terminal.html" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white font-mono text-xs font-medium transition-all">
-                    <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <a href="../terminal/terminal.html" class="flex items-center gap-1.5 px-2.5 py-1 rounded-md hover:bg-white/5 text-slate-400 hover:text-white text-xs font-medium transition-colors">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5" />
                     </svg>
                     <span>Terminal</span>
                 </a>
-                <a href="../hype-barometer/hype.html" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white font-mono text-xs font-medium transition-all">
-                    <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <a href="../hype-barometer/hype.html" class="flex items-center gap-1.5 px-2.5 py-1 rounded-md hover:bg-white/5 text-slate-400 hover:text-white text-xs font-medium transition-colors">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z" />
                     </svg>
-                    <span>Hype-Barometer</span>
+                    <span>Hype</span>
                 </a>
-                <a href="calculator.html" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs font-semibold shadow-sm">
+                <a href="calculator.html" class="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#171C23] border border-[#2D3748] text-white text-xs font-semibold">
                     <svg class="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                     </svg>
-                    <span>Zins-Simulator</span>
+                    <span>Simulator</span>
                 </a>
             </nav>
 
-            <div class="flex items-center gap-3">
-                <div class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-obsidian-900 border border-white/[0.06] text-xs font-mono">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-live"></span>
-                    <span class="text-slate-400 text-[11px] uppercase tracking-wider">Engine Active</span>
-                </div>
-
+            <div class="flex items-center gap-2 sm:gap-3">
                 <button onclick="toggleLanguage()" id="lang-toggle-btn"
-                    class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-obsidian-900 hover:bg-obsidian-800 border border-white/[0.08] hover:border-emerald-500/40 text-slate-300 hover:text-emerald-400 transition-all text-xs font-mono cursor-pointer"
+                    class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#11151B] hover:bg-[#171C23] border border-[#202630] hover:border-[#2D3748] text-slate-300 hover:text-white transition-colors text-xs font-medium"
                     title="Sprache wechseln / Switch Language">
-                    <svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="10" />
                         <path d="M12 2a14.5 14.5 0 0 0 0 20M12 2a14.5 14.5 0 0 1 0 20M2 12h20" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
-                    <span id="lang-label" class="font-bold tracking-wider">DE</span>
+                    <span id="lang-label" class="font-mono font-semibold">DE</span>
                 </button>
 
-                <button onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-xl bg-obsidian-900 border border-white/[0.08] text-slate-400 hover:text-white focus:outline-none" aria-label="Menu">
+                <button onclick="toggleMobileMenu()" class="md:hidden p-1.5 rounded-lg bg-[#11151B] border border-[#202630] text-slate-400 hover:text-white focus:outline-none" aria-label="Menu">
                     <svg id="menu-icon-open" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                     </svg>
@@ -340,43 +318,41 @@
             </div>
         </div>
 
-        <div id="mobile-menu" class="hidden md:hidden border-t border-white/[0.06] bg-obsidian-950/98 px-4 py-4 transition-all">
-            <div class="flex flex-col gap-2">
-                <a href="../../index.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5 text-slate-300 font-mono text-sm">
-                    <svg class="w-4 h-4 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <div id="mobile-menu" class="hidden md:hidden border-t border-[#202630] bg-[#0B0E12] px-4 py-3 transition-all">
+            <div class="flex flex-col gap-1.5">
+                <a href="../../index.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-white/5 text-slate-300 text-xs">
+                    <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
                     </svg>
                     <span>fincast Hub</span>
                 </a>
-                <a href="../terminal/terminal.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5 text-slate-300 font-mono text-sm">
-                    <svg class="w-4 h-4 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <a href="../terminal/terminal.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-white/5 text-slate-300 text-xs">
+                    <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5" />
                     </svg>
-                    <span>Strategic Intelligence Terminal</span>
+                    <span>Research Terminal</span>
                 </a>
-                <a href="../hype-barometer/hype.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5 text-slate-300 font-mono text-sm">
-                    <svg class="w-4 h-4 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <a href="../hype-barometer/hype.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-white/5 text-slate-300 text-xs">
+                    <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z" />
                     </svg>
-                    <span>Abracadabra Hype-Barometer</span>
+                    <span>Hype-Barometer</span>
                 </a>
-                <a href="calculator.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-sm font-semibold">
-                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <a href="calculator.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-[#171C23] border border-[#2D3748] text-white text-xs font-semibold">
+                    <svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                     </svg>
-                    <span>Zinseszins & Dividenden Simulator</span>
+                    <span>Zins-Simulator</span>
                 </a>
-                <div class="pt-2 mt-2 border-t border-white/[0.06] flex items-center justify-between text-xs text-slate-500 font-mono px-3">
-                    <a href="../../pages/FAQ.html#calculator" class="hover:text-gold-400">FAQ</a>
-                    <a href="../../pages/Impressum.html" class="hover:text-gold-400">Impressum & Datenschutz</a>
+                <div class="pt-2 mt-1 border-t border-[#202630] flex items-center justify-between text-xs text-slate-400 px-2">
+                    <a href="../../pages/FAQ.html#calculator" class="hover:text-white">FAQ</a>
+                    <a href="../../pages/Impressum.html" class="hover:text-white">Impressum &amp; Datenschutz</a>
                 </div>
             </div>
         </div>
-    </header>
+    </header><div class="flex-1 flex flex-col lg:flex-row max-w-[1600px] w-full mx-auto">
 
-    <div class="flex-1 flex flex-col lg:flex-row max-w-[1600px] w-full mx-auto">
-
-        <aside class="w-full lg:w-[380px] bg-obsidian-900 border-b lg:border-b-0 lg:border-r border-white/[0.06] p-5 sm:p-6 shrink-0 flex flex-col gap-6 overflow-y-auto">
+        <aside class="w-full lg:w-[380px] bg-[#11151B] border-b lg:border-b-0 lg:border-r border-[#202630] p-5 sm:p-6 shrink-0 flex flex-col gap-6 overflow-y-auto">
             
             <div>
                 <div class="flex items-center gap-2 mb-1">
@@ -429,13 +405,13 @@
                         <label class="text-[10px] font-mono text-slate-400 uppercase tracking-wider block mb-1" id="l-istFees">Gebühren gesamt (€)</label>
                         <input type="number" id="istFees" value="0" class="calc-input" onchange="runSimulation()">
                     </div>
-                    <button class="w-full py-2.5 rounded-lg bg-obsidian-800 hover:bg-obsidian-700 border border-white/10 text-xs font-mono font-bold text-slate-200 uppercase tracking-wider transition-all" onclick="analysiereIstZustand()" id="t-btnIst">
+                    <button class="w-full py-2.5 rounded-lg bg-[#171C23] hover:bg-obsidian-700 border border-[#202630] text-xs font-mono font-bold text-slate-200 uppercase tracking-wider transition-all" onclick="analysiereIstZustand()" id="t-btnIst">
                         Ist-Zustand übernehmen
                     </button>
                 </div>
             </div>
 
-            <div class="border-t border-white/[0.06] pt-4">
+            <div class="border-t border-[#202630] pt-4">
                 <div class="flex items-center gap-2 mb-3">
                     <span class="w-2 h-2 rounded-full bg-gold-500"></span>
                     <h2 class="text-xs font-bold font-mono text-gold-400 uppercase tracking-widest" id="t-h2-s2">
@@ -477,7 +453,7 @@
                 </div>
             </div>
 
-            <div class="border-t border-white/[0.06] pt-4">
+            <div class="border-t border-[#202630] pt-4">
                 <div class="flex items-center gap-2 mb-3">
                     <span class="w-2 h-2 rounded-full bg-blue-500"></span>
                     <h2 class="text-xs font-bold font-mono text-blue-400 uppercase tracking-widest" id="t-h2-s3">
@@ -542,15 +518,15 @@
             </button>
 
             <div class="relative mt-2">
-                <button class="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center border border-white/10" onclick="manualRotate(-1)">
+                <button class="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center border border-[#202630]" onclick="manualRotate(-1)">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m15 19-7-7 7-7" /></svg>
                 </button>
-                <a href="https://ibkr.com/referral/nikolai299" id="main-ref-link" target="_blank" class="block p-4 rounded-xl border border-white/10 text-center relative overflow-hidden transition-all group" style="background: linear-gradient(135deg, #1a1f2e, #b91c1c);">
+                <a href="https://ibkr.com/referral/nikolai299" id="main-ref-link" target="_blank" class="block p-4 rounded-xl border border-[#202630] text-center relative overflow-hidden transition-all group" style="background: linear-gradient(135deg, #1a1f2e, #b91c1c);">
                     <span id="ref-title" class="block font-bold text-white text-sm mb-0.5">Interactive Brokers</span>
                     <span id="ref-sub" class="block text-[11px] text-slate-300 mb-2 leading-tight">Weltweiter Handel zu Top-Konditionen.</span>
                     <span id="ref-btn-text" class="inline-block px-3 py-1 rounded bg-white text-black font-bold text-[10px] uppercase font-mono">Jetzt anmelden</span>
                 </a>
-                <button class="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center border border-white/10" onclick="manualRotate(1)">
+                <button class="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center border border-[#202630]" onclick="manualRotate(1)">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7" /></svg>
                 </button>
             </div>
@@ -676,7 +652,7 @@
             </div>
 
             <div class="widget-card overflow-hidden mb-12">
-                <div class="p-4 border-b border-white/[0.06] flex items-center justify-between bg-obsidian-850">
+                <div class="p-4 border-b border-[#202630] flex items-center justify-between bg-[#141A22]">
                     <h3 class="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider">
                         Detaillierter Jahresverlauf & Steueraufschlüsselung
                     </h3>
@@ -684,7 +660,7 @@
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-xs font-mono">
-                        <thead id="t-head" class="bg-obsidian-950 text-slate-400 border-b border-white/[0.06]"></thead>
+                        <thead id="t-head" class="bg-[#0B0E12] text-slate-400 border-b border-[#202630]"></thead>
                         <tbody id="resultBody" class="divide-y divide-white/[0.03] text-slate-300"></tbody>
                     </table>
                 </div>
@@ -698,7 +674,7 @@
                     Willkommen bei <strong>fincast</strong>, deinem fortschrittlichen Finanzsimulator. Mein Tool kombiniert einen <strong>Zinseszinsrechner</strong> mit einem spezialisierten <strong>Dividendenrechner</strong>, um dir eine ganzheitliche Prognose deines Portfoliowachstums zu ermöglichen.
                 </p>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-white/[0.06]">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-[#202630]">
                     <div>
                         <h3 class="text-sm font-bold text-white mb-1.5" id="t-seo-h3-1">Warum ist ein Zinseszinsrechner wichtig?</h3>
                         <p class="text-xs text-slate-400 leading-relaxed" id="t-seo-p2">
@@ -723,7 +699,7 @@
         </main>
     </div>
 
-    <footer class="w-full border-t border-white/[0.06] bg-obsidian-950 py-6 mt-auto">
+    <footer class="w-full border-t border-[#202630] bg-[#0B0E12] py-6 mt-auto">
         <div class="max-w-[1500px] mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-3 text-center md:text-left">
                 <img src="../../assets/brand/portfoliomanager%20-%20Symbol.png" class="w-5 h-5 object-contain opacity-80" alt="fincast symbol">
@@ -757,25 +733,25 @@
     </footer>
 
     <div class="fixed inset-0 bg-black/75 backdrop-blur-sm z-[10000] hidden items-center justify-center p-4" id="shareOverlay" onclick="closeShareMenu()"></div>
-    <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-obsidian-900 border border-white/10 p-6 rounded-2xl shadow-2xl z-[10001] w-full max-w-sm hidden flex-col gap-4" id="shareMenu">
-        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+    <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#11151B] border border-[#202630] p-6 rounded-2xl shadow-2xl z-[10001] w-full max-w-sm hidden flex-col gap-4" id="shareMenu">
+        <div class="flex items-center justify-between border-b border-[#202630] pb-3">
             <h3 class="text-sm font-bold font-mono text-white uppercase tracking-wider" id="t-share-title">Ergebnis teilen</h3>
             <button onclick="closeShareMenu()" class="text-slate-400 hover:text-white text-lg font-bold cursor-pointer">&times;</button>
         </div>
         <div class="grid grid-cols-3 gap-3 text-center">
-            <div class="flex flex-col items-center gap-1.5 p-2 rounded-xl bg-obsidian-800 hover:bg-obsidian-750 cursor-pointer transition-all" onclick="shareToApp('whatsapp')">
+            <div class="flex flex-col items-center gap-1.5 p-2 rounded-xl bg-[#171C23] hover:bg-obsidian-750 cursor-pointer transition-all" onclick="shareToApp('whatsapp')">
                 <div class="w-10 h-10 rounded-xl bg-[#25D366] text-white font-bold flex items-center justify-center text-xs">WA</div>
                 <span class="text-[11px] font-mono text-slate-300">WhatsApp</span>
             </div>
-            <div class="flex flex-col items-center gap-1.5 p-2 rounded-xl bg-obsidian-800 hover:bg-obsidian-750 cursor-pointer transition-all" onclick="shareToApp('twitter')">
-                <div class="w-10 h-10 rounded-xl bg-black text-white font-bold flex items-center justify-center text-xs border border-white/10">X</div>
+            <div class="flex flex-col items-center gap-1.5 p-2 rounded-xl bg-[#171C23] hover:bg-obsidian-750 cursor-pointer transition-all" onclick="shareToApp('twitter')">
+                <div class="w-10 h-10 rounded-xl bg-black text-white font-bold flex items-center justify-center text-xs border border-[#202630]">X</div>
                 <span class="text-[11px] font-mono text-slate-300">Twitter</span>
             </div>
-            <div class="flex flex-col items-center gap-1.5 p-2 rounded-xl bg-obsidian-800 hover:bg-obsidian-750 cursor-pointer transition-all" onclick="shareToApp('linkedin')">
+            <div class="flex flex-col items-center gap-1.5 p-2 rounded-xl bg-[#171C23] hover:bg-obsidian-750 cursor-pointer transition-all" onclick="shareToApp('linkedin')">
                 <div class="w-10 h-10 rounded-xl bg-[#0A66C2] text-white font-bold flex items-center justify-center text-xs">IN</div>
                 <span class="text-[11px] font-mono text-slate-300">LinkedIn</span>
             </div>
-            <div class="flex flex-col items-center gap-1.5 p-2 rounded-xl bg-obsidian-800 hover:bg-obsidian-750 cursor-pointer transition-all" onclick="shareToApp('mail')">
+            <div class="flex flex-col items-center gap-1.5 p-2 rounded-xl bg-[#171C23] hover:bg-obsidian-750 cursor-pointer transition-all" onclick="shareToApp('mail')">
                 <div class="w-10 h-10 rounded-xl bg-slate-700 text-white font-bold flex items-center justify-center text-xs">@</div>
                 <span class="text-[11px] font-mono text-slate-300">Email</span>
             </div>
@@ -786,10 +762,11 @@
         </div>
     </div>
 
-    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-obsidian-800 text-emerald-400 border border-emerald-500/40 px-5 py-2.5 rounded-full text-xs font-mono shadow-2xl z-[10002] opacity-0 transition-opacity pointer-events-none" id="toast">
+    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-[#171C23] text-emerald-400 border border-emerald-500/40 px-5 py-2.5 rounded-full text-xs font-mono shadow-2xl z-[10002] opacity-0 transition-opacity pointer-events-none" id="toast">
         Link kopiert!
     </div>
 
+    
     <script>
         let charts = {};
         let curLang = 'DE';

@@ -4,11 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>fincast Hub | Smarte KI-Tools &amp; Analysen für Anleger</title>
+    <title>fincast Hub | Institutionelle Finanzanalyse &amp; Research-Suite</title>
 
     <!-- SEO Meta Tags -->
     <meta name="description"
-        content="fincast Hub: KI-Aktienanalyse, Terminal, Zinseszins- &amp; Dividendenrechner und Social-Sentiment. Jetzt smarte Investment-Tools kostenlos nutzen!">
+        content="fincast Hub: Institutionelle Aktienanalyse, DCF-Terminal, Zinseszins- &amp; Dividenden-Simulator und Social Sentiment. Jetzt smarte Investment-Tools nutzen!">
     <meta name="keywords"
         content="Aktienanalyse, KI Investment, Finanzterminal, DCF Modell, Börsenanalyse, fincast, Zinseszinsrechner, Dividendenrechner, Aktienbewertung, Hype Barometer">
     <meta name="author" content="Nikolai Bretthauer">
@@ -19,9 +19,9 @@
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="fincast Hub">
     <meta property="og:url" content="https://fincast-tool.vercel.app/">
-    <meta property="og:title" content="fincast Hub | Smarte KI-Tools &amp; Analysen für Anleger">
+    <meta property="og:title" content="fincast Hub | Institutionelle Finanzanalyse &amp; Research-Suite">
     <meta property="og:description"
-        content="fincast Hub bietet hochpräzise Finanztools: Strategic Terminal, DCF-Modelle, Zinseszins- und Dividendenrechner sowie Sentiment-Tracking für kluge Anleger.">
+        content="fincast Hub bietet hochpräzise Finanztools: Research Terminal, DCF-Modelle, Zinseszins- und Dividenden-Simulator sowie Sentiment-Tracking für kluge Anleger.">
     <meta property="og:image" content="https://fincast-tool.vercel.app/assets/brand/theme-toggle-portfoliomanager.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -29,9 +29,9 @@
 
     <!-- Twitter / X Cards -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="fincast Hub | Smarte KI-Tools &amp; Analysen für Anleger">
+    <meta name="twitter:title" content="fincast Hub | Institutionelle Finanzanalyse &amp; Research-Suite">
     <meta name="twitter:description"
-        content="fincast Hub bietet hochpräzise Finanztools: Strategic Terminal, DCF-Modelle, Zinseszins- und Dividendenrechner sowie Sentiment-Tracking für kluge Anleger.">
+        content="fincast Hub bietet hochpräzise Finanztools: Research Terminal, DCF-Modelle, Zinseszins- und Dividenden-Simulator sowie Sentiment-Tracking für kluge Anleger.">
     <meta name="twitter:image" content="https://fincast-tool.vercel.app/assets/brand/theme-toggle-portfoliomanager.png">
     <link rel="icon" type="image/png" href="assets/brand/portfoliomanager%20-%20Symbol.png">
     <link rel="shortcut icon" href="assets/brand/portfoliomanager%20-%20Symbol.png">
@@ -46,7 +46,7 @@
         "@type": "WebSite",
         "name": "fincast Hub",
         "url": "https://fincast-tool.vercel.app/",
-        "description": "Smarte KI-Tools, Strategic Terminal, Zinseszins- und Dividendenrechner für rationale Anleger.",
+        "description": "Institutionelle Finanzanalyse-Suite mit Research Terminal, DCF-Bewertung, Hype-Barometer und Zinseszins-Simulator.",
         "inLanguage": "de",
         "publisher": {
           "@type": "Organization",
@@ -74,7 +74,7 @@
     <!-- Fonts & Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
         rel="stylesheet">
 
     <script>
@@ -83,21 +83,23 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
                         mono: ['JetBrains Mono', 'monospace']
                     },
                     colors: {
                         obsidian: {
-                            700: '#23293a',
-                            800: '#1a1f2e',
-                            850: '#141926',
-                            900: '#0f1420',
-                            950: '#0a0d14'
+                            950: '#0B0E12',
+                            900: '#11151B',
+                            850: '#141A22',
+                            800: '#171C23',
+                            700: '#202630',
+                            600: '#2D3748'
                         },
                         gold: {
-                            400: '#facc15',
-                            500: '#d4af37',
-                            600: '#b08d2b'
+                            300: '#E5C07B',
+                            400: '#D6A83A',
+                            500: '#C2952B',
+                            600: '#A67D1E'
                         }
                     }
                 }
@@ -107,33 +109,36 @@
 
     <style>
         :root {
-            --obsidian-950: #0a0d14;
-            --obsidian-900: #0f1420;
-            --obsidian-800: #1a1f2e;
-            --gold-500: #d4af37;
-            --gold-400: #facc15;
-            --gold-glow: rgba(212, 175, 55, 0.15);
-            --accent: #22c55e;
+            --bg-primary: #0B0E12;
+            --bg-surface: #11151B;
+            --bg-surface-elevated: #171C23;
+            --border-subtle: #202630;
+            --border-strong: #2D3748;
+            --text-primary: #F1F3F5;
+            --text-secondary: #94A3B8;
+            --text-muted: #64748B;
+            --accent-primary: #D6A83A;
+            --positive: #34D399;
+            --negative: #F87171;
+            --warning: #FBBF24;
+            --info: #60A5FA;
         }
 
         *,
         *::before,
         *::after {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--obsidian-950);
-            color: #e2e8f0;
-            margin: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            background-image:
-                radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.08) 0%, transparent 60%),
-                radial-gradient(circle at 10% 40%, rgba(34, 197, 94, 0.04) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.03) 0%, transparent 40%);
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
@@ -149,32 +154,30 @@
 
         .hub-card {
             position: relative;
-            background: #0f1420;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 20px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
             overflow: hidden;
-            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: border-color 0.25s ease, background-color 0.25s ease, transform 0.25s ease;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            min-height: 380px;
-            padding: 2rem;
+            justify-content: flex-end;
+            min-height: 410px;
+            padding: 1.75rem;
             text-decoration: none;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
         .hub-card:hover {
-            transform: translateY(-6px);
-            border-color: rgba(212, 175, 55, 0.35);
-            background: #141926;
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5), 0 0 30px rgba(212, 175, 55, 0.08);
+            border-color: var(--border-strong);
+            background: var(--bg-surface-elevated);
+            transform: translateY(-3px);
         }
 
         .hub-card::before {
             content: "";
             position: absolute;
             inset: 0;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.01) 0%, rgba(10, 13, 20, 0.85) 100%);
+            background: linear-gradient(180deg, rgba(11, 14, 18, 0.05) 0%, rgba(11, 14, 18, 0.65) 38%, rgba(11, 14, 18, 0.98) 75%);
             z-index: 1;
             pointer-events: none;
         }
@@ -189,163 +192,171 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 180px;
-            opacity: 0.15;
-            filter: grayscale(100%);
-            transition: all 0.4s ease;
+            height: 220px;
+            opacity: 0.22;
+            filter: grayscale(80%);
+            transition: all 0.35s ease;
             z-index: 0;
             object-fit: cover;
             width: 100%;
         }
 
         .hub-card:hover .tool-image-bg {
-            opacity: 0.3;
-            filter: grayscale(30%);
-            transform: scale(1.03);
+            opacity: 0.42;
+            filter: grayscale(0%);
+            transform: scale(1.04);
         }
 
         .hub-tag {
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.65rem;
-            font-weight: 700;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.12em;
+            letter-spacing: 0.06em;
             display: inline-flex;
             align-items: center;
             gap: 0.4rem;
-            padding: 0.35rem 0.75rem;
-            border-radius: 8px;
-            margin-bottom: 1.25rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
         }
 
         .tag-gold {
-            background: rgba(212, 175, 55, 0.12);
-            color: #d4af37;
-            border: 1px solid rgba(212, 175, 55, 0.25);
+            background: rgba(214, 168, 58, 0.10);
+            color: #D6A83A;
+            border: 1px solid rgba(214, 168, 58, 0.25);
         }
 
         .tag-emerald {
-            background: rgba(34, 197, 94, 0.12);
-            color: #22c55e;
-            border: 1px solid rgba(34, 197, 94, 0.25);
+            background: rgba(52, 211, 153, 0.10);
+            color: #34D399;
+            border: 1px solid rgba(52, 211, 153, 0.25);
         }
 
         .tag-blue {
-            background: rgba(59, 130, 246, 0.12);
-            color: #60a5fa;
-            border: 1px solid rgba(59, 130, 246, 0.25);
+            background: rgba(96, 165, 250, 0.10);
+            color: #60A5FA;
+            border: 1px solid rgba(96, 165, 250, 0.25);
         }
 
-        .logo-box {
-            position: relative;
-            background: radial-gradient(circle at center, rgba(212, 175, 55, 0.2), rgba(10, 13, 20, 0.6));
-            border: 1px solid rgba(212, 175, 55, 0.4);
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
-            overflow: hidden;
+        .hub-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
         }
 
-        .logo-box::after {
-            content: "";
-            position: absolute;
-            top: -150%;
-            left: -150%;
-            width: 400%;
-            height: 400%;
-            background: linear-gradient(45deg, transparent, rgba(212, 175, 55, 0.1), rgba(255, 255, 255, 0.2), rgba(212, 175, 55, 0.1), transparent);
-            transform: rotate(-45deg);
-            animation: logo-shimmer 6s infinite;
-            pointer-events: none;
+        .tag-gold {
+            background: rgba(214, 168, 58, 0.10);
+            color: #D6A83A;
+            border: 1px solid rgba(214, 168, 58, 0.25);
         }
 
-        @keyframes logo-shimmer {
-            0% { transform: translateX(-100%) translateY(-100%) rotate(-45deg); }
-            100% { transform: translateX(100%) translateY(100%) rotate(-45deg); }
+        .tag-emerald {
+            background: rgba(52, 211, 153, 0.10);
+            color: #34D399;
+            border: 1px solid rgba(52, 211, 153, 0.25);
         }
 
-        @keyframes pulse-live {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(0.9); }
+        .tag-blue {
+            background: rgba(96, 165, 250, 0.10);
+            color: #60A5FA;
+            border: 1px solid rgba(96, 165, 250, 0.25);
         }
 
-        .pulse-live {
-            animation: pulse-live 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        .search-btn {
+            background: var(--accent-primary);
+            color: #0B0E12;
+            font-weight: 600;
+            font-size: 12px;
+            transition: background-color 0.15s;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .search-btn:hover {
+            background: #E5C07B;
         }
     </style>
 </head>
 
 <body class="flex flex-col min-h-screen">
 
-    <header class="sticky top-0 z-50 w-full border-b border-white/[0.06] bg-[#0a0d14]/90 backdrop-blur-xl transition-all">
-        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+    <header class="sticky top-0 z-50 w-full border-b border-[#202630] bg-[#0B0E12]/95 backdrop-blur-md transition-all">
+        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
             
             <div class="flex items-center gap-3">
-                <a href="index.html" class="flex items-center gap-3 group focus:outline-none">
-                    <div class="w-9 h-9 rounded-xl logo-box flex items-center justify-center shadow-lg transition-transform group-hover:scale-105">
-                        <img src="assets/brand/portfoliomanager%20-%20Symbol.png" class="w-7 h-7 object-contain opacity-90" alt="fincast logo">
+                <a href="index.html" class="flex items-center gap-2.5 group focus:outline-none">
+                    <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
+                        <img src="assets/brand/portfoliomanager%20-%20Symbol.png" class="w-5 h-5 object-contain" alt="fincast logo">
                     </div>
                     <div class="flex flex-col">
                         <div class="flex items-center gap-1.5 leading-none">
-                            <span class="text-base font-extrabold tracking-tight text-white">fincast</span>
-                            <span class="text-[10px] font-mono uppercase tracking-widest text-gold-500 font-bold px-1.5 py-0.5 rounded bg-gold-500/10 border border-gold-500/20">Hub</span>
+                            <span class="text-sm font-bold tracking-tight text-white">fincast</span>
+                            <span class="text-[9.5px] font-mono uppercase tracking-wider text-slate-300 font-semibold px-1.5 py-0.2 rounded bg-white/5 border border-white/10">Hub</span>
                         </div>
-                        <span class="text-[9px] font-mono text-slate-500 uppercase tracking-widest mt-0.5 hidden sm:inline">Strategic Intelligence</span>
+                        <span class="text-[9px] text-slate-400 mt-0.5 hidden sm:inline">Research Platform</span>
                     </div>
                 </a>
             </div>
 
-            <nav class="hidden md:flex items-center gap-1.5 bg-obsidian-900/80 p-1 rounded-xl border border-white/[0.06]">
-                <a href="index.html" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gold-500/10 border border-gold-500/30 text-gold-400 font-mono text-xs font-semibold shadow-sm">
-                    <svg class="w-3.5 h-3.5 text-gold-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <!-- Tool Switcher Pills -->
+            <nav class="hidden md:flex items-center gap-1 bg-[#11151B] p-1 rounded-lg border border-[#202630]">
+                <a href="index.html" class="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#171C23] border border-[#2D3748] text-white text-xs font-semibold">
+                    <svg class="w-3.5 h-3.5 text-[#D6A83A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
                     </svg>
                     <span>Hub</span>
                 </a>
-                <a href="tools/terminal/terminal.html" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white font-mono text-xs font-medium transition-all">
-                    <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <a href="tools/terminal/terminal.html" class="flex items-center gap-1.5 px-2.5 py-1 rounded-md hover:bg-white/5 text-slate-400 hover:text-white text-xs font-medium transition-colors">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5" />
                     </svg>
                     <span>Terminal</span>
                 </a>
-                <a href="tools/hype-barometer/hype.html" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white font-mono text-xs font-medium transition-all">
-                    <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <a href="tools/hype-barometer/hype.html" class="flex items-center gap-1.5 px-2.5 py-1 rounded-md hover:bg-white/5 text-slate-400 hover:text-white text-xs font-medium transition-colors">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z" />
                     </svg>
-                    <span>Hype-Barometer</span>
+                    <span>Hype</span>
                 </a>
-                <a href="tools/calculator/calculator.html" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white font-mono text-xs font-medium transition-all">
-                    <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <a href="tools/calculator/calculator.html" class="flex items-center gap-1.5 px-2.5 py-1 rounded-md hover:bg-white/5 text-slate-400 hover:text-white text-xs font-medium transition-colors">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                     </svg>
-                    <span>Zins-Simulator</span>
+                    <span>Simulator</span>
                 </a>
             </nav>
 
-            <div class="flex items-center gap-3">
-                <div class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-obsidian-900 border border-white/[0.06] text-xs font-mono">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-live"></span>
-                    <span class="text-slate-400 text-[11px] uppercase tracking-wider">System Live</span>
-                </div>
-
+            <div class="flex items-center gap-2 sm:gap-3">
                 <button onclick="shareHub()" id="hub-share-btn"
-                    class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-obsidian-900 hover:bg-obsidian-800 border border-white/[0.08] hover:border-gold-500/40 text-slate-300 hover:text-gold-400 transition-all text-xs font-mono cursor-pointer"
+                    class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#11151B] hover:bg-[#171C23] border border-[#202630] hover:border-[#2D3748] text-slate-300 hover:text-white transition-colors text-xs font-medium"
                     title="fincast Hub teilen" aria-label="fincast Hub teilen">
-                    <svg class="w-4 h-4 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
-                    <span id="t-share-header" class="hidden sm:inline font-medium">Teilen</span>
+                    <span id="t-share-header" class="hidden sm:inline">Teilen</span>
                 </button>
 
                 <button onclick="toggleLanguage()" id="lang-toggle-btn"
-                    class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-obsidian-900 hover:bg-obsidian-800 border border-white/[0.08] hover:border-gold-500/40 text-slate-300 hover:text-gold-400 transition-all text-xs font-mono cursor-pointer"
+                    class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#11151B] hover:bg-[#171C23] border border-[#202630] hover:border-[#2D3748] text-slate-300 hover:text-white transition-colors text-xs font-medium"
                     title="Sprache wechseln / Switch Language">
-                    <svg class="w-4 h-4 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="10" />
                         <path d="M12 2a14.5 14.5 0 0 0 0 20M12 2a14.5 14.5 0 0 1 0 20M2 12h20" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
-                    <span id="lang-label" class="font-bold tracking-wider">DE</span>
+                    <span id="lang-label" class="font-mono font-semibold">DE</span>
                 </button>
 
-                <button onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-xl bg-obsidian-900 border border-white/[0.08] text-slate-400 hover:text-white focus:outline-none" aria-label="Menu">
+                <button onclick="toggleMobileMenu()" class="md:hidden p-1.5 rounded-lg bg-[#11151B] border border-[#202630] text-slate-400 hover:text-white focus:outline-none" aria-label="Menu">
                     <svg id="menu-icon-open" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                     </svg>
@@ -356,44 +367,35 @@
             </div>
         </div>
 
-        <div id="mobile-menu" class="hidden md:hidden border-t border-white/[0.06] bg-obsidian-950/98 px-4 py-4 transition-all">
-            <div class="flex flex-col gap-2">
-                <a href="index.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-gold-500/10 border border-gold-500/30 text-gold-400 font-mono text-sm font-semibold">
-                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <div id="mobile-menu" class="hidden md:hidden border-t border-[#202630] bg-[#0B0E12] px-4 py-3 transition-all">
+            <div class="flex flex-col gap-1.5">
+                <a href="index.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-[#171C23] border border-[#2D3748] text-white text-xs font-semibold">
+                    <svg class="w-4 h-4 text-[#D6A83A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
                     </svg>
                     <span>fincast Hub</span>
                 </a>
-                <a href="tools/terminal/terminal.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5 text-slate-300 font-mono text-sm">
-                    <svg class="w-4 h-4 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <a href="tools/terminal/terminal.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-white/5 text-slate-300 text-xs">
+                    <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5" />
                     </svg>
-                    <span>Strategic Intelligence Terminal</span>
+                    <span>Research Terminal</span>
                 </a>
-                <a href="tools/hype-barometer/hype.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5 text-slate-300 font-mono text-sm">
-                    <svg class="w-4 h-4 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <a href="tools/hype-barometer/hype.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-white/5 text-slate-300 text-xs">
+                    <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z" />
                     </svg>
-                    <span>Abracadabra Hype-Barometer</span>
+                    <span>Hype-Barometer</span>
                 </a>
-                <a href="tools/calculator/calculator.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5 text-slate-300 font-mono text-sm">
-                    <svg class="w-4 h-4 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <a href="tools/calculator/calculator.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-white/5 text-slate-300 text-xs">
+                    <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                     </svg>
-                    <span>Zinseszins & Dividenden Simulator</span>
+                    <span>Zins-Simulator</span>
                 </a>
-                <button onclick="shareHub()" class="flex items-center justify-between w-full px-3 py-2.5 rounded-lg bg-gold-500/5 hover:bg-gold-500/10 border border-gold-500/20 text-gold-400 font-mono text-sm transition-all cursor-pointer text-left">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-4 h-4 text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        <span id="t-mobile-share">App & Webseite teilen</span>
-                    </div>
-                    <span class="text-[10px] font-mono uppercase tracking-widest text-gold-400 bg-gold-500/10 px-2 py-0.5 rounded border border-gold-500/20">Share</span>
-                </button>
-                <div class="pt-2 mt-2 border-t border-white/[0.06] flex items-center justify-between text-xs text-slate-500 font-mono px-3">
-                    <a href="pages/FAQ.html" class="hover:text-gold-400">FAQ</a>
-                    <a href="pages/Impressum.html" class="hover:text-gold-400">Impressum & Datenschutz</a>
+                <div class="pt-2 mt-1 border-t border-[#202630] flex items-center justify-between text-xs text-slate-400 px-2">
+                    <a href="pages/FAQ.html" class="hover:text-white">FAQ</a>
+                    <a href="pages/Impressum.html" class="hover:text-white">Impressum &amp; Datenschutz</a>
                 </div>
             </div>
         </div>
@@ -401,227 +403,236 @@
 
     <main class="flex-1 w-full max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
 
-        <section class="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-400 font-mono text-[11px] uppercase tracking-widest mb-4">
-                <span class="w-1.5 h-1.5 rounded-full bg-gold-500"></span>
-                <span>Institutional Grade Financial Ecosystem</span>
+        <section class="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-slate-300 text-xs font-medium mb-3">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#34D399]"></span>
+                <span>Institutionelle Finanzanalyse &amp; Research-Suite</span>
             </div>
-            <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight mb-4" id="t-hub-title">
-                fincast <span class="text-gold-500">Hub</span>
+            <h1 class="text-2xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight mb-3" id="t-hub-title">
+                fincast Research Hub
             </h1>
-            <p class="text-sm sm:text-base lg:text-lg text-slate-400 font-normal leading-relaxed" id="t-hub-subtitle">
-                Smarte Algorithmen, Multi-Agenten-KI und fundiertes Börsenwissen für kluge Investoren.
+            <p class="text-xs sm:text-sm lg:text-base text-slate-400 leading-relaxed" id="t-hub-subtitle">
+                Datenbasierte Aktienanalyse, DCF-Bewertungsmodelle, Zinseszins-Simulationen und Social Sentiment.
             </p>
         </section>
 
-        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-16">
+        <!-- Primary Tools 3-Column Grid -->
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-12">
 
+            <!-- Tool 1: Research Terminal -->
             <a href="tools/terminal/terminal.html" class="hub-card group">
                 <img src="assets/brand/theme-toggle-portfoliomanager.png" alt="Terminal Preview" class="tool-image-bg">
-                <div class="hub-card-content">
+                <div class="hub-card-content mt-auto">
                     <span class="hub-tag tag-gold" id="t-term-tag">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5" />
                         </svg>
-                        Multi-Agent AI Analysis
+                        Equity Research &amp; DCF
                     </span>
-                    <h2 class="text-xl sm:text-2xl font-black text-white mb-2 leading-tight">
-                        Strategic <span class="text-gold-500">Intelligence</span> Terminal
+                    <h2 class="text-lg sm:text-xl font-bold text-white mb-2 leading-snug group-hover:text-[#D6A83A] transition-colors">
+                        fincast Research Terminal
                     </h2>
-                    <p class="text-sm text-slate-400 leading-relaxed" id="t-term-desc">
-                        Tiefgreifende Aktienanalysen basierend auf den KI-Frameworks führender Investmentbanken wie Goldman Sachs, Morgan Stanley & Citadel.
+                    <p class="text-xs text-slate-400 leading-relaxed" id="t-term-desc">
+                        Fundamentale Kennzahlen, DCF-Bewertungskorridore, historische Multiples und Multi-Agenten-Analysen renommierter Frameworks.
                     </p>
                 </div>
-                <div class="hub-card-content pt-6 flex items-center justify-between border-t border-white/[0.06] mt-6">
-                    <span class="text-xs font-mono text-gold-400 font-semibold uppercase tracking-wider group-hover:translate-x-1 transition-transform inline-flex items-center gap-1.5">
+                <div class="hub-card-content pt-4 flex items-center justify-between border-t border-[#202630] mt-4">
+                    <span class="text-xs font-semibold text-[#D6A83A] inline-flex items-center gap-1.5">
                         Terminal öffnen
-                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <svg class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                         </svg>
                     </span>
-                    <span class="text-[10px] font-mono text-slate-500 uppercase tracking-widest">v3.5 Live</span>
+                    <span class="text-[10px] font-mono text-slate-500">v3.5 Live</span>
                 </div>
             </a>
 
+            <!-- Tool 2: Hype-Barometer -->
             <a href="tools/hype-barometer/hype.html" class="hub-card group">
                 <img src="assets/brand/theme-toggle-portfoliomanager.png" alt="Hype-Barometer Preview" class="tool-image-bg">
-                <div class="hub-card-content">
+                <div class="hub-card-content mt-auto">
                     <span class="hub-tag tag-gold" id="t-hype-tag">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z" />
                         </svg>
-                        Sentiment Analysis
+                        Social Sentiment Engine
                     </span>
-                    <h2 class="text-xl sm:text-2xl font-black text-white mb-2 leading-tight">
-                        Abracadabra <span class="text-gold-500">Hype-Barometer</span>
+                    <h2 class="text-lg sm:text-xl font-bold text-white mb-2 leading-snug group-hover:text-[#D6A83A] transition-colors">
+                        Social Hype-Barometer
                     </h2>
-                    <p class="text-sm text-slate-400 leading-relaxed" id="t-hype-desc">
-                        Echtzeit-Sentiment, quantitative Pre-Breakout Setups & KI-Report-Generierung. Identifiziere volumenbestätigte Marktbewegungen.
+                    <p class="text-xs text-slate-400 leading-relaxed" id="t-hype-desc">
+                        Echtzeit-Tracking von Reddit und Social Media mit automatischer Sentiment- und Momentum-Analyse für Aktien &amp; Krypto.
                     </p>
                 </div>
-                <div class="hub-card-content pt-6 flex items-center justify-between border-t border-white/[0.06] mt-6">
-                    <span class="text-xs font-mono text-gold-400 font-semibold uppercase tracking-wider group-hover:translate-x-1 transition-transform inline-flex items-center gap-1.5">
+                <div class="hub-card-content pt-4 flex items-center justify-between border-t border-[#202630] mt-4">
+                    <span class="text-xs font-semibold text-[#D6A83A] inline-flex items-center gap-1.5">
                         Barometer starten
-                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <svg class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                         </svg>
                     </span>
-                    <span class="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Realtime</span>
+                    <span class="text-[10px] font-mono text-slate-500">Realtime</span>
                 </div>
             </a>
 
+            <!-- Tool 3: Calculator -->
             <a href="tools/calculator/calculator.html" class="hub-card group">
                 <img src="assets/brand/theme-toggle-portfoliomanager.png" alt="Calculator Preview" class="tool-image-bg">
-                <div class="hub-card-content">
+                <div class="hub-card-content mt-auto">
                     <span class="hub-tag tag-emerald" id="t-calc-tag">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                         </svg>
                         Wealth Simulation
                     </span>
-                    <h2 class="text-xl sm:text-2xl font-black text-white mb-2 leading-tight">
-                        Zinseszins & <span class="text-emerald-400">Dividenden</span>
+                    <h2 class="text-lg sm:text-xl font-bold text-white mb-2 leading-snug group-hover:text-emerald-400 transition-colors">
+                        Zinseszins &amp; Dividenden Simulator
                     </h2>
-                    <p class="text-sm text-slate-400 leading-relaxed" id="t-calc-desc">
+                    <p class="text-xs text-slate-400 leading-relaxed" id="t-calc-desc">
                         Präzise Berechnung deines langfristigen Vermögensaufbaus unter Berücksichtigung von Dividendenwachstum, Steuern und Inflation.
                     </p>
                 </div>
-                <div class="hub-card-content pt-6 flex items-center justify-between border-t border-white/[0.06] mt-6">
-                    <span class="text-xs font-mono text-emerald-400 font-semibold uppercase tracking-wider group-hover:translate-x-1 transition-transform inline-flex items-center gap-1.5">
+                <div class="hub-card-content pt-4 flex items-center justify-between border-t border-[#202630] mt-4">
+                    <span class="text-xs font-semibold text-emerald-400 inline-flex items-center gap-1.5">
                         Simulator öffnen
-                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <svg class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                         </svg>
                     </span>
-                    <span class="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Interactive</span>
+                    <span class="text-[10px] font-mono text-slate-500">Interactive</span>
                 </div>
             </a>
 
+            <!-- Media Card 1: Video -->
             <div onclick="openVideoModal()" class="hub-card group cursor-pointer">
                 <img src="assets/brand/theme-toggle-portfoliomanager.png" alt="Video Preview" class="tool-image-bg">
-                <div class="hub-card-content">
+                <div class="hub-card-content mt-auto">
                     <span class="hub-tag tag-blue" id="t-video-tag">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z" />
                         </svg>
                         Erklärvideo
                     </span>
-                    <h2 class="text-xl sm:text-2xl font-black text-white mb-2 leading-tight">
-                        Erste Schritte <span class="text-blue-400">an der Börse</span>
+                    <h2 class="text-lg sm:text-xl font-bold text-white mb-2 leading-snug group-hover:text-blue-400 transition-colors">
+                        Erste Schritte an der Börse
                     </h2>
-                    <p class="text-sm text-slate-400 leading-relaxed" id="t-video-desc">
-                        Ein fundierter Einstieg und Leitfaden für neue Investoren in die Welt der Aktien & ETFs.
+                    <p class="text-xs text-slate-400 leading-relaxed" id="t-video-desc">
+                        Ein fundierter Einstieg und praxisnaher Leitfaden für neue Investoren in die Welt der Aktien &amp; ETFs.
                     </p>
                 </div>
-                <div class="hub-card-content pt-6 flex items-center justify-between border-t border-white/[0.06] mt-6">
-                    <span class="text-xs font-mono text-blue-400 font-semibold uppercase tracking-wider group-hover:translate-x-1 transition-transform inline-flex items-center gap-1.5">
+                <div class="hub-card-content pt-4 flex items-center justify-between border-t border-[#202630] mt-4">
+                    <span class="text-xs font-semibold text-blue-400 inline-flex items-center gap-1.5">
                         Video ansehen
-                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <svg class="w-3.5 h-3.5 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polygon points="6 3 20 12 6 21 6 3" fill="currentColor" />
                         </svg>
                     </span>
-                    <span class="text-[10px] font-mono text-slate-500 uppercase tracking-widest">HD Video</span>
+                    <span class="text-[10px] font-mono text-slate-500">HD Stream</span>
                 </div>
             </div>
 
+            <!-- Media Card 2: Ebook -->
             <div onclick="openPresentationModal()" class="hub-card group cursor-pointer">
                 <img src="assets/media/Wealth_Titel.png" alt="Ebook Preview" class="tool-image-bg">
-                <div class="hub-card-content">
+                <div class="hub-card-content mt-auto">
                     <span class="hub-tag tag-gold" id="t-pres-tag">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
                         </svg>
-                        Mentoring Ebook
+                        Mentoring E-Book
                     </span>
-                    <h2 class="text-xl sm:text-2xl font-black text-white mb-2 leading-tight">
-                        The Vibe of <span class="text-gold-500">Wealth</span>
+                    <h2 class="text-lg sm:text-xl font-bold text-white mb-2 leading-snug group-hover:text-[#D6A83A] transition-colors">
+                        The Vibe of Wealth
                     </h2>
-                    <p class="text-sm text-slate-400 leading-relaxed" id="t-pres-desc">
-                        Mein exklusives Mentoring-Ebook von Nikolai Bretthauer für deinen Weg in die finanzielle Flexibilität.
+                    <p class="text-xs text-slate-400 leading-relaxed" id="t-pres-desc">
+                        Exklusives Mentoring-Ebook von Nikolai Bretthauer für deinen Weg in die finanzielle Unabhängigkeit.
                     </p>
                 </div>
-                <div class="hub-card-content pt-6 flex items-center justify-between border-t border-white/[0.06] mt-6">
-                    <span class="text-xs font-mono text-gold-400 font-semibold uppercase tracking-wider group-hover:translate-x-1 transition-transform inline-flex items-center gap-1.5">
-                        Ebook öffnen
-                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <div class="hub-card-content pt-4 flex items-center justify-between border-t border-[#202630] mt-4">
+                    <span class="text-xs font-semibold text-[#D6A83A] inline-flex items-center gap-1.5">
+                        E-Book lesen
+                        <svg class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                         </svg>
                     </span>
-                    <span class="text-[10px] font-mono text-slate-500 uppercase tracking-widest">25 Min Lesezeit</span>
+                    <span class="text-[10px] font-mono text-slate-500">25 Min Lesezeit</span>
                 </div>
             </div>
 
+            <!-- Media Card 3: Podcast -->
             <div onclick="openPodcastModal()" class="hub-card group cursor-pointer">
                 <img src="assets/media/Wealth_Titel.png" alt="Podcast Preview" class="tool-image-bg">
-                <div class="hub-card-content">
+                <div class="hub-card-content mt-auto">
                     <span class="hub-tag tag-emerald" id="t-podcast-tag">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 0 1 0 12.728M16.463 8.288a5.25 5.25 0 0 1 0 7.424M6.75 8.25l4.72-4.72a.75.75 0 0 1 1.28.53v15.88a.75.75 0 0 1-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.009 9.009 0 0 1 2.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75Z" />
                         </svg>
                         Audio Podcast
                     </span>
-                    <h2 class="text-xl sm:text-2xl font-black text-white mb-2 leading-tight">
-                        The Vibe of <span class="text-emerald-400">Wealth Podcast</span>
+                    <h2 class="text-lg sm:text-xl font-bold text-white mb-2 leading-snug group-hover:text-emerald-400 transition-colors">
+                        The Vibe of Wealth Podcast
                     </h2>
-                    <p class="text-sm text-slate-400 leading-relaxed" id="t-podcast-desc">
-                        Höre dir die neuesten Einsichten und Strategien für deinen finanziellen Erfolg direkt als Podcast an.
+                    <p class="text-xs text-slate-400 leading-relaxed" id="t-podcast-desc">
+                        Neueste Einsichten und Denkweisen für strategischen Vermögensaufbau direkt als Podcast anhören.
                     </p>
                 </div>
-                <div class="hub-card-content pt-6 flex items-center justify-between border-t border-white/[0.06] mt-6">
-                    <span class="text-xs font-mono text-emerald-400 font-semibold uppercase tracking-wider group-hover:translate-x-1 transition-transform inline-flex items-center gap-1.5">
-                        Audio anhören
-                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <div class="hub-card-content pt-4 flex items-center justify-between border-t border-[#202630] mt-4">
+                    <span class="text-xs font-semibold text-emerald-400 inline-flex items-center gap-1.5">
+                        Audio starten
+                        <svg class="w-3.5 h-3.5 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polygon points="6 3 20 12 6 21 6 3" fill="currentColor" />
                         </svg>
                     </span>
-                    <span class="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Audio Stream</span>
+                    <span class="text-[10px] font-mono text-slate-500">Audio Stream</span>
                 </div>
             </div>
 
         </section>
 
-        <section class="mt-8 mb-16 w-full text-left" id="partner-section">
-            <div class="flex items-center justify-between mb-6 px-1">
-                <h3 class="text-xs font-bold text-slate-400 font-mono uppercase tracking-[0.2em]" id="t-ads-title">
-                    Empfohlene Partner & Broker
+        <!-- Partner & Broker Section -->
+        <section class="mt-4 mb-12 w-full text-left" id="partner-section">
+            <div class="flex items-center justify-between mb-4 px-1">
+                <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider" id="t-ads-title">
+                    Empfohlene Partner &amp; Broker
                 </h3>
-                <span class="text-[10px] font-mono text-slate-600 uppercase tracking-wider">Verifizierte Angebote</span>
+                <span class="text-[10px] text-slate-500 font-mono">Verifizierte Angebote</span>
             </div>
-            <div class="flex overflow-x-auto gap-4 pb-6 px-1 hide-scrollbar" id="ads-container">
+            <div class="flex overflow-x-auto gap-3 pb-4 px-1 hide-scrollbar" id="ads-container">
             </div>
         </section>
 
-        <section class="mt-12 text-left max-w-4xl mx-auto border-t border-white/[0.08] pt-12">
-            <h2 class="text-xl sm:text-2xl font-black text-white mb-4" id="t-seo-title">
-                fincast | Meine Plattform für professionelle Finanzanalyse
+        <!-- SEO & Platform Architecture Overview -->
+        <section class="mt-8 text-left max-w-4xl mx-auto border-t border-[#202630] pt-10">
+            <h2 class="text-lg sm:text-xl font-bold text-white mb-3" id="t-seo-title">
+                fincast | Plattform für fundierte Finanzanalyse &amp; Research
             </h2>
-            <p class="text-sm text-slate-400 leading-relaxed mb-8" id="t-seo-intro">
-                Willkommen bei <strong>fincast</strong>, dem fortschrittlichen Hub, den ich für moderne und anspruchsvolle Anleger entwickelt habe. Mein Ziel war es, hochkomplexe Datenanalyse mit einer intuitiven Bedienbarkeit zu vereinen, um dir Werkzeuge an die Hand zu geben, die sonst fast ausschließlich institutionellen Investoren vorbehalten sind.
+            <p class="text-xs text-slate-400 leading-relaxed mb-6" id="t-seo-intro">
+                Willkommen bei <strong>fincast</strong> – der Analyse- und Research-Suite für moderne, anspruchsvolle Anleger. Ziel der Plattform ist es, komplexe fundamentale Finanzmodelle mit hoher Benutzerfreundlichkeit zu verbinden und Werkzeuge bereitzustellen, die sonst institutionellen Investoren vorbehalten sind.
             </p>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="p-5 rounded-xl bg-obsidian-900/60 border border-white/[0.04]">
-                    <h3 class="text-base font-bold text-white mb-2" id="t-seo-term-h">Strategic Intelligence Terminal</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="p-4 rounded-lg bg-[#11151B] border border-[#202630]">
+                    <h3 class="text-sm font-semibold text-white mb-1.5" id="t-seo-term-h">fincast Research Terminal</h3>
                     <p class="text-xs text-slate-400 leading-relaxed" id="t-seo-term-p">
-                        Mein Flaggschiff-Tool nutzt modernste KI-Modelle und Multi-Agenten-Systeme, um Aktien nach den strengen KI-Frameworks führender Investmentbanken wie <strong>Goldman Sachs, Morgan Stanley und Citadel</strong> zu analysieren.
+                        Aktienanalysen mit DCF-Modellen, fundamentalen Bewertungskorridoren und Multi-Agenten-Frameworks zur präzisen Bewertung von Unternehmen.
                     </p>
                 </div>
-                <div class="p-5 rounded-xl bg-obsidian-900/60 border border-white/[0.04]">
-                    <h3 class="text-base font-bold text-white mb-2" id="t-seo-calc-h">Zinseszins & Dividenden Simulator</h3>
+                <div class="p-4 rounded-lg bg-[#11151B] border border-[#202630]">
+                    <h3 class="text-sm font-semibold text-white mb-1.5" id="t-seo-calc-h">Zinseszins &amp; Dividenden Simulator</h3>
                     <p class="text-xs text-slate-400 leading-relaxed" id="t-seo-calc-p">
-                        Mein Simulator bildet Portfolio-Wachstum unter realistischen Bedingungen ab: <strong>Dividenden-Wachstum, Inflation, Kapitalertragsteuern und Freibeträge</strong>.
+                        Mathematisch exakte Modellierung von Zinseszins, Sparplänen, Dividenden-Wachstum, Steuerabzügen und Freibeträgen.
                     </p>
                 </div>
-                <div class="p-5 rounded-xl bg-obsidian-900/60 border border-white/[0.04]">
-                    <h3 class="text-base font-bold text-white mb-2" id="t-seo-hype-h">Abracadabra Hype-Barometer</h3>
+                <div class="p-4 rounded-lg bg-[#11151B] border border-[#202630]">
+                    <h3 class="text-sm font-semibold text-white mb-1.5" id="t-seo-hype-h">Social Hype-Barometer</h3>
                     <p class="text-xs text-slate-400 leading-relaxed" id="t-seo-hype-p">
-                        Echtzeit-Hype-Barometer scannt soziale Kanäle, filtert quantitative Trading-Setups (EMA 9/20, RSI Momentum) und generiert automatisierte KI-Reports für Pre-Breakout Signale.
+                        Tracking von Reddit- und Social-Media-Trends mit Sentiment-Analyse zur Identifikation von Momentum-Marktbewegungen.
                     </p>
                 </div>
-                <div class="p-5 rounded-xl bg-obsidian-900/60 border border-white/[0.04]">
-                    <h3 class="text-base font-bold text-white mb-2" id="t-seo-ebook-h">The Vibe of Wealth Ebook & Podcast</h3>
+                <div class="p-4 rounded-lg bg-[#11151B] border border-[#202630]">
+                    <h3 class="text-sm font-semibold text-white mb-1.5" id="t-seo-ebook-h">The Vibe of Wealth</h3>
                     <p class="text-xs text-slate-400 leading-relaxed" id="t-seo-ebook-p">
-                        Exklusives Mentoring-Wissen für deinen Weg in die finanzielle Flexibilität – wahlweise zum Lesen oder direkt als Audio-Podcast.
+                        Mentoring-Wissen für Mindset und strategischen Vermögensaufbau – wahlweise zum Lesen oder direkt als Podcast-Stream.
                     </p>
                 </div>
             </div>
@@ -629,23 +640,23 @@
 
     </main>
 
-    <footer class="w-full border-t border-white/[0.06] bg-obsidian-950/95 py-8 mt-auto">
-        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-6">
+    <footer class="w-full border-t border-[#202630] bg-[#0B0E12] py-6 mt-auto">
+        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-4">
             
             <div class="flex items-center gap-3 text-center md:text-left">
-                <img src="assets/brand/portfoliomanager%20-%20Symbol.png" class="w-6 h-6 object-contain opacity-80" alt="fincast symbol">
+                <img src="assets/brand/portfoliomanager%20-%20Symbol.png" class="w-5 h-5 object-contain opacity-80" alt="fincast symbol">
                 <div>
-                    <p class="text-xs font-mono text-slate-400 font-bold uppercase tracking-wider" id="t-version">
-                        fincast Institutional Grade Financial Software • v3.5
+                    <p class="text-xs text-slate-400 font-semibold" id="t-version">
+                        fincast Financial Software • v3.5
                     </p>
-                    <p class="text-[11px] text-slate-600 mt-0.5">
-                        © 2026 Nikolai Bretthauer. Alle Rechte vorbehalten.
+                    <p class="text-[10px] text-slate-500 mt-0.5">
+                        &copy; 2026 Nikolai Bretthauer. Alle Rechte vorbehalten.
                     </p>
                 </div>
             </div>
 
-            <div class="flex items-center gap-6 text-xs font-mono uppercase tracking-wider text-slate-400">
-                <a href="pages/FAQ.html" class="hover:text-gold-400 transition-colors flex items-center gap-1.5">
+            <div class="flex items-center gap-4 text-xs text-slate-400">
+                <a href="pages/FAQ.html" class="hover:text-white transition-colors flex items-center gap-1.5">
                     <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <circle cx="12" cy="12" r="10" />
                         <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" stroke-linecap="round" stroke-linejoin="round" />
@@ -653,47 +664,44 @@
                     <span>FAQ</span>
                 </a>
                 <span class="text-slate-700">•</span>
-                <a href="pages/Impressum.html" class="hover:text-gold-400 transition-colors flex items-center gap-1.5">
+                <a href="pages/Impressum.html" class="hover:text-white transition-colors flex items-center gap-1.5">
                     <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
                     </svg>
-                    <span>Impressum & Datenschutz</span>
+                    <span>Impressum &amp; Datenschutz</span>
                 </a>
             </div>
         </div>
     </footer>
 
+    <!-- Video Modal -->
     <div id="videoModal" onclick="if(event.target === this) closeVideoModal()"
-        class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/90 backdrop-blur-md p-2 sm:p-4 opacity-0 transition-opacity duration-300">
-        <div class="relative w-full max-w-5xl flex flex-col bg-obsidian-900 rounded-2xl overflow-hidden shadow-2xl border border-white/10 transform scale-95 transition-transform duration-300 max-h-[90dvh]"
+        class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/85 backdrop-blur-sm p-3 sm:p-4 opacity-0 transition-opacity duration-300">
+        <div class="relative w-full max-w-4xl flex flex-col bg-[#11151B] rounded-xl overflow-hidden shadow-2xl border border-[#202630] transform scale-95 transition-transform duration-300 max-h-[90dvh]"
             id="videoModalContent">
-            <div class="flex justify-between items-center p-3 sm:p-4 border-b border-white/10 shrink-0 bg-obsidian-850">
+            <div class="flex justify-between items-center p-3 sm:p-4 border-b border-[#202630] shrink-0 bg-[#0B0E12]">
                 <div class="flex items-center gap-2 min-w-0 pr-2">
-                    <span class="w-2 h-2 rounded-full bg-blue-500 shrink-0"></span>
-                    <h3 class="text-white font-bold text-xs sm:text-base truncate">Erklärvideo: Erste Schritte an der Börse</h3>
+                    <span class="w-2 h-2 rounded-full bg-[#60A5FA] shrink-0"></span>
+                    <h3 class="text-white font-semibold text-xs sm:text-sm truncate">Erklärvideo: Erste Schritte an der Börse</h3>
                 </div>
-                <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                <div class="flex items-center gap-2 shrink-0">
                     <a href="https://drive.google.com/file/d/193X6xhdz5Kj4ANxUPl4jISnNPpINewp4/view"
                         target="_blank" rel="noopener noreferrer"
-                        class="text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 px-2.5 sm:px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 text-xs font-mono font-semibold"
-                        title="Video im Vollbild / separaten Tab abspielen">
-                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        <span class="hidden sm:inline">Vollbild</span>
+                        class="text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 px-2.5 py-1 rounded-md transition-colors flex items-center gap-1.5 text-xs font-medium"
+                        title="Vollbild">
+                        <span>Vollbild</span>
                     </a>
                     <button onclick="shareVideo()"
-                        class="text-slate-400 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/5 flex items-center gap-1.5 text-xs font-mono"
+                        class="text-slate-400 hover:text-white transition-colors p-1 rounded hover:bg-white/5 text-xs"
                         title="Video teilen">
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
-                        <span class="hidden sm:inline">Teilen</span>
                     </button>
                     <button onclick="closeVideoModal()"
-                        class="text-slate-400 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/5"
+                        class="text-slate-400 hover:text-white transition-colors p-1 rounded hover:bg-white/5"
                         title="Schließen">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                         </svg>
                     </button>
@@ -701,63 +709,47 @@
             </div>
             <div class="relative w-full bg-black shrink-0 flex items-center justify-center"
                 style="aspect-ratio: 16/9; max-height: calc(90dvh - 110px);">
-                <div class="absolute text-slate-500 font-mono text-xs flex items-center gap-2">
-                    <div class="w-3.5 h-3.5 border-2 border-blue-400/30 border-t-blue-400 rounded-full animate-spin"></div>
+                <div class="absolute text-slate-500 text-xs flex items-center gap-2">
+                    <div class="w-3.5 h-3.5 border-2 border-slate-700 border-t-blue-400 rounded-full animate-spin"></div>
                     Lade Video Stream...
                 </div>
                 <iframe id="videoIframe" class="absolute top-0 left-0 w-full h-full z-10 border-0" src=""
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
                     allowfullscreen="true"
-                    webkitallowfullscreen="true"
-                    mozallowfullscreen="true"
                     loading="eager"
                     playsinline="1"></iframe>
-            </div>
-            <div class="px-3 py-2 sm:px-4 sm:py-2.5 bg-obsidian-850/90 border-t border-white/[0.06] flex items-center justify-between text-xs text-slate-400">
-                <div class="flex items-center gap-2 min-w-0">
-                    <svg class="w-3.5 h-3.5 text-blue-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <circle cx="12" cy="12" r="10" />
-                        <path d="M12 16v-4M12 8h.01" stroke-linecap="round" />
-                    </svg>
-                    <span class="text-[11px] sm:text-xs text-slate-400 truncate">Für beste Smartphone-Wiedergabe kannst du das Video auch direkt im Vollbildmodus starten.</span>
-                </div>
-                <a href="https://drive.google.com/file/d/193X6xhdz5Kj4ANxUPl4jISnNPpINewp4/view"
-                    target="_blank" rel="noopener noreferrer"
-                    class="text-blue-400 hover:text-blue-300 font-mono text-[11px] font-semibold uppercase tracking-wider shrink-0 ml-2 hover:underline">
-                    Direkt öffnen &nearr;
-                </a>
             </div>
         </div>
     </div>
 
+    <!-- Podcast Modal -->
     <div id="podcastModal" onclick="if(event.target === this) closePodcastModal()"
-        class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/90 backdrop-blur-md p-2 sm:p-4 opacity-0 transition-opacity duration-300">
-        <div class="relative w-full max-w-md flex flex-col bg-obsidian-900 rounded-2xl overflow-hidden shadow-2xl border border-white/10 transform scale-95 transition-transform duration-300 max-h-[90dvh]"
+        class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/85 backdrop-blur-sm p-3 sm:p-4 opacity-0 transition-opacity duration-300">
+        <div class="relative w-full max-w-md flex flex-col bg-[#11151B] rounded-xl overflow-hidden shadow-2xl border border-[#202630] transform scale-95 transition-transform duration-300 max-h-[90dvh]"
             id="podcastModalContent">
-            <div class="flex justify-between items-center p-4 border-b border-white/10 shrink-0 relative z-20 bg-obsidian-850">
+            <div class="flex justify-between items-center p-3.5 border-b border-[#202630] shrink-0 bg-[#0B0E12]">
                 <div class="flex items-center gap-2 min-w-0 pr-2">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-live shrink-0"></span>
-                    <h3 class="text-white font-bold text-sm sm:text-base truncate">Podcast: The Vibe of Wealth</h3>
+                    <span class="w-2 h-2 rounded-full bg-[#34D399] shrink-0"></span>
+                    <h3 class="text-white font-semibold text-xs sm:text-sm truncate">Podcast: The Vibe of Wealth</h3>
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
                     <select id="playbackSpeed" onchange="changePodcastSpeed()"
-                        class="bg-obsidian-800 text-white border border-white/20 rounded-lg px-2 py-1 text-xs font-mono focus:outline-none focus:border-gold-500 transition-colors cursor-pointer">
+                        class="bg-[#171C23] text-slate-300 border border-[#202630] rounded px-1.5 py-0.5 text-xs font-mono outline-none cursor-pointer">
                         <option value="0.75">0.75x</option>
                         <option value="1" selected>1.0x</option>
                         <option value="1.25">1.25x</option>
                         <option value="1.5">1.5x</option>
-                        <option value="1.75">1.75x</option>
                         <option value="2">2.0x</option>
                     </select>
                     <button onclick="sharePodcast()"
-                        class="text-slate-400 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/5 flex items-center gap-1 text-xs font-mono">
+                        class="text-slate-400 hover:text-white transition-colors p-1 rounded hover:bg-white/5 text-xs">
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                     </button>
                     <button onclick="closePodcastModal()"
-                        class="text-slate-400 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/5">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        class="text-slate-400 hover:text-white transition-colors p-1 rounded hover:bg-white/5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                         </svg>
                     </button>
@@ -765,8 +757,8 @@
             </div>
             <div class="relative w-full shrink-0 flex items-end justify-center aspect-[2/3] bg-cover bg-center"
                 style="background-image: url('assets/media/Wealth_Titel.png');">
-                <div class="absolute inset-0 bg-gradient-to-t from-obsidian-950 via-obsidian-950/40 to-transparent"></div>
-                <div class="relative z-10 w-full p-6">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#0B0E12] via-[#0B0E12]/50 to-transparent"></div>
+                <div class="relative z-10 w-full p-4">
                     <audio id="podcastAudio" controls class="w-full shadow-2xl rounded-full" style="outline: none;">
                         <source src="assets/media/Wealth_Podcast.m4a" type="audio/mp4">
                         Dein Browser unterstützt das Audio-Element nicht.
@@ -776,66 +768,51 @@
         </div>
     </div>
 
+    <!-- Presentation Modal (Ebook) -->
     <div id="presentationModal" onclick="if(event.target === this) closePresentationModal()"
-        class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/90 backdrop-blur-md p-4 opacity-0 transition-opacity duration-300">
-        <div class="relative w-full max-w-lg flex flex-col bg-obsidian-900 rounded-2xl overflow-hidden shadow-2xl border border-white/10 transform scale-95 transition-transform duration-300 max-h-[90dvh]"
+        class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/85 backdrop-blur-sm p-4 opacity-0 transition-opacity duration-300">
+        <div class="relative w-full max-w-lg flex flex-col bg-[#11151B] rounded-xl overflow-hidden shadow-2xl border border-[#202630] transform scale-95 transition-transform duration-300 max-h-[90dvh]"
             id="presentationModalContent">
-            <div class="flex justify-between items-center p-4 border-b border-white/10 shrink-0 bg-obsidian-850">
+            <div class="flex justify-between items-center p-3.5 border-b border-[#202630] shrink-0 bg-[#0B0E12]">
                 <div class="flex items-center gap-2 min-w-0 pr-2">
-                    <span class="w-2 h-2 rounded-full bg-gold-500 shrink-0"></span>
-                    <h3 class="text-white font-bold text-sm sm:text-base truncate">Ebook: The Vibe of Wealth</h3>
+                    <span class="w-2 h-2 rounded-full bg-[#D6A83A] shrink-0"></span>
+                    <h3 class="text-white font-semibold text-xs sm:text-sm truncate">E-Book: The Vibe of Wealth</h3>
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
                     <a href="https://docs.google.com/document/d/19xJVJDZ71X8U8WkFWSy1o-Suc1VQuB5dVhKbvI8FU1I/edit?tab=t.0"
                         target="_blank" rel="noopener noreferrer"
-                        class="text-gold-400 bg-gold-500/10 hover:bg-gold-500/20 border border-gold-500/30 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 text-xs font-mono font-semibold">
-                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        <span class="hidden sm:inline">Vollbild</span>
+                        class="text-[#D6A83A] bg-[#D6A83A]/10 hover:bg-[#D6A83A]/20 border border-[#D6A83A]/30 px-2.5 py-1 rounded-md transition-colors flex items-center gap-1.5 text-xs font-semibold">
+                        <span>Vollbild</span>
                     </a>
                     <button onclick="shareEbook()"
-                        class="text-slate-400 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/5 flex items-center gap-1 text-xs font-mono">
+                        class="text-slate-400 hover:text-white transition-colors p-1 rounded hover:bg-white/5 text-xs">
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                     </button>
                     <button onclick="closePresentationModal()"
-                        class="text-slate-400 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/5">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        class="text-slate-400 hover:text-white transition-colors p-1 rounded hover:bg-white/5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
             </div>
-            <a href="https://docs.google.com/document/d/19xJVJDZ71X8U8WkFWSy1o-Suc1VQuB5dVhKbvI8FU1I/edit?tab=t.0"
-                target="_blank" rel="noopener noreferrer"
-                class="relative block w-full aspect-[3/4] bg-obsidian-950 cursor-pointer group overflow-hidden">
-                <img src="assets/media/Wealth_Titel.png" class="w-full h-full object-cover transition-all duration-500 group-hover:scale-105" alt="Ebook Preview">
-                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <span class="px-4 py-2 rounded-xl bg-gold-500 text-obsidian-950 font-bold font-mono text-xs shadow-lg uppercase tracking-wider flex items-center gap-2">
-                        Jetzt lesen
-                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-                        </svg>
-                    </span>
+            <div class="relative w-full aspect-[2/3] bg-cover bg-center overflow-hidden"
+                style="background-image: url('assets/media/Wealth_Titel.png');">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#0B0E12] via-transparent to-transparent flex items-end p-4">
+                    <a href="https://docs.google.com/document/d/19xJVJDZ71X8U8WkFWSy1o-Suc1VQuB5dVhKbvI8FU1I/edit?tab=t.0"
+                        target="_blank" rel="noopener noreferrer"
+                        class="w-full search-btn py-2 text-center text-xs font-semibold">
+                        Dokument jetzt online öffnen &rarr;
+                    </a>
                 </div>
-            </a>
+            </div>
         </div>
-    </div>
-
-    <!-- Toast Notification for Share / Copy -->
-    <div id="share-toast"
-        class="fixed bottom-6 right-6 z-[120] pointer-events-none transform translate-y-8 opacity-0 transition-all duration-300 flex items-center gap-3 px-4 py-3 rounded-xl bg-obsidian-900 border border-gold-500/40 shadow-2xl shadow-black/80 text-xs font-mono text-white backdrop-blur-md">
-        <div class="w-6 h-6 rounded-full bg-gold-500/20 text-gold-400 flex items-center justify-center shrink-0">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-            </svg>
-        </div>
-        <span id="toast-message">Link zum fincast Hub in die Zwischenablage kopiert!</span>
     </div>
 
     <script>
+
         let curLang = 'DE';
 
         const translations = {
