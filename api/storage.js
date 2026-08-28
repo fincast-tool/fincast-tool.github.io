@@ -233,7 +233,12 @@ module.exports = async function handler(req, res) {
             if (!item || typeof item !== 'object') return false;
             const data = item.data || item;
             if (!data || typeof data !== 'object') return false;
-            const execText = (data.executive_summary || data.citadel || data.morgan_stanley || data.goldman_sachs || '').toString().trim();
+            // Primary check: new institutional research module
+            let execText = (data.executive_summary || '').toString().trim();
+            // Fallback check for old historical records in database
+            if (!execText && (data.citadel || data.morgan_stanley || data.goldman_sachs)) {
+                execText = (data.citadel || data.morgan_stanley || data.goldman_sachs || '').toString().trim();
+            }
             if (!execText || execText.length < 15 || execText.toUpperCase() === 'PENDING') return false;
             return true;
         }
