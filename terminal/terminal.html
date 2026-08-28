@@ -3163,55 +3163,122 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             let verdict = '';
             let detail = '';
 
+            const cleanLineVal = (val) => {
+                if (!val) return '';
+                let v = val.replace(/[\[\]]/g, '').split(/[,;:\n]/)[0].trim();
+                v = v.replace(/^[-•\s]+/, '').trim();
+                return v;
+            };
+
             if (cardId === 'business_quality') {
-                const m = clean.match(/(?:Business\s*Quality\s*Verdict|Business\s*Verdict|Moat\s*Verdict|Verdict):\s*\[?([^\n\]]+)\]?/i);
-                if (m) verdict = m[1].split(/[,;]/)[0].trim();
-                const moatM = clean.match(/Moat\s*Score:\s*([0-5])/i);
-                if (moatM) detail = `Moat: ${moatM[1]}/5`;
+                const m = clean.match(/(?:Business\s*Quality\s*Verdict|Gesch[äa]ftsqualit[äa]t\s*(?:Fazit|Verdict)?|Business\s*Verdict|Moat\s*Verdict|Business\s*Quality):\s*\[?([^\]\n]+)\]?/i);
+                if (m) verdict = cleanLineVal(m[1]);
+
+                if (!verdict) {
+                    const mDur = clean.match(/(?:Moat\s*Durability|Wettbewerbsvorteil\s*Dauerhaftigkeit):\s*\[?([^\]\n]+)\]?/i);
+                    if (mDur) verdict = cleanLineVal(mDur[1]);
+                }
+
+                const moatM = clean.match(/Moat\s*Score:\s*([0-5](?:\s*\/\s*5)?)/i);
+                if (moatM) {
+                    const num = moatM[1].split('/')[0].trim();
+                    detail = `Moat: ${num}/5`;
+                }
             } else if (cardId === 'financial_quality') {
-                const m = clean.match(/(?:Financial\s*Quality\s*Verdict|Financial\s*Verdict|Financial\s*Rating|Verdict):\s*\[?([^\n\]]+)\]?/i);
-                if (m) verdict = m[1].split(/[,;]/)[0].trim();
+                const m = clean.match(/(?:Financial\s*Quality\s*Verdict|Finanzqualit[äa]t\s*(?:Fazit|Verdict)?|Financial\s*Verdict|Financial\s*Quality|Finanzielle\s*Qualit[äa]t):\s*\[?([^\]\n]+)\]?/i);
+                if (m) verdict = cleanLineVal(m[1]);
+
+                if (!verdict) {
+                    const mCap = clean.match(/(?:Capital\s*Allocation|Kapitalallokation):\s*\[?([^\]\n]+)\]?/i);
+                    if (mCap) {
+                        const cv = cleanLineVal(mCap[1]);
+                        if (/EXCELLENT|GOOD|MIXED|POOR|HERVORRAGEND|GUT|GEMISCHT|DÜRFTIG/i.test(cv)) {
+                            verdict = cv;
+                        }
+                    }
+                }
+
+                if (!verdict) {
+                    const mVal = clean.match(/(?:ROIC\s*vs\s*WACC|Economic\s*Value\s*Creation|Ökonomische\s*Wertschöpfung):\s*\[?([^\]\n]+)\]?/i);
+                    if (mVal) {
+                        const vv = cleanLineVal(mVal[1]);
+                        if (/VALUE CREATING|VALUE NEUTRAL|VALUE DESTROYING|WERTSTEIGERND|WERTNEUTRAL|WERTVERNICHTEND/i.test(vv)) {
+                            verdict = vv;
+                        }
+                    }
+                }
+
                 const roicM = clean.match(/ROIC\s*vs\s*WACC:\s*([^\n]+)/i);
-                if (roicM) detail = roicM[1].trim().substring(0, 18);
+                if (roicM) {
+                    const rLine = roicM[1].trim();
+                    if (/VALUE CREATING|WERTSTEIGERND/i.test(rLine)) detail = 'Wertsteigernd';
+                    else if (/VALUE DESTROYING|WERTVERNICHTEND/i.test(rLine)) detail = 'Wertvernichtend';
+                    else if (/VALUE NEUTRAL|WERTNEUTRAL/i.test(rLine)) detail = 'Wertneutral';
+                    else detail = rLine.substring(0, 18);
+                }
             } else if (cardId === 'earnings_expectations') {
-                const m = clean.match(/(?:Earnings\s*Verdict|Earnings\s*Rating|Earnings\s*Sentiment|Verdict):\s*\[?([^\n\]]+)\]?/i);
-                if (m) verdict = m[1].split(/[,;]/)[0].trim();
+                const m = clean.match(/(?:Earnings\s*Verdict|Gewinn(?:erwartungs)?\s*(?:Fazit|Verdict)?|Earnings\s*Sentiment|Earnings\s*Rating|Ergebnis\s*Fazit):\s*\[?([^\]\n]+)\]?/i);
+                if (m) verdict = cleanLineVal(m[1]);
+
+                if (!verdict) {
+                    const mGuid = clean.match(/(?:Guidance\s*Trend|Guidance|Ausblick):\s*\[?([^\]\n]+)\]?/i);
+                    if (mGuid) {
+                        const gv = cleanLineVal(mGuid[1]);
+                        if (/RAISED|ERHÖHT/i.test(gv)) verdict = 'POSITIVE';
+                        else if (/LOWERED|GESENKT/i.test(gv)) verdict = 'NEGATIVE';
+                        else if (/MAINTAINED|BEIBEHALTEN/i.test(gv)) verdict = 'NEUTRAL';
+                    }
+                }
+
+                if (!verdict) {
+                    const mRisk = clean.match(/(?:Expectations\s*Risk|Erwartungsrisiko):\s*\[?([^\]\n]+)\]?/i);
+                    if (mRisk) {
+                        const rv = cleanLineVal(mRisk[1]);
+                        if (/LOW|GERING|NIEDRIG/i.test(rv)) verdict = 'POSITIVE';
+                        else if (/HIGH|HOCH/i.test(rv)) verdict = 'WAIT';
+                        else if (/MODERATE|MODERAT/i.test(rv)) verdict = 'NEUTRAL';
+                    }
+                }
             } else if (cardId === 'valuation') {
-                const m = clean.match(/(?:Valuation\s*Verdict|Valuation\s*Rating|DCF\s*Rating|Bewertung|Verdict):\s*\[?([^\n\]]+)\]?/i);
-                if (m) verdict = m[1].split(/[,;]/)[0].trim();
-                const upM = clean.match(/DCF\s*Upside\/Downside:\s*([^\n]+)/i);
+                const m = clean.match(/(?:Valuation\s*Verdict|Bewertungs?\s*(?:Fazit|Verdict)?|Valuation\s*Rating|DCF\s*Rating|Bewertung):\s*\[?([^\]\n]+)\]?/i);
+                if (m) verdict = cleanLineVal(m[1]);
+
+                const upM = clean.match(/(?:DCF\s*Upside\/Downside|Margin\s*of\s*Safety|Sicherheitsmarge):\s*([^\n]+)/i);
                 if (upM) detail = upM[1].trim().substring(0, 18);
             } else if (cardId === 'market_structure') {
-                const m = clean.match(/(?:Technical\s*Signal|Technical\s*Sentiment|Market\s*Regime|Signal|Setup|Trend):\s*\[?([^\n\]]+)\]?/i);
+                const m = clean.match(/(?:Technical\s*Signal|Technisches\s*Signal|Technical\s*Sentiment|Market\s*Regime|Signal|Setup|Trend):\s*\[?([^\]\n]+)\]?/i);
                 if (m) {
-                    const rawTrend = m[1].split(/[,;]/)[0].trim();
+                    const rawTrend = cleanLineVal(m[1]);
                     if (/strong\s*bullish|sehr\s*bullish|stark\s*bullish|starker\s*aufw[äa]rts|strong\s*up/i.test(rawTrend)) verdict = 'STRONG BULLISH';
                     else if (/bullish|aufw[äa]rts|uptrend|steigend|positiv|kaufsignal/i.test(rawTrend)) verdict = 'BULLISH';
                     else if (/strong\s*bearish|sehr\s*bearish|stark\s*bearish|starker\s*abw[äa]rts|strong\s*down/i.test(rawTrend)) verdict = 'STRONG BEARISH';
                     else if (/bearish|abw[äa]rts|downtrend|fallend|negativ|verkaufssignal/i.test(rawTrend)) verdict = 'BEARISH';
                     else if (/kein|neutral|seitw[äa]rts|sideways|konsolid/i.test(rawTrend)) verdict = 'NEUTRAL';
                     else {
-                        const firstWord = rawTrend.split(/[,;\-.]/)[0].trim().toUpperCase();
-                        if (firstWord.length <= 16 && !/DER|DIE|DAS|THE|EIN|EINE|IN|IM|BEFINDET|AKTUELL/i.test(firstWord)) {
+                        const firstWord = rawTrend.split(/[,;\-.\s]/)[0].trim().toUpperCase();
+                        if (firstWord.length <= 16 && !/DER|DIE|DAS|THE|EIN|EINE|IN|IM|BEFINDET|AKTUELL|N\/A/i.test(firstWord)) {
                             verdict = firstWord;
                         }
                     }
                 }
             } else if (cardId === 'executive_summary') {
-                const m = clean.match(/(?:Institutional\s*Verdict|Final\s*Terminal\s*Sentiment|Final\s*Verdict|Gesamtfazit|Sentiment):\s*\[?([^\n\]]+)\]?/i);
-                if (m) verdict = m[1].split(/[,;]/)[0].trim();
+                const m = clean.match(/(?:Institutional\s*Verdict|Institutionelles\s*Fazit|Final\s*Terminal\s*Sentiment|Final\s*Verdict|Gesamtfazit|Sentiment):\s*\[?([^\]\n]+)\]?/i);
+                if (m) verdict = cleanLineVal(m[1]);
             }
 
             if (!verdict) {
                 const keywords = [
-                    'STRONG POSITIVE', 'STRONG BUY', 'BUY', 'POSITIVE', 'POSITIV', 'BULLISH', 'STRONG BULLISH',
+                    'STRONG POSITIVE', 'STARK POSITIV', 'STRONG BUY', 'STARK KAUFEN', 'BUY', 'KAUFEN',
+                    'POSITIVE', 'POSITIV', 'BULLISH', 'STRONG BULLISH', 'STARK BULLISH',
                     'UNDERVALUED', 'DEEPLY UNDERVALUED', 'UNTERBEWERTET', 'TIEF UNTERBEWERTET',
                     'FAIRLY VALUED', 'FAIR VALUED', 'FAIR BEWERTET', 'WATCHLIST',
-                    'HOLD', 'HALTEN', 'NEUTRAL', 'WAIT', 'WARTEN', 'CONSOLIDATION', 'SIDEWAYS',
+                    'HOLD', 'HALTEN', 'NEUTRAL', 'WAIT', 'WARTEN', 'ABWARTEN', 'CONSOLIDATION', 'SIDEWAYS', 'SEITWÄRTS',
                     'OVERVALUED', 'DEEPLY OVERVALUED', 'ÜBERBEWERTET', 'STARK ÜBERBEWERTET',
-                    'BEARISH', 'STRONG BEARISH', 'NEGATIVE', 'NEGATIV',
+                    'BEARISH', 'STRONG BEARISH', 'STARK BEARISH', 'NEGATIVE', 'NEGATIV',
                     'SELL', 'VERKAUFEN', 'STRONG NEGATIVE', 'STRONG SELL',
-                    'EXCEPTIONAL', 'STRONG', 'MODERATE', 'WEAK', 'EXCELLENT', 'GOOD', 'MIXED', 'POOR'
+                    'EXCEPTIONAL', 'EXZELLENT', 'STRONG', 'STARK', 'MODERATE', 'MODERAT', 'WEAK', 'SCHWACH',
+                    'EXCELLENT', 'HERVORRAGEND', 'GOOD', 'GUT', 'MIXED', 'GEMISCHT', 'POOR', 'DÜRFTIG',
+                    'VALUE CREATING', 'WERTSTEIGERND', 'VALUE NEUTRAL', 'WERTNEUTRAL', 'VALUE DESTROYING', 'WERTVERNICHTEND'
                 ];
                 for (const kw of keywords) {
                     const regex = new RegExp(`(?:\\[${kw}\\]|\\b${kw}\\b)`, 'i');
@@ -3254,16 +3321,21 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 else if (verdict === 'GOOD') verdict = 'GUT';
                 else if (verdict === 'MIXED') verdict = 'GEMISCHT';
                 else if (verdict === 'POOR') verdict = 'DÜRFTIG';
+                else if (verdict === 'VALUE CREATING') verdict = 'WERTSTEIGERND';
+                else if (verdict === 'VALUE NEUTRAL') verdict = 'WERTNEUTRAL';
+                else if (verdict === 'VALUE DESTROYING') verdict = 'WERTVERNICHTEND';
+                else if (verdict === 'HIGH') verdict = 'HOCH';
+                else if (verdict === 'LOW') verdict = 'GERING';
             }
 
             if (verdict.length > 22) verdict = verdict.substring(0, 20) + '...';
 
             let type = 'wait';
-            if (/^(STRONG POSITIVE|STARK POSITIV|STRONG BUY|BUY|POSITIVE|POSITIV|BULLISH|STRONG BULLISH|UNDERVALUED|DEEPLY UNDERVALUED|UNTERBEWERTET|TIEF UNTERBEWERTET|BEAT|VORTEIL|EXCEPTIONAL|EXZELLENT|EXCELLENT|HERVORRAGEND|STRONG|STARK)$/i.test(verdict) || /bullish|positive|positiv|undervalued|unterbewertet/i.test(verdict)) {
+            if (/^(STRONG POSITIVE|STARK POSITIV|STRONG BUY|BUY|POSITIVE|POSITIV|BULLISH|STRONG BULLISH|STARK BULLISH|UNDERVALUED|DEEPLY UNDERVALUED|UNTERBEWERTET|TIEF UNTERBEWERTET|BEAT|VORTEIL|EXCEPTIONAL|EXZELLENT|EXCELLENT|HERVORRAGEND|STRONG|STARK|GOOD|GUT|VALUE CREATING|WERTSTEIGERND|ACCUMULATION|AKKUMULATION|TRENDING)$/i.test(verdict) || /bullish|positive|positiv|undervalued|unterbewertet|wertsteigernd/i.test(verdict)) {
                 type = 'buy';
-            } else if (/^(STRONG NEGATIVE|STARK NEGATIV|STRONG SELL|SELL|VERKAUFEN|NEGATIVE|NEGATIV|BEARISH|STRONG BEARISH|OVERVALUED|DEEPLY OVERVALUED|ÜBERBEWERTET|STARK ÜBERBEWERTET|MISS|POOR|DÜRFTIG|WEAK|SCHWACH)$/i.test(verdict) || /bearish|negative|negativ|overvalued|überbewertet|sell/i.test(verdict)) {
+            } else if (/^(STRONG NEGATIVE|STARK NEGATIV|STRONG SELL|SELL|VERKAUFEN|NEGATIVE|NEGATIV|BEARISH|STRONG BEARISH|STARK BEARISH|OVERVALUED|DEEPLY OVERVALUED|ÜBERBEWERTET|STARK ÜBERBEWERTET|MISS|POOR|DÜRFTIG|WEAK|SCHWACH|VALUE DESTROYING|WERTVERNICHTEND|DISTRIBUTION|TOO HARD)$/i.test(verdict) || /bearish|negative|negativ|overvalued|überbewertet|sell|schwach|wertvernichtend/i.test(verdict)) {
                 type = 'sell';
-            } else if (/^(HOLD|HALTEN|NEUTRAL|FAIRLY VALUED|FAIR VALUED|FAIR BEWERTET|WATCHLIST|WAIT|ABWARTEN|WARTEN|CONSOLIDATION|SIDEWAYS|MODERATE|MODERAT|GOOD|GUT|MIXED|GEMISCHT)$/i.test(verdict) || /hold|halten|neutral|fair|wait|abwarten|konsolid/i.test(verdict)) {
+            } else if (/^(HOLD|HALTEN|NEUTRAL|FAIRLY VALUED|FAIR VALUED|FAIR BEWERTET|WATCHLIST|WAIT|ABWARTEN|WARTEN|CONSOLIDATION|CONSOLIDATING|KONSOLIDIERUNG|SIDEWAYS|SEITWÄRTS|MODERATE|MODERAT|MIXED|GEMISCHT|VALUE NEUTRAL|WERTNEUTRAL|OBSERVE|BEOBACHTEN)$/i.test(verdict) || /hold|halten|neutral|fair|wait|abwarten|konsolid|moderat|gemischt|wertneutral/i.test(verdict)) {
                 type = 'hold';
             }
 
@@ -3292,17 +3364,24 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 if (type === 'buy') {
                     badgeStyles = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25';
                     dotColor = 'bg-emerald-400';
+                    cardBorder = 'border-emerald-500/25 hover:border-emerald-500/50 bg-[#0B0E12]';
                 } else if (type === 'sell') {
                     badgeStyles = 'bg-rose-500/10 text-rose-400 border-rose-500/25';
                     dotColor = 'bg-rose-400';
+                    cardBorder = 'border-rose-500/25 hover:border-rose-500/50 bg-[#0B0E12]';
                 } else if (type === 'hold') {
                     badgeStyles = 'bg-amber-500/10 text-amber-400 border-amber-500/25';
                     dotColor = 'bg-amber-400';
+                    cardBorder = 'border-amber-500/25 hover:border-amber-500/50 bg-[#0B0E12]';
                 }
 
                 const isMaster = card.id === 'executive_summary';
                 if (isMaster) {
-                    cardBorder = 'border-[#D6A83A]/30 bg-[#171C23] hover:border-[#D6A83A]/60';
+                    cardBorder = type === 'buy'
+                        ? 'border-emerald-500/40 bg-[#171C23] hover:border-emerald-500/70 shadow-sm shadow-emerald-500/10'
+                        : type === 'sell'
+                        ? 'border-rose-500/40 bg-[#171C23] hover:border-rose-500/70 shadow-sm shadow-rose-500/10'
+                        : 'border-[#D6A83A]/35 bg-[#171C23] hover:border-[#D6A83A]/70 shadow-sm shadow-[#D6A83A]/10';
                 }
 
                 const cardEl = document.createElement('div');
@@ -5149,6 +5228,112 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             }
             grid.innerHTML = '';
 
+            const badgeMap = {
+                // Buy / Positive / Strong
+                'STRONG POSITIVE': 'buy',
+                'STARK POSITIV': 'buy',
+                'STRONG BUY': 'buy',
+                'STARK KAUFEN': 'buy',
+                'STRONG BULLISH': 'buy',
+                'STARK BULLISH': 'buy',
+                'EXCEPTIONAL': 'buy',
+                'EXZELLENT': 'buy',
+                'EXCELLENT': 'buy',
+                'HERVORRAGEND': 'buy',
+                'STRONG': 'buy',
+                'STARK': 'buy',
+                'POSITIVE': 'buy',
+                'POSITIV': 'buy',
+                'BULLISH': 'buy',
+                'BUY': 'buy',
+                'KAUFEN': 'buy',
+                'KAUF': 'buy',
+                'GOOD': 'buy',
+                'GUT': 'buy',
+                'DEEPLY UNDERVALUED': 'buy',
+                'TIEF UNTERBEWERTET': 'buy',
+                'UNDERVALUED': 'buy',
+                'UNTERBEWERTET': 'buy',
+                'VALUE CREATING': 'buy',
+                'WERTSTEIGERND': 'buy',
+                'ACCUMULATION': 'buy',
+                'AKKUMULATION': 'buy',
+                'TRENDING': 'buy',
+                'EXPANDING': 'buy',
+                'EXPANDIEREND': 'buy',
+                'RAISED': 'buy',
+                'ERHÖHT': 'buy',
+                'UPWARD': 'buy',
+                'AUFWÄRTS': 'buy',
+                'HIGH TRANSPARENCY': 'buy',
+                'HOHE TRANSPARENZ': 'buy',
+
+                // Hold / Neutral / Moderate
+                'FAIRLY VALUED': 'hold',
+                'FAIR VALUED': 'hold',
+                'FAIR BEWERTET': 'hold',
+                'MODERATE': 'hold',
+                'MODERAT': 'hold',
+                'MIXED': 'hold',
+                'GEMISCHT': 'hold',
+                'NEUTRAL': 'hold',
+                'HOLD': 'hold',
+                'HALTEN': 'hold',
+                'WATCHLIST': 'hold',
+                'WAIT': 'hold',
+                'WARTEN': 'hold',
+                'ABWARTEN': 'hold',
+                'VALUE NEUTRAL': 'hold',
+                'WERTNEUTRAL': 'hold',
+                'CONSOLIDATION': 'hold',
+                'CONSOLIDATING': 'hold',
+                'KONSOLIDIERUNG': 'hold',
+                'SIDEWAYS': 'hold',
+                'SEITWÄRTS': 'hold',
+                'MAINTAINED': 'hold',
+                'BEIBEHALTEN': 'hold',
+                'STABLE': 'hold',
+                'STABIL': 'hold',
+                'OBSERVE': 'hold',
+                'BEOBACHTEN': 'hold',
+
+                // Sell / Negative / Weak
+                'STRONG NEGATIVE': 'sell',
+                'STARK NEGATIV': 'sell',
+                'STRONG SELL': 'sell',
+                'STARK VERKAUFEN': 'sell',
+                'STRONG BEARISH': 'sell',
+                'STARK BEARISH': 'sell',
+                'NEGATIVE': 'sell',
+                'NEGATIV': 'sell',
+                'BEARISH': 'sell',
+                'SELL': 'sell',
+                'VERKAUFEN': 'sell',
+                'VERKAUF': 'sell',
+                'WEAK': 'sell',
+                'SCHWACH': 'sell',
+                'POOR': 'sell',
+                'DÜRFTIG': 'sell',
+                'DEEPLY OVERVALUED': 'sell',
+                'STARK ÜBERBEWERTET': 'sell',
+                'OVERVALUED': 'sell',
+                'ÜBERBEWERTET': 'sell',
+                'VALUE DESTROYING': 'sell',
+                'WERTVERNICHTEND': 'sell',
+                'DISTRIBUTION': 'sell',
+                'LOWERED': 'sell',
+                'GESENKT': 'sell',
+                'DOWNWARD': 'sell',
+                'ABWÄRTS': 'sell',
+                'CONTRACTING': 'sell',
+                'SCHRUMPFEND': 'sell',
+                'TOO HARD': 'sell'
+            };
+
+            const sortedKeys = Object.keys(badgeMap).sort((a, b) => b.length - a.length);
+            const escapedKeys = sortedKeys.map(k => k.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'));
+            const badgeRegex = new RegExp(`\\[(${escapedKeys.join('|')})\\]|(?<=[\\s:;,(]|^)(${escapedKeys.join('|')})(?=[\\s:;,.)<]|$)`, 'gi');
+
             CARDS.forEach(card => {
                 const content = data[card.id];
                 const widget = document.createElement('div');
@@ -5180,56 +5365,33 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                         .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>')
                         .replace(/\n/g, '<br>');
 
-                    const badgeMap = {
-                        'STRONG POSITIVE': 'buy',
-                        'STRONG NEGATIVE': 'sell',
-                        'POSITIVE': 'buy',
-                        'NEGATIVE': 'sell',
-                        'NEUTRAL': 'wait',
-                        'UNDERVALUED': 'buy',
-                        'OVERVALUED': 'sell',
-                        'FAIRLY VALUED': 'hold',
-                        'FAIR VALUED': 'hold',
-                        'BUY': 'buy',
-                        'SELL': 'sell',
-                        'HOLD': 'hold',
-                        'WAIT': 'wait',
-                        'STRONG BULLISH': 'buy',
-                        'BULLISH': 'buy',
-                        'STRONG BEARISH': 'sell',
-                        'BEARISH': 'sell',
-                        'STARK BULLISH': 'buy',
-                        'STARK BEARISH': 'sell',
-                        'STARK POSITIV': 'buy',
-                        'STARK NEGATIV': 'sell',
-                        'POSITIV': 'buy',
-                        'NEGATIV': 'sell',
-                        'UNTERBEWERTET': 'buy',
-                        'ÜBERBEWERTET': 'sell',
-                        'FAIR BEWERTET': 'hold',
-                        'ABWARTEN': 'wait'
-                    };
-
-                    const badgeRegex = new RegExp(`\\[(${Object.keys(badgeMap).join('|')})\\]|\\b(${Object.keys(badgeMap).join('|')})\\b`, 'gi');
-
                     htmlContent = htmlContent.replace(badgeRegex, (match, p1, p2) => {
                         const key = (p1 || p2).toUpperCase();
                         const type = badgeMap[key] || 'wait';
                         return `<span class="badge badge-${type}">${key}</span>`;
                     });
 
+                    const { label: verdictLabel, type: verdictType } = extractAgentVerdict(card.id, content);
+                    let widgetBadgeStyles = 'bg-slate-500/10 text-slate-300 border-slate-500/25';
+                    if (verdictType === 'buy') widgetBadgeStyles = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25';
+                    else if (verdictType === 'sell') widgetBadgeStyles = 'bg-rose-500/10 text-rose-400 border-rose-500/25';
+                    else if (verdictType === 'hold') widgetBadgeStyles = 'bg-amber-500/10 text-amber-400 border-amber-500/25';
+
                     widget.innerHTML = `
                         <div class="widget-header flex items-center justify-between">
-                            <div class="flex items-center gap-2.5">
+                            <div class="flex items-center gap-2.5 min-w-0">
                                 <div class="w-6 h-6 rounded bg-white/5 border border-white/10 flex items-center justify-center text-[#D6A83A] shrink-0">
                                     ${card.icon}
                                 </div>
-                                <div class="flex flex-col">
-                                    <span class="text-[10px] text-slate-400 font-medium leading-none mb-0.5">${card.firm}</span>
-                                    <span class="text-xs font-semibold text-white">${card.title}</span>
+                                <div class="flex flex-col min-w-0">
+                                    <span class="text-[10px] text-slate-400 font-medium leading-none mb-0.5 truncate">${card.firm}</span>
+                                    <span class="text-xs font-semibold text-white truncate">${card.title}</span>
                                 </div>
                             </div>
-                            <span class="text-[9.5px] font-mono text-slate-500">${card.id.toUpperCase()}</span>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <span class="px-2 py-0.5 rounded border ${widgetBadgeStyles} font-mono font-semibold text-[9.5px] uppercase tracking-wide">${verdictLabel}</span>
+                                <span class="text-[9.5px] font-mono text-slate-500 hidden sm:inline">${card.id.toUpperCase()}</span>
+                            </div>
                         </div>
                         <div class="p-4 flex-1 overflow-y-auto max-h-[420px]">
                             <div class="text-xs leading-relaxed text-slate-300 font-sans">
