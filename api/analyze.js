@@ -170,18 +170,32 @@ module.exports = async function handler(req, res) {
                         analystConsensusGrowth = revenueCAGR;
                     }
 
+                    const enterpriseVal = ttm.enterpriseValueTTM ? `${(ttm.enterpriseValueTTM / 1e9).toFixed(2)} Billion ${currency}` : (metricsData[0]?.enterpriseValue ? `${(metricsData[0].enterpriseValue / 1e9).toFixed(2)} Billion ${currency}` : 'N/A');
+                    const latestDate = incomeData[0]?.date || quote.earningsAnnouncement || 'N/A';
+                    const fiscalYear = incomeData[0]?.calendarYear ? `FY${incomeData[0].calendarYear}` : 'N/A';
+                    const todayIso = new Date().toISOString().split('T')[0];
+
                     const fmpContext = `
 [FMP API BLOCK]
 Name: ${profile.companyName || 'N/A'}
 Symbol: ${symbol}
+Ticker: ${symbol}
 ISIN: ${profile.isin || 'N/A'}
 WKN: ${profile.cusip || 'N/A'}
+Exchange: ${profile.exchangeShortName || quote.exchange || 'N/A'}
+Country: ${profile.country || 'N/A'}
 Currency: ${currency}
+Sector: ${profile.sector || 'N/A'}
+Industry: ${profile.industry || 'N/A'}
 Sector/Industry: ${profile.sector || 'N/A'} / ${profile.industry || 'N/A'}
 HQ: ${profile.city || 'N/A'}, ${profile.country || 'N/A'}
 Description: ${profile.description || 'N/A'}
 Current Price: ${quote.price != null ? `${quote.price} ${currency}` : 'N/A'}
 Market Cap: ${quote.marketCap ? `${(quote.marketCap / 1e9).toFixed(2)} Billion ${currency}` : 'N/A'}
+Enterprise Value: ${enterpriseVal}
+Fiscal Year: ${fiscalYear}
+Latest Reporting Date: ${latestDate}
+Data Timestamp: ${todayIso}
 
 --- FINANCIAL TRENDS ---
 Revenue (5Y): ${incomeData.slice(0, 5).map(y => (y.revenue / 1e9).toFixed(2) + 'B').reverse().join(' -> ')}
