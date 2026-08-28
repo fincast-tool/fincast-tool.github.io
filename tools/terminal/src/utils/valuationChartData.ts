@@ -1,15 +1,30 @@
-import { ChartDataPoint, ValuationMetrics, ForecastReturnMetrics, ValuationHistoryTimeframe } from '../types/valuation-chart';
+import type {
+  ChartDataPoint,
+  ValuationMetrics,
+  ForecastReturnMetrics,
+  ValuationHistoryTimeframe,
+  MultipleStatistics,
+} from '../types/valuation-chart.ts';
+import {
+  BENCHMARK_PROFILES,
+  generateEmpiricalDatasetForProfile,
+  calculateQuantile,
+  calculatePercentileRank,
+  calculateMultipleStatistics,
+  buildUnifiedValuationData,
+} from './valuationEngine.ts';
+
+export * from './valuationEngine.ts';
 
 /**
- * Ermittelt die Anzahl an historischen Monaten für einen gewählten Zeithorizont,
- * begrenzt auf die maximal verfügbare Historie.
+ * Determines the number of historical months for the chosen timeframe.
  */
-export function getHistoryMonthsForTimeframe(tf: ValuationHistoryTimeframe, maxAvailableYears: number = 3): number {
+export function getHistoryMonthsForTimeframe(tf: ValuationHistoryTimeframe, maxAvailableYears: number = 5): number {
   const now = new Date(2026, 7, 25);
   let targetMonths = 36;
   switch (tf) {
     case 'YTD':
-      targetMonths = Math.max(2, now.getMonth() + 1);
+      targetMonths = Math.max(1, now.getMonth() + 1);
       break;
     case '1J':
       targetMonths = 12;
@@ -20,8 +35,14 @@ export function getHistoryMonthsForTimeframe(tf: ValuationHistoryTimeframe, maxA
     case '5J':
       targetMonths = 60;
       break;
+    case '8J':
+      targetMonths = 96;
+      break;
     case '10J':
       targetMonths = 120;
+      break;
+    case '15J':
+      targetMonths = 180;
       break;
     case 'MAX':
       targetMonths = maxAvailableYears * 12;
@@ -34,11 +55,12 @@ export function getHistoryMonthsForTimeframe(tf: ValuationHistoryTimeframe, maxA
 }
 
 /**
- * Berechnet Metriken wie Abweichung, Korridorbreite und Status für einen Datenpunkt oder Stichtag.
+ * Calculates valuation metrics (deviation, empirical corridor span, valuation status).
  */
 export function calculateValuationMetrics(
   data: ChartDataPoint[],
-  splitDate: string
+  splitDate: string,
+  statistics?: MultipleStatistics
 ): ValuationMetrics {
   const currentPoint = data.find((d) => d.date === splitDate) || data[data.length - 1];
   const lastPoint = data[data.length - 1];
@@ -51,14 +73,20 @@ export function calculateValuationMetrics(
     currentDeviationPercent = ((currentPrice - currentFairValue) / currentFairValue) * 100;
   }
 
-  let valuationStatus: 'undervalued' | 'fair' | 'overvalued' = 'fair';
-  if (currentDeviationPercent !== null) {
-    if (currentDeviationPercent <= -8) {
-      valuationStatus = 'undervalued';
-    } else if (currentDeviationPercent >= 8) {
-      valuationStatus = 'overvalued';
+  let valuationStatus: ValuationMetrics['valuationStatus'] = 'fair';
+  if (statistics && statistics.valuationStatus !== 'N/A') {
+    valuationStatus = statistics.valuationStatus;
+  } else if (currentDeviationPercent !== null) {
+    if (currentDeviationPercent <= -10) {
+      valuationStatus = 'DEEPLY_UNDERVALUED';
+    } else if (currentDeviationPercent <= -4) {
+      valuationStatus = 'UNDERVALUED';
+    } else if (currentDeviationPercent >= 12) {
+      valuationStatus = 'DEEPLY_OVERVALUED';
+    } else if (currentDeviationPercent >= 4) {
+      valuationStatus = 'OVERVALUED';
     } else {
-      valuationStatus = 'fair';
+      valuationStatus = 'FAIR';
     }
   }
 
@@ -66,11 +94,11 @@ export function calculateValuationMetrics(
 
   let expectedAnnualReturnPercent: number | null = null;
   if (currentPrice !== null && currentPrice > 0 && forecastFairValueEnd > 0) {
-    const years = 3; // Typischer 3-Jahres-Prognosehorizont
+    const years = 3;
     expectedAnnualReturnPercent = (Math.pow(forecastFairValueEnd / currentPrice, 1 / years) - 1) * 100;
   }
 
-  const corridorBandWidthPercent = currentPoint
+  const corridorBandWidthPercent = currentPoint && currentFairValue > 0
     ? ((currentPoint.upperBand - currentPoint.lowerBand) / currentFairValue) * 100
     : 30;
 
@@ -82,20 +110,24 @@ export function calculateValuationMetrics(
     expectedAnnualReturnPercent,
     corridorBandWidthPercent,
     valuationStatus,
+    medianMultiple: statistics?.median,
+    p25Multiple: statistics?.p25,
+    p75Multiple: statistics?.p75,
+    currentPercentile: statistics?.currentPercentile,
   };
 }
 
 /**
- * Formatiert Datumsstrings ('YYYY-MM-DD') für X-Achsen und Tooltips ('Monat Jahr').
+ * Formats date strings ('YYYY-MM-DD') for chart axes and tooltips.
  */
 export function formatChartDate(dateStr: string, format: 'short' | 'full' = 'short', isYearOnly: boolean = false): string {
   if (!dateStr) return '';
   const parts = dateStr.split('-');
-  if (parts.length < 3) return dateStr;
+  if (parts.length < 2) return dateStr;
 
   const year = parts[0];
   const monthIdx = parseInt(parts[1], 10) - 1;
-  const day = parts[2];
+  const day = parts[2] ? parseInt(parts[2], 10) : 1;
 
   const monthsShort = [
     'Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun',
@@ -108,7 +140,7 @@ export function formatChartDate(dateStr: string, format: 'short' | 'full' = 'sho
   ];
 
   if (format === 'full') {
-    return `${parseInt(day, 10)}. ${monthsFull[monthIdx] || ''} ${year}`;
+    return `${day}. ${monthsFull[monthIdx] || ''} ${year}`;
   }
 
   if (isYearOnly) {
@@ -119,7 +151,7 @@ export function formatChartDate(dateStr: string, format: 'short' | 'full' = 'sho
 }
 
 /**
- * Formatiert Währungsbeträge mit Tausendertrennzeichen und 2 Dezimalstellen.
+ * Formats currency values with German locale and 2 decimal digits.
  */
 export function formatCurrencyValue(val: number | null | undefined, currency = '$'): string {
   if (val === null || val === undefined || isNaN(val)) return '--';
@@ -127,7 +159,7 @@ export function formatCurrencyValue(val: number | null | undefined, currency = '
 }
 
 /**
- * Berechnet Rendite-Kennzahlen (Total Return & CAGR p.a.) von einem Basispreis zu einem Zielpunkt.
+ * Calculates forecast return metrics (Total Return & annualized CAGR) between base price and target point.
  */
 export function calculateForecastReturn(
   basePrice: number,
@@ -139,7 +171,6 @@ export function calculateForecastReturn(
     return null;
   }
 
-  // Ermittle Zeitabstand in Jahren
   let years = targetYears;
   if (years === undefined || years === null || years <= 0) {
     const splitParts = splitDate.split('-').map((p) => parseInt(p, 10));
@@ -179,127 +210,78 @@ export function calculateForecastReturn(
 }
 
 /**
- * Generiert realitätsnahe Chart-Daten für Schnellanalysen basierend auf Fundamentaldaten & KGV-Multiplikator.
+ * Generates empirical valuation data without synthetic trigonometric noise.
  */
 export function generateSampleGrowthData(
   ticker: string = 'AAPL',
-  basePrice: number = 225.5,
-  baseFairValue: number = 210.0,
-  annualGrowth: number = 0.12,
-  corridorSpread: number = 0.15,
+  basePrice?: number,
+  baseFairValue?: number,
+  annualGrowth?: number,
+  corridorSpread?: number,
   timeframe: ValuationHistoryTimeframe = '3J'
 ): { splitDate: string; data: ChartDataPoint[] } {
-  const data: ChartDataPoint[] = [];
-  const historyMonths = getHistoryMonthsForTimeframe(timeframe);
-  const forecastMonths = 36; // 36 Monate Konsens-Prognose (1J, 2J, 3J)
-  const totalMonths = historyMonths + forecastMonths;
+  const profile = BENCHMARK_PROFILES[ticker.toUpperCase()] || BENCHMARK_PROFILES.AAPL;
   
-  const today = new Date(2026, 7, 25); // Aktueller Stichtag
-  const startDate = new Date(today);
-  startDate.setMonth(startDate.getMonth() - historyMonths);
+  // Apply overrides if passed
+  const activeProfile = {
+    ...profile,
+    currentPrice: basePrice !== undefined && basePrice > 0 ? basePrice : profile.currentPrice,
+    epsCagr: annualGrowth !== undefined && annualGrowth > 0 ? annualGrowth : profile.epsCagr,
+  };
 
-  let currentSimFair = baseFairValue * Math.pow(1 - annualGrowth, historyMonths / 12);
-  let splitDateStr = '';
-
-  for (let i = 0; i <= totalMonths; i++) {
-    const d = new Date(startDate);
-    d.setMonth(d.getMonth() + i);
-
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = '01';
-    const dateStr = `${year}-${month}-${day}`;
-
-    const isForecast = i > historyMonths;
-    if (i === historyMonths) {
-      splitDateStr = dateStr;
-    }
-
-    // Monatliche Wachstumsrate für Fair Value
-    const monthlyGrowth = Math.pow(1 + annualGrowth, 1 / 12) - 1;
-    currentSimFair = currentSimFair * (1 + monthlyGrowth);
-
-    // Bänder um ±15% (oder konfigurierten Spread)
-    const fairValRound = Math.round(currentSimFair * 100) / 100;
-    const lowerBand = Math.round(fairValRound * (1 - corridorSpread) * 100) / 100;
-    const upperBand = Math.round(fairValRound * (1 + corridorSpread) * 100) / 100;
-
-    let priceVal: number | null = null;
-
-    if (!isForecast) {
-      // Realistische zyklische Marktbewegung
-      const noise = (Math.sin(i * 0.35) * 0.08) + ((Math.cos(i * 0.85) * 0.05)) + ((Math.sin(i * 1.6) * 0.025));
-      let baseP = fairValRound * (1 + noise);
-      if (i === historyMonths) {
-        baseP = basePrice;
-      } else if (i >= historyMonths - 3) {
-        const weight = (i - (historyMonths - 3)) / 3;
-        baseP = (baseP * (1 - weight)) + (basePrice * weight);
-      }
-      priceVal = Math.round(baseP * 100) / 100;
-    }
-
-    data.push({
-      date: dateStr,
-      price: priceVal,
-      fairValue: fairValRound,
-      lowerBand,
-      upperBand,
-      isForecast,
-    });
-  }
-
+  const unified = generateEmpiricalDatasetForProfile(activeProfile, timeframe);
+  
   return {
-    splitDate: splitDateStr,
-    data,
+    splitDate: unified.splitDate,
+    data: unified.growthSeries,
   };
 }
 
 /**
- * Vordefinierte Ticker-Beispieldatensätze
+ * Pre-defined sample ticker records mapped to empirical fundamental profiles.
  */
 export const SAMPLE_TICKERS: Record<
   string,
   { name: string; currency: string; price: number; fair: number; growth: number; spread: number }
 > = {
   AAPL: {
-    name: 'Apple Inc.',
-    currency: '$',
-    price: 228.4,
-    fair: 215.0,
-    growth: 0.11,
-    spread: 0.15,
-  },
-  MSFT: {
-    name: 'Microsoft Corporation',
-    currency: '$',
-    price: 442.1,
-    fair: 455.0,
-    growth: 0.14,
+    name: BENCHMARK_PROFILES.AAPL.name,
+    currency: BENCHMARK_PROFILES.AAPL.currency,
+    price: BENCHMARK_PROFILES.AAPL.currentPrice,
+    fair: Math.round(BENCHMARK_PROFILES.AAPL.baseEps * BENCHMARK_PROFILES.AAPL.targetMedianPe * 10) / 10,
+    growth: BENCHMARK_PROFILES.AAPL.epsCagr,
     spread: 0.14,
   },
+  MSFT: {
+    name: BENCHMARK_PROFILES.MSFT.name,
+    currency: BENCHMARK_PROFILES.MSFT.currency,
+    price: BENCHMARK_PROFILES.MSFT.currentPrice,
+    fair: Math.round(BENCHMARK_PROFILES.MSFT.baseEps * BENCHMARK_PROFILES.MSFT.targetMedianPe * 10) / 10,
+    growth: BENCHMARK_PROFILES.MSFT.epsCagr,
+    spread: 0.12,
+  },
   NVDA: {
-    name: 'NVIDIA Corporation',
-    currency: '$',
-    price: 126.8,
-    fair: 118.5,
-    growth: 0.28,
-    spread: 0.20,
+    name: BENCHMARK_PROFILES.NVDA.name,
+    currency: BENCHMARK_PROFILES.NVDA.currency,
+    price: BENCHMARK_PROFILES.NVDA.currentPrice,
+    fair: Math.round(BENCHMARK_PROFILES.NVDA.baseEps * BENCHMARK_PROFILES.NVDA.targetMedianPe * 10) / 10,
+    growth: BENCHMARK_PROFILES.NVDA.epsCagr,
+    spread: 0.18,
   },
   SAP: {
-    name: 'SAP SE',
-    currency: '€',
-    price: 198.5,
-    fair: 205.0,
-    growth: 0.13,
-    spread: 0.15,
+    name: BENCHMARK_PROFILES.SAP.name,
+    currency: BENCHMARK_PROFILES.SAP.currency,
+    price: BENCHMARK_PROFILES.SAP.currentPrice,
+    fair: Math.round(BENCHMARK_PROFILES.SAP.baseEps * BENCHMARK_PROFILES.SAP.targetMedianPe * 10) / 10,
+    growth: BENCHMARK_PROFILES.SAP.epsCagr,
+    spread: 0.13,
   },
   ALV: {
-    name: 'Allianz SE',
-    currency: '€',
-    price: 268.0,
-    fair: 280.0,
-    growth: 0.08,
+    name: BENCHMARK_PROFILES.ALV.name,
+    currency: BENCHMARK_PROFILES.ALV.currency,
+    price: BENCHMARK_PROFILES.ALV.currentPrice,
+    fair: Math.round(BENCHMARK_PROFILES.ALV.baseEps * BENCHMARK_PROFILES.ALV.targetMedianPe * 10) / 10,
+    growth: BENCHMARK_PROFILES.ALV.epsCagr,
     spread: 0.12,
   },
 };

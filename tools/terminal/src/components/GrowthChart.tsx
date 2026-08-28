@@ -11,7 +11,7 @@ import {
   ReferenceArea,
   CartesianGrid,
 } from 'recharts';
-import { ChartDataPoint, GrowthChartProps, ValuationHistoryTimeframe } from '../types/valuation-chart';
+import type { ChartDataPoint, GrowthChartProps, ValuationHistoryTimeframe } from '../types/valuation-chart';
 import {
   calculateValuationMetrics,
   calculateForecastReturn,
@@ -31,6 +31,7 @@ export const GrowthChart: React.FC<GrowthChartProps> = ({
   showFloatingTooltip = false,
   selectedHorizonYears = 3,
   selectedTimeframe = '3J',
+  statistics,
   onDataPointHover,
   onHorizonSelect,
   onTimeframeSelect,
@@ -49,34 +50,34 @@ export const GrowthChart: React.FC<GrowthChartProps> = ({
     if (onTimeframeSelect) onTimeframeSelect(tf);
   };
 
-  // Aufbereitung der Daten für getrennte solide vs. gestrichelte Linien & Bänder
+  // Preparation of data for distinct solid vs. dashed lines & empirical quantile bands
   const processedData = useMemo(() => {
     return data.map((point) => {
       const isHistorical = point.date <= splitDate;
       const isFuture = point.date >= splitDate;
 
-      // Bandbreite für Area Fill
+      // Empirical quantile band range: [lowerBand (P25), upperBand (P75)]
       const corridorRange: [number, number] = [point.lowerBand, point.upperBand];
 
       return {
         ...point,
         corridorRange,
-        // Historischer Fair Value (nur bis inkl. splitDate)
+        // Historical Fair Value (up to splitDate)
         fairValueHistory: isHistorical ? point.fairValue : null,
-        // Prognostizierter Fair Value (ab inkl. splitDate für nahtlose Verbindung)
+        // Forecast Fair Value (from splitDate onwards for seamless connection)
         fairValueForecast: isFuture ? point.fairValue : null,
-        // Unteres & Oberes Band für Area-Visualisierung
+        // Band width
         bandDelta: point.upperBand - point.lowerBand,
       };
     });
   }, [data, splitDate]);
 
-  // Kennzahlen und Min/Max-Berechnung für Y-Achse
+  // Metric and corridor calculations
   const metrics = useMemo(() => {
-    return calculateValuationMetrics(data, splitDate);
-  }, [data, splitDate]);
+    return calculateValuationMetrics(data, splitDate, statistics);
+  }, [data, splitDate, statistics]);
 
-  // Berechnung der Rendite-Prognose für den gewählten Zeithorizont
+  // Calculation of return forecast for selected horizon
   const roiMetrics = useMemo(() => {
     const splitIndex = data.findIndex((d) => d.date === splitDate);
     if (splitIndex < 0) return null;
@@ -97,9 +98,13 @@ export const GrowthChart: React.FC<GrowthChartProps> = ({
   const yDomain = useMemo(() => {
     const allValues: number[] = [];
     data.forEach((d) => {
-      if (d.price !== null) allValues.push(d.price);
-      allValues.push(d.fairValue, d.lowerBand, d.upperBand);
+      if (d.price !== null && d.price > 0) allValues.push(d.price);
+      if (d.fairValue > 0) allValues.push(d.fairValue);
+      if (d.lowerBand > 0) allValues.push(d.lowerBand);
+      if (d.upperBand > 0) allValues.push(d.upperBand);
     });
+
+    if (allValues.length === 0) return [0, 100];
 
     const min = Math.min(...allValues);
     const max = Math.max(...allValues);
@@ -108,10 +113,10 @@ export const GrowthChart: React.FC<GrowthChartProps> = ({
     return [Math.max(0, Math.floor(min - padding)), Math.ceil(max + padding)];
   }, [data]);
 
-  // Letzter Datenpunkt für die End-Position der ReferenceArea
+  // Last data point for ReferenceArea
   const lastDate = data.length > 0 ? data[data.length - 1].date : splitDate;
 
-  // Farb-Paletten basierend auf Dark/Light Mode
+  // Theme styling
   const theme = {
     bg: isDarkMode ? 'bg-[#0F1420]/90' : 'bg-white',
     border: isDarkMode ? 'border-white/10' : 'border-slate-200',
@@ -158,6 +163,48 @@ export const GrowthChart: React.FC<GrowthChartProps> = ({
 
   const isMultiYear = data.length > 60;
 
+  // Valuation Status Label Mapping
+  const getStatusBadge = () => {
+    const dev = metrics.currentDeviationPercent;
+    const status = metrics.valuationStatus;
+
+    if (status === 'DEEPLY_UNDERVALUED' || (dev !== null && dev <= -12)) {
+      return {
+        bg: 'bg-emerald-500/15 border-emerald-500/35 text-emerald-400',
+        dot: 'bg-emerald-400',
+        label: `Stark Unterbewertet (${dev !== null ? `${dev.toFixed(1)}%` : '< P25'})`,
+      };
+    }
+    if (status === 'UNDERVALUED' || (dev !== null && dev <= -4)) {
+      return {
+        bg: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400',
+        dot: 'bg-emerald-400',
+        label: `Unterbewertet (${dev !== null ? `${dev.toFixed(1)}%` : '< Median'})`,
+      };
+    }
+    if (status === 'DEEPLY_OVERVALUED' || (dev !== null && dev >= 15)) {
+      return {
+        bg: 'bg-rose-500/15 border-rose-500/35 text-rose-400',
+        dot: 'bg-rose-400',
+        label: `Stark Überbewertet (${dev !== null ? `+${dev.toFixed(1)}%` : '> P75'})`,
+      };
+    }
+    if (status === 'OVERVALUED' || (dev !== null && dev >= 5)) {
+      return {
+        bg: 'bg-amber-500/10 border-amber-500/30 text-amber-400',
+        dot: 'bg-amber-400',
+        label: `Überbewertet (${dev !== null ? `+${dev.toFixed(1)}%` : '> Median'})`,
+      };
+    }
+    return {
+      bg: 'bg-blue-500/10 border-blue-500/30 text-blue-400',
+      dot: 'bg-blue-400',
+      label: `Fair bewertet (${dev !== null && dev >= 0 ? '+' : ''}${dev?.toFixed(1) || '0.0'}%)`,
+    };
+  };
+
+  const statusBadge = getStatusBadge();
+
   return (
     <div
       className={`relative w-full rounded-2xl border ${theme.border} ${theme.bg} p-4 md:p-6 backdrop-blur-md transition-all duration-300 font-sans shadow-sm ${className}`}
@@ -186,11 +233,11 @@ export const GrowthChart: React.FC<GrowthChartProps> = ({
                 {companyName} <span className="font-mono text-xs text-[#D4AF37]">({ticker})</span>
               </h3>
               <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/20 text-[#D4AF37]">
-                Fair Value Corridor
+                Empirical Fundamental Corridor
               </span>
             </div>
             <p className="text-[11px] text-gray-400">
-              Historischer Kursverlauf &amp; Konsens-Bewertungsband (±15%) inkl. 3-Jahres-Prognose
+              Historischer Kursverlauf &amp; empirischer Bewertungskorridor (P25 – P75) inkl. 3-Jahres-Prognose
             </p>
           </div>
         </div>
@@ -206,45 +253,21 @@ export const GrowthChart: React.FC<GrowthChartProps> = ({
             </div>
           )}
           <div className="text-right hidden sm:block">
-            <div className="text-[10px] uppercase font-mono text-gray-400">Fairer Wert</div>
+            <div className="text-[10px] uppercase font-mono text-gray-400">Fair Value (Median)</div>
             <div className="font-mono text-sm font-bold text-[#D4AF37]">
               {formatCurrencyValue(metrics.currentFairValue, currency)}
             </div>
           </div>
-          {metrics.currentDeviationPercent !== null && (
-            <div
-              className={`px-3 py-1.5 rounded-xl border text-xs font-mono font-bold flex items-center gap-1.5 shadow-sm ${
-                metrics.currentDeviationPercent <= -5
-                  ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-                  : metrics.currentDeviationPercent >= 5
-                  ? 'bg-amber-500/10 border-amber-500/30 text-amber-400'
-                  : 'bg-blue-500/10 border-blue-500/30 text-blue-400'
-              }`}
-            >
-              <span
-                className={`w-1.5 h-1.5 rounded-full ${
-                  metrics.currentDeviationPercent <= -5
-                    ? 'bg-emerald-400'
-                    : metrics.currentDeviationPercent >= 5
-                    ? 'bg-amber-400'
-                    : 'bg-blue-400'
-                }`}
-              />
-              <span>
-                {metrics.currentDeviationPercent > 0 ? '+' : ''}
-                {metrics.currentDeviationPercent.toFixed(1)}%{' '}
-                {metrics.currentDeviationPercent <= -5
-                  ? 'Unterbewertet'
-                  : metrics.currentDeviationPercent >= 5
-                  ? 'Überbewertet'
-                  : 'Fair bewertet'}
-              </span>
-            </div>
-          )}
+          <div
+            className={`px-3 py-1.5 rounded-xl border text-xs font-mono font-bold flex items-center gap-1.5 shadow-sm ${statusBadge.bg}`}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${statusBadge.dot}`} />
+            <span>{statusBadge.label}</span>
+          </div>
         </div>
       </div>
 
-      {/* Top Bar: Range Selector (YTD, 1J, 3J, 5J, 10J, MAX) */}
+      {/* Top Bar: Range Selector (YTD, 1J, 3J, 5J, 10J, MAX) & Legend */}
       <div className="flex flex-wrap items-center justify-between gap-3 text-xs font-mono text-gray-400 mb-3 pb-2.5 border-b border-white/5">
         <div className="flex flex-wrap items-center gap-3 text-[11px]">
           <div className="flex items-center gap-1.5">
@@ -253,7 +276,7 @@ export const GrowthChart: React.FC<GrowthChartProps> = ({
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-3 h-0.5 bg-[#D4AF37] rounded-full" />
-            <span className="text-gray-300">Fair Value</span>
+            <span className="text-gray-300">Fair Value (Median)</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-3 h-0.5 border-t border-dashed border-[#D4AF37]" />
@@ -261,13 +284,13 @@ export const GrowthChart: React.FC<GrowthChartProps> = ({
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-sm bg-[#10B981]/20 border border-[#D4AF37]/30" />
-            <span className="text-gray-300">Korridor (±15%)</span>
+            <span className="text-gray-300">Korridor (P25 – P75)</span>
           </div>
         </div>
 
         {/* Timeframe Range Pills */}
         <div className="flex items-center gap-1 bg-white/[0.04] p-0.5 rounded-lg border border-white/10">
-          {(['YTD', '1J', '3J', '5J', '10J', 'MAX'] as ValuationHistoryTimeframe[]).map((tf) => (
+          {(['YTD', '1J', '3J', '5J', '8J', '10J', '15J', 'MAX'] as ValuationHistoryTimeframe[]).map((tf) => (
             <button
               key={tf}
               type="button"
@@ -293,7 +316,7 @@ export const GrowthChart: React.FC<GrowthChartProps> = ({
             </svg>
             <span>Rendite-Prognose:</span>
           </span>
-          <span className="text-[10px] text-gray-400 hidden sm:inline">(Stichtag ➔ Fair Value)</span>
+          <span className="text-[10px] text-gray-400 hidden sm:inline">(Stichtag ➔ Fair Value Median)</span>
         </div>
         <div className="flex items-center gap-1 font-mono text-[11px]">
           <button
@@ -359,7 +382,7 @@ export const GrowthChart: React.FC<GrowthChartProps> = ({
               </div>
             </div>
             <div>
-              <div className="text-[9px] text-gray-400 uppercase">Korridorspanne p.a.</div>
+              <div className="text-[9px] text-gray-400 uppercase">P25 – P75 Spanne p.a.</div>
               <div className="font-mono text-gray-300 mt-0.5">
                 {roiMetrics.lowerAnnualizedReturnPercent >= 0 ? '+' : ''}
                 {roiMetrics.lowerAnnualizedReturnPercent.toFixed(1)}% bis{' '}
@@ -408,7 +431,7 @@ export const GrowthChart: React.FC<GrowthChartProps> = ({
             </div>
 
             <div className="flex flex-col min-w-0">
-              <span className="text-[9px] text-gray-400 uppercase tracking-tighter">Fairer Wert</span>
+              <span className="text-[9px] text-gray-400 uppercase tracking-tighter">Fair Value (Median)</span>
               <span className="font-bold text-[#D4AF37] mt-0.5 text-[11px] truncate">
                 {formatCurrencyValue(pt.fairValue, currency)}
               </span>
@@ -436,7 +459,7 @@ export const GrowthChart: React.FC<GrowthChartProps> = ({
             </div>
 
             <div className="flex flex-col min-w-0 col-span-2 sm:col-span-1 lg:col-span-1">
-              <span className="text-[9px] text-gray-400 uppercase tracking-tighter">Korridor (±15%)</span>
+              <span className="text-[9px] text-gray-400 uppercase tracking-tighter">Korridor (P25 – P75)</span>
               <span className="font-mono text-gray-300 mt-0.5 text-[10px] truncate">
                 {pt.lowerBand.toFixed(1)} – {pt.upperBand.toFixed(1)} {currency}
               </span>
@@ -455,16 +478,14 @@ export const GrowthChart: React.FC<GrowthChartProps> = ({
             onMouseLeave={handleMouseLeave}
             onClick={handleChartClick}
           >
-            {/* Definitions für zarte, transluzente FinTech-Gradients */}
+            {/* Gradients for translucent FinTech corridor and forecast shadow */}
             <defs>
-              {/* Zartes Bewertungsband (Emerald bei Unterbewertung / Amber-Gold Basis) */}
               <linearGradient id="corridorGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#10B981" stopOpacity={0.16} />
                 <stop offset="50%" stopColor="#D4AF37" stopOpacity={0.08} />
                 <stop offset="100%" stopColor="#10B981" stopOpacity={0.16} />
               </linearGradient>
 
-              {/* Prognose-Schattenverlauf */}
               <linearGradient id="forecastAreaGradient" x1="0" y1="0" x2="1" y2="0">
                 <stop offset="0%" stopColor="#D4AF37" stopOpacity={0.02} />
                 <stop offset="100%" stopColor="#D4AF37" stopOpacity={0.07} />
@@ -494,7 +515,7 @@ export const GrowthChart: React.FC<GrowthChartProps> = ({
               width={65}
             />
 
-            {/* Schattierter Prognosebereich (ReferenceArea) */}
+            {/* Shaded Forecast Area */}
             <ReferenceArea
               x1={splitDate}
               x2={lastDate}
@@ -503,7 +524,7 @@ export const GrowthChart: React.FC<GrowthChartProps> = ({
               stroke="none"
             />
 
-            {/* Vertikale Trennlinie Historie vs. Prognose */}
+            {/* Split Date Line */}
             <ReferenceLine
               x={splitDate}
               stroke={theme.splitLine}
@@ -520,7 +541,7 @@ export const GrowthChart: React.FC<GrowthChartProps> = ({
               }}
             />
 
-            {/* 1. Bewertungskorridor: Oberes Band & Unteres Band */}
+            {/* 1. Empirical Quantile Corridor: Lower Band (P25) & Upper Band (P75) */}
             <Area
               type="monotone"
               dataKey="corridorRange"
@@ -528,10 +549,10 @@ export const GrowthChart: React.FC<GrowthChartProps> = ({
               strokeWidth={1}
               fill="url(#corridorGradient)"
               isAnimationActive={false}
-              name="Bewertungskorridor"
+              name="Bewertungskorridor (P25–P75)"
             />
 
-            {/* 2. Fair-Value-Linie Historie (durchgezogen bis splitDate) */}
+            {/* 2. Historical Fair Value (Solid line up to splitDate) */}
             <Line
               type="monotone"
               dataKey="fairValueHistory"
@@ -539,11 +560,11 @@ export const GrowthChart: React.FC<GrowthChartProps> = ({
               strokeWidth={2}
               dot={false}
               activeDot={{ r: 4, stroke: theme.fairValueLine, strokeWidth: 2, fill: '#fff' }}
-              name="Fair Value (Historie)"
+              name="Fair Value (Median Hist.)"
               isAnimationActive={true}
             />
 
-            {/* 2b. Fair-Value-Linie Prognose (gestrichelt ab splitDate) */}
+            {/* 2b. Forecast Fair Value (Dashed line from splitDate) */}
             <Line
               type="monotone"
               dataKey="fairValueForecast"
@@ -552,11 +573,11 @@ export const GrowthChart: React.FC<GrowthChartProps> = ({
               strokeDasharray="4 4"
               dot={false}
               activeDot={{ r: 4, stroke: theme.fairValueLine, strokeWidth: 2, fill: '#fff' }}
-              name="Fair Value (Prognose)"
+              name="Fair Value (Konsens-Prog.)"
               isAnimationActive={true}
             />
 
-            {/* 3. Reale Kurslinie (Historie bis splitDate) */}
+            {/* 3. Real Price Line */}
             <Line
               type="monotone"
               dataKey="price"
@@ -569,7 +590,7 @@ export const GrowthChart: React.FC<GrowthChartProps> = ({
               connectNulls={false}
             />
 
-            {/* Tooltip (Standard: Info Bar oben, optional floating tooltip) */}
+            {/* Tooltip */}
             <Tooltip
               content={
                 showFloatingTooltip ? (
@@ -597,7 +618,7 @@ export const GrowthChart: React.FC<GrowthChartProps> = ({
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-3.5 h-0.5 bg-[#D4AF37] rounded-full" />
-            <span>Fair Value (Hist.)</span>
+            <span>Fair Value (Median)</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-3.5 h-0.5 border-t border-dashed border-[#D4AF37]" />
@@ -605,7 +626,7 @@ export const GrowthChart: React.FC<GrowthChartProps> = ({
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded-sm bg-[#10B981]/20 border border-[#D4AF37]/30" />
-            <span>Korridor (±15%)</span>
+            <span>Empirischer Korridor (P25 – P75)</span>
           </div>
         </div>
 
@@ -621,7 +642,7 @@ export const GrowthChart: React.FC<GrowthChartProps> = ({
 };
 
 /**
- * Moderner, interaktiver FinTech-Tooltip
+ * Modern interactive FinTech tooltip
  */
 interface TooltipProps {
   active?: boolean;
@@ -634,7 +655,6 @@ interface TooltipProps {
 const CustomValuationTooltip: React.FC<TooltipProps> = ({
   active,
   payload,
-  label,
   currency,
   isDarkMode,
 }) => {
@@ -643,7 +663,7 @@ const CustomValuationTooltip: React.FC<TooltipProps> = ({
   const dataPoint = payload[0].payload as ChartDataPoint;
   if (!dataPoint) return null;
 
-  const { date, price, fairValue, lowerBand, upperBand, isForecast } = dataPoint;
+  const { date, price, fairValue, lowerBand, upperBand, isForecast, metricValue } = dataPoint;
 
   let deviationPercent: number | null = null;
   if (price !== null && fairValue > 0) {
@@ -655,13 +675,13 @@ const CustomValuationTooltip: React.FC<TooltipProps> = ({
 
   return (
     <div
-      className={`p-3.5 rounded-xl border backdrop-blur-xl shadow-2xl font-mono text-xs transition-all min-w-[220px] ${
+      className={`p-3.5 rounded-xl border backdrop-blur-xl shadow-2xl font-mono text-xs transition-all min-w-[230px] ${
         isDarkMode
           ? 'bg-[#0F1420]/95 border-white/15 text-gray-200'
           : 'bg-white/95 border-slate-200 text-slate-800'
       }`}
     >
-      {/* Tooltip Header: Datum & Status Badge */}
+      {/* Tooltip Header: Date & Status Badge */}
       <div className="flex items-center justify-between gap-2 pb-2 mb-2 border-b border-white/10">
         <div className="font-bold text-[11px] uppercase tracking-wider text-white">
           {formatChartDate(date, 'full')}
@@ -679,7 +699,7 @@ const CustomValuationTooltip: React.FC<TooltipProps> = ({
 
       {/* Key-Value Metrics */}
       <div className="space-y-1.5">
-        {/* Realkurs (nur in Historie) */}
+        {/* Real Price */}
         {price !== null ? (
           <div className="flex items-center justify-between gap-4">
             <span className="text-gray-400 flex items-center gap-1.5">
@@ -695,16 +715,24 @@ const CustomValuationTooltip: React.FC<TooltipProps> = ({
           </div>
         )}
 
-        {/* Fair Value */}
+        {/* Fundamental Metric per share (e.g. EPS) if present */}
+        {metricValue !== undefined && metricValue !== null && (
+          <div className="flex items-center justify-between gap-4 text-[11px]">
+            <span className="text-gray-400">Fundamental (EPS):</span>
+            <span className="font-mono text-gray-200">{formatCurrencyValue(metricValue, currency)}</span>
+          </div>
+        )}
+
+        {/* Fair Value (Median) */}
         <div className="flex items-center justify-between gap-4">
           <span className="text-gray-400 flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-[#D4AF37]" />
-            Fairer Wert:
+            Fair Value (Median):
           </span>
           <span className="font-bold text-[#D4AF37]">{formatCurrencyValue(fairValue, currency)}</span>
         </div>
 
-        {/* Abweichung % */}
+        {/* Deviation % */}
         {deviationPercent !== null && (
           <div className="flex items-center justify-between gap-4 pt-1 border-t border-white/5">
             <span className="text-gray-400">Abweichung:</span>
@@ -726,9 +754,9 @@ const CustomValuationTooltip: React.FC<TooltipProps> = ({
           </div>
         )}
 
-        {/* Korridor-Spanne (Lower - Upper Band) */}
+        {/* Empirical Quantile Corridor (P25 - P75) */}
         <div className="flex items-center justify-between gap-4 pt-1 border-t border-white/5 text-[10px] text-gray-400">
-          <span>Korridor (±15%):</span>
+          <span>Korridor (P25–P75):</span>
           <span className="text-gray-300 font-mono">
             {lowerBand.toFixed(1)} – {upperBand.toFixed(1)} {currency}
           </span>
@@ -739,4 +767,3 @@ const CustomValuationTooltip: React.FC<TooltipProps> = ({
 };
 
 export default GrowthChart;
-

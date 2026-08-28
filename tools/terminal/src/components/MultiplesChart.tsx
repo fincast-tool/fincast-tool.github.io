@@ -8,9 +8,14 @@ import {
   Tooltip,
   ReferenceLine,
   ReferenceArea,
-  CartesianGrid
+  CartesianGrid,
 } from 'recharts';
-import { MultiplesChartProps, MultiplesDataPoint, MultiplesHistoryTimeframe } from '../types/valuation-chart';
+import type {
+  MultiplesChartProps,
+  MultiplesDataPoint,
+  MultiplesHistoryTimeframe,
+  MultipleStatistics,
+} from '../types/valuation-chart';
 import { formatChartDate } from '../utils/valuationChartData';
 
 export const MultiplesChart: React.FC<MultiplesChartProps> = ({
@@ -19,24 +24,26 @@ export const MultiplesChart: React.FC<MultiplesChartProps> = ({
   splitDate,
   data,
   averages,
+  statistics,
   height = 300,
   className = '',
   isDarkMode = true,
   selectedTimeframe = '10J',
   onTimeframeSelect,
-  onMetricToggle
+  onMetricToggle,
 }) => {
   const [activeMetrics, setActiveMetrics] = useState({
     pe_adj: true,
     pe_rep: true,
     pcf: true,
-    ps: true
+    ps: true,
+    ev_ebitda: true,
   });
   const [timeframe, setTimeframe] = useState<MultiplesHistoryTimeframe>(selectedTimeframe);
   const [activePoint, setActivePoint] = useState<MultiplesDataPoint | null>(null);
 
   const toggleMetric = (key: keyof typeof activeMetrics) => {
-    setActiveMetrics(prev => {
+    setActiveMetrics((prev) => {
       const next = { ...prev, [key]: !prev[key] };
       if (onMetricToggle) onMetricToggle(key);
       return next;
@@ -48,32 +55,95 @@ export const MultiplesChart: React.FC<MultiplesChartProps> = ({
     if (onTimeframeSelect) onTimeframeSelect(tf);
   };
 
-  const splitIndex = useMemo(() => data.findIndex(d => d.date === splitDate), [data, splitDate]);
+  const splitIndex = useMemo(() => data.findIndex((d) => d.date === splitDate), [data, splitDate]);
   const splitPoint = data[splitIndex] || data[0];
 
   // Current display point (either hovered point or Stichtag)
   const currentPt = activePoint || splitPoint || data[data.length - 1];
 
+  // Primary stats reference (pe_adj)
+  const peStats = statistics?.pe_adj;
+  const peMedian = peStats?.median || averages?.pe_adj;
   const peDiffPct = useMemo(() => {
-    if (!averages?.pe_adj || !currentPt?.pe_adj) return null;
-    return ((currentPt.pe_adj - averages.pe_adj) / averages.pe_adj) * 100;
-  }, [averages, currentPt]);
+    if (!peMedian || !currentPt?.pe_adj) return null;
+    return ((currentPt.pe_adj - peMedian) / peMedian) * 100;
+  }, [peMedian, currentPt]);
+
+  // Overall valuation status from engine or computed diff
+  const valuationStatus = peStats?.valuationStatus || (
+    peDiffPct !== null && peDiffPct <= -12
+      ? 'DEEPLY_UNDERVALUED'
+      : peDiffPct !== null && peDiffPct <= -4
+      ? 'UNDERVALUED'
+      : peDiffPct !== null && peDiffPct >= 15
+      ? 'DEEPLY_OVERVALUED'
+      : peDiffPct !== null && peDiffPct >= 4
+      ? 'OVERVALUED'
+      : 'FAIR'
+  );
+
+  const getStatusPill = () => {
+    const pctl = peStats?.currentPercentile;
+    const pctlStr = pctl !== null && pctl !== undefined ? ` (${pctl}% Perzentil)` : '';
+
+    if (valuationStatus === 'DEEPLY_UNDERVALUED') {
+      return {
+        bg: 'bg-emerald-500/15 border-emerald-500/35 text-emerald-400',
+        dot: 'bg-emerald-400',
+        text: `Historischer Tiefstand${pctlStr}`,
+      };
+    }
+    if (valuationStatus === 'UNDERVALUED') {
+      return {
+        bg: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400',
+        dot: 'bg-emerald-400',
+        text: `Historischer Abschlag${pctlStr}`,
+      };
+    }
+    if (valuationStatus === 'DEEPLY_OVERVALUED') {
+      return {
+        bg: 'bg-rose-500/15 border-rose-500/35 text-rose-400',
+        dot: 'bg-rose-400',
+        text: `Historische Spitzenbewertung${pctlStr}`,
+      };
+    }
+    if (valuationStatus === 'OVERVALUED') {
+      return {
+        bg: 'bg-amber-500/10 border-amber-500/30 text-amber-400',
+        dot: 'bg-amber-400',
+        text: `Bewertungsprämie${pctlStr}`,
+      };
+    }
+    return {
+      bg: 'bg-blue-500/10 border-blue-500/30 text-blue-400',
+      dot: 'bg-blue-400',
+      text: `Faire Bewertung${pctlStr}`,
+    };
+  };
+
+  const statusPill = getStatusPill();
 
   return (
-    <div className={`w-full relative bg-[#0a0d14]/70 rounded-xl border border-white/5 p-3 sm:p-4 overflow-hidden text-xs font-mono ${className}`}>
+    <div
+      className={`w-full relative bg-[#0a0d14]/70 rounded-xl border border-white/5 p-3 sm:p-4 overflow-hidden text-xs font-mono ${className}`}
+    >
       {/* Top Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"
+              />
             </svg>
           </div>
           <div>
             <h3 className="text-xs font-bold text-white tracking-wide uppercase flex items-center gap-2">
               <span>Multiples von {companyName || ticker}</span>
               <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400">
-                Historischer Bewertungsvergleich
+                Empirischer Bewertungsvergleich
               </span>
             </h3>
           </div>
@@ -81,32 +151,16 @@ export const MultiplesChart: React.FC<MultiplesChartProps> = ({
 
         {/* Assessment Status Badge */}
         <div className="flex items-center gap-2">
-          <div className={`px-2.5 py-1 rounded-lg border text-[10px] font-mono font-bold flex items-center gap-1.5 shadow-sm ${
-            peDiffPct !== null && peDiffPct <= -5
-              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-              : peDiffPct !== null && peDiffPct >= 5
-              ? 'bg-rose-500/10 border-rose-500/30 text-rose-400'
-              : 'bg-amber-500/10 border-amber-500/30 text-amber-400'
-          }`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${
-              peDiffPct !== null && peDiffPct <= -5
-                ? 'bg-emerald-400'
-                : peDiffPct !== null && peDiffPct >= 5
-                ? 'bg-rose-400'
-                : 'bg-amber-400'
-            }`} />
-            <span>
-              {peDiffPct !== null && peDiffPct <= -5
-                ? `Historischer Abschlag (${peDiffPct.toFixed(1)}%)`
-                : peDiffPct !== null && peDiffPct >= 5
-                ? `Bewertungsprämie (+${peDiffPct.toFixed(1)}%)`
-                : `Faire Bewertung (${peDiffPct !== null && peDiffPct >= 0 ? '+' : ''}${peDiffPct?.toFixed(1) || '0.0'}%)`}
-            </span>
+          <div
+            className={`px-2.5 py-1 rounded-lg border text-[10px] font-mono font-bold flex items-center gap-1.5 shadow-sm ${statusPill.bg}`}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${statusPill.dot}`} />
+            <span>{statusPill.text}</span>
           </div>
         </div>
       </div>
 
-      {/* Controls Bar */}
+      {/* Controls Bar: Multiples Toggle Buttons & Timeframe */}
       <div className="flex flex-wrap items-center justify-between gap-2 mb-3 pb-2 border-b border-white/5 text-[10px]">
         <div className="flex flex-wrap items-center gap-2">
           <button
@@ -120,6 +174,19 @@ export const MultiplesChart: React.FC<MultiplesChartProps> = ({
           >
             <span className="w-2 h-2 rounded-sm bg-amber-400" />
             <span>KGV bereinigt</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => toggleMetric('pe_rep')}
+            className={`flex items-center gap-1.5 px-2 py-0.5 rounded border transition-all ${
+              activeMetrics.pe_rep
+                ? 'border-slate-400/50 bg-slate-500/20 text-slate-200 font-bold'
+                : 'border-white/10 text-gray-500'
+            }`}
+          >
+            <span className="w-2 h-2 rounded-sm bg-slate-400" />
+            <span>KGV bilanziert</span>
           </button>
 
           <button
@@ -150,28 +217,28 @@ export const MultiplesChart: React.FC<MultiplesChartProps> = ({
 
           <button
             type="button"
-            onClick={() => toggleMetric('pe_rep')}
+            onClick={() => toggleMetric('ev_ebitda')}
             className={`flex items-center gap-1.5 px-2 py-0.5 rounded border transition-all ${
-              activeMetrics.pe_rep
-                ? 'border-slate-400/50 bg-slate-500/20 text-slate-200 font-bold'
+              activeMetrics.ev_ebitda
+                ? 'border-cyan-500/50 bg-cyan-500/20 text-cyan-300 font-bold'
                 : 'border-white/10 text-gray-500'
             }`}
           >
-            <span className="w-2 h-2 rounded-sm bg-slate-500" />
-            <span>KGV bilanziert</span>
+            <span className="w-2 h-2 rounded-sm bg-cyan-400" />
+            <span>EV/EBITDA</span>
           </button>
         </div>
 
         {/* Timeframe Buttons */}
         <div className="flex items-center gap-1 bg-white/[0.04] p-0.5 rounded-lg border border-white/10">
-          {(['3J', '5J', '8J', '10J', '15J', 'MAX'] as MultiplesHistoryTimeframe[]).map(tf => (
+          {(['3J', '5J', '8J', '10J', '15J', 'MAX'] as MultiplesHistoryTimeframe[]).map((tf) => (
             <button
               key={tf}
               type="button"
               onClick={() => handleTimeframeChange(tf)}
               className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all ${
                 timeframe === tf
-                  ? 'text-gold-300 bg-gold-500/20 border border-gold-500/30 shadow-sm'
+                  ? 'text-amber-300 bg-amber-500/20 border border-amber-500/30 shadow-sm'
                   : 'text-gray-400 hover:text-white'
               }`}
             >
@@ -189,11 +256,16 @@ export const MultiplesChart: React.FC<MultiplesChartProps> = ({
         </div>
         <div>
           <span className="text-[9px] text-amber-400 uppercase">KGV bereinigt</span>
-          <div className="font-bold text-amber-300 mt-0.5">{currentPt?.pe_adj?.toFixed(1) || '--'}</div>
+          <div className="font-bold text-amber-300 mt-0.5">
+            {currentPt?.pe_adj?.toFixed(1) || '--'}
+            {peStats?.median ? <span className="text-[9px] text-gray-400 font-normal ml-1">({peStats.median.toFixed(1)} Median)</span> : null}
+          </div>
         </div>
         <div>
           <span className="text-[9px] text-slate-400 uppercase">KGV bilanziert</span>
-          <div className="font-bold text-slate-300 mt-0.5">{currentPt?.pe_rep?.toFixed(1) || '--'}</div>
+          <div className="font-bold text-slate-300 mt-0.5">
+            {currentPt?.pe_rep?.toFixed(1) || '--'}
+          </div>
         </div>
         <div>
           <span className="text-[9px] text-yellow-400 uppercase">KCV (Cashflow)</span>
@@ -204,9 +276,13 @@ export const MultiplesChart: React.FC<MultiplesChartProps> = ({
           <div className="font-bold text-emerald-400 mt-0.5">{currentPt?.ps?.toFixed(1) || '--'}</div>
         </div>
         <div>
-          <span className="text-[9px] text-gray-400 uppercase">Bewertung vs Ø</span>
-          <div className={`font-bold mt-0.5 ${peDiffPct !== null && peDiffPct <= -5 ? 'text-emerald-400' : 'text-rose-400'}`}>
-            {peDiffPct !== null ? `${peDiffPct >= 0 ? '+' : ''}${peDiffPct.toFixed(1)}%` : '--'}
+          <span className="text-[9px] text-gray-400 uppercase">Perzentil / Status</span>
+          <div className={`font-bold mt-0.5 ${peDiffPct !== null && peDiffPct <= -5 ? 'text-emerald-400' : 'text-amber-400'}`}>
+            {peStats?.currentPercentile !== null && peStats?.currentPercentile !== undefined
+              ? `${peStats.currentPercentile}% (${valuationStatus})`
+              : peDiffPct !== null
+              ? `${peDiffPct >= 0 ? '+' : ''}${peDiffPct.toFixed(1)}% vs Ø`
+              : '--'}
           </div>
         </div>
       </div>
@@ -216,7 +292,7 @@ export const MultiplesChart: React.FC<MultiplesChartProps> = ({
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
             data={data}
-            onMouseMove={e => {
+            onMouseMove={(e) => {
               if (e && e.activePayload && e.activePayload.length > 0) {
                 setActivePoint(e.activePayload[0].payload as MultiplesDataPoint);
               }
@@ -227,7 +303,7 @@ export const MultiplesChart: React.FC<MultiplesChartProps> = ({
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
             <XAxis
               dataKey="date"
-              tickFormatter={d => formatChartDate(d, 'short')}
+              tickFormatter={(d) => formatChartDate(d, 'short')}
               stroke="#64748B"
               fontSize={10}
               tickLine={false}
@@ -253,41 +329,69 @@ export const MultiplesChart: React.FC<MultiplesChartProps> = ({
               />
             )}
 
-            {/* Historical Average Lines */}
-            {activeMetrics.pe_adj && averages?.pe_adj && (
+            {/* Statistical Median / Average Lines */}
+            {activeMetrics.pe_adj && peMedian && (
               <ReferenceLine
-                y={averages.pe_adj}
+                y={peMedian}
                 stroke="#F59E0B"
                 strokeDasharray="3 3"
-                label={{ value: `Ø KGV: ${averages.pe_adj}`, fill: '#F59E0B', fontSize: 9, position: 'right' }}
+                label={{ value: `Median KGV: ${peMedian.toFixed(1)}`, fill: '#F59E0B', fontSize: 9, position: 'right' }}
               />
             )}
-            {activeMetrics.pe_rep && averages?.pe_rep && (
+            {activeMetrics.pe_rep && (statistics?.pe_rep?.median || averages?.pe_rep) && (
               <ReferenceLine
-                y={averages.pe_rep}
+                y={statistics?.pe_rep?.median || averages?.pe_rep}
                 stroke="#94A3B8"
                 strokeDasharray="3 3"
-                label={{ value: `Ø KGV bil.: ${averages.pe_rep}`, fill: '#94A3B8', fontSize: 9, position: 'right' }}
+                label={{
+                  value: `Median KGV bil.: ${(statistics?.pe_rep?.median || averages?.pe_rep)?.toFixed(1)}`,
+                  fill: '#94A3B8',
+                  fontSize: 9,
+                  position: 'right',
+                }}
               />
             )}
-            {activeMetrics.pcf && averages?.pcf && (
+            {activeMetrics.pcf && (statistics?.pcf?.median || averages?.pcf) && (
               <ReferenceLine
-                y={averages.pcf}
+                y={statistics?.pcf?.median || averages?.pcf}
                 stroke="#EAB308"
                 strokeDasharray="3 3"
-                label={{ value: `Ø KCV: ${averages.pcf}`, fill: '#EAB308', fontSize: 9, position: 'right' }}
+                label={{
+                  value: `Median KCV: ${(statistics?.pcf?.median || averages?.pcf)?.toFixed(1)}`,
+                  fill: '#EAB308',
+                  fontSize: 9,
+                  position: 'right',
+                }}
               />
             )}
-            {activeMetrics.ps && averages?.ps && (
+            {activeMetrics.ps && (statistics?.ps?.median || averages?.ps) && (
               <ReferenceLine
-                y={averages.ps}
+                y={statistics?.ps?.median || averages?.ps}
                 stroke="#10B981"
                 strokeDasharray="3 3"
-                label={{ value: `Ø KUV: ${averages.ps}`, fill: '#10B981', fontSize: 9, position: 'right' }}
+                label={{
+                  value: `Median KUV: ${(statistics?.ps?.median || averages?.ps)?.toFixed(1)}`,
+                  fill: '#10B981',
+                  fontSize: 9,
+                  position: 'right',
+                }}
+              />
+            )}
+            {activeMetrics.ev_ebitda && statistics?.ev_ebitda?.median && (
+              <ReferenceLine
+                y={statistics.ev_ebitda.median}
+                stroke="#06B6D4"
+                strokeDasharray="3 3"
+                label={{
+                  value: `Median EV/EBITDA: ${statistics.ev_ebitda.median.toFixed(1)}`,
+                  fill: '#06B6D4',
+                  fontSize: 9,
+                  position: 'right',
+                }}
               />
             )}
 
-            {/* Curves */}
+            {/* Multiple Curves */}
             {activeMetrics.pe_adj && (
               <Line
                 type="monotone"
@@ -296,6 +400,16 @@ export const MultiplesChart: React.FC<MultiplesChartProps> = ({
                 strokeWidth={2}
                 dot={false}
                 name="KGV bereinigt"
+              />
+            )}
+            {activeMetrics.pe_rep && (
+              <Line
+                type="monotone"
+                dataKey="pe_rep"
+                stroke="#94A3B8"
+                strokeWidth={1.5}
+                dot={false}
+                name="KGV bilanziert"
               />
             )}
             {activeMetrics.pcf && (
@@ -318,14 +432,14 @@ export const MultiplesChart: React.FC<MultiplesChartProps> = ({
                 name="KUV"
               />
             )}
-            {activeMetrics.pe_rep && (
+            {activeMetrics.ev_ebitda && (
               <Line
                 type="monotone"
-                dataKey="pe_rep"
-                stroke="#94A3B8"
+                dataKey="ev_ebitda"
+                stroke="#06B6D4"
                 strokeWidth={1.5}
                 dot={false}
-                name="KGV bilanziert"
+                name="EV/EBITDA"
               />
             )}
           </ComposedChart>
