@@ -1425,7 +1425,7 @@
                                         </div>
                                     </div>
                                     
-                                    <div id="id_agent_fazits" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+                                    <div id="id_agent_fazits" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
                                         <!-- Dynamically populated via renderAgentFazits -->
                                     </div>
                                 </div>
@@ -2451,34 +2451,40 @@
 
         const CARDS = [
             {
-                id: 'goldman_sachs',
-                title: 'Stock Screener',
-                firm: 'Fundamental Value AI',
-                icon: '<svg class=\"w-4 h-4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.5m-15 10.5V10.5M3 21h18\"/></svg>'
+                id: 'business_quality',
+                title: 'Business & Moat',
+                firm: 'Competitive Advantage AI',
+                icon: '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"/></svg>'
             },
             {
-                id: 'morgan_stanley',
-                title: 'DCF Deep Dive',
+                id: 'financial_quality',
+                title: 'Financial Quality',
+                firm: 'Capital Efficiency AI',
+                icon: '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>'
+            },
+            {
+                id: 'earnings_expectations',
+                title: 'Earnings & Catalysts',
+                firm: 'Consensus & Revisions AI',
+                icon: '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6H2.25m0 0v8.25m0 0h19.5m-19.5 0v3.75m19.5-3.75v3.75m0-12V6a.75.75 0 0 1-.75-.75V4.5m0 0H3.75m16.5 0h1.5m-1.5 0v3.75M3.75 4.5v3.75m16.5 0A60.106 60.106 0 0 0 3.75 8.25m16.5 0v3.75m-16.5 0v3.75m0 0h16.5m-8.25-3.75a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5Z"/></svg>'
+            },
+            {
+                id: 'valuation',
+                title: 'Valuation & DCF',
                 firm: 'Intrinsic Value AI',
-                icon: '<svg class=\"w-4 h-4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z\"/></svg>'
+                icon: '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"/></svg>'
             },
             {
-                id: 'jpmorgan',
-                title: 'Earnings Breakdown',
-                firm: 'Earnings Momentum AI',
-                icon: '<svg class=\"w-4 h-4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6H2.25m0 0v8.25m0 0h19.5m-19.5 0v3.75m19.5-3.75v3.75m0-12V6a.75.75 0 0 1-.75-.75V4.5m0 0H3.75m16.5 0h1.5m-1.5 0v3.75M3.75 4.5v3.75m16.5 0A60.106 60.106 0 0 0 3.75 8.25m16.5 0v3.75m-16.5 0v3.75m0 0h16.5m-8.25-3.75a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5Z\"/></svg>'
-            },
-            {
-                id: 'citadel',
-                title: 'Technical System',
-                firm: 'Quantitative Technical AI',
-                icon: '<svg class=\"w-4 h-4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75\"/></svg>'
+                id: 'market_structure',
+                title: 'Market Structure',
+                firm: 'Quantitative Market AI',
+                icon: '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75"/></svg>'
             },
             {
                 id: 'executive_summary',
-                title: 'AI Verdict',
-                firm: 'Research Council',
-                icon: '<svg class=\"w-4 h-4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M12 3v18m0-18l-8 5m8-5l8 5M4 8l-2 7a3 3 0 006 0L6 8zm12 0l-2 7a3 3 0 006 0L18 8zM9 21h6\"/></svg>'
+                title: 'Institutional Synthesis',
+                firm: 'Investment Committee',
+                icon: '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v18m0-18l-8 5m8-5l8 5M4 8l-2 7a3 3 0 006 0L6 8zm12 0l-2 7a3 3 0 006 0L18 8zM9 21h6"/></svg>'
             }
         ];
 
@@ -2608,11 +2614,11 @@
 
                 // Set to loading to show the skeleton
                 setUIState('loading');
-                updateLoadingStatus('Consulting institutional agents...', 10);
+                updateLoadingStatus('Consulting institutional research council...', 10);
 
-                // Full Analysis in One Step
-                updateLoadingStatus('Executing Full Analysis...', 50);
-                const agentIds = ['company_identity', 'goldman_sachs', 'morgan_stanley', 'jpmorgan', 'citadel', 'executive_summary'];
+                // Full Analysis in One Step with 6 Institutional Perspectives
+                updateLoadingStatus('Executing Institutional Equity Research Engine...', 50);
+                const agentIds = ['business_quality', 'financial_quality', 'earnings_expectations', 'valuation', 'market_structure', 'executive_summary'];
                 const rAll = await fetchSingleBatch(query, user, getBatchPrompt(query, currentLangName, agentIds));
                 Object.assign(results, parseFrameworks(rAll));
 
@@ -2651,124 +2657,274 @@
             }
         }
 
+        // ==================== INSTITUTIONAL RESEARCH PROMPT ENGINE ====================
+        const AGENT_PROMPTS = {
+            business_quality: `<business_quality>
+ROLE: Senior Equity Research Analyst — Business Model & Competitive Advantage
+OBJECTIVE: Analysiere die wirtschaftliche Qualität des Unternehmens und die Nachhaltigkeit seines Geschäftsmodells.
+ANALYSE-PUNKTE (Erkläre in maximal einem prägnanten Satz je Punkt, WARUM ein Vor-/Nachteil für die langfristige Ertragskraft relevant ist):
+- Core Business, Erlösquellen & Geschäftsmodell (Recurring Revenue Anteil, Preissetzungsmacht)
+- Kunden- & Geografische Konzentration
+- Marktposition, Eintrittsbarrieren, Wechselkosten, Netzwerkeffekte, Kostenvorteile, Brand/IP
+- Branchenstruktur & Wettbewerbsintensität
+- Säkulare Wachstumstreiber & Säkulare Bedrohungen
+- Growth Quality: Unterscheide soweit Daten verfügbar: Organic vs. Acquisition vs. Price vs. Volume vs. Margin Expansion vs. Geographic Expansion. (Keine Wachstumsrate als gut bewerten ohne Herkunft).
+- Moat Score: 0-5 (0=kein Vorteil, 1=schwach/angreifbar, 2=moderat, 3=klarer Wettbewerbsvorteil, 4=stark/schwer angreifbar, 5=außergewöhnlich stark & langfristig geschützt).
+- Moat Type: PRICING POWER / NETWORK EFFECTS / SWITCHING COSTS / COST ADVANTAGE / BRAND / IP / SCALE / NONE
+- Moat Durability: WEAK / MODERATE / STRONG
+
+OUTPUT FORMAT:
+<business_quality>
+Business Model: [Kurze Beschreibung der Ertragsmechanik]
+Revenue Engine: [Haupterlösquellen & Segment-Treiber]
+Recurring Revenue: [Anteil/Qualität wiederkehrender Erlöse oder N/A]
+Organic Growth Quality: [Organic / Acquisition / Price vs Volume Treiber]
+Pricing Power: [Einschätzung der Preissetzungsmacht & Begründung]
+Market Position: [Marktanteil / Relevanz in der Kernnische]
+Competitive Advantage: [Struktureller Wettbewerbsvorteil]
+Industry Structure: [Konzentrationsgrad & Wettbewerbsintensität]
+Secular Growth: [Haupt-Megatrend / Rückenwind]
+Primary Competitive Threat: [Größtes Risiko für Marktstellung]
+Moat Type: [PRICING POWER / NETWORK EFFECTS / SWITCHING COSTS / COST ADVANTAGE / BRAND / IP / SCALE / NONE]
+Moat Score: [0-5]
+Moat Durability: [WEAK / MODERATE / STRONG]
+Business Quality Verdict: [WEAK / MODERATE / STRONG / EXCEPTIONAL]
+</business_quality>
+(WICHTIG: Keine Bewertung der Aktie, keine technische Analyse, keine KGV-Analyse, keine DCF-Berechnung)`,
+
+            financial_quality: `<financial_quality>
+ROLE: Senior Fundamental Analyst — Financial Statements, Capital Efficiency & Capital Allocation
+OBJECTIVE: Bewerte die Qualität der finanziellen Ergebnisse, Bilanz und Kapitalverwendung.
+ANALYSE-PUNKTE:
+- Profitability: 5Y Revenue CAGR, EBITDA/EBIT/Netto/Gross Margins & Margen-Trend.
+- Capital Efficiency: ROIC vs WACC (Vergleiche ROIC mit WACC -> VALUE CREATING [ROIC >> WACC] / VALUE NEUTRAL [ROIC ~= WACC] / VALUE DESTROYING [ROIC < WACC]), ROE, ROA, Asset Turnover, Capital Intensity. (Nicht blind urteilen wenn Daten fehlen).
+- Cash Flow Quality: Operating CF, Free Cash Flow, FCF Margin, FCF Conversion (FCF / Net Income), Net Income vs. OCF Diskrepanzen, CapEx & Working Capital Belastung.
+- Balance Sheet: Cash, Gross Debt, Net Debt, Net Debt / EBITDA, Interest Coverage, Liquidity, Debt Maturity Risk, Share Dilution (Verwässerung durch SBC/Kapitalerhöhungen).
+- Capital Allocation: Dividenden, Buybacks, Share Issuance, M&A Track Record, Debt Reduction, R&D/CapEx Disziplin. Beurteile: CAPITAL ALLOCATION: EXCELLENT / GOOD / MIXED / POOR (max 2 kurze Punkte).
+
+OUTPUT FORMAT:
+<financial_quality>
+Revenue CAGR: [5Y CAGR aus FMP Block oder N/A]
+EBIT Margin: [Aktuelle EBIT-Marge & historische Spanne]
+Margin Trend: [EXPANDING / STABLE / CONTRACTING + 1 Satz]
+ROIC: [ROIC Wert aus Daten/Berechnung oder N/A]
+WACC: [WACC Schätzung/Angabe oder N/A]
+ROIC vs WACC: [VALUE CREATING / VALUE NEUTRAL / VALUE DESTROYING / N/A]
+Economic Value Creation: [1 Satz zur ökonomischen Wertschöpfung]
+FCF Margin: [FCF in % des Umsatzes]
+FCF Conversion: [FCF / Net Income Verhältnis & Cash-Qualität]
+Cash Flow Quality: [HIGH / MODERATE / POOR + 1 Satz Diskrepanz Accounting vs Cash]
+Net Debt: [Nettoverschuldung mit Währung]
+Net Debt/EBITDA: [Verschuldungsgrad oder Net Cash Position]
+Interest Coverage: [EBIT / Zinsaufwand oder N/A]
+Share Dilution: [NEGLIGIBLE / MODERATE / HIGH + Trend Aktienanzahl]
+Capital Allocation: [EXCELLENT / GOOD / MIXED / POOR]
+Balance Sheet Risk: [LOW / MODERATE / HIGH + 1 Satz]
+Financial Quality Verdict: [WEAK / MODERATE / STRONG / EXCEPTIONAL]
+</financial_quality>
+(WICHTIG: Keine technische Analyse, keine Chartanalyse, keine Kurszielberechnung)`,
+
+            earnings_expectations: `<earnings_expectations>
+ROLE: Senior Equity Research Analyst — Earnings, Consensus Expectations & Catalysts
+OBJECTIVE: Analysiere die Differenz zwischen tatsächlicher Unternehmensentwicklung und Markterwartungen.
+ANALYSE-PUNKTE:
+- Earnings History: EPS Beat/Miss Trend (letzte 4 Quartale), Revenue Beat/Miss, Guidance Beat/Miss Muster.
+- Market Reaction: Marktreaktion nach Earnings (Good Results + Pos/Neg Reaction, Bad Results + Pos/Neg Reaction).
+- Guidance & Consensus: Management-Guidance vs Consensus, EPS & Revenue Consensus, Revisions-Richtung (UPWARD / DOWNWARD / NEUTRAL) & Magnitude. (Wenn historische Revisionsdaten fehlen: N/A, niemals erfinden!).
+- Street Focus: Maximal 3 Kennzahlen, die für die nächste Berichtsperiode entscheidend sind (z.B. Organic Growth, Gross Margin, ARR, Volume, ASP, FCF).
+- Positive Catalysts: Maximal 3 konkrete positive Katalysatoren.
+- Negative Catalysts: Maximal 3 konkrete negative Katalysatoren/Risiken.
+- Expectations Risk: LOW / MODERATE / HIGH (HIGH = aktueller Kurs erfordert bereits außergewöhnliche operative Perfektion).
+
+OUTPUT FORMAT:
+<earnings_expectations>
+EPS Surprise Trend: [Beat/Miss Historie der letzten 4 Quartale]
+Revenue Surprise Trend: [Umsatz-Überraschungsmuster]
+Guidance Trend: [RAISED / MAINTAINED / LOWERED / N/A]
+Estimate Revision Direction: [UPWARD / STABLE / DOWNWARD / N/A]
+EPS Consensus: [Konsens für laufende Periode mit Währung oder N/A]
+Revenue Consensus: [Umsatzkonsens mit Währung oder N/A]
+Street Focus 1: [Entscheidende operative Metrik 1]
+Street Focus 2: [Entscheidende operative Metrik 2]
+Street Focus 3: [Entscheidende operative Metrik 3 / N/A]
+Positive Catalyst: [Max 2 konkrete positive Katalysatoren]
+Negative Catalyst: [Max 2 konkrete negative Risikofaktoren]
+Expectations Risk: [LOW / MODERATE / HIGH + 1 Satz Begründung]
+Earnings Verdict: [POSITIVE / NEUTRAL / NEGATIVE / WAIT]
+</earnings_expectations>
+(WICHTIG: Keine DCF-Berechnung, keine technische Analyse)`,
+
+            valuation: `<valuation>
+ROLE: Senior Valuation Analyst — Intrinsic Value, Relative Value & Reverse Valuation
+OBJECTIVE: Bestimme Fair Value Ranges und beurteile, welche Erwartungen im aktuellen Aktienkurs eingepreist sind.
+ANALYSE-PUNKTE:
+- Relative Valuation: KGV, Forward KGV, EV/EBITDA, EV/Sales, P/FCF, FCF Yield vs. historischer Durchschnitt & Peer/Sektor (Nicht jeden Multiple zwanghaft verwenden).
+- DCF Modell (5-Jahres-Horizont): Explizite Inputs angeben: Revenue Growth, EBIT Marge, Tax Rate, D&A, CapEx, Working Capital, FCFF, WACC, Terminal Growth. (DCF = MODEL OUTPUT, keine absolute Wahrheit).
+- DCF Sensitivity: WACC × Terminal Growth Matrix & Revenue Growth × Margin.
+- Fair Value Range: DCF Bear, DCF Base, DCF Bull in nativer Handelswährung (Keine Scheingenauigkeit, plausible Spanne).
+- Reverse DCF: Welche langfristigen Wachstums- und Margenannahmen sind zwingend erforderlich, um den AKTUELLEN Kurs zu rechtfertigen?
+- Margin of Safety: Differenz zwischen aktuellem Kurs und DCF Base.
+
+OUTPUT FORMAT:
+<valuation>
+Current Price: [Aktueller Kurs mit Währungscode aus FMP Block]
+P/E: [Aktuelles KGV oder N/A]
+Forward P/E: [Forward KGV oder N/A]
+EV/EBITDA: [EV/EBITDA Multiple oder N/A]
+P/FCF: [Kurs-FCF-Verhältnis oder N/A]
+FCF Yield: [Free Cash Flow Rendite in %]
+Historical Valuation: [UNDERVALUED / FAIR / OVERVALUED vs 5Y/10Y Avg]
+Peer Valuation: [PREMIUM / IN-LINE / DISCOUNT vs Sector]
+DCF Bear: [Konservativer Fair Value mit Währungscode]
+DCF Base: [Basis Fair Value mit Währungscode]
+DCF Bull: [Optimistischer Fair Value mit Währungscode]
+WACC: [Verwendeter WACC in %]
+Terminal Growth: [Verwendetes Terminal Growth in %]
+DCF Upside/Downside: [+/-XX% Potenzial Base vs. Current Price]
+Reverse DCF Growth: [Implizites jährliches Wachstum, das im Kurs steckt]
+Reverse DCF Margin: [Implizite nachhaltige Marge, die im Kurs steckt]
+Market Expectations Embedded: [1-2 Sätze: Was verlangt der aktuelle Kurs vom Unternehmen?]
+Margin of Safety: [XX% Sicherheitsmarge oder ÜBERBEWERTET / NEGATIV]
+Valuation Verdict: [DEEPLY UNDERVALUED / UNDERVALUED / FAIRLY VALUED / OVERVALUED / DEEPLY OVERVALUED]
+</valuation>
+(WICHTIG: DCF-Werte als MODEL OUTPUT deklarieren, keine erfundenen Inputs bei Datenlücken)`,
+
+            market_structure: `<market_structure>
+ROLE: Senior Quantitative Market Analyst — Price Action, Momentum & Market Structure
+OBJECTIVE: Analysiere ausschließlich die aktuelle Marktdynamik und Chartstruktur. (Keine Fundamentaldaten, kein KGV, kein DCF).
+ANALYSE-PUNKTE:
+- Trends & Gleitende Durchschnitte: Daily, Weekly, Monthly Trend; 50-DMA, 100-DMA, 200-DMA Abstände & Crossover.
+- Momentum & Indikatoren: RSI (14D), MACD Signal, Bollinger Band Positionierung, Volatilität, Volume Trend.
+- 52-Wochen Range & Drawdown: 52W High, 52W Low, aktueller Abstand/Drawdown vom ATH/52W-High.
+- Key Levels: Wichtigste Unterstützungszone (Support) und Widerstandszone (Resistance) in nativer Währung (NUR EINMAL ausgeben, keine Duplikate von Pivot/Fibonacci).
+- Regime-Klassifizierung:
+  TREND: BULLISH / NEUTRAL / BEARISH
+  MOMENTUM: STRONG / MODERATE / WEAK
+  VOLATILITY: LOW / NORMAL / HIGH
+  MARKET STRUCTURE: ACCUMULATION / TRENDING / CONSOLIDATING / DISTRIBUTION
+- Technical Signal: EXACTLY ONE: [STRONG BULLISH], [BULLISH], [NEUTRAL], [BEARISH], [STRONG BEARISH]
+
+OUTPUT FORMAT:
+<market_structure>
+Trend Daily/Weekly/Monthly: [BULLISH / NEUTRAL / BEARISH über Zeitebenen]
+Moving Averages: [Kurs vs 50D & 200D MA, z.B. Über 50-DMA, Golden/Death Cross Status]
+Momentum & RSI: [RSI-Wert & MACD Dynamik]
+Volatility & Volume: [LOW / NORMAL / HIGH & Volumenbestätigung]
+52W Range & Drawdown: [52W High/Low & Drawdown in %]
+Key Support: [Genau 1 primäre Unterstützungsmarke mit Währung]
+Key Resistance: [Genau 1 primäre Widerstandsmarke mit Währung]
+Market Regime: [ACCUMULATION / TRENDING / CONSOLIDATING / DISTRIBUTION]
+Technical Signal: [EXACTLY ONE: [STRONG BULLISH] / [BULLISH] / [NEUTRAL] / [BEARISH] / [STRONG BEARISH]]
+</market_structure>`,
+
+            executive_summary: `<executive_summary>
+ROLE: Chief Investment Officer / Investment Committee Chair
+OBJECTIVE: Synthetisiere die Ergebnisse aller 5 Agenten zu einem evidenzbasierten Investment-Urteil.
+WICHTIGE REGELN:
+- Keine neuen Fakten erfinden; ausschließlich auf FMP Data Block und den 5 Agenten aufbauen.
+- Kein einfaches Mehrheitsvotum (Majority Vote), sondern evidenzgewichtete Synthese.
+- Strikte Trennung zwischen BUSINESS QUALITY (wirtschaftliche Stärke) und STOCK VALUATION (Aktienbewertung). Ein hochqualitatives Unternehmen kann überbewertet sein (HIGH QUALITY + OVERVALUED) und ist dann KEIN Kauf. Ein schwächeres Unternehmen kann tief unterbewertet sein.
+- Wenn previousResults vorliegen: Nutze diese, erkenne Widersprüche und bewerte die stärkere Evidenz.
+
+STRUKTUR DER SYNTHESE (16 Dimensionen):
+1. Business Quality: WEAK / MODERATE / STRONG / EXCEPTIONAL
+2. Financial Quality: WEAK / MODERATE / STRONG / EXCEPTIONAL
+3. Growth Quality: LOW / MODERATE / HIGH
+4. Capital Allocation: POOR / MIXED / GOOD / EXCELLENT
+5. Economic Moat: WEAK / MODERATE / STRONG
+6. Valuation: DEEPLY UNDERVALUED / UNDERVALUED / FAIRLY VALUED / OVERVALUED / DEEPLY OVERVALUED
+7. Market Expectations: What does the current price require? (Max 2 kurze Sätze)
+8. Investment Thesis: Kern-Investmentthese (Max 2 prägnante Sätze)
+9. Counter Thesis: Stärkstes Gegenargument / Bären-These (Max 2 Sätze)
+10. Key Catalyst: Genau 1 wichtigster Katalysator
+11. Key Risk: Genau 1 primäres Risiko
+12. Thesis Breaker: Welches konkrete Ereignis würde die Investmentthese fundamental zerstören?
+13. Margin of Safety: Aktueller Kurs vs. DCF Range (Bear / Base / Bull)
+14. Circle of Competence: HIGH TRANSPARENCY / OBSERVE / TOO HARD (Vorhersehbarkeit der Cashflows)
+15. Investment Horizon: SHORT TERM / MEDIUM TERM / LONG TERM (Max 1 Satz Begründung)
+16. Final Institutional Verdict: EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRLY VALUED] / [OVERVALUED] / [NEGATIVE] / [STRONG NEGATIVE]
+
+OUTPUT FORMAT:
+<executive_summary>
+Business Quality: [WEAK / MODERATE / STRONG / EXCEPTIONAL]
+Financial Quality: [WEAK / MODERATE / STRONG / EXCEPTIONAL]
+Growth Quality: [LOW / MODERATE / HIGH]
+Capital Allocation: [POOR / MIXED / GOOD / EXCELLENT]
+Economic Moat: [WEAK / MODERATE / STRONG + Typ]
+Valuation: [DEEPLY UNDERVALUED / UNDERVALUED / FAIRLY VALUED / OVERVALUED / DEEPLY OVERVALUED]
+Market Expectations: [Max 2 Sätze: Welche operative Performance fordert der aktuelle Preis?]
+Investment Thesis: [Max 2 Sätze zur Kernthese]
+Counter Thesis: [Max 2 Sätze zum Bärenfall]
+Key Catalyst: [Genau 1 Hauptkatalysator]
+Key Risk: [Genau 1 Hauptrisiko]
+Thesis Breaker: [Konkretes Ereignis, das die These ungültig macht]
+Current Price: [Aktueller Kurs mit Währung]
+DCF Bear: [Bear Case Modellwert]
+DCF Base: [Base Case Modellwert]
+DCF Bull: [Bull Case Modellwert]
+Margin of Safety: [Sicherheitsmarge in % vs Base Case]
+Circle of Competence: [HIGH TRANSPARENCY / OBSERVE / TOO HARD]
+Investment Horizon: [SHORT TERM / MEDIUM TERM / LONG TERM + 1 Satz]
+Institutional Verdict: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRLY VALUED] / [OVERVALUED] / [NEGATIVE] / [STRONG NEGATIVE]]
+Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRLY VALUED] / [OVERVALUED] / [NEGATIVE] / [STRONG NEGATIVE]]
+</executive_summary>`
+        };
+
         function getBatchPrompt(query, lang, agentIds, previousResults = null) {
-            const today = new Date().toLocaleDateString();
-            let prompt = `CURRENT DATE: ${today}
+            const todayIso = new Date().toISOString().split('T')[0];
+            let prompt = `CURRENT DATE: ${todayIso}
 LANGUAGE: Respond EXCLUSIVELY in ${lang}.
-TASK: Deep-Dive Analysis for "${query}". \n\n`;
+TASK: Institutional Equity Research Deep-Dive Analysis for "${query}". \n\n`;
 
             if (previousResults) {
-                prompt += `PREVIOUS AGENT CONCLUSIONS (CRITICAL: You MUST use these exact findings to form your Executive Summary. Do not invent different verdicts or opinions):\n${previousResults}\n\n`;
+                prompt += `PREVIOUS AGENT FINDINGS & PRE-CALCULATIONS (CRITICAL: Synthesize these findings with evidence weighting; resolve discrepancies, do not invent new facts):\n${previousResults}\n\n`;
             }
 
-            prompt += `STRICT INSTRUCTIONS (NO NOVELS, NO FLUFF):
-- Use the provided [FMP API BLOCK] as your primary and absolute source of truth for all financial data, company identifiers, and metrics.
-- CURRENCY CONSISTENCY (CRITICAL): All financial amounts, price targets, and current prices across ALL agents MUST use the EXACT SAME native trading/reporting currency from the FMP API BLOCK (e.g. NOK, CHF, EUR, USD, GBP). Always state the currency code/symbol with every price (e.g. '305.50 NOK', '45.00 EUR', '209.17 USD'). NEVER convert or mix different currencies across sections (e.g. DO NOT compare a EUR price against a NOK target).
-- Use the google_search tool ONLY to supplement the analysis with very recent news (last 24-48h), current market sentiment, or specific qualitative information not found in the FMP block.
-- DO NOT use google_search for data that is already provided in the FMP block.
-- If data in the FMP block and google_search conflicts, prioritize the FMP block for financial metrics.
-- You are a team of SCIENTISTS, not writers.
-- Provide ONLY hard facts, numbers, and logical deductions.
-- ABSOLUTELY NO prose, NO introductions, NO conclusions.
-- Output MUST be strictly formatted as short bullet points.
-- Maximum 1 line per data point.
-- Be extremely concise. Efficiency is key.
-- Respond in ${lang}.
-- CURRENT DATE: ${today}.
-- Use REAL-TIME data.
-- Do not guess or use outdated data.
-- NEVER mention the tool usage or "based on my search" in the output.
-- Output ONLY the tags and the data inside.
-- If a <system_status> tag is provided in the prompt, you MUST include it in your output as the FIRST section.
+            prompt += `STRICT INSTITUTIONAL RESEARCH DIRECTIVES:
+1. PRIMARY DATA SOURCE: Use the [FMP API BLOCK] as your primary, deterministically binding source of truth for all corporate identifiers, metrics, financials, and prices.
+2. DATA CLASSIFICATION: Classify every key figure internally as OBSERVED (direct report/market), CALCULATED (deterministic math), CONSENSUS (analyst mean), MODEL (valuation output), QUALITATIVE (deduction), MISSING (not in data -> output N/A), or STALE (outdated timestamp).
+3. NO INVENTION RULE: Under NO circumstances invent, extrapolate, or guess missing data points. If a metric (e.g. WACC, Terminal Growth, Consensus Revisions, Debt Maturity, Options) is missing, output strictly 'N/A'.
+4. CURRENCY CONSISTENCY (CRITICAL): All financial amounts, price targets, DCF values, and current prices across ALL agents MUST use the EXACT SAME native trading/reporting currency from the FMP API BLOCK (e.g. USD, EUR, NOK, CHF, GBP). Always state the currency code with every price (e.g. '209.17 USD', '305.50 NOK', '45.00 EUR'). NEVER convert or mix currencies.
+5. NO DUPLICATE DATA: Each analytical perspective has strict functional ownership. Do NOT repeat redundant metric tables. (Support/Resistance ONLY in market_structure; KGV/DCF ONLY in valuation; ROIC in financial_quality; Moat in business_quality; Synthesis in executive_summary).
+6. SECTOR-AWARE ANALYSIS:
+   - Banks/Insurance: Focus on RoTE, NIM, CET1, P/B, P/E; DO NOT use EV/EBITDA or standard FCFF.
+   - REITs: Focus on FFO/AFFO, Cap Rate, NAV, Occupancy.
+   - SaaS: Focus on ARR, NRR, Rule of 40, CAC/LTV, SBC dilution.
+   - Commodities/Energy: Focus on AISC, Reserve Life, Production, Realized Pricing, Unit Economics.
+   - Retail: Focus on Same-Store Sales, Gross Margin, Inventory Turn.
+   - Semiconductors: Focus on Cycle Position, Fab Utilization, ASP, CapEx intensity.
+7. OUTPUT STYLE: No novels, no fluff, no marketing speak, no AI clichés ("As an AI", "Based on my research", "Interestingly"). Use concise bullet points: FACT -> CALCULATION -> INTERPRETATION (max 1-2 sentences per qualitative conclusion).
+8. TOOL USAGE: Use google_search ONLY for very recent news (last 24-48h), management changes, M&A, or new guidance. NEVER search for metrics already in FMP block.
+9. OUTPUT FORMAT: Output ONLY the section XML tags in exact order. If <system_status> is provided in prompt, keep it as FIRST section.
 
-Generate the following sections with EXACT tags (including <system_status> if present). Output ONLY the data inside the tags.\n\n`;
+Generate the deterministic identity section first, followed by the requested institutional agents:\n\n`;
 
-            if (agentIds.includes('company_identity')) {
-                prompt += `<company_identity>
+            // 1. Deterministischer Identity/Data Layer
+            prompt += `<company_identity>
 Name: [Use 'Name' from FMP API BLOCK]
-ISIN: [ISIN]
-WKN: [WKN]
-Sektor: [Use 'Sector/Industry' from FMP API BLOCK]
-HQ: [Use 'HQ' from FMP API BLOCK]
-Profil: [A highly condensed 2-sentence summary of the core business model and USPs. MAX 40 words. Do NOT copy the full description.]
-Aktueller Kurs: [Use 'Current Price' with currency from FMP API BLOCK, e.g. '209.17 USD' or '305.50 NOK' or '45.00 EUR']
+Ticker: [Use 'Ticker' / 'Symbol' from FMP API BLOCK]
+ISIN: [Use 'ISIN' from FMP API BLOCK or N/A]
+WKN: [Use 'WKN' from FMP API BLOCK or N/A]
+Exchange: [Use 'Exchange' from FMP API BLOCK or N/A]
+Country: [Use 'Country' / 'HQ' from FMP API BLOCK or N/A]
+Currency: [Use 'Currency' from FMP API BLOCK, e.g. USD, EUR, NOK]
+Sector: [Use 'Sector' from FMP API BLOCK or N/A]
+Industry: [Use 'Industry' from FMP API BLOCK or N/A]
+Current Price: [Use 'Current Price' with currency from FMP API BLOCK, e.g. '209.17 USD']
+Market Cap: [Use 'Market Cap' from FMP API BLOCK with currency]
+Enterprise Value: [Use 'Enterprise Value' from FMP API BLOCK or N/A]
+Fiscal Year: [Use 'Fiscal Year' from FMP API BLOCK or N/A]
+Latest Reporting Date: [Use 'Latest Reporting Date' from FMP API BLOCK or N/A]
+Data Timestamp: [${todayIso}]
 </company_identity>\n\n`;
-            }
 
-
-            if (agentIds.includes('goldman_sachs')) {
-                prompt += `<goldman_sachs>
-ROLE: Senior Equity Analyst (Fundamental Value)
-- Thesis: [1 sentence investment case]
-- P/E Analysis: [Use 'Current P/E' and '5Y Average P/E' from FMP API BLOCK; compare vs Sector]
-- 5Y Growth: [Use 'Analyst Consensus Growth' or '5Y Revenue CAGR' from FMP API BLOCK; state expected growth, e.g. '5.4% p.a.']
-- Financial Health: [Use 'Debt to Equity' from FMP API BLOCK; check sustainability]
-- Dividend: [Use 'Dividend Yield' and 'Payout Ratio' from FMP API BLOCK]
-- Competitive Moat: [Rating: WEAK/MODERATE/STRONG + 1 sentence why]
-- Bull/Bear Targets: [Use 'Bull Case' and 'Bear Case' price targets in the EXACT SAME currency as 'Aktueller Kurs', e.g. 'Bull 450 NOK / Bear 250 NOK' or 'Bull $260 / Bear $190']
-- Risk Score: [Scale 1-10 + primary risk factor]
-- Valuation Zones: [Key Support & Resistance levels in the same currency]
-- AI Sentiment: [POSITIVE/NEUTRAL/NEGATIVE]
-</goldman_sachs>\n\n`;
-            }
-
-            if (agentIds.includes('morgan_stanley')) {
-                prompt += `<morgan_stanley>
-ROLE: VP-Level Investment Banker (DCF Valuation)
-- 5Y Projection: [Use 'Historical Trends' and 'Analyst Consensus Growth' from FMP API BLOCK to est. Revenue & Margin]
-- FCF Forecast: [Year-by-year FCF simulation for next 5 years]
-- WACC & Terminal: [WACC derivation & Terminal Value (Exit vs Perpetuity)]
-- DCF Fair Value: [Use 'DCF Fair Value Estimate' from FMP API BLOCK vs your simulation, in the EXACT SAME currency as 'Aktueller Kurs']
-- Sensitivity Table: [Matrix of Fair Value at +/- 1% WACC variance]
-- Market Check: [Compare Current Price vs DCF Fair Value in the EXACT SAME currency; check % Upside/Downside]
-- Break-Case: [Identify 2 key assumptions that could break this model]
-- AI Outlook: [UNDERVALUED/FAIRLY VALUED/OVERVALUED]
-</morgan_stanley>\n\n`;
-            }
-
-            if (agentIds.includes('jpmorgan')) {
-                prompt += `<jpmorgan>
-ROLE: Senior Equity Research Analyst (Earnings Specialist)
-- Earnings History: [Use 'EPS Surprise History' from FMP API BLOCK; include Beat/Miss trends]
-- Stock Reaction: [Recherche: Stock price reaction (gain/loss) after last 4 earnings]
-- Upcoming Consensus: [Use 'Upcoming Consensus' and 'Analyst Consensus Growth' from FMP API BLOCK]
-- Wall Street Focus: [Identify 2 key metrics the street is watching for this company]
-- Segment Analysis: [Use 'Sector' from FMP API BLOCK; breakdown revenue & growth]
-- Guidance & Options: [Guidance summary & Options implied move for earnings day]
-- Earnings Scenarios: [Bull Case vs Bear Case scenario with estimated price impact]
-- Play: [POSITIVE/NEUTRAL/WAIT]
-</jpmorgan>\n\n`;
-            }
-
-            if (agentIds.includes('citadel')) {
-                prompt += `<citadel>
-ROLE: Senior Quantitative Trader (Market Microstructure)
-- Trend Analysis: [Current direction on Daily, Weekly, Monthly timeframes]
-- Moving Averages: [Use '50-DMA' and '200-DMA' from FMP API BLOCK; include 100-day estimate & crossover signals]
-- Technical Indicators: [Use '14-Day RSI' and 'MACD' from FMP API BLOCK; add Bollinger Band interpretation]
-- Volume & Strength: [Volume trend analysis & Buyer vs Seller strength]
-- Chart Patterns: [Identify potential patterns like Head & Shoulders, Cup & Handle, etc.]
-- Fibonacci & Levels: [Key Support/Resistance & Fibonacci retracement bounce zones]
-- Key Price Levels: [Charttechnische Unterstützungs-, Widerstands- und Pivotmarken]
-- Risk Management: [Calculate Risk-to-Reward Ratio for this setup]
-- Technical Signal: [EXACTLY ONE BADGE: [STRONG BULLISH], [BULLISH], [NEUTRAL], [BEARISH], [STRONG BEARISH]]
-</citadel>\n\n`;
-            }
-
-            if (agentIds.includes('executive_summary')) {
-                prompt += `<executive_summary>
-ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Framework)
-- Agent Consensus: [1-2 sentences cross-synthesis combining Fundamental Screener, DCF, Earnings and Technical findings]
-- Circle of Competence: [Classification: HOHE TRANSPARENZ / BEOBACHTEN / TOO HARD BOX + 1 sentence on core cashflow predictability and business model]
-- Economic Moat: [Moat type (Pricing Power, Network Effects, Switching Costs, Cost Advantages) & 10-15Y durability: STRONG / MODERATE / WEAK]
-- Capital Allocation: [ROIC vs WACC, capital discipline with buybacks/dividends vs share dilution, and management integrity]
-- Inversion (Pre-Mortem Risk): [The #1 structural or existential risk that could permanently impair or destroy the business model]
-- Valuation & Fair Value: [State 'Current Price' vs. 'DCF Fair Value Estimate' from FMP API BLOCK (e.g. Current: $XX.XX | DCF Fair Value: $YY.YY)]
-- Margin of Safety & Target Valuation Level: [Specify required safety margin in % AND calculate fair model entry level: e.g. "Sicherheitsabschlag von XX% -> Modellwert (Fair Entry): $ZZ.ZZ (Aktueller Kurs liegt XX% über/unter diesem Modellwert)"]
-- Institutional Master Conclusion: [Charlie Munger unvarnished verdict in 2 concise sentences: Pragmatic fundamental evaluation]
-- Final Terminal Sentiment: [EXACTLY ONE BADGE: [STRONG POSITIVE], [POSITIVE], [UNDERVALUED], [FAIRLY VALUED], [NEUTRAL], [CONSOLIDATING], [OVERVALUED], [NEGATIVE], [STRONG NEGATIVE]]
-</executive_summary>\n\n`;
-            }
+            // 2. Modulare Agenten-Prompts
+            const requestedAgents = Array.isArray(agentIds) ? agentIds : Object.keys(AGENT_PROMPTS);
+            requestedAgents.forEach(id => {
+                if (AGENT_PROMPTS[id]) {
+                    prompt += `${AGENT_PROMPTS[id]}\n\n`;
+                }
+            });
 
             return prompt;
         }
@@ -2825,7 +2981,7 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                     const parts = errData.candidates?.[0]?.content?.parts;
                     return Array.isArray(parts) ? parts.map(p => p.text || '').join('') : '';
                 } catch (e) {
-                    if (i === retries || e.message.includes('504')) throw e; // Bei 504 keinen blind retry machen!
+                    if (i === retries || e.message.includes('504')) throw e;
                     console.warn(`Attempt ${i + 1} failed: ${e.message}. Retrying...`);
                     await new Promise(r => setTimeout(r, 2000 * (i + 1)));
                 }
@@ -2834,11 +2990,22 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
 
         function parseFrameworks(text) {
             const data = {};
-            const allIds = [...CARDS.map(c => c.id), 'company_identity'];
+            const allIds = [
+                'company_identity',
+                'business_quality',
+                'financial_quality',
+                'earnings_expectations',
+                'valuation',
+                'market_structure',
+                'executive_summary',
+                'goldman_sachs',
+                'morgan_stanley',
+                'jpmorgan',
+                'citadel'
+            ];
 
             if (!text) return data;
 
-            // Clean markdown if present
             const cleanText = text.replace(/```[a-z]*\n?/gi, '').replace(/```/g, '').trim();
 
             allIds.forEach(id => {
@@ -2855,7 +3022,6 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                     if (endIdx !== -1 && endIdx > startIdx) {
                         content = cleanText.substring(contentStart, endIdx).trim();
                     } else {
-                        // Fallback: look for the start of the next known agent tag
                         let nextTagIdx = -1;
                         allIds.forEach(nextId => {
                             if (nextId === id) return;
@@ -2880,21 +3046,26 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             let verdict = '';
             let detail = '';
 
-            if (cardId === 'goldman_sachs') {
-                const m = clean.match(/(?:AI\s*Sentiment|Sentiment|Fazit|Rating):\s*\[?([A-Za-z\s]+)\]?/i);
+            if (cardId === 'business_quality') {
+                const m = clean.match(/(?:Business\s*Quality\s*Verdict|Moat\s*Score|Moat\s*Durability|Verdict):\s*\[?([A-Za-z0-9\s/]+)\]?/i);
                 if (m) verdict = m[1].trim();
-                const scoreM = clean.match(/Risk\s*Score:\s*([^\n]+)/i);
-                if (scoreM) detail = scoreM[1].trim().split(',')[0].substring(0, 20);
-            } else if (cardId === 'morgan_stanley') {
-                const m = clean.match(/(?:AI\s*Outlook|Outlook|DCF\s*Rating|Bewertung):\s*\[?([A-Za-z\s]+)\]?/i);
+                const moatM = clean.match(/Moat\s*Score:\s*([0-5])/i);
+                if (moatM) detail = `Moat: ${moatM[1]}/5`;
+            } else if (cardId === 'financial_quality') {
+                const m = clean.match(/(?:Financial\s*Quality\s*Verdict|Economic\s*Value\s*Creation|Capital\s*Allocation|Verdict):\s*\[?([A-Za-z\s]+)\]?/i);
                 if (m) verdict = m[1].trim();
-                const fvM = clean.match(/DCF\s*Fair\s*Value:\s*([^\n]+)/i);
-                if (fvM) detail = fvM[1].trim().split(';')[0].substring(0, 20);
-            } else if (cardId === 'jpmorgan') {
-                const m = clean.match(/(?:Play|Earnings\s*Sentiment|Sentiment|Rating):\s*\[?([A-Za-z\s]+)\]?/i);
+                const roicM = clean.match(/ROIC\s*vs\s*WACC:\s*([^\n]+)/i);
+                if (roicM) detail = roicM[1].trim().substring(0, 18);
+            } else if (cardId === 'earnings_expectations') {
+                const m = clean.match(/(?:Earnings\s*Verdict|Expectations\s*Risk|Play|Verdict):\s*\[?([A-Za-z\s]+)\]?/i);
                 if (m) verdict = m[1].trim();
-            } else if (cardId === 'citadel') {
-                const m = clean.match(/(?:Technical\s*Signal|Technical\s*Sentiment|Technical\s*Setup|Technisches\s*Signal|Signal|Setup|Trend\s*Analysis|Trend|Sentiment|Direction):\s*\[?([^\n\]]+)\]?/i);
+            } else if (cardId === 'valuation') {
+                const m = clean.match(/(?:Valuation\s*Verdict|DCF\s*Rating|Bewertung|Verdict):\s*\[?([A-Za-z\s]+)\]?/i);
+                if (m) verdict = m[1].trim();
+                const upM = clean.match(/DCF\s*Upside\/Downside:\s*([^\n]+)/i);
+                if (upM) detail = upM[1].trim().substring(0, 18);
+            } else if (cardId === 'market_structure' || cardId === 'citadel') {
+                const m = clean.match(/(?:Technical\s*Signal|Technical\s*Sentiment|Market\s*Regime|Signal|Setup|Trend):\s*\[?([^\n\]]+)\]?/i);
                 if (m) {
                     const rawTrend = m[1].trim();
                     if (/strong\s*bullish|sehr\s*bullish|stark\s*bullish|starker\s*aufw[äa]rts|strong\s*up/i.test(rawTrend)) verdict = 'STRONG BULLISH';
@@ -2910,18 +3081,33 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                     }
                 }
             } else if (cardId === 'executive_summary') {
-                const m = clean.match(/(?:Final\s*Terminal\s*Sentiment|Final\s*Sentiment|Terminal\s*Sentiment|Gesamtfazit|Sentiment):\s*\[?([A-Za-z\s]+)\]?/i);
+                const m = clean.match(/(?:Institutional\s*Verdict|Final\s*Terminal\s*Sentiment|Final\s*Sentiment|Terminal\s*Sentiment|Gesamtfazit|Sentiment):\s*\[?([A-Za-z\s]+)\]?/i);
+                if (m) verdict = m[1].trim();
+            } else if (cardId === 'goldman_sachs') {
+                const m = clean.match(/(?:AI\s*Sentiment|Sentiment|Fazit|Rating):\s*\[?([A-Za-z\s]+)\]?/i);
+                if (m) verdict = m[1].trim();
+                const scoreM = clean.match(/Risk\s*Score:\s*([^\n]+)/i);
+                if (scoreM) detail = scoreM[1].trim().split(',')[0].substring(0, 20);
+            } else if (cardId === 'morgan_stanley') {
+                const m = clean.match(/(?:AI\s*Outlook|Outlook|DCF\s*Rating|Bewertung):\s*\[?([A-Za-z\s]+)\]?/i);
+                if (m) verdict = m[1].trim();
+                const fvM = clean.match(/DCF\s*Fair\s*Value:\s*([^\n]+)/i);
+                if (fvM) detail = fvM[1].trim().split(';')[0].substring(0, 20);
+            } else if (cardId === 'jpmorgan') {
+                const m = clean.match(/(?:Play|Earnings\s*Sentiment|Sentiment|Rating):\s*\[?([A-Za-z\s]+)\]?/i);
                 if (m) verdict = m[1].trim();
             }
 
-            // Fallback: check whole text for prominent keywords
             if (!verdict) {
                 const keywords = [
                     'STRONG POSITIVE', 'STRONG BUY', 'BUY', 'POSITIVE', 'POSITIV', 'BULLISH', 'STRONG BULLISH',
-                    'UNDERVALUED', 'UNTERBEWERTET', 'FAIRLY VALUED', 'FAIR VALUED', 'FAIR BEWERTET',
+                    'UNDERVALUED', 'DEEPLY UNDERVALUED', 'UNTERBEWERTET', 'TIEF UNTERBEWERTET',
+                    'FAIRLY VALUED', 'FAIR VALUED', 'FAIR BEWERTET', 'WATCHLIST',
                     'HOLD', 'HALTEN', 'NEUTRAL', 'WAIT', 'WARTEN', 'CONSOLIDATION', 'SIDEWAYS',
-                    'OVERVALUED', 'ÜBERBEWERTET', 'BEARISH', 'STRONG BEARISH', 'NEGATIVE', 'NEGATIV',
-                    'SELL', 'VERKAUFEN', 'STRONG NEGATIVE', 'STRONG SELL'
+                    'OVERVALUED', 'DEEPLY OVERVALUED', 'ÜBERBEWERTET', 'STARK ÜBERBEWERTET',
+                    'BEARISH', 'STRONG BEARISH', 'NEGATIVE', 'NEGATIV',
+                    'SELL', 'VERKAUFEN', 'STRONG NEGATIVE', 'STRONG SELL',
+                    'EXCEPTIONAL', 'STRONG', 'MODERATE', 'WEAK', 'EXCELLENT', 'GOOD', 'MIXED', 'POOR'
                 ];
                 for (const kw of keywords) {
                     const regex = new RegExp(`(?:\\[${kw}\\]|\\b${kw}\\b)`, 'i');
@@ -2934,17 +3120,14 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
 
             if (!verdict) verdict = 'ANALYSIERT';
 
-            // Clean brackets
             verdict = verdict.replace(/[\[\]]/g, '').trim().toUpperCase();
 
-            // Neutralize any direct call-to-action verdicts into analytical descriptions
             if (verdict === 'STRONG BUY' || verdict === 'STARK KAUFEN') verdict = 'STRONG POSITIVE';
             if (verdict === 'BUY' || verdict === 'KAUFEN' || verdict === 'KAUF') verdict = 'UNDERVALUED';
             if (verdict === 'HOLD' || verdict === 'HALTEN') verdict = 'FAIRLY VALUED';
             if (verdict === 'SELL' || verdict === 'VERKAUFEN' || verdict === 'VERKAUF') verdict = 'OVERVALUED';
             if (verdict === 'STRONG SELL' || verdict === 'STARK VERKAUFEN') verdict = 'STRONG NEGATIVE';
 
-            // Language translation for German if USER_LANG is de
             const isDe = (USER_LANG || '').startsWith('de');
             if (isDe) {
                 if (verdict === 'POSITIVE') verdict = 'POSITIV';
@@ -2952,22 +3135,31 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 else if (verdict === 'STRONG POSITIVE') verdict = 'STARK POSITIV';
                 else if (verdict === 'STRONG NEGATIVE') verdict = 'STARK NEGATIV';
                 else if (verdict === 'UNDERVALUED') verdict = 'UNTERBEWERTET';
+                else if (verdict === 'DEEPLY UNDERVALUED') verdict = 'TIEF UNTERBEWERTET';
                 else if (verdict === 'OVERVALUED') verdict = 'ÜBERBEWERTET';
+                else if (verdict === 'DEEPLY OVERVALUED') verdict = 'STARK ÜBERBEWERTET';
                 else if (verdict === 'FAIRLY VALUED' || verdict === 'FAIR VALUED') verdict = 'FAIR BEWERTET';
                 else if (verdict === 'WAIT') verdict = 'ABWARTEN';
                 else if (verdict === 'STRONG BULLISH') verdict = 'STARK BULLISH';
                 else if (verdict === 'STRONG BEARISH') verdict = 'STARK BEARISH';
+                else if (verdict === 'EXCEPTIONAL') verdict = 'EXZELLENT';
+                else if (verdict === 'STRONG') verdict = 'STARK';
+                else if (verdict === 'MODERATE') verdict = 'MODERAT';
+                else if (verdict === 'WEAK') verdict = 'SCHWACH';
+                else if (verdict === 'EXCELLENT') verdict = 'HERVORRAGEND';
+                else if (verdict === 'GOOD') verdict = 'GUT';
+                else if (verdict === 'MIXED') verdict = 'GEMISCHT';
+                else if (verdict === 'POOR') verdict = 'DÜRFTIG';
             }
 
             if (verdict.length > 22) verdict = verdict.substring(0, 20) + '...';
 
-            // Determine visual badge color
             let type = 'wait';
-            if (/^(STRONG POSITIVE|STARK POSITIV|STRONG BUY|BUY|POSITIVE|POSITIV|BULLISH|STRONG BULLISH|UNDERVALUED|UNTERBEWERTET|BEAT|VORTEIL)$/i.test(verdict) || /bullish|positive|positiv|undervalued|unterbewertet/i.test(verdict)) {
+            if (/^(STRONG POSITIVE|STARK POSITIV|STRONG BUY|BUY|POSITIVE|POSITIV|BULLISH|STRONG BULLISH|UNDERVALUED|DEEPLY UNDERVALUED|UNTERBEWERTET|TIEF UNTERBEWERTET|BEAT|VORTEIL|EXCEPTIONAL|EXZELLENT|EXCELLENT|HERVORRAGEND|STRONG|STARK)$/i.test(verdict) || /bullish|positive|positiv|undervalued|unterbewertet/i.test(verdict)) {
                 type = 'buy';
-            } else if (/^(STRONG NEGATIVE|STARK NEGATIV|STRONG SELL|SELL|VERKAUFEN|NEGATIVE|NEGATIV|BEARISH|STRONG BEARISH|OVERVALUED|ÜBERBEWERTET|MISS)$/i.test(verdict) || /bearish|negative|negativ|overvalued|überbewertet|sell/i.test(verdict)) {
+            } else if (/^(STRONG NEGATIVE|STARK NEGATIV|STRONG SELL|SELL|VERKAUFEN|NEGATIVE|NEGATIV|BEARISH|STRONG BEARISH|OVERVALUED|DEEPLY OVERVALUED|ÜBERBEWERTET|STARK ÜBERBEWERTET|MISS|POOR|DÜRFTIG|WEAK|SCHWACH)$/i.test(verdict) || /bearish|negative|negativ|overvalued|überbewertet|sell/i.test(verdict)) {
                 type = 'sell';
-            } else if (/^(HOLD|HALTEN|NEUTRAL|FAIRLY VALUED|FAIR VALUED|FAIR BEWERTET|WAIT|ABWARTEN|WARTEN|CONSOLIDATION|SIDEWAYS)$/i.test(verdict) || /hold|halten|neutral|fair|wait|abwarten|konsolid/i.test(verdict)) {
+            } else if (/^(HOLD|HALTEN|NEUTRAL|FAIRLY VALUED|FAIR VALUED|FAIR BEWERTET|WATCHLIST|WAIT|ABWARTEN|WARTEN|CONSOLIDATION|SIDEWAYS|MODERATE|MODERAT|GOOD|GUT|MIXED|GEMISCHT)$/i.test(verdict) || /hold|halten|neutral|fair|wait|abwarten|konsolid/i.test(verdict)) {
                 type = 'hold';
             }
 
@@ -3050,27 +3242,27 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             }
         }
 
-        function extractDcfPotential(dcfText) {
-            if (!dcfText) return '--';
-            const clean = dcfText.replace(/```[a-z]*\n?/gi, '').replace(/[*_#]/g, '').trim();
+        function extractDcfPotential(dcfText, allData = null) {
+            const raw = dcfText || (allData ? (allData.valuation || allData.morgan_stanley || allData.citadel || allData.executive_summary || '') : '');
+            if (!raw) return '--';
+            const clean = String(raw).replace(/```[a-z]*\n?/gi, '').replace(/[*_#]/g, '').trim();
             let pot = '';
 
-            // 1. Look for Market Check line
-            const mcMatch = clean.match(/(?:Market\s*Check|Markt-Check|Marktcheck):\s*([^\n]+)/i);
-            if (mcMatch) {
-                const line = mcMatch[1].trim();
-                // Range like "25% bis 56%" or "+25% to +56%" or "25% - 56%"
+            // 1. Look for DCF Upside/Downside or Margin of Safety
+            const upMatch = clean.match(/(?:DCF\s*Upside\/Downside|Margin\s*of\s*Safety|Market\s*Check|Markt-Check|Marktcheck):\s*([^\n]+)/i);
+            if (upMatch) {
+                const line = upMatch[1].trim();
                 const rangeMatch = line.match(/([+\-]?\d+(?:[.,]\d+)?\s*%\s*(?:bis|to|-)\s*[+\-]?\d+(?:[.,]\d+)?\s*%)/i);
                 if (rangeMatch) {
                     pot = rangeMatch[1].trim();
                 } else {
-                    const singleMatch = line.match(/(?:(?:Aufw[äa]rtspotenzial|Abw[äa]rtspotenzial|Kurspotenzial|Upside|Downside|Potential|Potenzial)\s*(?:von\s*)?(?:ca\.\s*)?([+\-]?\d+(?:[.,]\d+)?\s*%))/i) ||
+                    const singleMatch = line.match(/(?:(?:Aufw[äa]rtspotenzial|Abw[äa]rtspotenzial|Kurspotenzial|Upside|Downside|Potential|Potenzial|Sicherheitsmarge|Sicherheitsabschlag)\s*(?:von\s*)?(?:ca\.\s*)?([+\-]?\d+(?:[.,]\d+)?\s*%))/i) ||
                                         line.match(/([+\-]?\d+(?:[.,]\d+)?\s*%\s*(?:Upside|Downside|Aufw[äa]rtspotenzial|Abw[äa]rtspotenzial)?)/i);
                     if (singleMatch && singleMatch[1]) pot = singleMatch[1].trim();
                 }
             }
 
-            // 2. Fallback: Search anywhere in the DCF text
+            // 2. Fallback: Search anywhere in text
             if (!pot) {
                 const globalRange = clean.match(/(?:Aufw[äa]rtspotenzial|Abw[äa]rtspotenzial|Kurspotenzial|Upside|Downside|Potential|Potenzial)\s*(?:von\s*)?(?:ca\.\s*)?([+\-]?\d+(?:[.,]\d+)?\s*%\s*(?:bis|to|-)\s*[+\-]?\d+(?:[.,]\d+)?\s*%)/i);
                 if (globalRange) {
@@ -3081,7 +3273,7 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 }
             }
 
-            // 3. Fallback: Search for percentage near DCF or Fair Value keywords or signed percentages
+            // 3. Fallback: Percentage near DCF or Fair Value keywords
             if (!pot) {
                 const nearDcf = clean.match(/(?:DCF|Fair Value|Kursziel|Target)[^\n]{0,60}?([+\-]?\d+(?:[.,]\d+)?\s*%)/i);
                 if (nearDcf) {
@@ -3111,8 +3303,8 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 return;
             }
 
-            const dcfText = data.morgan_stanley || '';
-            const potValue = extractDcfPotential(dcfText);
+            const dcfText = data.valuation || data.morgan_stanley || data.citadel || data.executive_summary || '';
+            const potValue = extractDcfPotential(dcfText, data);
             potEl.textContent = potValue;
 
             if (potValue.includes('-') && !potValue.includes('bis')) {
@@ -3167,8 +3359,8 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             return parseFloat(numStr);
         }
 
-        function extractStockScreenerShowcase(screenerText, currentPriceText = '') {
-            if (!screenerText) return {
+        function extractStockScreenerShowcase(screenerText, currentPriceText = '', allData = null) {
+            if (!screenerText && !allData) return {
                 peLabel: 'KGV (Akt. / Ø):',
                 pe: '--',
                 growth: '--',
@@ -3180,7 +3372,9 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 currentPeNum: null,
                 avgPeNum: null
             };
-            const clean = String(screenerText || '').replace(/```[a-z]*\n?/gi, '').replace(/[*_#]/g, '').trim();
+            const valText = allData?.valuation || '';
+            const finText = allData?.financial_quality || '';
+            const clean = String(valText + '\n' + finText + '\n' + (screenerText || '')).replace(/```[a-z]*\n?/gi, '').replace(/[*_#]/g, '').trim();
 
             let peLabel = 'KGV (Akt. / Ø):';
             let pe = '--';
@@ -3194,13 +3388,13 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             let bearNum = null;
 
             // 1. P/E Analysis (Current vs Historical/5Y/10Y Avg)
-            const peMatch = clean.match(/(?:P\/E\s*Analysis|P\/E|PE|KGV-Analyse|KGV):\s*([^\n]+)/i);
+            const peMatch = clean.match(/(?:Current\s*P\/E|Aktuelles\s*KGV|P\/E\s*Analysis|P\/E|PE|KGV-Analyse|KGV):\s*([^\n]+)/i);
             if (peMatch) {
                 const line = peMatch[1].trim();
                 let avgType = 'Ø';
 
                 // Check for 5Y / 5J Avg specifically
-                const m5Y = line.match(/(?:5[\s-]*(?:Y|J|Jahre[sn]?|Years?|j[äa]hrige[rns]?)[\s-]*(?:Avg|Average|Ø|Durchschnitt|Schnitt)?|(?:Avg|Average|Ø|Durchschnitt|Schnitt)[\s-]*5[\s-]*(?:Y|J|Jahre[sn]?|Years?))\s*:?\s*(?:von\s*)?(\d+(?:[.,]\d+)?)/i);
+                const m5Y = clean.match(/(?:5[\s-]*(?:Y|J|Jahre[sn]?|Years?|j[äa]hrige[rns]?)[\s-]*(?:Avg|Average|Ø|Durchschnitt|Schnitt)?|(?:Avg|Average|Ø|Durchschnitt|Schnitt)[\s-]*5[\s-]*(?:Y|J|Jahre[sn]?|Years?))\s*:?\s*(?:von\s*)?(\d+(?:[.,]\d+)?)/i);
                 if (m5Y) {
                     avgPe = m5Y[1];
                     avgType = '5J Ø';
@@ -3208,7 +3402,7 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
 
                 // Check for 10Y / 10J Avg if no 5Y found
                 if (!avgPe) {
-                    const m10Y = line.match(/(?:10[\s-]*(?:Y|J|Jahre[sn]?|Years?|j[äa]hrige[rns]?)[\s-]*(?:Avg|Average|Ø|Durchschnitt|Schnitt)?|(?:Avg|Average|Ø|Durchschnitt|Schnitt)[\s-]*10[\s-]*(?:Y|J|Jahre[sn]?|Years?))\s*:?\s*(?:von\s*)?(\d+(?:[.,]\d+)?)/i);
+                    const m10Y = clean.match(/(?:10[\s-]*(?:Y|J|Jahre[sn]?|Years?|j[äa]hrige[rns]?)[\s-]*(?:Avg|Average|Ø|Durchschnitt|Schnitt)?|(?:Avg|Average|Ø|Durchschnitt|Schnitt)[\s-]*10[\s-]*(?:Y|J|Jahre[sn]?|Years?))\s*:?\s*(?:von\s*)?(\d+(?:[.,]\d+)?)/i);
                     if (m10Y) {
                         avgPe = m10Y[1];
                         avgType = '10J Ø';
@@ -3217,7 +3411,7 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
 
                 // Check for general historical Avg if still not found
                 if (!avgPe) {
-                    const mHist = line.match(/(?:historisch(?:er|en|es)?[\s-]*(?:Ø|Durchschnitt|Schnitt|Avg|Average)?|(?:3|7)[\s-]*(?:Y|J)[\s-]*(?:Avg|Ø))\s*:?\s*(?:von\s*)?(\d+(?:[.,]\d+)?)/i);
+                    const mHist = clean.match(/(?:Historical\s*Valuation|historisch(?:er|en|es)?[\s-]*(?:Ø|Durchschnitt|Schnitt|Avg|Average)?|(?:3|7)[\s-]*(?:Y|J)[\s-]*(?:Avg|Ø))\s*:?\s*(?:von\s*)?(\d+(?:[.,]\d+)?)/i);
                     if (mHist) {
                         avgPe = mHist[1];
                         avgType = 'Hist. Ø';
@@ -3225,7 +3419,8 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 }
 
                 // Extract Current P/E
-                const mCurr = line.match(/(?:Current\s*P\/E|Aktuelles\s*KGV|KGV|P\/E|PE)\s*:?\s*(?:von\s*)?(\d+(?:[.,]\d+)?)/i);
+                const mCurr = line.match(/(?:Current\s*P\/E|Aktuelles\s*KGV|KGV|P\/E|PE)\s*:?\s*(?:von\s*)?(\d+(?:[.,]\d+)?)/i) ||
+                              line.match(/^(\d+(?:[.,]\d+)?)/);
                 if (mCurr) {
                     currentPe = mCurr[1];
                 }
@@ -3261,11 +3456,11 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 }
             }
 
-            // 2. 5Y Growth
-            const growthMatch = clean.match(/(?:5Y\s*Growth|5J\s*Wachstum|5-Jahres-Wachstum|Growth|Wachstum|CAGR):\s*([^\n]+)/i);
+            // 2. 5Y Growth / Revenue CAGR
+            const growthMatch = clean.match(/(?:Revenue\s*CAGR|5Y\s*Growth|5J\s*Wachstum|5-Jahres-Wachstum|Growth|Wachstum|CAGR):\s*([^\n]+)/i);
             if (growthMatch) {
                 const line = growthMatch[1].trim();
-                const pctMatch = line.match(/([+\-]?\d+(?:[.,]\d+)?\s*%\s*(?:CAGR)?)/i);
+                const pctMatch = line.match(/([+\-]?\d+(?:[.,]\d+)?\s*%\s*(?:CAGR|p\.a\.)?)/i);
                 if (pctMatch) {
                     growth = pctMatch[1].trim();
                 } else {
@@ -3274,7 +3469,7 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             }
 
             // 3. Dividend
-            const divMatch = clean.match(/(?:Dividend|Dividende|Dividendenrendite):\s*([^\n]+)/i);
+            const divMatch = clean.match(/(?:Dividend|Dividende|Dividendenrendite|Payout):\s*([^\n]+)/i);
             if (divMatch) {
                 const line = divMatch[1].trim();
                 if (!/keine|none|n\/a|0(?:\.0+)?\s*%/i.test(line) || /(\b[1-9]\d*(?:[.,]\d+)?\s*%)/.test(line)) {
@@ -3293,27 +3488,39 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 }
             }
 
-            // 4. Bull/Bear Targets
-            const targetMatch = clean.match(/(?:Bull\/Bear\s*Targets|Bull\/Bear|Targets|Kursziele):\s*([^\n]+)/i);
+            // 4. Bull/Bear Targets or DCF Bull/Bear
             let targetCurrency = '';
-            if (targetMatch) {
-                const line = targetMatch[1].trim();
-                targetCurrency = extractCurrency(line);
-                const bbMatch = line.match(/Bull\s*:?\s*([A-Za-z$€£¥]*\s*\d+(?:[.,]\d+)?(?:\s*[A-Za-z$€£¥]+)?)\s*(?:\/|vs\.?|und|;)\s*Bear\s*:?\s*([A-Za-z$€£¥]*\s*\d+(?:[.,]\d+)?(?:\s*[A-Za-z$€£¥]+)?)/i);
-                if (bbMatch) {
-                    targets = `${bbMatch[1].trim()} / ${bbMatch[2].trim()}`;
-                    bullNum = parsePriceNumber(bbMatch[1]);
-                    bearNum = parsePriceNumber(bbMatch[2]);
-                    if (!targetCurrency) targetCurrency = extractCurrency(bbMatch[1]) || extractCurrency(bbMatch[2]);
-                } else {
-                    const priceMatches = line.match(/([A-Za-z$€£¥]*\s*\d+(?:[.,]\d+)?(?:\s*[A-Za-z$€£¥]+)?)/g);
-                    if (priceMatches && priceMatches.length >= 2) {
-                        targets = `${priceMatches[0].trim()} / ${priceMatches[1].trim()}`;
-                        bullNum = parsePriceNumber(priceMatches[0]);
-                        bearNum = parsePriceNumber(priceMatches[1]);
-                        if (!targetCurrency) targetCurrency = extractCurrency(priceMatches[0]) || extractCurrency(priceMatches[1]);
+            const dcfBullMatch = clean.match(/DCF\s*Bull:\s*([^\n]+)/i);
+            const dcfBearMatch = clean.match(/DCF\s*Bear:\s*([^\n]+)/i);
+
+            if (dcfBullMatch && dcfBearMatch) {
+                const bullRaw = dcfBullMatch[1].trim();
+                const bearRaw = dcfBearMatch[1].trim();
+                bullNum = parsePriceNumber(bullRaw);
+                bearNum = parsePriceNumber(bearRaw);
+                targetCurrency = extractCurrency(bullRaw) || extractCurrency(bearRaw);
+                targets = `${bearNum !== null ? bearNum.toFixed(2) : bearRaw} / ${bullNum !== null ? bullNum.toFixed(2) : bullRaw}`;
+            } else {
+                const targetMatch = clean.match(/(?:Bull\/Bear\s*Targets|Bull\/Bear|Targets|Kursziele):\s*([^\n]+)/i);
+                if (targetMatch) {
+                    const line = targetMatch[1].trim();
+                    targetCurrency = extractCurrency(line);
+                    const bbMatch = line.match(/Bull\s*:?\s*([A-Za-z$€£¥]*\s*\d+(?:[.,]\d+)?(?:\s*[A-Za-z$€£¥]+)?)\s*(?:\/|vs\.?|und|;)\s*Bear\s*:?\s*([A-Za-z$€£¥]*\s*\d+(?:[.,]\d+)?(?:\s*[A-Za-z$€£¥]+)?)/i);
+                    if (bbMatch) {
+                        targets = `${bbMatch[1].trim()} / ${bbMatch[2].trim()}`;
+                        bullNum = parsePriceNumber(bbMatch[1]);
+                        bearNum = parsePriceNumber(bbMatch[2]);
+                        if (!targetCurrency) targetCurrency = extractCurrency(bbMatch[1]) || extractCurrency(bbMatch[2]);
                     } else {
-                        targets = line.split(/[,;(]/)[0].trim().substring(0, 16);
+                        const priceMatches = line.match(/([A-Za-z$€£¥]*\s*\d+(?:[.,]\d+)?(?:\s*[A-Za-z$€£¥]+)?)/g);
+                        if (priceMatches && priceMatches.length >= 2) {
+                            targets = `${priceMatches[0].trim()} / ${priceMatches[1].trim()}`;
+                            bullNum = parsePriceNumber(priceMatches[0]);
+                            bearNum = parsePriceNumber(priceMatches[1]);
+                            if (!targetCurrency) targetCurrency = extractCurrency(priceMatches[0]) || extractCurrency(priceMatches[1]);
+                        } else {
+                            targets = line.split(/[,;(]/)[0].trim().substring(0, 16);
+                        }
                     }
                 }
             }
@@ -3342,7 +3549,7 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 bearPct = ((bearNum - currentPriceNum) / currentPriceNum) * 100;
                 const bullSign = bullPct >= 0 ? '+' : '';
                 const bearSign = bearPct >= 0 ? '+' : '';
-                potentials = `${bullSign}${bullPct.toFixed(1)}% / ${bearSign}${bearPct.toFixed(1)}%`;
+                potentials = `${bearSign}${bearPct.toFixed(1)}% / ${bullSign}${bullPct.toFixed(1)}%`;
             }
 
             return {
@@ -3379,11 +3586,11 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 return;
             }
 
-            const currentPriceText = data.company_identity?.match(/Aktueller Kurs:\s*(.*)/i)?.[1] ||
+            const currentPriceText = data.company_identity?.match(/(?:Current Price|Aktueller Kurs):\s*(.*)/i)?.[1] ||
                                      document.getElementById('id_price')?.textContent || '';
 
-            const screenerText = data.goldman_sachs || '';
-            const showcase = extractStockScreenerShowcase(screenerText, currentPriceText);
+            const screenerText = data.valuation || data.financial_quality || data.goldman_sachs || '';
+            const showcase = extractStockScreenerShowcase(screenerText, currentPriceText, data);
             
             if (peLabelEl && showcase.peLabel) peLabelEl.textContent = showcase.peLabel;
             peEl.textContent = showcase.pe;
@@ -3406,7 +3613,7 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                     const bearSign = showcase.bearPct >= 0 ? '+' : '';
                     const bullColor = showcase.bullPct >= 0 ? 'text-emerald-400' : 'text-rose-400';
                     const bearColor = showcase.bearPct >= 0 ? 'text-emerald-400' : 'text-rose-400';
-                    potentialsEl.innerHTML = `<span class="${bullColor} font-bold">${bullSign}${showcase.bullPct.toFixed(1)}%</span> <span class="text-gray-500 font-normal">/</span> <span class="${bearColor} font-bold">${bearSign}${showcase.bearPct.toFixed(1)}%</span>`;
+                    potentialsEl.innerHTML = `<span class="${bearColor} font-bold">${bearSign}${showcase.bearPct.toFixed(1)}%</span> <span class="text-gray-500 font-normal">/</span> <span class="${bullColor} font-bold">${bullSign}${showcase.bullPct.toFixed(1)}%</span>`;
                 } else if (showcase.potentials !== '--') {
                     potentialsEl.textContent = showcase.potentials;
                 } else {
@@ -3421,15 +3628,37 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             if (text) {
                 const getValue = (key) => {
                     const match = text.match(new RegExp(`${key}:\\s*(.*)`, 'i'));
-                    return match ? match[1].trim() : '--';
+                    return match ? match[1].trim() : '';
                 };
 
-                document.getElementById('id_name').textContent = getValue('Name');
-                document.getElementById('id_codes').textContent = `${getValue('ISIN')} / ${getValue('WKN')}`;
-                document.getElementById('id_sector').textContent = getValue('Sektor');
-                document.getElementById('id_hq').textContent = getValue('HQ');
-                document.getElementById('id_desc').textContent = getValue('Profil');
-                document.getElementById('id_price').textContent = getValue('Aktueller Kurs');
+                const name = getValue('Name') || '--';
+                const ticker = getValue('Ticker') || getValue('Symbol');
+                const isin = getValue('ISIN');
+                const wkn = getValue('WKN');
+                const exchange = getValue('Exchange');
+                const country = getValue('Country') || getValue('HQ');
+                const sector = getValue('Sector') || getValue('Sektor');
+                const industry = getValue('Industry');
+                const price = getValue('Current Price') || getValue('Aktueller Kurs') || '--';
+                const desc = getValue('Profil') || getValue('Business Model') || getValue('Core Business') || getValue('Description') || (sector && industry ? `${sector} • ${industry}` : '--');
+
+                let codesStr = '';
+                if (isin && isin !== 'N/A' && isin !== '--') codesStr += isin;
+                if (wkn && wkn !== 'N/A' && wkn !== '--') codesStr += (codesStr ? ' / ' : '') + wkn;
+                if (!codesStr && ticker) codesStr = ticker + (exchange && exchange !== 'N/A' ? ` (${exchange})` : '');
+                if (!codesStr) codesStr = '--';
+
+                let sectorStr = sector || '--';
+                if (industry && industry !== 'N/A' && industry !== sector && sectorStr !== '--') {
+                sectorStr += ` / ${industry}`;
+                }
+
+                document.getElementById('id_name').textContent = name;
+                document.getElementById('id_codes').textContent = codesStr;
+                document.getElementById('id_sector').textContent = sectorStr;
+                document.getElementById('id_hq').textContent = country || (exchange ? `Börse: ${exchange}` : '--');
+                document.getElementById('id_desc').textContent = desc;
+                document.getElementById('id_price').textContent = price;
             }
 
             const data = allData || CURRENT_ANALYSIS_DATA;
@@ -3539,7 +3768,7 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
 
         function extractConsensusGrowthRate(allData, fallback = 0.06) {
             if (!allData) return fallback;
-            const fullText = `${allData.goldman_sachs || ''} ${allData.morgan_stanley || ''} ${allData.jpmorgan || ''} ${allData.citadel || ''} ${allData.executive_summary || ''} ${allData.rawAnalysis || ''}`;
+            const fullText = (allData.valuation || '') + ' ' + (allData.financial_quality || '') + ' ' + (allData.business_quality || '') + ' ' + (allData.earnings_expectations || '') + ' ' + (allData.executive_summary || '') + ' ' + (allData.goldman_sachs || '') + ' ' + (allData.morgan_stanley || '') + ' ' + (allData.jpmorgan || '') + ' ' + (allData.citadel || '') + ' ' + (allData.rawAnalysis || '');
             
             // 1. Check for Analyst Consensus Growth / Konsens-Wachstum
             const consMatch = fullText.match(/(?:Analyst\s*Consensus\s*Growth|Consensus\s*Growth|Konsens[\s-]*(?:Wachstum|CAGR|Rate)|EPS[\s-]*(?:Growth|Wachstum)|Wachstums[\s-]*Konsens)[:\s]*([+\-]?\d+(?:[.,]\d+)?)\s*%/i);
@@ -3551,7 +3780,7 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             }
 
             // 2. Check for 5Y Revenue CAGR / 5Y Growth
-            const cagrMatch = fullText.match(/(?:5Y\s*Revenue\s*CAGR|5Y\s*CAGR|5Y\s*Growth|5J\s*Wachstum|CAGR)[:\s]*([+\-]?\d+(?:[.,]\d+)?)\s*%/i);
+            const cagrMatch = fullText.match(/(?:Revenue\s*CAGR|5Y\s*Revenue\s*CAGR|5Y\s*CAGR|5Y\s*Growth|5J\s*Wachstum|CAGR)[:\s]*([+\-]?\d+(?:[.,]\d+)?)\s*%/i);
             if (cagrMatch && cagrMatch[1]) {
                 const val = parseFloat(cagrMatch[1].replace(',', '.'));
                 if (!isNaN(val) && val > -30 && val < 100) {
@@ -3585,680 +3814,6 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             const safeGrowth = Math.max(-0.15, Math.min(0.50, growthRate));
             let simFair = fairValueBase * Math.pow(1 / (1 + safeGrowth), historyMonths / 12);
             let splitDateStr = '';
-
-            for (let i = 0; i <= totalMonths; i++) {
-                const d = new Date(start);
-                d.setMonth(d.getMonth() + i);
-
-                const year = d.getFullYear();
-                const month = String(d.getMonth() + 1).padStart(2, '0');
-                const day = '01';
-                const dateStr = `${year}-${month}-${day}`;
-                const isForecast = i > historyMonths;
-
-                if (i === historyMonths) {
-                    splitDateStr = dateStr;
-                }
-
-                // Monthly compounding based on Analyst Consensus Growth
-                const monthlyGrowth = Math.pow(1 + safeGrowth, 1 / 12) - 1;
-                simFair = simFair * (1 + monthlyGrowth);
-
-                const fairVal = Math.round(simFair * 100) / 100;
-                const lowerBand = Math.round(fairVal * (1 - spread) * 100) / 100;
-                const upperBand = Math.round(fairVal * (1 + spread) * 100) / 100;
-
-                let priceVal = null;
-
-                if (!isForecast) {
-                    // Realistic cyclical fluctuation across market cycles
-                    const noise = (Math.sin(i * 0.35) * 0.08) + (Math.cos(i * 0.85) * 0.05) + (Math.sin(i * 1.6) * 0.025);
-                    let baseP = fairVal * (1 + noise);
-                    // Anchor last historical point closer to actual currentPrice
-                    if (i === historyMonths) {
-                        baseP = currentPrice;
-                    } else if (i >= historyMonths - 3) {
-                        const weight = (i - (historyMonths - 3)) / 3;
-                        baseP = (baseP * (1 - weight)) + (currentPrice * weight);
-                    }
-                    priceVal = Math.round(baseP * 100) / 100;
-                }
-
-                data.push({
-                    date: dateStr,
-                    price: priceVal,
-                    fairValue: fairVal,
-                    lowerBand: lowerBand,
-                    upperBand: upperBand,
-                    isForecast: isForecast
-                });
-            }
-
-            return { data, splitDate: splitDateStr };
-        }
-
-        function selectValuationTimeframe(tf) {
-            SELECTED_VALUATION_TIMEFRAME = tf;
-            updateChartTimeframeButtonStates(AVAILABLE_HISTORY_YEARS);
-
-            if (LAST_VALUATION_CHART_STATE) {
-                const growth = LAST_VALUATION_CHART_STATE.growthRate != null ? LAST_VALUATION_CHART_STATE.growthRate : 0.06;
-                const { data, splitDate } = generateValuationCorridorData(
-                    LAST_VALUATION_CHART_STATE.currentPrice,
-                    LAST_VALUATION_CHART_STATE.fairValueBase,
-                    growth,
-                    0.15,
-                    tf,
-                    AVAILABLE_HISTORY_YEARS
-                );
-                LAST_VALUATION_CHART_STATE.data = data;
-                LAST_VALUATION_CHART_STATE.splitDate = splitDate;
-
-                const svg = document.getElementById('valCorridorSvg');
-                const wrapper = document.getElementById('valCorridorChartWrapper');
-                if (svg && wrapper) {
-                    drawValuationCorridorSvg(
-                        svg,
-                        wrapper,
-                        data,
-                        splitDate,
-                        LAST_VALUATION_CHART_STATE.currency
-                    );
-                }
-            }
-        }
-
-        function selectValuationHorizon(horizonYears) {
-            SELECTED_VALUATION_HORIZON = horizonYears;
-
-            // Update Horizon Button Active Classes
-            [0, 1, 2, 3].forEach(h => {
-                const btn = document.getElementById(`valHBtn_${h}`);
-                if (!btn) return;
-                if (h === horizonYears) {
-                    btn.className = 'val-h-btn px-2.5 py-0.5 rounded-lg border border-gold-500/50 bg-gold-500/15 text-gold-300 shadow-sm transition-all font-bold text-[10px]';
-                } else {
-                    btn.className = 'val-h-btn px-2.5 py-0.5 rounded-lg border border-white/10 text-gray-400 hover:text-white transition-all text-[10px]';
-                }
-            });
-
-            if (LAST_VALUATION_CHART_STATE) {
-                const svg = document.getElementById('valCorridorSvg');
-                const wrapper = document.getElementById('valCorridorChartWrapper');
-                if (svg && wrapper) {
-                    drawValuationCorridorSvg(
-                        svg,
-                        wrapper,
-                        LAST_VALUATION_CHART_STATE.data,
-                        LAST_VALUATION_CHART_STATE.splitDate,
-                        LAST_VALUATION_CHART_STATE.currency
-                    );
-                }
-            }
-        }
-
-        function updateValuationRoiCard(basePrice, targetPoint, years, currency) {
-            const badge = document.getElementById('valCorridorBadge');
-            const statusText = document.getElementById('valCorridorStatusText');
-
-            if (!basePrice || !targetPoint) return;
-
-            if (years <= 0) {
-                const devPct = ((basePrice - targetPoint.fairValue) / targetPoint.fairValue) * 100;
-                const isUndervalued = devPct <= -5;
-                const isOvervalued = devPct >= 5;
-                if (badge && statusText) {
-                    badge.className = `px-2.5 py-1 rounded-lg border text-[10px] font-mono font-bold flex items-center gap-1.5 shadow-sm ${
-                        isUndervalued ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' :
-                        isOvervalued ? 'bg-amber-500/10 border-amber-500/30 text-amber-400' :
-                        'bg-blue-500/10 border-blue-500/30 text-blue-400'
-                    }`;
-                    const dot = badge.querySelector('span');
-                    if (dot) dot.className = `w-1.5 h-1.5 rounded-full ${isUndervalued ? 'bg-emerald-400' : isOvervalued ? 'bg-amber-400' : 'bg-blue-400'}`;
-                    const sign = devPct > 0 ? '+' : '';
-                    statusText.textContent = `${sign}${devPct.toFixed(1)}% ${isUndervalued ? 'Unterbewertet (Günstig)' : isOvervalued ? 'Überbewertet (Prämie)' : 'Fair bewertet'}`;
-                }
-                return;
-            }
-
-            const targetFair = targetPoint.fairValue;
-            const cagr = (Math.pow(targetFair / basePrice, 1 / years) - 1) * 100;
-            const isPos = cagr >= 0;
-
-            if (badge && statusText) {
-                badge.className = `px-2.5 py-1 rounded-lg border text-[10px] font-mono font-bold flex items-center gap-1.5 shadow-sm ${
-                    isPos ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-rose-500/10 border-rose-500/30 text-rose-400'
-                }`;
-                const dot = badge.querySelector('span');
-                if (dot) dot.className = `w-1.5 h-1.5 rounded-full ${isPos ? 'bg-emerald-400' : 'bg-rose-400'}`;
-                statusText.textContent = `Ø Rendite: ${isPos ? '+' : ''}${cagr.toFixed(1)}% p.a. (+${years}J Ziel: ${targetFair.toFixed(2)} ${currency})`;
-            }
-        }
-
-        function renderValuationCorridorChart(allData, text = '') {
-            const svg = document.getElementById('valCorridorSvg');
-            const wrapper = document.getElementById('valCorridorChartWrapper');
-            const badge = document.getElementById('valCorridorBadge');
-            const statusText = document.getElementById('valCorridorStatusText');
-
-            if (!svg || !wrapper) return;
-
-            // Extract price and DCF / Fair Value estimates
-            const rawPriceText = document.getElementById('id_price')?.textContent || '';
-            const { price: currentPrice, currency } = parseCurrencyAndPrice(rawPriceText);
-
-            // Estimate Fair Value from DCF or Citadel/Goldman text
-            let fairValueBase = currentPrice;
-            const dcfMatch = (allData?.citadel || allData?.executive_summary || '').match(/(?:DCF|Fair Value|Fairer Wert|Target|Kursziel)[:\s]*([\d.,]+)\s*(\$|€|USD|EUR)?/i);
-            if (dcfMatch && dcfMatch[1]) {
-                const parsedVal = parseFloat(dcfMatch[1].replace(',', '.'));
-                if (parsedVal > 0 && parsedVal < currentPrice * 5 && parsedVal > currentPrice * 0.2) {
-                    fairValueBase = parsedVal;
-                }
-            } else {
-                // If DCF potential is available in UI
-                const potText = document.getElementById('id_dcf_potential')?.textContent || '';
-                const potMatch = potText.match(/([+-]?\d+[.,]?\d*)%/);
-                if (potMatch) {
-                    const pct = parseFloat(potMatch[1].replace(',', '.'));
-                    fairValueBase = currentPrice * (1 + pct / 100);
-                }
-            }
-
-            // Detect available history depth & update UI timeframe buttons
-            AVAILABLE_HISTORY_YEARS = getAvailableHistoryYears(allData);
-            updateChartTimeframeButtonStates(AVAILABLE_HISTORY_YEARS);
-
-            // Extract Analyst Consensus Growth Rate
-            const consensusGrowth = extractConsensusGrowthRate(allData, 0.06);
-
-            // Generate structured corridor data conforming to ChartDataPoint
-            const { data, splitDate } = generateValuationCorridorData(currentPrice, fairValueBase, consensusGrowth, 0.15, SELECTED_VALUATION_TIMEFRAME, AVAILABLE_HISTORY_YEARS);
-            LAST_VALUATION_CHART_STATE = { data, splitDate, currency, currentPrice, fairValueBase, growthRate: consensusGrowth };
-
-            drawValuationCorridorSvg(svg, wrapper, data, splitDate, currency);
-
-            // Double rAF ensures exact sizing after DOM paint/layout calculation
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    if (LAST_VALUATION_CHART_STATE && LAST_VALUATION_CHART_STATE.data === data) {
-                        drawValuationCorridorSvg(svg, wrapper, data, splitDate, currency);
-                    }
-                });
-            });
-        }
-
-        function getValuationElementAvailableWidth(el) {
-            if (!el) return Math.max(320, window.innerWidth - (window.innerWidth < 640 ? 24 : 64));
-            let w = el.clientWidth || el.getBoundingClientRect().width;
-            if (w > 80) return w;
-            let curr = el.parentElement;
-            while (curr && curr !== document.body) {
-                let pw = curr.clientWidth || curr.getBoundingClientRect().width;
-                if (pw > 80) return pw;
-                curr = curr.parentElement;
-            }
-            return Math.max(320, window.innerWidth - (window.innerWidth < 640 ? 24 : 64));
-        }
-
-        function updateLiveInfoBar(pt, splitDate, currency, isInitial = false) {
-            const dateEl = document.getElementById('liveValDate');
-            const modeEl = document.getElementById('liveValMode');
-            const priceEl = document.getElementById('liveValPrice');
-            const fairEl = document.getElementById('liveValFair');
-            const devEl = document.getElementById('liveValDev');
-            const bandEl = document.getElementById('liveValBand');
-
-            if (!pt || !dateEl) return;
-
-            const monthsFull = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
-            const parts = pt.date.split('-');
-            const mIdx = parseInt(parts[1] || '1', 10) - 1;
-            const formattedDate = `${monthsFull[mIdx] || ''} ${parts[0] || ''}`;
-
-            dateEl.textContent = formattedDate;
-
-            if (modeEl) {
-                if (isInitial || pt.date === splitDate) {
-                    modeEl.className = 'text-[8px] px-1.5 py-0.5 rounded font-bold uppercase bg-gold-500/15 text-gold-400 border border-gold-500/30 shrink-0';
-                    modeEl.textContent = 'Stichtag';
-                } else if (pt.isForecast) {
-                    modeEl.className = 'text-[8px] px-1.5 py-0.5 rounded font-bold uppercase bg-amber-500/15 text-amber-400 border border-amber-500/30 shrink-0';
-                    modeEl.textContent = 'Prognose';
-                } else {
-                    modeEl.className = 'text-[8px] px-1.5 py-0.5 rounded font-bold uppercase bg-blue-500/15 text-blue-400 border border-blue-500/30 shrink-0';
-                    modeEl.textContent = 'Historie';
-                }
-            }
-
-            if (priceEl) {
-                priceEl.textContent = pt.price !== null ? `${pt.price.toFixed(2)} ${currency}` : '-- (Zukunft)';
-                priceEl.className = pt.price !== null ? 'font-bold text-white mt-0.5 text-[11px] truncate' : 'text-gray-500 italic mt-0.5 text-[11px] truncate';
-            }
-
-            if (fairEl) {
-                fairEl.textContent = `${pt.fairValue.toFixed(2)} ${currency}`;
-            }
-
-            if (devEl) {
-                if (pt.price !== null && pt.fairValue > 0) {
-                    const dPct = ((pt.price - pt.fairValue) / pt.fairValue) * 100;
-                    const isUnder = dPct <= -5;
-                    const isOver = dPct >= 5;
-                    const sign = dPct > 0 ? '+' : '';
-                    const colorCls = isUnder ? 'text-emerald-400' : isOver ? 'text-rose-400' : 'text-amber-400';
-                    const tag = isUnder ? ' (Unterbew.)' : isOver ? ' (Überbew.)' : ' (Fair)';
-                    devEl.className = `font-bold ${colorCls} mt-0.5 text-[11px] truncate`;
-                    devEl.textContent = `${sign}${dPct.toFixed(1)}%${tag}`;
-                } else {
-                    devEl.className = 'font-bold text-gold-400 mt-0.5 text-[11px] truncate';
-                    devEl.textContent = 'Fair Value Ziel';
-                }
-            }
-
-            if (bandEl) {
-                bandEl.textContent = `${pt.lowerBand.toFixed(1)} – ${pt.upperBand.toFixed(1)} ${currency}`;
-            }
-        }
-
-        function drawValuationCorridorSvg(svg, wrapper, data, splitDate, currency) {
-            if (!svg || !wrapper || !data || data.length === 0) return;
-
-            const width = getValuationElementAvailableWidth(wrapper);
-            const isMobile = width < 640;
-            const height = isMobile ? 270 : 290;
-
-            // Attach ResizeObserver to wrapper if not already attached
-            if (window.ResizeObserver && !wrapper._hasValuationResizeObserver) {
-                wrapper._hasValuationResizeObserver = true;
-                const ro = new ResizeObserver(entries => {
-                    for (const entry of entries) {
-                        const rw = entry.contentRect.width;
-                        if (rw > 50 && LAST_VALUATION_CHART_STATE) {
-                            if (Math.abs((wrapper._lastDrawnWidth || 0) - rw) > 3) {
-                                drawValuationCorridorSvg(
-                                    svg,
-                                    wrapper,
-                                    LAST_VALUATION_CHART_STATE.data,
-                                    LAST_VALUATION_CHART_STATE.splitDate,
-                                    LAST_VALUATION_CHART_STATE.currency
-                                );
-                            }
-                        }
-                    }
-                });
-                ro.observe(wrapper);
-            }
-            wrapper._lastDrawnWidth = width;
-
-            const padLeft = isMobile ? 10 : 15;
-            const padRight = isMobile ? 48 : 65;
-            const padTop = isMobile ? 22 : 28;
-            const padBottom = isMobile ? 28 : 32;
-
-            const chartW = Math.max(10, width - padLeft - padRight);
-            const chartH = Math.max(10, height - padTop - padBottom);
-
-            // Find min/max values
-            let minVal = Infinity;
-            let maxVal = -Infinity;
-
-            data.forEach(d => {
-                if (d.price !== null) { minVal = Math.min(minVal, d.price); maxVal = Math.max(maxVal, d.price); }
-                minVal = Math.min(minVal, d.lowerBand, d.fairValue);
-                maxVal = Math.max(maxVal, d.upperBand, d.fairValue);
-            });
-
-            const padY = (maxVal - minVal) * 0.12;
-            minVal = Math.max(0, minVal - padY);
-            maxVal = maxVal + padY;
-
-            const getX = (index) => padLeft + (index / (data.length - 1)) * chartW;
-            const getY = (val) => padTop + chartH - ((val - minVal) / (maxVal - minVal)) * chartH;
-
-            const splitIndex = data.findIndex(d => d.date === splitDate);
-            const splitX = splitIndex >= 0 ? getX(splitIndex) : getX(Math.floor(data.length * 0.5));
-            const splitPt = (splitIndex >= 0 ? data[splitIndex] : data[0]);
-            const basePrice = splitPt.price || splitPt.fairValue;
-
-            // Target Index based on SELECTED_VALUATION_HORIZON
-            let targetIndex = splitIndex;
-            let horizonYears = SELECTED_VALUATION_HORIZON;
-            if (horizonYears > 0) {
-                targetIndex = Math.min(data.length - 1, splitIndex + Math.round(horizonYears * 12));
-            }
-            const targetPt = data[targetIndex] || data[data.length - 1];
-
-            // Update ROI Card
-            updateValuationRoiCard(basePrice, targetPt, horizonYears, currency);
-
-            // Set initial Live Info Bar state to Stichtag / Current
-            const initialPoint = (splitIndex >= 0 ? data[splitIndex] : data[data.length - 1]);
-            updateLiveInfoBar(initialPoint, splitDate, currency, true);
-
-            // Generate Path for Upper & Lower Corridor Band
-            let bandPath = `M ${getX(0)} ${getY(data[0].upperBand)}`;
-            for (let i = 1; i < data.length; i++) {
-                bandPath += ` L ${getX(i)} ${getY(data[i].upperBand)}`;
-            }
-            for (let i = data.length - 1; i >= 0; i--) {
-                bandPath += ` L ${getX(i)} ${getY(data[i].lowerBand)}`;
-            }
-            bandPath += ' Z';
-
-            // Generate Path for Fair Value (History: Solid)
-            let fvHistPath = `M ${getX(0)} ${getY(data[0].fairValue)}`;
-            for (let i = 1; i <= splitIndex && i < data.length; i++) {
-                fvHistPath += ` L ${getX(i)} ${getY(data[i].fairValue)}`;
-            }
-
-            // Generate Path for Fair Value (Forecast: Dashed)
-            let fvForePath = '';
-            if (splitIndex >= 0) {
-                fvForePath = `M ${getX(splitIndex)} ${getY(data[splitIndex].fairValue)}`;
-                for (let i = splitIndex + 1; i < data.length; i++) {
-                    fvForePath += ` L ${getX(i)} ${getY(data[i].fairValue)}`;
-                }
-            }
-
-            // Generate Path for Real Price (Solid)
-            let pricePath = '';
-            let priceStarted = false;
-            data.forEach((d, i) => {
-                if (d.price !== null) {
-                    if (!priceStarted) {
-                        pricePath += `M ${getX(i)} ${getY(d.price)}`;
-                        priceStarted = true;
-                    } else {
-                        pricePath += ` L ${getX(i)} ${getY(d.price)}`;
-                    }
-                }
-            });
-
-            // Grid lines & Y Axis labels
-            let gridHtml = '';
-            const steps = isMobile ? 3 : 4;
-            for (let s = 0; s <= steps; s++) {
-                const val = minVal + (s / steps) * (maxVal - minVal);
-                const y = getY(val);
-                gridHtml += `
-                    <line x1="${padLeft}" y1="${y}" x2="${width - padRight}" y2="${y}" stroke="rgba(255,255,255,0.05)" stroke-dasharray="3,3" />
-                    <text x="${width - padRight + 6}" y="${y + 3.5}" fill="#64748B" font-size="${isMobile ? 8.5 : 9.5}" font-family="'JetBrains Mono', monospace">${Math.round(val)} ${currency}</text>
-                `;
-            }
-
-            // X Axis date labels (Responsive & Adaptive for YTD, 1J, 3J, 5J, 10J, MAX)
-            let xLabelsHtml = '';
-            const monthsShort = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
-            const totalPoints = data.length;
-            const targetTicks = isMobile ? 3 : (totalPoints > 80 ? 7 : 5);
-            const stepInterval = Math.max(1, Math.floor((totalPoints - 1) / targetTicks));
-            
-            for (let i = 0; i < data.length; i += stepInterval) {
-                const d = data[i];
-                const parts = d.date.split('-');
-                const mIdx = parseInt(parts[1], 10) - 1;
-                let label = `${monthsShort[mIdx]} '${parts[0].slice(2)}`;
-                if (totalPoints > 60) {
-                    label = `'${parts[0].slice(2)}`;
-                }
-                const x = getX(i);
-                xLabelsHtml += `
-                    <text x="${x}" y="${height - 6}" fill="#64748B" font-size="${isMobile ? 8.5 : 9.5}" font-family="'JetBrains Mono', monospace" text-anchor="middle">${label}</text>
-                `;
-            }
-
-            // Target Horizon Anchor Nodes (+1J, +2J, +3J)
-            let horizonNodesHtml = '';
-            const horizons = [
-                { y: 1, idx: splitIndex + 12, label: '+1J' },
-                { y: 2, idx: splitIndex + 24, label: '+2J' },
-                { y: 3, idx: splitIndex + 36, label: '+3J' }
-            ];
-
-            horizons.forEach(h => {
-                if (h.idx < data.length) {
-                    const ptH = data[h.idx];
-                    const hX = getX(h.idx);
-                    const hY = getY(ptH.fairValue);
-                    const isSelected = (SELECTED_VALUATION_HORIZON === h.y);
-
-                    horizonNodesHtml += `
-                        <g class="cursor-pointer" onclick="selectValuationHorizon(${h.y})">
-                            <circle cx="${hX}" cy="${hY}" r="${isSelected ? 6 : 4}" fill="${isSelected ? '#10B981' : '#D4AF37'}" stroke="#0F1420" stroke-width="2" />
-                            ${isSelected ? `<circle cx="${hX}" cy="${hY}" r="9" fill="none" stroke="#10B981" stroke-width="1.5" opacity="0.6" stroke-dasharray="2,2" />` : ''}
-                            <rect x="${hX - 12}" y="${hY - 20}" width="24" height="14" rx="4" fill="${isSelected ? 'rgba(16, 185, 129, 0.9)' : 'rgba(15, 20, 32, 0.85)'}" stroke="${isSelected ? '#10B981' : 'rgba(212, 175, 55, 0.4)'}" stroke-width="1" />
-                            <text x="${hX}" y="${hY - 10}" fill="${isSelected ? '#FFFFFF' : '#D4AF37'}" font-size="8.5" font-weight="bold" font-family="'JetBrains Mono', monospace" text-anchor="middle">${h.label}</text>
-                        </g>
-                    `;
-                }
-            });
-
-            // Projection Ray from Stichtag to Target Point
-            let projectionRayHtml = '';
-            if (horizonYears > 0 && targetIndex > splitIndex) {
-                const startX = splitX;
-                const startY = getY(basePrice);
-                const endX = getX(targetIndex);
-                const endY = getY(targetPt.fairValue);
-                const cagr = (Math.pow(targetPt.fairValue / basePrice, 1 / horizonYears) - 1) * 100;
-                const sign = cagr >= 0 ? '+' : '';
-
-                projectionRayHtml = `
-                    <!-- Projection Line -->
-                    <line x1="${startX}" y1="${startY}" x2="${endX}" y2="${endY}" stroke="#10B981" stroke-width="2" stroke-dasharray="4,3" opacity="0.85" />
-                    
-                    <!-- Pulsating Start Point Anchor -->
-                    <circle cx="${startX}" cy="${startY}" r="4" fill="#FFFFFF" stroke="#10B981" stroke-width="2" />
-                    
-                    <!-- Target Highlight ROI Badge -->
-                    <g transform="translate(${Math.min(width - padRight - 70, endX + 8)}, ${Math.max(padTop + 10, endY - 14)})">
-                        <rect x="0" y="0" width="70" height="20" rx="6" fill="#0F1420" stroke="#10B981" stroke-width="1.5" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.5))" />
-                        <text x="35" y="13.5" fill="#34D399" font-size="9" font-weight="bold" font-family="'JetBrains Mono', monospace" text-anchor="middle">${sign}${cagr.toFixed(1)}% p.a.</text>
-                    </g>
-                `;
-            }
-
-            svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
-            svg.innerHTML = `
-                <defs>
-                    <linearGradient id="corridorFillGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stop-color="#10B981" stop-opacity="0.18" />
-                        <stop offset="50%" stop-color="#D4AF37" stop-opacity="0.08" />
-                        <stop offset="100%" stop-color="#10B981" stop-opacity="0.18" />
-                    </linearGradient>
-                    <linearGradient id="forecastBgGrad" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stop-color="#D4AF37" stop-opacity="0.015" />
-                        <stop offset="100%" stop-color="#D4AF37" stop-opacity="0.08" />
-                    </linearGradient>
-                </defs>
-
-                <!-- Grid & Axes -->
-                ${gridHtml}
-                ${xLabelsHtml}
-
-                <!-- Forecast Shaded Region -->
-                <rect x="${splitX}" y="${padTop}" width="${width - padRight - splitX}" height="${chartH}" fill="url(#forecastBgGrad)" />
-
-                <!-- Vertical Split Reference Line -->
-                <line x1="${splitX}" y1="${padTop}" x2="${splitX}" y2="${padTop + chartH}" stroke="rgba(212, 175, 55, 0.5)" stroke-dasharray="3,3" stroke-width="1.5" />
-                <text x="${splitX + 6}" y="${padTop + 12}" fill="#D4AF37" font-size="${isMobile ? 8.5 : 9.5}" font-weight="bold" font-family="'JetBrains Mono', monospace">Konsens-Prognose ➔</text>
-
-                <!-- 1. Fair Value Corridor Band -->
-                <path d="${bandPath}" fill="url(#corridorFillGrad)" stroke="rgba(212, 175, 55, 0.2)" stroke-width="1" />
-
-                <!-- 2. Fair Value Solid (History) -->
-                <path d="${fvHistPath}" fill="none" stroke="#D4AF37" stroke-width="2" stroke-linejoin="round" />
-
-                <!-- 2b. Fair Value Dashed (Forecast) -->
-                ${fvForePath ? `<path d="${fvForePath}" fill="none" stroke="#D4AF37" stroke-width="2" stroke-dasharray="4,4" stroke-linejoin="round" />` : ''}
-
-                <!-- 3. Real Price Line (Solid Off-White) -->
-                ${pricePath ? `<path d="${pricePath}" fill="none" stroke="#F8FAFC" stroke-width="2.25" stroke-linejoin="round" />` : ''}
-
-                <!-- 4. Target Horizon Nodes (+1J, +2J, +3J) -->
-                ${horizonNodesHtml}
-
-                <!-- 5. Active Projection Ray & ROI Badge -->
-                ${projectionRayHtml}
-
-                <!-- Dynamic Hover Cursor Elements -->
-                <line id="valHoverLine" x1="0" y1="${padTop}" x2="0" y2="${padTop + chartH}" stroke="rgba(255,255,255,0.4)" stroke-width="1" stroke-dasharray="2,2" style="display:none; pointer-events: none;" />
-                <circle id="valHoverDotPrice" r="4.5" fill="#FFFFFF" stroke="#0F1420" stroke-width="2" style="display:none; pointer-events: none;" />
-                <circle id="valHoverDotFair" r="4" fill="#D4AF37" stroke="#0F1420" stroke-width="2" style="display:none; pointer-events: none;" />
-
-                <!-- Full Area Transparent Touch/Mouse Catch Surface -->
-                <rect id="valHoverSurface" x="0" y="0" width="${width}" height="${height}" fill="transparent" style="cursor: crosshair; touch-action: pan-y;" />
-            `;
-
-            const hoverLine = svg.querySelector('#valHoverLine');
-            const hoverDotPrice = svg.querySelector('#valHoverDotPrice');
-            const hoverDotFair = svg.querySelector('#valHoverDotFair');
-            const hoverSurface = svg.querySelector('#valHoverSurface');
-
-            let animationFrameId = null;
-
-            const handlePointer = (clientX) => {
-                if (clientX === undefined || clientX === null) return;
-                const bRect = wrapper.getBoundingClientRect();
-                const relX = clientX - bRect.left;
-
-                if (relX < padLeft - 10 || relX > width - padRight + 10) {
-                    onPointerLeave();
-                    return;
-                }
-
-                const clampedX = Math.max(padLeft, Math.min(width - padRight, relX));
-                const ratio = Math.max(0, Math.min(1, (clampedX - padLeft) / chartW));
-                const idx = Math.round(ratio * (data.length - 1));
-                const pt = data[idx];
-                if (!pt) return;
-
-                const ptX = getX(idx);
-                const ptYFair = getY(pt.fairValue);
-
-                if (hoverLine) {
-                    hoverLine.setAttribute('x1', ptX);
-                    hoverLine.setAttribute('x2', ptX);
-                    hoverLine.style.display = 'block';
-                }
-
-                if (hoverDotFair) {
-                    hoverDotFair.setAttribute('cx', ptX);
-                    hoverDotFair.setAttribute('cy', ptYFair);
-                    hoverDotFair.style.display = 'block';
-                }
-
-                if (pt.price !== null && hoverDotPrice) {
-                    hoverDotPrice.setAttribute('cx', ptX);
-                    hoverDotPrice.setAttribute('cy', getY(pt.price));
-                    hoverDotPrice.style.display = 'block';
-                } else if (hoverDotPrice) {
-                    hoverDotPrice.style.display = 'none';
-                }
-
-                // Update Live Info Bar
-                updateLiveInfoBar(pt, splitDate, currency, false);
-            };
-
-            const onPointerMove = (evt) => {
-                const clientX = evt.clientX !== undefined ? evt.clientX : (evt.touches && evt.touches[0] ? evt.touches[0].clientX : null);
-                if (clientX === null) return;
-                
-                if (animationFrameId) cancelAnimationFrame(animationFrameId);
-                animationFrameId = requestAnimationFrame(() => handlePointer(clientX));
-            };
-
-            const onPointerClick = (evt) => {
-                const clientX = evt.clientX !== undefined ? evt.clientX : (evt.touches && evt.touches[0] ? evt.touches[0].clientX : null);
-                if (clientX === null) return;
-                const bRect = wrapper.getBoundingClientRect();
-                const relX = clientX - bRect.left;
-                const clampedX = Math.max(padLeft, Math.min(width - padRight, relX));
-                const ratio = Math.max(0, Math.min(1, (clampedX - padLeft) / chartW));
-                const idx = Math.round(ratio * (data.length - 1));
-
-                if (idx <= splitIndex) {
-                    selectValuationHorizon(0);
-                } else {
-                    const deltaMonths = idx - splitIndex;
-                    const approxYears = Math.max(1, Math.min(3, Math.round(deltaMonths / 12)));
-                    selectValuationHorizon(approxYears);
-                }
-            };
-
-            const onPointerLeave = () => {
-                if (hoverLine) hoverLine.style.display = 'none';
-                if (hoverDotPrice) hoverDotPrice.style.display = 'none';
-                if (hoverDotFair) hoverDotFair.style.display = 'none';
-                // Reset Live Info Bar to default Stichtag
-                const defaultPt = (splitIndex >= 0 ? data[splitIndex] : data[data.length - 1]);
-                updateLiveInfoBar(defaultPt, splitDate, currency, true);
-            };
-
-            if (hoverSurface) {
-                hoverSurface.onpointermove = onPointerMove;
-                hoverSurface.onpointerdown = onPointerMove;
-                hoverSurface.onclick = onPointerClick;
-                hoverSurface.onpointerleave = onPointerLeave;
-                hoverSurface.ontouchmove = onPointerMove;
-                hoverSurface.ontouchstart = onPointerMove;
-                hoverSurface.ontouchend = onPointerLeave;
-            }
-        }
-
-        // ==================== MULTIPLES CHART & HISTORICAL AVERAGES ENGINE (AKTIENFINDER METHODIK) ====================
-        let LAST_MULTIPLES_CHART_STATE = null;
-        let SELECTED_MULTIPLES_TIMEFRAME = '3J';
-        let ACTIVE_MULTIPLES_METRICS = {
-            pe_adj: true,
-            pe_rep: true,
-            pcf: true,
-            ps: true
-        };
-
-        function getMultiplesHistoryMonths(tf, maxYears = AVAILABLE_HISTORY_YEARS) {
-            let targetMonths = 36;
-            switch (tf) {
-                case '1J': targetMonths = 12; break;
-                case '3J': targetMonths = 36; break;
-                case '5J': targetMonths = 60; break;
-                case '8J': targetMonths = 96; break;
-                case '10J': targetMonths = 120; break;
-                case '15J': targetMonths = 180; break;
-                case 'MAX': targetMonths = maxYears * 12; break;
-                default: targetMonths = 36; break;
-            }
-            return Math.min(targetMonths, maxYears * 12);
-        }
-
-        function generateMultiplesChartData(ticker, companyName, currentPrice, basePeAdj, basePcf, basePs, basePeRep, growthRate = 0.06, tf = SELECTED_MULTIPLES_TIMEFRAME, maxYears = AVAILABLE_HISTORY_YEARS, histAvgPe = null) {
-            const data = [];
-            const historyMonths = getMultiplesHistoryMonths(tf, maxYears);
-            const forecastMonths = 36; // 36 Monate Konsens-Prognose
-            const totalMonths = historyMonths + forecastMonths;
-
-            const now = new Date();
-            const start = new Date(now);
-            start.setMonth(start.getMonth() - historyMonths);
-
-            let splitDateStr = '';
-
-            // Safe baseline values if parsing returns 0 or NaN
-            const safePeAdj = (basePeAdj && basePeAdj > 2 && basePeAdj < 200) ? basePeAdj : 24.5;
-            const safePcf = (basePcf && basePcf > 2 && basePcf < 150) ? basePcf : Math.max(4, safePeAdj * 0.72);
-            const safePs = (basePs && basePs > 0.2 && basePs < 80) ? basePs : Math.max(1.2, safePeAdj * 0.22);
-            const safePeRep = (basePeRep && basePeRep > 2 && basePeRep < 250) ? basePeRep : safePeAdj * 1.08;
-
-            // If genuine historical average is available from FMP / Analyst Screener
-            const targetHistPe = (histAvgPe && histAvgPe > 2 && histAvgPe < 200) ? histAvgPe : safePeAdj;
-            const peRatioHist = targetHistPe / safePeAdj;
-
-            // Raw arrays for outlier-cleaned historical averages
-            const rawPeAdjList = [];
-            const rawPcfList = [];
-            const rawPsList = [];
-            const rawPeRepList = [];
 
             for (let i = 0; i <= totalMonths; i++) {
                 const d = new Date(start);
@@ -4913,7 +4468,7 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             let basePeRep = 27.0;
 
             // 1. P/E extraction
-            const showcase = extractStockScreenerShowcase(allData?.goldman_sachs || '', rawPriceText);
+            const showcase = extractStockScreenerShowcase(allData?.valuation || allData?.financial_quality || allData?.goldman_sachs || '', rawPriceText, allData);
             if (showcase.currentPeNum && showcase.currentPeNum > 1 && showcase.currentPeNum < 300) {
                 basePeAdj = showcase.currentPeNum;
             } else {
@@ -4932,7 +4487,7 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             let growthRate = extractConsensusGrowthRate(allData, 0.06);
 
             // 3. P/S and P/CF extraction from raw agent text
-            const fullText = (allData?.citadel || '') + ' ' + (allData?.goldman_sachs || '') + ' ' + (allData?.morgan_stanley || '') + ' ' + text;
+            const fullText = (allData?.valuation || '') + ' ' + (allData?.financial_quality || '') + ' ' + (allData?.market_structure || '') + ' ' + (allData?.citadel || '') + ' ' + (allData?.goldman_sachs || '') + ' ' + (allData?.morgan_stanley || '') + ' ' + text;
             const psMatch = fullText.match(/(?:P\/S|KUV|Price to Sales|Kurs-Umsatz-Verhältnis)[:\s]*(\d+(?:[.,]\d+)?)/i);
             if (psMatch && psMatch[1]) {
                 const parsedPs = parseFloat(psMatch[1].replace(',', '.'));
@@ -5515,7 +5070,7 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             const identityText = data.company_identity || '';
 
             // AI Verdict
-            const execText = (data.executive_summary || data.citadel || data.morgan_stanley || data.goldman_sachs || '').toString().trim();
+            const execText = (data.executive_summary || data.valuation || data.market_structure || data.citadel || data.morgan_stanley || data.goldman_sachs || '').toString().trim();
             if (!execText || execText.length < 15 || execText.toUpperCase() === 'PENDING') {
                 return null;
             }
@@ -5539,15 +5094,15 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             const name = getName();
             const isin = getField('ISIN');
             const wkn = getField('WKN');
-            const sector = getField('Sektor');
-            const hq = getField('HQ');
-            const rawPrice = getField('Aktueller Kurs');
+            const sector = getField('Sector') !== '--' ? getField('Sector') : getField('Sektor');
+            const hq = getField('Country') !== '--' ? getField('Country') : getField('HQ');
+            const rawPrice = getField('Current Price') !== '--' ? getField('Current Price') : getField('Aktueller Kurs');
             const priceNum = parsePriceNumber(rawPrice);
             const currency = extractCurrency(rawPrice) || '$';
 
             // DCF Potential
-            const dcfText = data.morgan_stanley || data.citadel || data.executive_summary || '';
-            const dcfPotential = extractDcfPotential(dcfText);
+            const dcfText = data.valuation || data.morgan_stanley || data.citadel || data.executive_summary || '';
+            const dcfPotential = extractDcfPotential(dcfText, data);
 
             let dcfNum = null;
             if (dcfPotential !== '--') {
@@ -5558,8 +5113,8 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
             }
 
             // Key Data Showcase
-            const screenerText = data.goldman_sachs || '';
-            const showcase = extractStockScreenerShowcase(screenerText, rawPrice);
+            const screenerText = data.valuation || data.financial_quality || data.goldman_sachs || '';
+            const showcase = extractStockScreenerShowcase(screenerText, rawPrice, data);
 
             let peNum = null;
             if (showcase.pe && showcase.pe !== '--') {
@@ -6020,7 +5575,7 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 const compName = data.company_identity ? (data.company_identity.match(/Name:\s*(.*)/)?.[1] || 'Unknown Company') : 'Unknown Company';
 
                 // 1. Extract AI Verdict Badge
-                const verdict = extractAgentVerdict('executive_summary', data.executive_summary || data.citadel || data.morgan_stanley || data.goldman_sachs || '');
+                const verdict = extractAgentVerdict('executive_summary', data.executive_summary || data.valuation || data.market_structure || data.citadel || data.morgan_stanley || data.goldman_sachs || '');
                 let verdictBadgeClass = 'bg-slate-500/15 text-slate-300 border-slate-500/30';
                 if (verdict.type === 'buy') {
                     verdictBadgeClass = 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30';
@@ -6031,7 +5586,7 @@ ROLE: Chief Investment Officer & Council Chairman (Charlie Munger Valuation Fram
                 }
 
                 // 2. Extract DCF Price Potential
-                const dcfPot = extractDcfPotential(data.morgan_stanley || data.citadel || data.executive_summary || '');
+                const dcfPot = extractDcfPotential(data.valuation || data.morgan_stanley || data.citadel || data.executive_summary || '', data);
                 let dcfBadgeClass = 'bg-slate-500/15 text-slate-400 border-slate-500/30';
                 if (dcfPot !== '--') {
                     if (dcfPot.includes('-') && !dcfPot.includes('bis') && !dcfPot.includes('to')) {
