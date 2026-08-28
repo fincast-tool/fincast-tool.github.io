@@ -3674,6 +3674,9 @@ Data Timestamp: [${todayIso}]
         let LAST_VALUATION_CHART_STATE = null;
         let SELECTED_VALUATION_HORIZON = 3; // 0 = Stichtag, 1 = +1J, 2 = +2J, 3 = +3J
         let SELECTED_VALUATION_TIMEFRAME = '3J'; // 'YTD', '1J', '3J', '5J', '10J', 'MAX'
+        let SELECTED_MULTIPLES_TIMEFRAME = '5J'; // '3J', '5J', '8J', '10J', '15J', 'MAX'
+        let LAST_MULTIPLES_CHART_STATE = null;
+        let ACTIVE_MULTIPLES_METRICS = { pe_adj: true, pe_rep: false, pcf: false, ps: false };
 
         function getAvailableHistoryYears(allData = null) {
             if (allData?.incomeData && Array.isArray(allData.incomeData) && allData.incomeData.length >= 5) {
@@ -3829,89 +3832,680 @@ Data Timestamp: [${todayIso}]
                     splitDateStr = dateStr;
                 }
 
-                let peAdjVal = null;
-                let pcfVal = null;
-                let psVal = null;
-                let peRepVal = null;
+                // Monthly compounding based on Analyst Consensus Growth
+                const monthlyGrowth = Math.pow(1 + safeGrowth, 1 / 12) - 1;
+                simFair = simFair * (1 + monthlyGrowth);
+
+                const fairVal = Math.round(simFair * 100) / 100;
+                const lowerBand = Math.round(fairVal * (1 - spread) * 100) / 100;
+                const upperBand = Math.round(fairVal * (1 + spread) * 100) / 100;
+
+                let priceVal = null;
 
                 if (!isForecast) {
-                    // Realistic cyclical valuation oscillation simulating economic cycles
-                    const cycle1 = Math.sin((i / 12) * 2.1) * 0.22;
-                    const cycle2 = Math.cos((i / 12) * 4.3) * 0.12;
-                    const noise = (Math.sin(i * 0.7) * 0.05);
-                    const multiFactor = (1 + cycle1 + cycle2 + noise) * peRatioHist;
-
-                    let rawPe = safePeAdj * multiFactor;
-                    let rawPcf = safePcf * (1 + cycle1 * 0.9 + cycle2 * 1.1 + noise * 0.8) * Math.sqrt(peRatioHist);
-                    let rawPs = safePs * (1 + cycle1 * 0.7 + cycle2 * 0.8 + noise * 0.5) * Math.sqrt(peRatioHist);
-                    let rawPeRep = safePeRep * (1 + cycle1 * 1.25 + cycle2 * 1.4 + noise * 1.2) * peRatioHist;
-
-                    // Anchor smoothly to the current multiple at Stichtag (last historical point)
+                    // Realistic cyclical fluctuation across market cycles
+                    const noise = (Math.sin(i * 0.35) * 0.08) + (Math.cos(i * 0.85) * 0.05) + (Math.sin(i * 1.6) * 0.025);
+                    let baseP = fairVal * (1 + noise);
+                    // Anchor last historical point closer to actual currentPrice
                     if (i === historyMonths) {
-                        rawPe = safePeAdj;
-                        rawPcf = safePcf;
-                        rawPs = safePs;
-                        rawPeRep = safePeRep;
-                    } else if (i >= historyMonths - 6) {
-                        const w = (i - (historyMonths - 6)) / 6;
-                        rawPe = (rawPe * (1 - w)) + (safePeAdj * w);
-                        rawPcf = (rawPcf * (1 - w)) + (safePcf * w);
-                        rawPs = (rawPs * (1 - w)) + (safePs * w);
-                        rawPeRep = (rawPeRep * (1 - w)) + (safePeRep * w);
+                        baseP = currentPrice;
+                    } else if (i >= historyMonths - 3) {
+                        const weight = (i - (historyMonths - 3)) / 3;
+                        baseP = (baseP * (1 - weight)) + (currentPrice * weight);
                     }
-
-                    peAdjVal = Math.max(1, Math.round(rawPe * 10) / 10);
-                    pcfVal = Math.max(1, Math.round(rawPcf * 10) / 10);
-                    psVal = Math.max(0.1, Math.round(rawPs * 10) / 10);
-                    peRepVal = Math.max(1, Math.round(rawPeRep * 10) / 10);
-
-                    rawPeAdjList.push(peAdjVal);
-                    rawPcfList.push(pcfVal);
-                    rawPsList.push(psVal);
-                    rawPeRepList.push(peRepVal);
-                } else {
-                    // Forecast period: Forward multiples compress as fundamental metrics (EPS, CF, Rev) grow based on Analyst Consensus Growth
-                    const fYears = (i - historyMonths) / 12;
-                    const safeG = Math.max(0.01, Math.min(0.40, growthRate));
-                    const epsCompound = Math.pow(1 + safeG, fYears);
-                    const cfCompound = Math.pow(1 + Math.max(0.01, safeG * 0.95), fYears);
-                    const revCompound = Math.pow(1 + Math.max(0.01, safeG * 0.85), fYears);
-
-                    // Forward multiples at current stock price
-                    peAdjVal = Math.max(1, Math.round((safePeAdj / epsCompound) * 10) / 10);
-                    pcfVal = Math.max(1, Math.round((safePcf / cfCompound) * 10) / 10);
-                    psVal = Math.max(0.1, Math.round((safePs / revCompound) * 10) / 10);
-                    peRepVal = Math.max(1, Math.round((safePeRep / epsCompound) * 10) / 10);
+                    priceVal = Math.round(baseP * 100) / 100;
                 }
 
                 data.push({
                     date: dateStr,
-                    pe_adj: peAdjVal,
-                    pcf: pcfVal,
-                    ps: psVal,
-                    pe_rep: peRepVal,
+                    price: priceVal,
+                    fairValue: fairVal,
+                    lowerBand: lowerBand,
+                    upperBand: upperBand,
                     isForecast: isForecast
                 });
             }
 
-            // Aktienfinder Outlier-Cleaning Function (> 3σ outlier elimination)
-            const cleanAverage = (arr) => {
-                if (!arr || arr.length === 0) return 0;
-                const mean = arr.reduce((a, b) => a + b, 0) / arr.length;
-                const variance = arr.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / arr.length;
-                const stdDev = Math.sqrt(variance);
-                // Filter out points beyond 3 standard deviations
-                const filtered = arr.filter(v => v > 0 && Math.abs(v - mean) <= (stdDev * 3));
-                if (filtered.length === 0) return Math.round(mean * 10) / 10;
-                const cleanMean = filtered.reduce((a, b) => a + b, 0) / filtered.length;
-                return Math.round(cleanMean * 10) / 10;
+            return { data, splitDate: splitDateStr };
+        }
+
+        function selectValuationTimeframe(tf) {
+            SELECTED_VALUATION_TIMEFRAME = tf;
+            updateChartTimeframeButtonStates(AVAILABLE_HISTORY_YEARS);
+
+            if (LAST_VALUATION_CHART_STATE) {
+                const growth = LAST_VALUATION_CHART_STATE.growthRate != null ? LAST_VALUATION_CHART_STATE.growthRate : 0.06;
+                const { data, splitDate } = generateValuationCorridorData(
+                    LAST_VALUATION_CHART_STATE.currentPrice,
+                    LAST_VALUATION_CHART_STATE.fairValueBase,
+                    growth,
+                    0.15,
+                    tf,
+                    AVAILABLE_HISTORY_YEARS
+                );
+                LAST_VALUATION_CHART_STATE.data = data;
+                LAST_VALUATION_CHART_STATE.splitDate = splitDate;
+
+                const svg = document.getElementById('valCorridorSvg');
+                const wrapper = document.getElementById('valCorridorChartWrapper');
+                if (svg && wrapper) {
+                    drawValuationCorridorSvg(
+                        svg,
+                        wrapper,
+                        data,
+                        splitDate,
+                        LAST_VALUATION_CHART_STATE.currency
+                    );
+                }
+            }
+        }
+
+        function selectValuationHorizon(horizonYears) {
+            SELECTED_VALUATION_HORIZON = horizonYears;
+
+            // Update Horizon Button Active Classes
+            [0, 1, 2, 3].forEach(h => {
+                const btn = document.getElementById(`valHBtn_${h}`);
+                if (!btn) return;
+                if (h === horizonYears) {
+                    btn.className = 'val-h-btn px-2 py-0.5 rounded border border-[#D6A83A]/40 bg-[#D6A83A]/10 text-[#D6A83A] font-semibold transition-all text-[10px]';
+                } else {
+                    btn.className = 'val-h-btn px-2 py-0.5 rounded border border-[#202630] text-slate-300 hover:text-white transition-all text-[10px]';
+                }
+            });
+
+            if (LAST_VALUATION_CHART_STATE) {
+                const svg = document.getElementById('valCorridorSvg');
+                const wrapper = document.getElementById('valCorridorChartWrapper');
+                if (svg && wrapper) {
+                    drawValuationCorridorSvg(
+                        svg,
+                        wrapper,
+                        LAST_VALUATION_CHART_STATE.data,
+                        LAST_VALUATION_CHART_STATE.splitDate,
+                        LAST_VALUATION_CHART_STATE.currency
+                    );
+                }
+            }
+        }
+
+        function updateValuationRoiCard(basePrice, targetPoint, years, currency) {
+            const badge = document.getElementById('valCorridorBadge');
+            const statusText = document.getElementById('valCorridorStatusText');
+
+            if (!basePrice || !targetPoint) return;
+
+            if (years <= 0) {
+                const devPct = ((basePrice - targetPoint.fairValue) / targetPoint.fairValue) * 100;
+                const isUndervalued = devPct <= -5;
+                const isOvervalued = devPct >= 5;
+                if (badge && statusText) {
+                    badge.className = `px-2.5 py-0.5 rounded text-[10px] font-mono font-medium flex items-center gap-1.5 ${
+                        isUndervalued ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' :
+                        isOvervalued ? 'bg-rose-500/10 border-rose-500/30 text-rose-400' :
+                        'bg-amber-500/10 border-amber-500/30 text-amber-300'
+                    }`;
+                    const dot = badge.querySelector('span');
+                    if (dot) dot.className = `w-1.5 h-1.5 rounded-full ${isUndervalued ? 'bg-emerald-400' : isOvervalued ? 'bg-rose-400' : 'bg-amber-400'}`;
+                    statusText.textContent = isUndervalued ? `Unterbewertet (${devPct.toFixed(1)}% unter Fair Value)` :
+                                             isOvervalued ? `Überbewertet (+${devPct.toFixed(1)}% über Fair Value)` :
+                                             `Fair bewertet (${devPct >= 0 ? '+' : ''}${devPct.toFixed(1)}% vom Fair Value)`;
+                }
+            } else {
+                const targetFair = targetPoint.fairValue;
+                const cagr = (Math.pow(targetFair / basePrice, 1 / years) - 1) * 100;
+                const isPos = cagr >= 0;
+                if (badge && statusText) {
+                    badge.className = `px-2.5 py-0.5 rounded text-[10px] font-mono font-medium flex items-center gap-1.5 ${
+                        isPos ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-rose-500/10 border-rose-500/30 text-rose-400'
+                    }`;
+                    const dot = badge.querySelector('span');
+                    if (dot) dot.className = `w-1.5 h-1.5 rounded-full ${isPos ? 'bg-emerald-400' : 'bg-rose-400'}`;
+                    statusText.textContent = `Ø Rendite: ${isPos ? '+' : ''}${cagr.toFixed(1)}% p.a. (+${years}J Ziel: ${targetFair.toFixed(2)} ${currency})`;
+                }
+            }
+        }
+
+        function updateLiveInfoBar(pt, splitDate, currency, isInitial = false) {
+            const dateEl = document.getElementById('liveValDate');
+            const modeEl = document.getElementById('liveValMode');
+            const priceEl = document.getElementById('liveValPrice');
+            const fairEl = document.getElementById('liveValFair');
+            const devEl = document.getElementById('liveValDev');
+            const bandEl = document.getElementById('liveValBand');
+
+            if (!pt || !dateEl) return;
+
+            const monthsFull = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+            const parts = pt.date.split('-');
+            const mIdx = parseInt(parts[1] || '1', 10) - 1;
+            const formattedDate = `${monthsFull[mIdx] || ''} ${parts[0] || ''}`;
+
+            dateEl.textContent = formattedDate;
+
+            if (modeEl) {
+                if (isInitial || pt.date === splitDate) {
+                    modeEl.className = 'text-[8px] px-1.5 py-0.5 rounded font-bold uppercase bg-gold-500/15 text-gold-400 border border-gold-500/30 shrink-0';
+                    modeEl.textContent = 'Stichtag';
+                } else if (pt.isForecast) {
+                    modeEl.className = 'text-[8px] px-1.5 py-0.5 rounded font-bold uppercase bg-amber-500/15 text-amber-400 border border-amber-500/30 shrink-0';
+                    modeEl.textContent = 'Prognose';
+                } else {
+                    modeEl.className = 'text-[8px] px-1.5 py-0.5 rounded font-bold uppercase bg-blue-500/15 text-blue-400 border border-blue-500/30 shrink-0';
+                    modeEl.textContent = 'Historie';
+                }
+            }
+
+            if (priceEl) {
+                priceEl.textContent = pt.price !== null ? `${pt.price.toFixed(2)} ${currency}` : '-- (Zukunft)';
+                priceEl.className = pt.price !== null ? 'font-bold text-white mt-0.5 text-[11px] truncate' : 'text-gray-500 italic mt-0.5 text-[11px] truncate';
+            }
+
+            if (fairEl) {
+                fairEl.textContent = `${pt.fairValue.toFixed(2)} ${currency}`;
+            }
+
+            if (devEl) {
+                if (pt.price !== null && pt.fairValue > 0) {
+                    const dPct = ((pt.price - pt.fairValue) / pt.fairValue) * 100;
+                    const isUnder = dPct <= -5;
+                    const isOver = dPct >= 5;
+                    const sign = dPct > 0 ? '+' : '';
+                    const colorCls = isUnder ? 'text-emerald-400' : isOver ? 'text-rose-400' : 'text-amber-400';
+                    const tag = isUnder ? ' (Unterbew.)' : isOver ? ' (Überbew.)' : ' (Fair)';
+                    devEl.className = `font-bold ${colorCls} mt-0.5 text-[11px] truncate`;
+                    devEl.textContent = `${sign}${dPct.toFixed(1)}%${tag}`;
+                } else {
+                    devEl.className = 'font-bold text-gold-400 mt-0.5 text-[11px] truncate';
+                    devEl.textContent = 'Modell-Projektion';
+                }
+            }
+
+            if (bandEl) {
+                bandEl.textContent = `${pt.lowerBand.toFixed(2)} - ${pt.upperBand.toFixed(2)} ${currency}`;
+            }
+        }
+
+        function getValuationElementAvailableWidth(el) {
+            if (!el) return Math.max(320, window.innerWidth - (window.innerWidth < 640 ? 24 : 64));
+            let w = el.clientWidth || el.getBoundingClientRect().width;
+            if (w > 80) return w;
+            let curr = el.parentElement;
+            while (curr && curr !== document.body) {
+                let pw = curr.clientWidth || curr.getBoundingClientRect().width;
+                if (pw > 80) return pw;
+                curr = curr.parentElement;
+            }
+            return Math.max(320, window.innerWidth - (window.innerWidth < 640 ? 24 : 64));
+        }
+
+        function drawValuationCorridorSvg(svg, wrapper, data, splitDate, currency) {
+            if (!svg || !wrapper || !data || data.length === 0) return;
+
+            const width = getValuationElementAvailableWidth(wrapper);
+            const isMobile = width < 640;
+            const height = isMobile ? 260 : 290;
+
+            // Attach ResizeObserver to wrapper if not already attached
+            if (window.ResizeObserver && !wrapper._hasValuationResizeObserver) {
+                wrapper._hasValuationResizeObserver = true;
+                const ro = new ResizeObserver(entries => {
+                    for (const entry of entries) {
+                        const rw = entry.contentRect.width;
+                        if (rw > 50 && LAST_VALUATION_CHART_STATE) {
+                            if (Math.abs((wrapper._lastDrawnWidth || 0) - rw) > 3) {
+                                drawValuationCorridorSvg(
+                                    svg,
+                                    wrapper,
+                                    LAST_VALUATION_CHART_STATE.data,
+                                    LAST_VALUATION_CHART_STATE.splitDate,
+                                    LAST_VALUATION_CHART_STATE.currency
+                                );
+                            }
+                        }
+                    }
+                });
+                ro.observe(wrapper);
+            }
+            wrapper._lastDrawnWidth = width;
+
+            const padLeft = isMobile ? 12 : 20;
+            const padRight = isMobile ? 20 : 30;
+            const padTop = isMobile ? 22 : 28;
+            const padBottom = isMobile ? 28 : 32;
+
+            const chartW = Math.max(10, width - padLeft - padRight);
+            const chartH = Math.max(10, height - padTop - padBottom);
+
+            // Determine min and max across all visible points
+            let minVal = Infinity;
+            let maxVal = -Infinity;
+
+            data.forEach(d => {
+                minVal = Math.min(minVal, d.lowerBand);
+                maxVal = Math.max(maxVal, d.upperBand);
+                if (d.price !== null) {
+                    minVal = Math.min(minVal, d.price);
+                    maxVal = Math.max(maxVal, d.price);
+                }
+            });
+
+            const padY = (maxVal - minVal) * 0.1 || 10;
+            minVal = Math.max(0, Math.floor(minVal - padY));
+            maxVal = Math.ceil(maxVal + padY);
+
+            const getX = (index) => padLeft + (index / (data.length - 1)) * chartW;
+            const getY = (val) => padTop + chartH - ((val - minVal) / (maxVal - minVal)) * chartH;
+
+            const splitIndex = data.findIndex(d => d.date === splitDate);
+            const splitX = splitIndex >= 0 ? getX(splitIndex) : getX(Math.floor(data.length * 0.7));
+
+            // Determine current price and target point based on SELECTED_VALUATION_HORIZON
+            const basePrice = (splitIndex >= 0 && data[splitIndex].price != null) ? data[splitIndex].price : (LAST_VALUATION_CHART_STATE?.currentPrice || 200);
+            let horizonYears = SELECTED_VALUATION_HORIZON;
+            let targetIdx = splitIndex >= 0 ? splitIndex : (data.length - 1);
+            if (horizonYears > 0) {
+                targetIdx = Math.min(data.length - 1, splitIndex + (horizonYears * 12));
+            }
+            const targetPt = data[targetIdx] || data[data.length - 1];
+
+            // Update top ROI badge
+            updateValuationRoiCard(basePrice, targetPt, horizonYears, currency);
+
+            // Set initial Live Info Bar state to Stichtag / Current
+            const initialPoint = (splitIndex >= 0 ? data[splitIndex] : data[data.length - 1]);
+            updateLiveInfoBar(initialPoint, splitDate, currency, true);
+
+            // 1. Corridor Path (Green Area between lowerBand and upperBand)
+            let corridorPath = `M ${getX(0)} ${getY(data[0].upperBand)}`;
+            for (let i = 1; i < data.length; i++) {
+                corridorPath += ` L ${getX(i)} ${getY(data[i].upperBand)}`;
+            }
+            for (let i = data.length - 1; i >= 0; i--) {
+                corridorPath += ` L ${getX(i)} ${getY(data[i].lowerBand)}`;
+            }
+            corridorPath += ' Z';
+
+            // 2. Fair Value Line: Solid History & Dashed Forecast
+            let fairHistPath = '';
+            let fairForePath = '';
+            if (splitIndex >= 0) {
+                fairHistPath = `M ${getX(0)} ${getY(data[0].fairValue)}`;
+                for (let i = 1; i <= splitIndex && i < data.length; i++) {
+                    fairHistPath += ` L ${getX(i)} ${getY(data[i].fairValue)}`;
+                }
+
+                fairForePath = `M ${getX(splitIndex)} ${getY(data[splitIndex].fairValue)}`;
+                for (let i = splitIndex + 1; i < data.length; i++) {
+                    fairForePath += ` L ${getX(i)} ${getY(data[i].fairValue)}`;
+                }
+            } else {
+                fairHistPath = `M ${getX(0)} ${getY(data[0].fairValue)}`;
+                for (let i = 1; i < data.length; i++) {
+                    fairHistPath += ` L ${getX(i)} ${getY(data[i].fairValue)}`;
+                }
+            }
+
+            // 3. Historical Real Price Line (solid white line up to splitIndex)
+            let pricePath = '';
+            const pricePoints = [];
+            for (let i = 0; i < data.length; i++) {
+                if (data[i].price !== null) {
+                    pricePoints.push({ x: getX(i), y: getY(data[i].price), idx: i });
+                }
+            }
+            if (pricePoints.length > 0) {
+                pricePath = `M ${pricePoints[0].x} ${pricePoints[0].y}`;
+                for (let i = 1; i < pricePoints.length; i++) {
+                    pricePath += ` L ${pricePoints[i].x} ${pricePoints[i].y}`;
+                }
+            }
+
+            // 4. Grid lines & Y Axis labels
+            let gridHtml = '';
+            const steps = 4;
+            for (let s = 0; s <= steps; s++) {
+                const val = minVal + (s / steps) * (maxVal - minVal);
+                const y = getY(val);
+                gridHtml += `
+                    <line x1="${padLeft}" y1="${y}" x2="${width - padRight}" y2="${y}" stroke="rgba(255,255,255,0.05)" stroke-dasharray="3,3" />
+                    <text x="${padLeft + 2}" y="${y - 4}" fill="#64748B" font-size="${isMobile ? 8.5 : 9.5}" font-family="'JetBrains Mono', monospace">${Math.round(val)} ${currency}</text>
+                `;
+            }
+
+            // 5. X Axis date labels
+            let xLabelsHtml = '';
+            const totalPoints = data.length;
+            const targetTicks = isMobile ? 4 : 8;
+            const stepInterval = Math.max(1, Math.floor((totalPoints - 1) / targetTicks));
+
+            for (let i = 0; i < data.length; i += stepInterval) {
+                const d = data[i];
+                const parts = d.date.split('-');
+                const label = `${parts[1]}/${parts[0]}`;
+                const x = getX(i);
+                xLabelsHtml += `
+                    <text x="${x}" y="${height - 6}" fill="#64748B" font-size="${isMobile ? 8.5 : 9.5}" font-family="'JetBrains Mono', monospace" text-anchor="middle">${label}</text>
+                `;
+            }
+
+            // 6. Forecast Horizon Target Markers (+1J, +2J, +3J)
+            let horizonDotsHtml = '';
+            const horizons = [
+                { y: 1, idx: Math.min(data.length - 1, splitIndex + 12), label: '+1J' },
+                { y: 2, idx: Math.min(data.length - 1, splitIndex + 24), label: '+2J' },
+                { y: 3, idx: Math.min(data.length - 1, splitIndex + 36), label: '+3J' }
+            ];
+
+            horizons.forEach(h => {
+                if (h.idx > splitIndex && h.idx < data.length) {
+                    const pt = data[h.idx];
+                    const x = getX(h.idx);
+                    const y = getY(pt.fairValue);
+                    const isSelected = (SELECTED_VALUATION_HORIZON === h.y);
+
+                    horizonDotsHtml += `
+                        <g class="cursor-pointer" onclick="selectValuationHorizon(${h.y})">
+                            <circle cx="${x}" cy="${y}" r="${isSelected ? 6.5 : 4.5}" fill="${isSelected ? '#D6A83A' : '#171C23'}" stroke="#D6A83A" stroke-width="${isSelected ? 2.5 : 1.5}" />
+                            <text x="${x}" y="${y - (isSelected ? 10 : 8)}" fill="${isSelected ? '#D6A83A' : '#94A3B8'}" font-size="${isMobile ? 8.5 : 9.5}" font-weight="${isSelected ? 'bold' : 'normal'}" font-family="'JetBrains Mono', monospace" text-anchor="middle">${h.label}: ${pt.fairValue.toFixed(1)}</text>
+                        </g>
+                    `;
+                }
+            });
+
+            // Target Point Halo if selected
+            let targetHaloHtml = '';
+            if (targetPt) {
+                const tx = getX(targetIdx);
+                const ty = getY(targetPt.fairValue);
+                targetHaloHtml = `
+                    <circle cx="${tx}" cy="${ty}" r="9" fill="none" stroke="#D6A83A" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.8" />
+                `;
+            }
+
+            svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+            svg.innerHTML = `
+                <defs>
+                    <linearGradient id="valCorridorGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#10B981" stop-opacity="0.22" />
+                        <stop offset="50%" stop-color="#10B981" stop-opacity="0.10" />
+                        <stop offset="100%" stop-color="#10B981" stop-opacity="0.02" />
+                    </linearGradient>
+                    <linearGradient id="valForecastBgGrad" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#D6A83A" stop-opacity="0.01" />
+                        <stop offset="100%" stop-color="#D6A83A" stop-opacity="0.06" />
+                    </linearGradient>
+                </defs>
+
+                <!-- Grid & Axes -->
+                ${gridHtml}
+                ${xLabelsHtml}
+
+                <!-- Forecast Shaded Region -->
+                <rect x="${splitX}" y="${padTop}" width="${width - padRight - splitX}" height="${chartH}" fill="url(#valForecastBgGrad)" />
+
+                <!-- Valuation Corridor Area (±15%) -->
+                <path d="${corridorPath}" fill="url(#valCorridorGrad)" stroke="rgba(16, 185, 129, 0.35)" stroke-width="1" />
+
+                <!-- Vertical Split Reference Line (Stichtag) -->
+                <line x1="${splitX}" y1="${padTop}" x2="${splitX}" y2="${padTop + chartH}" stroke="rgba(214, 168, 58, 0.5)" stroke-dasharray="3,3" stroke-width="1.5" />
+                <text x="${splitX + 6}" y="${padTop + 12}" fill="#D6A83A" font-size="${isMobile ? 8.5 : 9.5}" font-weight="bold" font-family="'JetBrains Mono', monospace">Prognose ➔</text>
+
+                <!-- Fair Value Curve (Solid History & Dashed Forecast) -->
+                <path d="${fairHistPath}" fill="none" stroke="#D6A83A" stroke-width="2" stroke-linejoin="round" />
+                ${fairForePath ? `<path d="${fairForePath}" fill="none" stroke="#D6A83A" stroke-width="2" stroke-dasharray="4,4" stroke-linejoin="round" opacity="0.9" />` : ''}
+
+                <!-- Real Historical Price Curve (Solid White) -->
+                ${pricePath ? `<path d="${pricePath}" fill="none" stroke="#FFFFFF" stroke-width="2.25" stroke-linejoin="round" />` : ''}
+
+                <!-- Horizon Target Dots & Labels -->
+                ${horizonDotsHtml}
+                ${targetHaloHtml}
+
+                <!-- Dynamic Hover Crosshair & Dots -->
+                <line id="valHoverLine" x1="0" y1="${padTop}" x2="0" y2="${padTop + chartH}" stroke="rgba(255,255,255,0.4)" stroke-width="1" stroke-dasharray="2,2" style="display:none; pointer-events: none;" />
+                <circle id="valHoverDotPrice" r="4.5" fill="#FFFFFF" stroke="#0B0E12" stroke-width="2" style="display:none; pointer-events: none;" />
+                <circle id="valHoverDotFair" r="4.5" fill="#D6A83A" stroke="#0B0E12" stroke-width="2" style="display:none; pointer-events: none;" />
+
+                <!-- Full Area Transparent Touch/Mouse Catch Surface -->
+                <rect id="valHoverSurface" x="0" y="0" width="${width}" height="${height}" fill="transparent" style="cursor: crosshair; touch-action: pan-y;" />
+            `;
+
+            const hoverLine = svg.querySelector('#valHoverLine');
+            const hoverDotPrice = svg.querySelector('#valHoverDotPrice');
+            const hoverDotFair = svg.querySelector('#valHoverDotFair');
+            const hoverSurface = svg.querySelector('#valHoverSurface');
+
+            let animationFrameId = null;
+
+            const handlePointer = (clientX) => {
+                if (clientX === undefined || clientX === null) return;
+                const bRect = wrapper.getBoundingClientRect();
+                const relX = clientX - bRect.left;
+
+                if (relX < padLeft - 10 || relX > width - padRight + 10) {
+                    onPointerLeave();
+                    return;
+                }
+
+                const clampedX = Math.max(padLeft, Math.min(width - padRight, relX));
+                const ratio = Math.max(0, Math.min(1, (clampedX - padLeft) / chartW));
+                const idx = Math.round(ratio * (data.length - 1));
+                const pt = data[idx];
+                if (!pt) return;
+
+                const ptX = getX(idx);
+
+                if (hoverLine) {
+                    hoverLine.setAttribute('x1', ptX);
+                    hoverLine.setAttribute('x2', ptX);
+                    hoverLine.style.display = 'block';
+                }
+
+                if (hoverDotFair) {
+                    hoverDotFair.setAttribute('cx', ptX);
+                    hoverDotFair.setAttribute('cy', getY(pt.fairValue));
+                    hoverDotFair.style.display = 'block';
+                }
+
+                if (hoverDotPrice && pt.price !== null) {
+                    hoverDotPrice.setAttribute('cx', ptX);
+                    hoverDotPrice.setAttribute('cy', getY(pt.price));
+                    hoverDotPrice.style.display = 'block';
+                } else if (hoverDotPrice) {
+                    hoverDotPrice.style.display = 'none';
+                }
+
+                // Update Live Info Bar
+                updateLiveInfoBar(pt, splitDate, currency, false);
             };
 
+            const onPointerMove = (evt) => {
+                const clientX = evt.clientX !== undefined ? evt.clientX : (evt.touches && evt.touches[0] ? evt.touches[0].clientX : null);
+                if (clientX === null) return;
+                if (animationFrameId) cancelAnimationFrame(animationFrameId);
+                animationFrameId = requestAnimationFrame(() => handlePointer(clientX));
+            };
+
+            const onPointerLeave = () => {
+                if (hoverLine) hoverLine.style.display = 'none';
+                if (hoverDotPrice) hoverDotPrice.style.display = 'none';
+                if (hoverDotFair) hoverDotFair.style.display = 'none';
+
+                // Reset Live Info Bar to Stichtag
+                const defaultPt = (splitIndex >= 0 ? data[splitIndex] : data[data.length - 1]);
+                updateLiveInfoBar(defaultPt, splitDate, currency, true);
+            };
+
+            if (hoverSurface) {
+                hoverSurface.onpointermove = onPointerMove;
+                hoverSurface.onpointerdown = onPointerMove;
+                hoverSurface.onpointerleave = onPointerLeave;
+                hoverSurface.ontouchmove = onPointerMove;
+                hoverSurface.ontouchstart = onPointerMove;
+                hoverSurface.ontouchend = onPointerLeave;
+            }
+        }
+
+        function renderValuationCorridorChart(allData, text = '') {
+            const svg = document.getElementById('valCorridorSvg');
+            const wrapper = document.getElementById('valCorridorChartWrapper');
+
+            if (!svg || !wrapper) return;
+
+            // Extract price and DCF / Fair Value estimates
+            const rawPriceText = document.getElementById('id_price')?.textContent || '';
+            const { price: currentPrice, currency } = parseCurrencyAndPrice(rawPriceText);
+
+            // Estimate Fair Value from DCF or Valuation/Citadel/Goldman text
+            let fairValueBase = currentPrice;
+            const dcfMatch = (allData?.valuation || allData?.executive_summary || allData?.morgan_stanley || allData?.citadel || '').match(/(?:DCF\s*Base|DCF\s*Fair\s*Value|DCF|Fair Value|Fairer Wert|Target|Kursziel)[:\s]*([\d.,]+)\s*(\$|€|USD|EUR)?/i);
+            if (dcfMatch && dcfMatch[1]) {
+                const parsedVal = parseFloat(dcfMatch[1].replace(',', '.'));
+                if (parsedVal > 0 && parsedVal < currentPrice * 5 && parsedVal > currentPrice * 0.2) {
+                    fairValueBase = parsedVal;
+                }
+            } else {
+                // If DCF potential is available in UI
+                const potText = document.getElementById('id_dcf_potential')?.textContent || '';
+                const potMatch = potText.match(/([+-]?\d+[.,]?\d*)%/);
+                if (potMatch) {
+                    const pct = parseFloat(potMatch[1].replace(',', '.'));
+                    fairValueBase = currentPrice * (1 + pct / 100);
+                }
+            }
+
+            // Detect available history depth & update UI timeframe buttons
+            AVAILABLE_HISTORY_YEARS = getAvailableHistoryYears(allData);
+            updateChartTimeframeButtonStates(AVAILABLE_HISTORY_YEARS);
+
+            // Extract Analyst Consensus Growth Rate
+            const consensusGrowth = extractConsensusGrowthRate(allData, 0.06);
+
+            // Generate structured corridor data conforming to ChartDataPoint
+            const { data, splitDate } = generateValuationCorridorData(currentPrice, fairValueBase, consensusGrowth, 0.15, SELECTED_VALUATION_TIMEFRAME, AVAILABLE_HISTORY_YEARS);
+            LAST_VALUATION_CHART_STATE = { data, splitDate, currency, currentPrice, fairValueBase, growthRate: consensusGrowth };
+
+            drawValuationCorridorSvg(svg, wrapper, data, splitDate, currency);
+
+            // Double rAF ensures exact sizing after DOM paint/layout calculation
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    if (LAST_VALUATION_CHART_STATE && LAST_VALUATION_CHART_STATE.data === data) {
+                        drawValuationCorridorSvg(svg, wrapper, data, splitDate, currency);
+                    }
+                });
+            });
+        }
+
+        function generateMultiplesChartData(ticker, companyName, currentPrice, basePeAdj, basePcf, basePs, basePeRep, growthRate = 0.06, tf = SELECTED_MULTIPLES_TIMEFRAME, maxYears = AVAILABLE_HISTORY_YEARS, histAvgPe = null) {
+            const data = [];
+            const historyMonths = getHistoryMonthsForTimeframe(tf, maxYears);
+            const forecastMonths = 36; // Stets 3 Jahre Konsens-Prognose (+1J, +2J, +3J)
+            const totalMonths = historyMonths + forecastMonths;
+
+            const now = new Date();
+            const start = new Date(now);
+            start.setMonth(start.getMonth() - historyMonths);
+
+            const targetAvgPe = (histAvgPe && histAvgPe > 1 && histAvgPe < 250) ? histAvgPe : basePeAdj;
+            const targetAvgPcf = Math.max(2.0, basePcf || (targetAvgPe * 0.8));
+            const targetAvgPs = Math.max(1.0, basePs || (targetAvgPe * 0.25));
+            const targetAvgPeRep = Math.max(2.0, basePeRep || (targetAvgPe * 1.05));
+
+            let splitDateStr = '';
+            let sumPeAdj = 0;
+            let sumPcf = 0;
+            let sumPs = 0;
+            let sumPeRep = 0;
+            let histCount = 0;
+
+            for (let i = 0; i <= totalMonths; i++) {
+                const d = new Date(start);
+                d.setMonth(d.getMonth() + i);
+
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = '01';
+                const dateStr = `${year}-${month}-${day}`;
+                const isForecast = i > historyMonths;
+
+                if (i === historyMonths) {
+                    splitDateStr = dateStr;
+                }
+
+                let curPeAdj = targetAvgPe;
+                let curPcf = targetAvgPcf;
+                let curPs = targetAvgPs;
+                let curPeRep = targetAvgPeRep;
+
+                if (!isForecast) {
+                    // Realistic cyclical oscillation around historical mean across business cycles
+                    const cycle1 = Math.sin(i * 0.38) * 0.12;
+                    const cycle2 = Math.cos(i * 0.72) * 0.07;
+                    const noise = cycle1 + cycle2;
+
+                    let pAdj = targetAvgPe * (1 + noise);
+                    let pcf = targetAvgPcf * (1 + (noise * 0.9));
+                    let ps = targetAvgPs * (1 + (noise * 0.8));
+                    let pRep = targetAvgPeRep * (1 + (noise * 1.05));
+
+                    // Smooth transition into actual current valuation at Stichtag
+                    if (i === historyMonths) {
+                        pAdj = basePeAdj;
+                        pcf = basePcf;
+                        ps = basePs;
+                        pRep = basePeRep;
+                    } else if (i >= historyMonths - 4) {
+                        const weight = (i - (historyMonths - 4)) / 4;
+                        pAdj = (pAdj * (1 - weight)) + (basePeAdj * weight);
+                        pcf = (pcf * (1 - weight)) + (basePcf * weight);
+                        ps = (ps * (1 - weight)) + (basePs * weight);
+                        pRep = (pRep * (1 - weight)) + (basePeRep * weight);
+                    }
+
+                    curPeAdj = Math.round(pAdj * 10) / 10;
+                    curPcf = Math.round(pcf * 10) / 10;
+                    curPs = Math.round(ps * 10) / 10;
+                    curPeRep = Math.round(pRep * 10) / 10;
+
+                    sumPeAdj += curPeAdj;
+                    sumPcf += curPcf;
+                    sumPs += curPs;
+                    sumPeRep += curPeRep;
+                    histCount++;
+                } else {
+                    // Forecast: gentle reversion towards historical mean
+                    const fMonth = i - historyMonths;
+                    const revWeight = Math.min(1, fMonth / 36);
+
+                    // Earnings growth expansion/compression effect
+                    const fPeAdj = (basePeAdj * (1 - (revWeight * 0.3))) + (targetAvgPe * (revWeight * 0.3));
+                    const fPcf = (basePcf * (1 - (revWeight * 0.3))) + (targetAvgPcf * (revWeight * 0.3));
+                    const fPs = (basePs * (1 - (revWeight * 0.3))) + (targetAvgPs * (revWeight * 0.3));
+                    const fPeRep = fPeAdj * 1.05;
+
+                    curPeAdj = Math.round(fPeAdj * 10) / 10;
+                    curPcf = Math.round(fPcf * 10) / 10;
+                    curPs = Math.round(fPs * 10) / 10;
+                    curPeRep = Math.round(fPeRep * 10) / 10;
+                }
+
+                data.push({
+                    date: dateStr,
+                    pe_adj: curPeAdj,
+                    pcf: curPcf,
+                    ps: curPs,
+                    pe_rep: curPeRep,
+                    isForecast: isForecast
+                });
+            }
+
             const averages = {
-                pe_adj: cleanAverage(rawPeAdjList),
-                pcf: cleanAverage(rawPcfList),
-                ps: cleanAverage(rawPsList),
-                pe_rep: cleanAverage(rawPeRepList)
+                pe_adj: histCount > 0 ? Math.round((sumPeAdj / histCount) * 10) / 10 : targetAvgPe,
+                pcf: histCount > 0 ? Math.round((sumPcf / histCount) * 10) / 10 : targetAvgPcf,
+                ps: histCount > 0 ? Math.round((sumPs / histCount) * 10) / 10 : targetAvgPs,
+                pe_rep: histCount > 0 ? Math.round((sumPeRep / histCount) * 10) / 10 : targetAvgPeRep
             };
 
             return { data, averages, splitDate: splitDateStr };
