@@ -1195,18 +1195,18 @@
                         <!-- Skeleton State -->
                         <div id="skeletonState"
                             class="state-hidden flex flex-col items-center justify-center min-h-[50vh] w-full">
-                            <div class="flex flex-col items-center justify-center p-8 bg-[#11151B] rounded-xl border border-[#202630] w-full max-w-md">
+                            <div class="flex flex-col items-center justify-center p-8 bg-[#11151B] rounded-xl border border-[#202630] w-full max-w-lg shadow-2xl">
                                 <div class="w-10 h-10 border-2 border-slate-700 border-t-[#D6A83A] rounded-full animate-spin mb-4"></div>
                                 <div id="loadingStatus"
-                                    class="text-white text-xs font-semibold mb-2 text-center">
-                                    Finanzdaten werden abgerufen...</div>
+                                    class="text-white text-sm font-semibold mb-2 text-center">
+                                    Stammdaten &amp; Börsenkurs werden initialisiert...</div>
                                 <div id="loadingProgress"
-                                    class="w-full h-1 bg-white/5 rounded-full overflow-hidden mb-3">
-                                    <div id="loadingProgressBar" class="h-full bg-[#D6A83A] transition-all duration-300"
-                                        style="width: 0%"></div>
+                                    class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden my-3">
+                                    <div id="loadingProgressBar" class="h-full bg-gradient-to-r from-[#D6A83A] to-[#E5C07B] transition-all duration-300"
+                                        style="width: 15%"></div>
                                 </div>
-                                <div class="text-slate-500 text-[10px] text-center">
-                                    DCF-Modelle &amp; historische Multiples werden berechnet</div>
+                                <div id="loadingSubtext" class="text-slate-400 text-[11px] text-center leading-relaxed max-w-md">
+                                    Identifikation des Unternehmens, Heimatbörse und aktuelle Kursfeststellung.</div>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full mt-8 opacity-20">
                                 <div class="widget-card h-48 shimmer rounded-lg"></div>
@@ -3143,11 +3143,13 @@
             }
         }
 
-        function updateLoadingStatus(msg, progress) {
+        function updateLoadingStatus(msg, progress, subtext = '') {
             const status = document.getElementById('loadingStatus');
             const bar = document.getElementById('loadingProgressBar');
-            if (status) status.textContent = msg;
+            const sub = document.getElementById('loadingSubtext');
+            if (status && msg) status.textContent = msg;
             if (bar && progress !== undefined) bar.style.width = progress + '%';
+            if (sub && subtext) sub.textContent = subtext;
         }
 
         // ==================== INSTITUTIONAL RESEARCH ARCHITECTURE ====================
@@ -3252,12 +3254,22 @@
 
                 // Set to loading to show the skeleton
                 setUIState('loading');
-                updateLoadingStatus('Lade Finanz- und Marktdaten...', 20);
+                updateLoadingStatus(
+                    'Stammdaten & Börsenkurs werden initialisiert...', 
+                    15, 
+                    'Identifikation des Unternehmens, Heimatbörse und aktuelle Kursfeststellung.'
+                );
 
-                // Step 1: Run institutional AI research with Google Search Grounding enabled
+                // Step 1-3: Run 2-phase institutional AI research
                 const finalResults = await runInstitutionalResearch(query, user, currentLangName, null);
 
-                // Step 2: Extract researched financial dataset (or synthesize from AI research domains)
+                updateLoadingStatus(
+                    'Bewertungsmodelle & Multiples werden berechnet...', 
+                    90, 
+                    'Historische Perzentil-Einordnung (KGV, P/FCF, EV/EBITDA) und Berechnung des DCF-Fair-Value-Korridors.'
+                );
+
+                // Step 4: Extract researched financial dataset (or normalize existing)
                 let histDataset = finalResults.financial_dataset || finalResults.historical_dataset;
 
                 if (histDataset) {
@@ -3267,7 +3279,6 @@
                     }
                 }
 
-                // If dataset was not in AI research output, synthesize from research frameworks or fetch
                 if (!histDataset || !histDataset.annual || histDataset.annual.length === 0) {
                     const synth = synthesizeHistoricalDatasetFromAI(finalResults);
                     if (synth) {
@@ -3276,6 +3287,7 @@
                 }
 
                 if (histDataset) {
+                    finalResults.financial_dataset = histDataset;
                     finalResults.historical_dataset = histDataset;
                     CURRENT_NORMALIZED_HISTORICAL_DATA = histDataset;
                     renderValueInvestingLayer(histDataset);
@@ -3288,7 +3300,11 @@
                 const resolvedName = finalResults.company_identity?.match(/Name:\s*(.*)/)?.[1]?.trim() || query;
 
                 setUIState('results');
-                updateLoadingStatus('Analyse abgeschlossen.', 100);
+                updateLoadingStatus(
+                    'Analyse erfolgreich abgeschlossen.', 
+                    100, 
+                    'Alle Diagramme, Kennzahlen und Analysten-Einschätzungen sind einsatzbereit.'
+                );
 
                 // Robust Cloud Save
                 const archiveEntry = {
@@ -3324,30 +3340,70 @@
                 'market_structure'
             ];
 
-            // ==================== PHASE 1 — RESEARCH BATCH ====================
-            updateLoadingStatus('Erstelle fundamentale Unternehmens- und Finanzanalyse...', 45);
-            const researchPrompt = getBatchPrompt(query, lang, researchAgentIds);
-            const researchText = await fetchSingleBatch(query, user, researchPrompt, 0, true, historicalDataset);
-            const researchData = parseFrameworks(researchText);
+            // ==================== PHASE 1: DATASET & IDENTITY RESEARCH (Google Grounding = TRUE) ====================
+            updateLoadingStatus(
+                'Fundamentale Finanzhistorie & Bilanzen werden erfasst...', 
+                35, 
+                'Analyse der Jahresabschlüsse der letzten 5 Jahre sowie aktueller TTM-Perioden (Umsatz, EBIT, FCF, Margen, Verschuldung).'
+            );
+            
+            const datasetPrompt = getDatasetPrompt(query, lang);
+            const datasetResponseText = await fetchSingleBatch(query, user, datasetPrompt, 0, true, historicalDataset);
+            const phase1Data = parseFrameworks(datasetResponseText);
 
-            // Validate Phase 1 completeness
-            const validation = validateResearchData(researchData, researchAgentIds);
-            console.log('[Research Protocol] Phase 1 Validation:', validation);
-
-            if (validation.researchStatus === 'FAILED') {
-                throw new Error('Die fundamentale Recherche konnte nicht abgeschlossen werden. Bitte versuche es erneut.');
+            // Extract & Normalize Dataset
+            let dataset = phase1Data.financial_dataset || null;
+            if (dataset) {
+                const normalized = normalizeHistoricalFinancialData(dataset);
+                if (normalized && normalized.annual && normalized.annual.length > 0) {
+                    dataset = normalized;
+                }
             }
 
-            // ==================== PHASE 2 — INVESTMENT COMMITTEE SYNTHESIS ====================
-            updateLoadingStatus('Führe finale Synthese und Modellbewertung durch...', 75);
+            // Fallback synthesis if JSON wasn't explicitly structured
+            if (!dataset || !dataset.annual || dataset.annual.length === 0) {
+                dataset = synthesizeHistoricalDatasetFromAI(phase1Data);
+            }
+
+            // ==================== PHASE 2: MULTI-AGENT SPECIALIST REVIEW (Google Grounding = FALSE) ====================
+            updateLoadingStatus(
+                'Institutionelle Multi-Agenten-Prüfung läuft...', 
+                65, 
+                '5 spezialisierte Prüfmodule untersuchen Geschäftsmodell, Finanzkraft, Ertragserwartungen, Substanzwert und Marktstruktur.'
+            );
+
+            const specialistPrompt = getSpecialistReviewPrompt(query, lang, dataset, phase1Data.company_identity);
+            const specialistResponseText = await fetchSingleBatch(query, user, specialistPrompt, 0, false, dataset);
+            const researchData = parseFrameworks(specialistResponseText);
+
+            // Merge Identity & Dataset into Research Data
+            researchData.company_identity = phase1Data.company_identity || researchData.company_identity || null;
+            researchData.financial_dataset = dataset;
+
+            // Validate Phase 2 completeness
+            const validation = validateResearchData(researchData, researchAgentIds);
+            console.log('[Research Protocol] Multi-Agent Validation:', validation);
+
+            if (validation.researchStatus === 'FAILED') {
+                throw new Error('Die fundamentale Multi-Agenten-Prüfung konnte nicht abgeschlossen werden. Bitte versuche es erneut.');
+            }
+
+            // ==================== PHASE 3: INVESTMENT COMMITTEE SYNTHESIS (Google Grounding = FALSE) ====================
+            updateLoadingStatus(
+                'Finale Synthese & Gesamtfazit werden konsolidiert...', 
+                85, 
+                'Zusammenfassung der Teilergebnisse, Ermittlung des Valuation-Scores und Aufbau des Dashboards.'
+            );
+
             const executivePrompt = getExecutivePrompt(query, lang, researchData, validation);
-            const executiveText = await fetchSingleBatch(query, user, executivePrompt, 0, false, historicalDataset);
+            const executiveText = await fetchSingleBatch(query, user, executivePrompt, 0, false, dataset);
             const executiveData = parseFrameworks(executiveText);
 
             // Merge datasets into consistent final research object
             const mergedResults = {
                 company_identity: researchData.company_identity || executiveData.company_identity || null,
-                financial_dataset: researchData.financial_dataset || null,
+                financial_dataset: dataset,
+                historical_dataset: dataset,
                 business_quality: researchData.business_quality || null,
                 financial_quality: researchData.financial_quality || null,
                 earnings_expectations: researchData.earnings_expectations || null,
@@ -3359,7 +3415,7 @@
                     researchStatus: validation.researchStatus,
                     missingAgents: validation.missingAgents,
                     dataFreshness: new Date().toISOString(),
-                    architectureVersion: '2.0-institutional'
+                    architectureVersion: '3.0-two-phase-grounded'
                 }
             };
 
@@ -3516,22 +3572,18 @@ Technical Signal: [EXACTLY ONE: [STRONG BULLISH] / [BULLISH] / [NEUTRAL] / [BEAR
 </market_structure>`
         };
 
-        function getBatchPrompt(query, lang, agentIds) {
+        function getDatasetPrompt(query, lang) {
             const todayIso = new Date().toISOString().split('T')[0];
-            let prompt = `CURRENT DATE: ${todayIso}
-LANGUAGE: Respond EXCLUSIVELY in ${lang}.
-TASK: Institutional Equity Research, Live Market Grounding & Deep Fundamentals for "${query}".
+            return `CURRENT DATE: ${todayIso}
+LANGUAGE: Respond in ${lang}.
+TASK: Extract Official Company Profile and Empirical 5-Year + TTM Financial Statements for "${query}".
 
-STRICT INSTITUTIONAL RESEARCH DIRECTIVES:
-1. GOOGLE SEARCH GROUNDING: Use real-time Google Grounding to research authoritative corporate financial data across Google Finance, SEC Filings (10-K/20-F), Yahoo Finance, Morningstar, and investor relations.
-2. ACCURATE FUNDAMENTALS: Extract Revenue CAGR, EBIT Margins, ROIC, ROE, Debt to Equity, Net Debt, P/E, 52W High/Low, Market Cap, and Dividend Yield.
-3. CURRENCY CONSISTENCY: All financial amounts, price targets, DCF values, and current prices across ALL sections MUST use the EXACT SAME native trading currency (e.g. USD, EUR, CHF, GBP). Always state the currency code with every price (e.g. '513.53 USD').
-4. OUTPUT FORMAT: Output ONLY the requested XML blocks in exact order: <company_identity>, followed by the 5 research perspectives.
+STRICT DIRECTIVES:
+1. GOOGLE SEARCH GROUNDING: Use Google Search Grounding to find the official company profile, latest stock price with native currency, and historical annual financial reporting periods (past 5 years, e.g. FY2020-FY2024) plus current TTM figures from SEC filings (10-K), Morningstar, Yahoo Finance, or investor relations.
+2. NATIVE CURRENCY: State the exact native trading currency code (USD, EUR, CHF, GBP, etc.) consistently for all monetary figures and current stock price.
+3. OUTPUT FORMAT: Output ONLY the two requested XML blocks below. Do NOT output any narrative text, analysis or extra sections.
 
-Generate the identity section first, followed by the 5 analytical perspectives:\n\n`;
-
-            // 1. Identity Layer
-            prompt += `<company_identity>
+<company_identity>
 Name: [Official Company Name]
 Ticker: [Primary Ticker Symbol, e.g. MSFT, AAPL, SAP]
 ISIN: [ISIN or N/A]
@@ -3547,16 +3599,15 @@ Enterprise Value: [Enterprise value or N/A]
 Fiscal Year: [Latest completed fiscal year, e.g. FY2024]
 Latest Reporting Date: [Latest earnings/annual report date]
 Data Timestamp: [${todayIso}]
-</company_identity>\n\n`;
+</company_identity>
 
-            // 2. Empirical Multi-Year Financial Dataset (Single Source of Truth)
-            prompt += `<financial_dataset>
+<financial_dataset>
 \`\`\`json
 {
-  "symbol": "[Ticker, e.g. MSFT]",
+  "symbol": "[Ticker]",
   "companyName": "[Official Company Name]",
   "currency": "[Native Currency Code, e.g. USD, EUR]",
-  "availableYears": [Number of available historical reporting years: 5 to 10],
+  "availableYears": 5,
   "ttm": {
     "date": "TTM",
     "revenue": [TTM Revenue as plain number in native currency],
@@ -3572,34 +3623,64 @@ Data Timestamp: [${todayIso}]
   },
   "annual": [
     {
-      "year": [Year number, e.g. 2015 ... 2024],
-      "date": "[YYYY-MM-DD or reporting year]",
-      "revenue": [Annual revenue in native currency as plain number],
+      "year": [Reporting year, e.g. 2020 ... 2024],
+      "date": "[YYYY-MM-DD or year]",
+      "revenue": [Annual revenue as plain number in native currency],
       "operatingIncome": [Annual EBIT / Operating Income as plain number],
       "netIncome": [Annual Net Income as plain number],
       "freeCashFlow": [Annual Free Cash Flow as plain number],
       "eps": [EPS as number],
-      "peRatio": [Historical average P/E for this year as number],
+      "peRatio": [Average historical P/E for this year as number],
       "roic": [ROIC in % as number],
       "roe": [ROE in % as number],
-      "debtToEquity": [Debt to Equity ratio as number],
-      "sharesOutstanding": [Shares outstanding number],
-      "periodClosePrice": [Stock price at period end as number]
+      "debtToEquity": [Debt/Equity ratio as number],
+      "sharesOutstanding": [Shares outstanding as number],
+      "periodClosePrice": [Period closing stock price as number]
     }
   ]
 }
 \`\`\`
-</financial_dataset>\n\n`;
+</financial_dataset>`;
+        }
 
-            // 3. Modular Research Prompts (5 Domains)
-            const requestedAgents = Array.isArray(agentIds) ? agentIds : Object.keys(AGENT_PROMPTS);
-            requestedAgents.forEach(id => {
+        function getSpecialistReviewPrompt(query, lang, dataset, identityText) {
+            const todayIso = new Date().toISOString().split('T')[0];
+            const datasetJson = JSON.stringify(dataset || {}, null, 2);
+
+            let prompt = `CURRENT DATE: ${todayIso}
+LANGUAGE: Respond EXCLUSIVELY in ${lang}.
+TASK: Institutional Equity Research & Multi-Agent Specialist Analysis for "${query}".
+
+VERIFIED FACTS & HISTORICAL DATASET (Single Source of Truth):
+Use the following verified corporate and financial dataset as the strict factual basis for all 5 specialist reviews. Do NOT contradict these numbers.
+
+COMPANY IDENTITY:
+${identityText || `Company: ${query}`}
+
+FINANCIAL DATASET (Annual & TTM Financial Statements):
+\`\`\`json
+${datasetJson}
+\`\`\`
+
+INSTRUCTIONS:
+You are an institutional investment committee consisting of 5 senior specialist analysts.
+Perform the 5 specialized institutional analyses based on the verified dataset above.
+Output ONLY the requested 5 XML blocks in exact order: <business_quality>, <financial_quality>, <earnings_expectations>, <valuation>, <market_structure>.
+
+`;
+
+            const agentIds = ['business_quality', 'financial_quality', 'earnings_expectations', 'valuation', 'market_structure'];
+            agentIds.forEach(id => {
                 if (AGENT_PROMPTS[id]) {
                     prompt += `${AGENT_PROMPTS[id]}\n\n`;
                 }
             });
 
             return prompt;
+        }
+
+        function getBatchPrompt(query, lang, agentIds) {
+            return getDatasetPrompt(query, lang);
         }
 
         function getExecutivePrompt(query, lang, researchData, validation) {
