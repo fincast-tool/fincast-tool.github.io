@@ -1,5 +1,45 @@
 const Redis = require('ioredis');
 
+async function isCallerAdmin(redis, reqBody) {
+    const { sessionToken, email, adminEmail } = reqBody || {};
+    let userEmail = null;
+
+    if (sessionToken) {
+        userEmail = await redis.get(`session:${sessionToken}`).catch(() => null);
+    }
+
+    if (!userEmail) {
+        userEmail = adminEmail || email;
+    }
+
+    if (!userEmail || typeof userEmail !== 'string') {
+        return false;
+    }
+
+    const cleanEmail = userEmail.trim().toLowerCase();
+    const envAdminEmail = (process.env.ADMIN_EMAIL || '').trim().toLowerCase();
+    if (envAdminEmail && cleanEmail === envAdminEmail) {
+        return true;
+    }
+
+    const usersRaw = await redis.get('terminal_users').catch(() => null);
+    if (usersRaw) {
+        try {
+            const users = JSON.parse(usersRaw);
+            if (Array.isArray(users)) {
+                const found = users.find(u => u && u.email && u.email.trim().toLowerCase() === cleanEmail);
+                if (found && (found.isAdmin === true || (envAdminEmail && found.email.trim().toLowerCase() === envAdminEmail))) {
+                    return true;
+                }
+            }
+        } catch (e) {
+            console.error('Error parsing terminal_users in isCallerAdmin:', e);
+        }
+    }
+
+    return false;
+}
+
 module.exports = async function handler(req, res) {
     const { action, params, data, email, key: tickerKey } = req.body || {};
     const redis = new Redis(process.env.KV_REDIS_URL || process.env.REDIS_URL);
@@ -310,6 +350,11 @@ module.exports = async function handler(req, res) {
         }
 
         if (action === 'delete_global_screener_item') {
+            const isAdmin = await isCallerAdmin(redis, req.body);
+            if (!isAdmin) {
+                return res.status(403).json({ error: 'Zugriff verweigert: Nur Administratoren dürfen Einträge aus dem Global Stock Screener löschen.' });
+            }
+
             const rawKey = (req.body && (req.body.key || req.body.tickerKey || req.body.ticker)) || tickerKey || (req.body && req.body.data && (req.body.data.ticker || req.body.data.symbol));
             if (!rawKey) {
                 return res.status(400).json({ error: 'Missing key' });
@@ -317,21 +362,40 @@ module.exports = async function handler(req, res) {
 
             const normalizedKey = String(rawKey).trim().toUpperCase();
             const raw = await redis.get('global_stock_screener');
+            let removed = false;
             if (raw) {
                 try {
                     let screenerMap = JSON.parse(raw);
                     if (typeof screenerMap === 'object' && screenerMap !== null && !Array.isArray(screenerMap)) {
-                        delete screenerMap[normalizedKey];
-                        await redis.set('global_stock_screener', JSON.stringify(screenerMap));
+                        if (screenerMap[normalizedKey]) {
+                            delete screenerMap[normalizedKey];
+                            removed = true;
+                            await redis.set('global_stock_screener', JSON.stringify(screenerMap));
+                        }
                     }
                 } catch (e) {
                     // Ignore malformed JSON in Redis
                 }
             }
-            return res.status(200).json({ success: true });
+            return res.status(200).json({ success: true, key: normalizedKey, removed });
+        }
+
+        if (action === 'clear_global_screener') {
+            const isAdmin = await isCallerAdmin(redis, req.body);
+            if (!isAdmin) {
+                return res.status(403).json({ error: 'Zugriff verweigert: Nur Administratoren dürfen den Global Stock Screener vollständig leeren.' });
+            }
+
+            await redis.set('global_stock_screener', JSON.stringify({}));
+            return res.status(200).json({ success: true, message: 'Global Stock Screener wurde erfolgreich vollständig bereinigt.' });
         }
 
         if (action === 'sync_archives_to_screener') {
+            const isAdmin = await isCallerAdmin(redis, req.body);
+            if (!isAdmin) {
+                return res.status(403).json({ error: 'Zugriff verweigert: Nur Administratoren dürfen Archive in den Screener synchronisieren.' });
+            }
+
             const archiveKeys = await redis.keys('archive:*');
             const rawScreener = await redis.get('global_stock_screener');
             let screenerMap = {};
