@@ -3341,7 +3341,7 @@
                 'market_structure'
             ];
 
-            // ==================== PHASE 1: DATASET & IDENTITY RESEARCH (Google Grounding = TRUE, Flash-Lite) ====================
+            // ==================== PHASE 1: DATASET & IDENTITY RESEARCH (Google Grounding = TRUE, 2.5 Flash) ====================
             updateLoadingStatus(
                 'Fundamentale Finanzhistorie & Bilanzen werden erfasst...', 
                 35, 
@@ -3349,7 +3349,7 @@
             );
             
             const datasetPrompt = getDatasetPrompt(query, lang);
-            const datasetResponseText = await fetchSingleBatch(query, user, datasetPrompt, 0, true, historicalDataset, 'gemini-2.5-flash-lite');
+            const datasetResponseText = await fetchSingleBatch(query, user, datasetPrompt, 0, true, historicalDataset, 'gemini-2.5-flash');
             const phase1Data = parseFrameworks(datasetResponseText);
 
             // Extract & Normalize Dataset
