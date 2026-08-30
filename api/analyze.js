@@ -60,21 +60,21 @@ module.exports = async function handler(req, res) {
 
                     console.log(`[Backend] Starting fetches for ${symbol}...`);
 
-                    const [profileRes, quoteRes, metricsRes, ttmRes, earnRes, rsiRes, macdRes, cfRes, incomeRes, histRes, estRes] = await Promise.all([
+                    const [profileRes, quoteRes, metricsRes, ttmRes, earnRes, rsiRes, macdRes, cfRes, incomeRes, balanceRes, ratiosRes, histRes, estRes] = await Promise.all([
                         fetch(`https://financialmodelingprep.com/stable/profile?symbol=${symbol}&apikey=${fmpKey}`).catch(e => { console.error("Profile Fetch Error:", e); return null; }),
                         fetch(`https://financialmodelingprep.com/stable/quote?symbol=${symbol}&apikey=${fmpKey}`).catch(e => { console.error("Quote Fetch Error:", e); return null; }),
-                        fetch(`https://financialmodelingprep.com/stable/key-metrics?symbol=${symbol}&limit=5&apikey=${fmpKey}`).catch(e => { console.error("Metrics Fetch Error:", e); return null; }),
+                        fetch(`https://financialmodelingprep.com/stable/key-metrics?symbol=${symbol}&limit=15&apikey=${fmpKey}`).catch(e => { console.error("Metrics Fetch Error:", e); return null; }),
                         fetch(`https://financialmodelingprep.com/stable/key-metrics-ttm?symbol=${symbol}&apikey=${fmpKey}`).catch(e => { console.error("TTM Fetch Error:", e); return null; }),
                         fetch(`https://financialmodelingprep.com/stable/earnings-surprises?symbol=${symbol}&apikey=${fmpKey}`).catch(e => { console.error("Earnings Fetch Error:", e); return null; }),
                         fetch(`https://financialmodelingprep.com/api/v3/technical-indicators/daily/${symbol}?type=rsi&period=14&apikey=${fmpKey}`).catch(e => { console.error("RSI Fetch Error:", e); return null; }),
                         fetch(`https://financialmodelingprep.com/api/v3/technical-indicators/daily/${symbol}?type=macd&apikey=${fmpKey}`).catch(e => { console.error("MACD Fetch Error:", e); return null; }),
-                        fetch(`https://financialmodelingprep.com/stable/cash-flow-statement?symbol=${symbol}&limit=5&apikey=${fmpKey}`).catch(e => { console.error("CF Fetch Error:", e); return null; }),
-                        fetch(`https://financialmodelingprep.com/stable/income-statement?symbol=${symbol}&limit=5&apikey=${fmpKey}`).catch(e => { console.error("Income Fetch Error:", e); return null; }),
-                        fetch(`https://financialmodelingprep.com/api/v3/historical-price-full/${symbol}?timeseries=20&apikey=${fmpKey}`).catch(e => { console.error("Hist Fetch Error:", e); return null; }),
+                        fetch(`https://financialmodelingprep.com/stable/cash-flow-statement?symbol=${symbol}&limit=15&apikey=${fmpKey}`).catch(e => { console.error("CF Fetch Error:", e); return null; }),
+                        fetch(`https://financialmodelingprep.com/stable/income-statement?symbol=${symbol}&limit=15&apikey=${fmpKey}`).catch(e => { console.error("Income Fetch Error:", e); return null; }),
+                        fetch(`https://financialmodelingprep.com/stable/balance-sheet-statement?symbol=${symbol}&limit=15&apikey=${fmpKey}`).catch(e => { console.error("Balance Fetch Error:", e); return null; }),
+                        fetch(`https://financialmodelingprep.com/stable/ratios?symbol=${symbol}&limit=15&apikey=${fmpKey}`).catch(e => { console.error("Ratios Fetch Error:", e); return null; }),
+                        fetch(`https://financialmodelingprep.com/api/v3/historical-price-full/${symbol}?timeseries=30&apikey=${fmpKey}`).catch(e => { console.error("Hist Fetch Error:", e); return null; }),
                         fetch(`https://financialmodelingprep.com/stable/analyst-estimates?symbol=${symbol}&limit=5&apikey=${fmpKey}`).catch(e => { console.error("Estimates Fetch Error:", e); return null; })
                     ]);
-
-
 
                     console.log(`[Backend] Fetches complete. Statuses: Profile=${profileRes?.status}, Quote=${quoteRes?.status}`);
 
@@ -93,89 +93,142 @@ module.exports = async function handler(req, res) {
                     const macdDataRaw = (macdRes && macdRes.ok) ? await macdRes.json().catch(() => []) : [];
                     const cfData = (cfRes && cfRes.ok) ? await cfRes.json().catch(() => []) : [];
                     const incomeData = (incomeRes && incomeRes.ok) ? await incomeRes.json().catch(() => []) : [];
+                    const balanceData = (balanceRes && balanceRes.ok) ? await balanceRes.json().catch(() => []) : [];
+                    const ratiosData = (ratiosRes && ratiosRes.ok) ? await ratiosRes.json().catch(() => []) : [];
                     const histDataRaw = (histRes && histRes.ok) ? await histRes.json().catch(() => null) : null;
                     const estData = (estRes && estRes.ok) ? await estRes.json().catch(() => []) : [];
 
+                    const hasProfile = Array.isArray(profileData) && profileData.length > 0;
+                    const hasQuote = Array.isArray(quoteData) && quoteData.length > 0;
 
-                const hasProfile = Array.isArray(profileData) && profileData.length > 0;
-                const hasQuote = Array.isArray(quoteData) && quoteData.length > 0;
+                    if (hasProfile || hasQuote) {
+                        systemStatus += ` | Profile: ${hasProfile ? 'OK' : 'N/A'} | Quote: ${hasQuote ? 'OK' : 'N/A'} | Symbol: ${symbol}`;
 
-                if (hasProfile || hasQuote) {
-                    systemStatus += ` | Profile: ${hasProfile ? 'OK' : 'N/A'} | Quote: ${hasQuote ? 'OK' : 'N/A'} | Symbol: ${symbol}`;
+                        const profile = profileData[0] || {};
+                        const quote = quoteData[0] || {};
+                        const ttm = ttmData[0] || {};
 
-                    const profile = profileData[0] || {};
-                    const quote = quoteData[0] || {};
-                    const ttm = ttmData[0] || {};
-
-                    // Auto-generate name/industry for cryptos or custom assets
-                    if (!profile.companyName) {
-                        if (symbol.endsWith('USD')) {
-                            profile.companyName = symbol.replace('USD', '') + ' (Cryptocurrency)';
-                            profile.sector = 'Cryptocurrency';
-                            profile.industry = 'Digital Asset';
-                        } else {
-                            profile.companyName = symbol;
+                        // Auto-generate name/industry for cryptos or custom assets
+                        if (!profile.companyName) {
+                            if (symbol.endsWith('USD')) {
+                                profile.companyName = symbol.replace('USD', '') + ' (Cryptocurrency)';
+                                profile.sector = 'Cryptocurrency';
+                                profile.industry = 'Digital Asset';
+                            } else {
+                                profile.companyName = symbol;
+                            }
                         }
-                    }
 
-                    const rsiData = (rsiDataRaw && rsiDataRaw.length > 0 && rsiDataRaw[0].rsi != null) ? rsiDataRaw[0].rsi : 'N/A';
-                    const macdData = (macdDataRaw && macdDataRaw.length > 0 && macdDataRaw[0].macd != null) ? macdDataRaw[0].macd : 'N/A';
-                    const histData = (histDataRaw && histDataRaw.historical) ? histDataRaw.historical : [];
-                    
-                    const earnString = (earnData && earnData.length > 0)
-                        ? earnData.slice(0, 4).map(e => `Q-Date: ${e.date?.split(' ')[0]} | Est: ${e.estimatedEarning} | Act: ${e.actualEarning}`).join('\n')
-                        : 'N/A';
+                        const rsiData = (rsiDataRaw && rsiDataRaw.length > 0 && rsiDataRaw[0].rsi != null) ? rsiDataRaw[0].rsi : 'N/A';
+                        const macdData = (macdDataRaw && macdDataRaw.length > 0 && macdDataRaw[0].macd != null) ? macdDataRaw[0].macd : 'N/A';
+                        const histData = (histDataRaw && histDataRaw.historical) ? histDataRaw.historical : [];
+                        
+                        const earnString = (earnData && earnData.length > 0)
+                            ? earnData.slice(0, 4).map(e => `Q-Date: ${e.date?.split(' ')[0]} | Est: ${e.estimatedEarning} | Act: ${e.actualEarning}`).join('\n')
+                            : 'N/A';
 
-                    const currency = (profile.currency || quote.currency || '').trim().toUpperCase() || 'USD';
+                        const currency = (profile.currency || quote.currency || '').trim().toUpperCase() || 'USD';
 
-                    const histString = (histData && histData.length > 0)
-                        ? histData.slice(0, 15).map(h => `Date: ${h.date} | Close: ${h.close} ${currency} | High: ${h.high} ${currency} | Low: ${h.low} ${currency} | Vol: ${(h.volume / 1e6).toFixed(2)}M`).join('\n')
-                        : 'N/A';
+                        const histString = (histData && histData.length > 0)
+                            ? histData.slice(0, 15).map(h => `Date: ${h.date} | Close: ${h.close} ${currency} | High: ${h.high} ${currency} | Low: ${h.low} ${currency} | Vol: ${(h.volume / 1e6).toFixed(2)}M`).join('\n')
+                            : 'N/A';
 
-
-                    let avgPE = 'N/A', avgPE10 = 'N/A';
-                    if (metricsData && metricsData.length > 0) {
-                        let sumPE = 0, countPE = 0, sumPE10 = 0, countPE10 = 0;
-                        metricsData.forEach((y, index) => {
-                            if (index < 5 && y.peRatio) { sumPE += y.peRatio; countPE++; }
-                            if (y.peRatio) { sumPE10 += y.peRatio; countPE10++; }
-                        });
-                        avgPE = countPE > 0 ? (sumPE / countPE).toFixed(2) : 'N/A';
-                        avgPE10 = countPE10 > 0 ? (sumPE10 / countPE10).toFixed(2) : 'N/A';
-                    }
-
-                    let revenueCAGR = 'N/A';
-                    if (incomeData && incomeData.length >= 5) {
-                        const revEnd = incomeData[0].revenue;
-                        const revStart = incomeData[4].revenue;
-                        if (revStart > 0 && revEnd > 0) {
-                            revenueCAGR = ((Math.pow(revEnd / revStart, 1 / 4) - 1) * 100).toFixed(2) + '%';
+                        // --- EMPIRICAL VALUATION STATISTICS (Single Source of Truth helper) ---
+                        function computeStats(arr, currentVal) {
+                            const valid = arr.filter(v => typeof v === 'number' && Number.isFinite(v) && v > 0).sort((a, b) => a - b);
+                            if (valid.length === 0) return { count: 0, median: 'N/A', mean: 'N/A', p25: 'N/A', p75: 'N/A', percentile: 'N/A' };
+                            const count = valid.length;
+                            const sum = valid.reduce((a, b) => a + b, 0);
+                            const mean = (sum / count).toFixed(2);
+                            const q = (pos) => {
+                                const p = pos * (count - 1);
+                                const base = Math.floor(p);
+                                const rest = p - base;
+                                return (base + 1 < count) ? (valid[base] + rest * (valid[base + 1] - valid[base])) : valid[base];
+                            };
+                            const median = q(0.5).toFixed(2);
+                            const p25 = q(0.25).toFixed(2);
+                            const p75 = q(0.75).toFixed(2);
+                            let percentile = 'N/A';
+                            if (typeof currentVal === 'number' && Number.isFinite(currentVal) && currentVal > 0) {
+                                let below = 0, eq = 0;
+                                valid.forEach(v => { if (v < currentVal) below++; else if (Math.abs(v - currentVal) < 1e-4) eq++; });
+                                percentile = (((below + 0.5 * eq) / count) * 100).toFixed(0) + '%';
+                            }
+                            return { count, median, mean, p25, p75, percentile };
                         }
-                    }
 
-                    // Calculate Analyst Consensus Growth (EPS or Revenue Growth estimate)
-                    let analystConsensusGrowth = 'N/A';
-                    if (Array.isArray(estData) && estData.length >= 2) {
-                        const curEst = estData[0];
-                        const nextEst = estData[1];
-                        if (curEst.estimatedEpsAvg && nextEst.estimatedEpsAvg && curEst.estimatedEpsAvg > 0) {
-                            const epsGrowth = ((nextEst.estimatedEpsAvg - curEst.estimatedEpsAvg) / curEst.estimatedEpsAvg) * 100;
-                            analystConsensusGrowth = epsGrowth.toFixed(1) + '%';
-                        } else if (curEst.estimatedRevenueAvg && nextEst.estimatedRevenueAvg && curEst.estimatedRevenueAvg > 0) {
-                            const revGrowth = ((nextEst.estimatedRevenueAvg - curEst.estimatedRevenueAvg) / curEst.estimatedRevenueAvg) * 100;
-                            analystConsensusGrowth = revGrowth.toFixed(1) + '%';
+                        const peObs = (metricsData || []).map(m => m.peRatio);
+                        const psObs = (metricsData || []).map(m => m.priceToSalesRatio);
+                        const pbObs = (metricsData || []).map(m => m.pbRatio);
+                        const pcfObs = (metricsData || []).map(m => m.pocfratio || (m.marketCap && cfData[0]?.freeCashFlow ? m.marketCap / cfData[0].freeCashFlow : null));
+
+                        const curPe = (metricsData[0]?.peRatio && metricsData[0].peRatio > 0) ? metricsData[0].peRatio : (quote.pe || null);
+                        const curPs = (metricsData[0]?.priceToSalesRatio && metricsData[0].priceToSalesRatio > 0) ? metricsData[0].priceToSalesRatio : null;
+                        const curPb = (metricsData[0]?.pbRatio && metricsData[0].pbRatio > 0) ? metricsData[0].pbRatio : null;
+                        const curPcf = (metricsData[0]?.pocfratio && metricsData[0].pocfratio > 0) ? metricsData[0].pocfratio : null;
+
+                        const peStats = computeStats(peObs, curPe);
+                        const psStats = computeStats(psObs, curPs);
+                        const pbStats = computeStats(pbObs, curPb);
+                        const pcfStats = computeStats(pcfObs, curPcf);
+
+                        let revenueCAGR = 'N/A';
+                        if (incomeData && incomeData.length >= 2) {
+                            const n = Math.min(incomeData.length - 1, 4);
+                            const revEnd = incomeData[0].revenue;
+                            const revStart = incomeData[n].revenue;
+                            if (revStart > 0 && revEnd > 0) {
+                                revenueCAGR = ((Math.pow(revEnd / revStart, 1 / n) - 1) * 100).toFixed(2) + `% (${n + 1}Y)`;
+                            }
                         }
-                    }
-                    if (analystConsensusGrowth === 'N/A' && revenueCAGR !== 'N/A') {
-                        analystConsensusGrowth = revenueCAGR;
-                    }
 
-                    const enterpriseVal = ttm.enterpriseValueTTM ? `${(ttm.enterpriseValueTTM / 1e9).toFixed(2)} Billion ${currency}` : (metricsData[0]?.enterpriseValue ? `${(metricsData[0].enterpriseValue / 1e9).toFixed(2)} Billion ${currency}` : 'N/A');
-                    const latestDate = incomeData[0]?.date || quote.earningsAnnouncement || 'N/A';
-                    const fiscalYear = incomeData[0]?.calendarYear ? `FY${incomeData[0].calendarYear}` : 'N/A';
-                    const todayIso = new Date().toISOString().split('T')[0];
+                        let epsCAGR = 'N/A';
+                        if (incomeData && incomeData.length >= 2) {
+                            const n = Math.min(incomeData.length - 1, 4);
+                            const epsEnd = incomeData[0].eps;
+                            const epsStart = incomeData[n].eps;
+                            if (epsStart > 0 && epsEnd > 0) {
+                                epsCAGR = ((Math.pow(epsEnd / epsStart, 1 / n) - 1) * 100).toFixed(2) + `% (${n + 1}Y)`;
+                            }
+                        }
 
-                    const fmpContext = `
+                        let fcfCAGR = 'N/A';
+                        if (cfData && cfData.length >= 2) {
+                            const n = Math.min(cfData.length - 1, 4);
+                            const fcfEnd = cfData[0].freeCashFlow;
+                            const fcfStart = cfData[n].freeCashFlow;
+                            if (fcfStart > 0 && fcfEnd > 0) {
+                                fcfCAGR = ((Math.pow(fcfEnd / fcfStart, 1 / n) - 1) * 100).toFixed(2) + `% (${n + 1}Y)`;
+                            }
+                        }
+
+                        // Calculate Analyst Consensus Growth (EPS or Revenue Growth estimate)
+                        let analystConsensusGrowth = 'N/A';
+                        if (Array.isArray(estData) && estData.length >= 2) {
+                            const curEst = estData[0];
+                            const nextEst = estData[1];
+                            if (curEst.estimatedEpsAvg && nextEst.estimatedEpsAvg && curEst.estimatedEpsAvg > 0) {
+                                const epsGrowth = ((nextEst.estimatedEpsAvg - curEst.estimatedEpsAvg) / curEst.estimatedEpsAvg) * 100;
+                                analystConsensusGrowth = epsGrowth.toFixed(1) + '%';
+                            } else if (curEst.estimatedRevenueAvg && nextEst.estimatedRevenueAvg && curEst.estimatedRevenueAvg > 0) {
+                                const revGrowth = ((nextEst.estimatedRevenueAvg - curEst.estimatedRevenueAvg) / curEst.estimatedRevenueAvg) * 100;
+                                analystConsensusGrowth = revGrowth.toFixed(1) + '%';
+                            }
+                        }
+                        if (analystConsensusGrowth === 'N/A' && revenueCAGR !== 'N/A') {
+                            analystConsensusGrowth = revenueCAGR;
+                        }
+
+                        const enterpriseVal = ttm.enterpriseValueTTM ? `${(ttm.enterpriseValueTTM / 1e9).toFixed(2)} Billion ${currency}` : (metricsData[0]?.enterpriseValue ? `${(metricsData[0].enterpriseValue / 1e9).toFixed(2)} Billion ${currency}` : 'N/A');
+                        const latestDate = incomeData[0]?.date || quote.earningsAnnouncement || 'N/A';
+                        const fiscalYear = incomeData[0]?.calendarYear ? `FY${incomeData[0].calendarYear}` : 'N/A';
+                        const todayIso = new Date().toISOString().split('T')[0];
+
+                        // Sector awareness check (Banks / Financials)
+                        const isFinancialSector = /financial|bank|insurance/i.test(profile.sector || '') || /bank|insurance/i.test(profile.industry || '');
+
+                        const fmpContext = `
 [FMP API BLOCK]
 Name: ${profile.companyName || 'N/A'}
 Symbol: ${symbol}
@@ -191,32 +244,43 @@ Sector/Industry: ${profile.sector || 'N/A'} / ${profile.industry || 'N/A'}
 HQ: ${profile.city || 'N/A'}, ${profile.country || 'N/A'}
 Description: ${profile.description || 'N/A'}
 Current Price: ${quote.price != null ? `${quote.price} ${currency}` : 'N/A'}
+52W High: ${quote.yearHigh != null ? `${quote.yearHigh} ${currency}` : 'N/A'}
+52W Low: ${quote.yearLow != null ? `${quote.yearLow} ${currency}` : 'N/A'}
 Market Cap: ${quote.marketCap ? `${(quote.marketCap / 1e9).toFixed(2)} Billion ${currency}` : 'N/A'}
 Enterprise Value: ${enterpriseVal}
 Fiscal Year: ${fiscalYear}
 Latest Reporting Date: ${latestDate}
 Data Timestamp: ${todayIso}
 
---- FINANCIAL TRENDS ---
-Revenue (5Y): ${incomeData.slice(0, 5).map(y => (y.revenue / 1e9).toFixed(2) + 'B').reverse().join(' -> ')}
-5Y Revenue CAGR: ${revenueCAGR}
+--- HISTORICAL FUNDAMENTAL TRENDS (Reported / Observed) ---
+Available History: ${incomeData.length} annual reporting periods
+Revenue Trend (${incomeData.length}Y): ${incomeData.slice(0, 10).map(y => (y.revenue / 1e9).toFixed(2) + 'B').reverse().join(' -> ')}
+Revenue CAGR: ${revenueCAGR}
+EPS Trend (${incomeData.length}Y): ${incomeData.slice(0, 10).map(y => (y.eps != null ? y.eps.toFixed(2) : 'N/A')).reverse().join(' -> ')}
+EPS CAGR: ${epsCAGR}
+Operating Margins: ${incomeData.slice(0, 10).map(y => (y.revenue > 0 ? ((y.operatingIncome / y.revenue) * 100).toFixed(1) + '%' : 'N/A')).reverse().join(' -> ')}
+FCF Trend (${cfData.length}Y): ${cfData.slice(0, 10).map(y => (y.freeCashFlow != null ? (y.freeCashFlow / 1e9).toFixed(2) + 'B' : 'N/A')).reverse().join(' -> ')}
+FCF CAGR: ${fcfCAGR}
 Analyst Consensus Growth: ${analystConsensusGrowth}
-Op. Margins (5Y): ${incomeData.slice(0, 5).map(y => ((y.operatingIncome / y.revenue) * 100).toFixed(1) + '%').reverse().join(' -> ')}
-FCF Trend (5Y): ${cfData.slice(0, 5).map(y => (y.freeCashFlow / 1e9).toFixed(2) + 'B').reverse().join(' -> ')}
 EPS Surprise History:
 ${earnString}
 
---- VALUATION METRICS ---
-Current P/E: ${metricsData[0]?.peRatio ? Number(metricsData[0].peRatio).toFixed(2) : 'N/A'}
-5Y Avg P/E: ${avgPE}
-10Y Avg P/E: ${avgPE10}
-Current P/S: ${metricsData[0]?.priceToSalesRatio ? Number(metricsData[0].priceToSalesRatio).toFixed(2) : 'N/A'}
-Debt to Equity: ${ttm.debtToEquityTTM ? Number(ttm.debtToEquityTTM).toFixed(2) : 'N/A'}
-ROE: ${ttm.roeTTM ? (Number(ttm.roeTTM) * 100).toFixed(2) + '%' : 'N/A'}
-Dividend Yield: ${quote.dividendYield ? (Number(quote.dividendYield) * 100).toFixed(2) + '%' : 'N/A'}
-Payout Ratio: ${ttm.payoutRatioTTM ? (Number(ttm.payoutRatioTTM) * 100).toFixed(2) + '%' : 'N/A'}
+--- EMPIRICAL VALUATION STATISTICS (Single Source of Truth) ---
+Current P/E: ${curPe ? Number(curPe).toFixed(2) : 'N/A'}
+Historical P/E Median: ${peStats.median} (Mean: ${peStats.mean}, 25th Pct: ${peStats.p25}, 75th Pct: ${peStats.p75})
+Historical P/E Percentile Rank: ${peStats.percentile}
+Current P/S: ${curPs ? Number(curPs).toFixed(2) : 'N/A'} (Historical Median: ${psStats.median}, Percentile: ${psStats.percentile})
+Current P/B: ${curPb ? Number(curPb).toFixed(2) : 'N/A'} (Historical Median: ${pbStats.median}, Percentile: ${pbStats.percentile})
+Current P/FCF: ${curPcf ? Number(curPcf).toFixed(2) : 'N/A'} (Historical Median: ${pcfStats.median}, Percentile: ${pcfStats.percentile})
 DCF Fair Value Estimate: ${profile.dcf != null ? `${Number(profile.dcf).toFixed(2)} ${currency}` : 'N/A'}
 
+--- BALANCE SHEET & CAPITAL EFFICIENCY ---
+ROIC: ${ttm.roicTTM ? (Number(ttm.roicTTM) * 100).toFixed(2) + '%' : (metricsData[0]?.roic ? (Number(metricsData[0].roic) * 100).toFixed(2) + '%' : 'N/A')}
+ROE: ${ttm.roeTTM ? (Number(ttm.roeTTM) * 100).toFixed(2) + '%' : (metricsData[0]?.roe ? (Number(metricsData[0].roe) * 100).toFixed(2) + '%' : 'N/A')}
+Debt to Equity: ${ttm.debtToEquityTTM ? Number(ttm.debtToEquityTTM).toFixed(2) : 'N/A'}
+Net Debt / EBITDA: ${isFinancialSector ? 'Not applicable (Financial Institution)' : (ttm.netDebtToEBITDAttm ? Number(ttm.netDebtToEBITDAttm).toFixed(2) : (metricsData[0]?.netDebtToEBITDA ? Number(metricsData[0].netDebtToEBITDA).toFixed(2) : 'N/A'))}
+Dividend Yield: ${quote.dividendYield ? (Number(quote.dividendYield) * 100).toFixed(2) + '%' : 'N/A'}
+Payout Ratio: ${ttm.payoutRatioTTM ? (Number(ttm.payoutRatioTTM) * 100).toFixed(2) + '%' : 'N/A'}
 
 --- TECHNICAL INDICATORS ---
 14-Day RSI: ${rsiData !== 'N/A' ? Number(rsiData).toFixed(2) : 'N/A'}
