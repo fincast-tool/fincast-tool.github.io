@@ -2056,6 +2056,7 @@
                                     <option value="gemini-3.6-flash" style="background:#11151B;">3.6 FLASH</option>
                                     <option value="gemini-3.7-flash" style="background:#11151B;">3.7 FLASH</option>
                                     <option value="gemini-2.5-flash" style="background:#11151B;">2.5 FLASH</option>
+                                    <option value="gemini-2.5-pro" style="background:#11151B;">2.5 PRO</option>
                                     <option value="gemini-flash-latest" style="background:#11151B;">FLASH (LATEST)</option>
                                 </select>
                             </div>
@@ -3340,7 +3341,7 @@
                 'market_structure'
             ];
 
-            // ==================== PHASE 1: DATASET & IDENTITY RESEARCH (Google Grounding = TRUE) ====================
+            // ==================== PHASE 1: DATASET & IDENTITY RESEARCH (Google Grounding = TRUE, Flash-Lite) ====================
             updateLoadingStatus(
                 'Fundamentale Finanzhistorie & Bilanzen werden erfasst...', 
                 35, 
@@ -3348,7 +3349,7 @@
             );
             
             const datasetPrompt = getDatasetPrompt(query, lang);
-            const datasetResponseText = await fetchSingleBatch(query, user, datasetPrompt, 0, true, historicalDataset);
+            const datasetResponseText = await fetchSingleBatch(query, user, datasetPrompt, 0, true, historicalDataset, 'gemini-2.5-flash-lite');
             const phase1Data = parseFrameworks(datasetResponseText);
 
             // Extract & Normalize Dataset
@@ -3365,7 +3366,7 @@
                 dataset = synthesizeHistoricalDatasetFromAI(phase1Data);
             }
 
-            // ==================== PHASE 2: MULTI-AGENT SPECIALIST REVIEW (Google Grounding = FALSE) ====================
+            // ==================== PHASE 2: MULTI-AGENT SPECIALIST REVIEW (Google Grounding = FALSE, Reasoning Engine) ====================
             updateLoadingStatus(
                 'Institutionelle Multi-Agenten-Prüfung läuft...', 
                 65, 
@@ -3373,7 +3374,7 @@
             );
 
             const specialistPrompt = getSpecialistReviewPrompt(query, lang, dataset, phase1Data.company_identity);
-            const specialistResponseText = await fetchSingleBatch(query, user, specialistPrompt, 0, false, dataset);
+            const specialistResponseText = await fetchSingleBatch(query, user, specialistPrompt, 0, false, dataset, MODEL_ID);
             const researchData = parseFrameworks(specialistResponseText);
 
             // Merge Identity & Dataset into Research Data
@@ -3388,7 +3389,7 @@
                 throw new Error('Die fundamentale Multi-Agenten-Prüfung konnte nicht abgeschlossen werden. Bitte versuche es erneut.');
             }
 
-            // ==================== PHASE 3: INVESTMENT COMMITTEE SYNTHESIS (Google Grounding = FALSE) ====================
+            // ==================== PHASE 3: INVESTMENT COMMITTEE SYNTHESIS (Google Grounding = FALSE, Reasoning Engine) ====================
             updateLoadingStatus(
                 'Finale Synthese & Gesamtfazit werden konsolidiert...', 
                 85, 
@@ -3396,7 +3397,7 @@
             );
 
             const executivePrompt = getExecutivePrompt(query, lang, researchData, validation);
-            const executiveText = await fetchSingleBatch(query, user, executivePrompt, 0, false, dataset);
+            const executiveText = await fetchSingleBatch(query, user, executivePrompt, 0, false, dataset, MODEL_ID);
             const executiveData = parseFrameworks(executiveText);
 
             // Merge datasets into consistent final research object
@@ -3760,7 +3761,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             return prompt;
         }
 
-        async function fetchSingleBatch(query, user, prompt, retries = 0, enableSearch = true, historicalDataset = null) {
+        async function fetchSingleBatch(query, user, prompt, retries = 0, enableSearch = true, historicalDataset = null, modelOverride = null) {
             const geminiBody = {
                 contents: [{ parts: [{ text: prompt }] }],
                 generationConfig: {
@@ -3775,6 +3776,8 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 geminiBody.tools = [{ googleSearch: {} }];
             }
 
+            const modelToUse = modelOverride || MODEL_ID || 'gemini-2.5-flash';
+
             for (let i = 0; i <= retries; i++) {
                 try {
                     const res = await fetch('/api/analyze', {
@@ -3782,7 +3785,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             ticker: query,
-                            model: MODEL_ID,
+                            model: modelToUse,
                             geminiBody,
                             email: user.email,
                             apiKey: user.apiKey,
