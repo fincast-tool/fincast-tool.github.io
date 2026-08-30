@@ -1,4 +1,9 @@
-const Redis = require('ioredis');
+let Redis = null;
+try {
+    Redis = require('ioredis');
+} catch (e) {
+    // Redis is optional
+}
 
 /**
  * Historical Financial Data & Market Prices Service
@@ -20,11 +25,47 @@ module.exports = async function handler(req, res) {
         return res.status(400).json({ error: 'Symbol or ticker parameter is required.' });
     }
 
-    const symbol = symbolParam.trim().toUpperCase();
+    const rawQuery = symbolParam.trim();
     const fmpKey = process.env.FMP_API_KEY || process.env.API_FMP || process.env.fmp_api_key || process.env.FMP_KEY || process.env.fmp_key;
 
     if (!fmpKey) {
         return res.status(500).json({ error: 'FMP API key is not configured on server.' });
+    }
+
+    // Resolve symbol if query is a company name, WKN, ISIN, or longer than 5 chars
+    let symbol = null;
+    const isStandardTicker = /^[A-Z0-9.\-]{1,6}$/.test(rawQuery.toUpperCase());
+    if (isStandardTicker && rawQuery.length <= 5) {
+        symbol = rawQuery.toUpperCase();
+    } else {
+        try {
+            console.log(`[Historical Data] Resolving symbol for query: "${rawQuery}"...`);
+            // 1. Try finding a US ticker (ADR/Primary) first
+            let searchRes = await fetch(`https://financialmodelingprep.com/stable/search?query=${encodeURIComponent(rawQuery)}&limit=3&exchange=NYSE,NASDAQ&apikey=${fmpKey}`);
+            let searchData = await searchRes.json().catch(() => []);
+
+            // 2. Fallback to global search if no US ticker is found
+            if (!searchData || searchData.length === 0) {
+                searchRes = await fetch(`https://financialmodelingprep.com/stable/search?query=${encodeURIComponent(rawQuery)}&limit=1&apikey=${fmpKey}`);
+                searchData = await searchRes.json().catch(() => []);
+            }
+
+            if (searchData && searchData[0] && searchData[0].symbol) {
+                symbol = searchData[0].symbol.toUpperCase();
+                console.log(`[Historical Data] Successfully resolved "${rawQuery}" -> ${symbol}`);
+            } else {
+                symbol = rawQuery.toUpperCase();
+            }
+        } catch (resolveErr) {
+            console.warn('[Historical Data] Symbol resolution error:', resolveErr.message);
+            symbol = rawQuery.toUpperCase();
+        }
+    }
+
+    // Auto-map common cryptocurrencies to FMP USD pair tickers
+    const cryptoTickers = ['BTC', 'ETH', 'SOL', 'ADA', 'DOT', 'DOGE', 'SHIB', 'XRP', 'AVAX', 'LINK', 'LTC', 'BCH', 'UNI', 'ATOM', 'ETC', 'ALGO', 'XLM', 'NEAR', 'ICP', 'FIL', 'LDO', 'GRT', 'FTM', 'RNDR', 'CRO', 'OP', 'ARB', 'TON', 'PEPE', 'WIF', 'BONK', 'FLOKI', 'SUI', 'APT', 'TIA'];
+    if (symbol && cryptoTickers.includes(symbol)) {
+        symbol = symbol + 'USD';
     }
 
     // Attempt Redis cache lookup (1 hour TTL)
@@ -32,13 +73,13 @@ module.exports = async function handler(req, res) {
     let redis = null;
     try {
         const redisUrl = process.env.KV_REDIS_URL || process.env.REDIS_URL;
-        if (redisUrl) {
+        if (redisUrl && Redis) {
             redis = new Redis(redisUrl, { connectTimeout: 3000, maxRetriesPerRequest: 1 });
             const cached = await redis.get(cacheKey);
             if (cached) {
                 const parsed = JSON.parse(cached);
                 if (redis) await redis.quit();
-                return res.status(200).json({ ...parsed, _cached: true });
+                return res.status(200).json({ ...parsed, _cached: true, resolvedSymbol: symbol });
             }
         }
     } catch (cacheErr) {
