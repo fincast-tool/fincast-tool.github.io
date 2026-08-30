@@ -662,6 +662,90 @@
             color: var(--text-primary);
             font-weight: 600;
         }
+
+        /* Institutional Tooltip System */
+        .term-tooltip {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            cursor: help;
+            border-bottom: 1px dotted rgba(214, 168, 58, 0.45);
+            transition: all 0.15s ease;
+        }
+        .term-tooltip:hover {
+            border-bottom-color: #D6A83A;
+            color: #FFFFFF;
+        }
+        .term-tooltip .tooltip-box {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            bottom: calc(100% + 7px);
+            left: 50%;
+            transform: translateX(-50%) translateY(4px);
+            width: 250px;
+            padding: 9px 11px;
+            background: #141A22;
+            border: 1px solid #2D3748;
+            border-top: 2px solid #D6A83A;
+            border-radius: 6px;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.75), 0 0 1px 1px rgba(255, 255, 255, 0.06);
+            color: #E2E8F0;
+            font-size: 11px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            line-height: 1.4;
+            text-align: left;
+            z-index: 100;
+            pointer-events: none;
+            transition: opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1), transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.18s;
+            white-space: normal;
+        }
+        .term-tooltip .tooltip-box::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #141A22 transparent transparent transparent;
+        }
+        .term-tooltip:hover .tooltip-box,
+        .term-tooltip:focus .tooltip-box {
+            visibility: visible;
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .tooltip-box .tooltip-title {
+            color: #D6A83A;
+            font-weight: 700;
+            font-size: 11px;
+            margin-bottom: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .tooltip-box .tooltip-category {
+            font-size: 8.5px;
+            font-family: 'JetBrains Mono', monospace;
+            color: #94A3B8;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .tooltip-box .tooltip-desc {
+            color: #CBD5E1;
+            font-size: 10px;
+        }
+        .tooltip-box .tooltip-rule {
+            margin-top: 5px;
+            padding-top: 4px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 9px;
+            color: #34D399;
+            font-family: 'JetBrains Mono', monospace;
+        }
     </style>
 </head>
 
@@ -1216,15 +1300,33 @@
                                             </div>
                                             <div class="space-y-1 mt-1 font-mono text-xs">
                                                 <div class="flex justify-between items-center text-slate-300">
-                                                    <span class="text-slate-400 text-[10px]">Marktkapital:</span>
+                                                    <span class="term-tooltip text-slate-400 text-[10px]">Marktkapital:
+                                                        <span class="tooltip-box">
+                                                            <span class="tooltip-title">Marktkapitalisierung<span class="tooltip-category">Unternehmensgröße</span></span>
+                                                            <span class="tooltip-desc">Gesamtwert aller ausstehenden Aktien (Börsenkurs × Aktienanzahl).</span>
+                                                            <span class="tooltip-rule">💡 Mega Cap > $200 Mrd. | Large Cap > $10 Mrd. | Mid Cap $2-10 Mrd.</span>
+                                                        </span>
+                                                    </span>
                                                     <span id="snap_mcap" class="font-bold text-white text-[11px]">--</span>
                                                 </div>
                                                 <div class="flex justify-between items-center text-slate-300">
-                                                    <span class="text-slate-400 text-[10px]">52W Spanne:</span>
+                                                    <span class="term-tooltip text-slate-400 text-[10px]">52W Spanne:
+                                                        <span class="tooltip-box">
+                                                            <span class="tooltip-title">52-Wochen-Spanne<span class="tooltip-category">Preiskorridor</span></span>
+                                                            <span class="tooltip-desc">Tiefster und höchster Börsenkurs der vergangenen 52 Wochen.</span>
+                                                            <span class="tooltip-rule">💡 Zeigt die historische Handelsspanne und das Drawdown-Risiko.</span>
+                                                        </span>
+                                                    </span>
                                                     <span id="snap_52w" class="text-[10px] text-slate-300">--</span>
                                                 </div>
                                                 <div class="flex justify-between items-center text-slate-300">
-                                                    <span class="text-slate-400 text-[10px]">KGV (Aktuell):</span>
+                                                    <span class="term-tooltip text-slate-400 text-[10px]">KGV (Aktuell):
+                                                        <span class="tooltip-box">
+                                                            <span class="tooltip-title">KGV (Kurs-Gewinn-Verhältnis)<span class="tooltip-category">Bewertung</span></span>
+                                                            <span class="tooltip-desc">Aktienkurs geteilt durch den Jahresgewinn je Aktie (EPS).</span>
+                                                            <span class="tooltip-rule">💡 Niedrig = potenziell günstig | Hoch = hohe Wachstumserwartung.</span>
+                                                        </span>
+                                                    </span>
                                                     <span id="snap_pe_cur" class="font-bold text-white text-[11px]">--</span>
                                                 </div>
                                             </div>
@@ -1238,15 +1340,33 @@
                                             </div>
                                             <div class="space-y-1 mt-1 font-mono text-xs">
                                                 <div class="flex justify-between items-center text-slate-300">
-                                                    <span class="text-slate-400 text-[10px]">Umsatz-CAGR:</span>
+                                                    <span class="term-tooltip text-slate-400 text-[10px]">Umsatz-CAGR:
+                                                        <span class="tooltip-box">
+                                                            <span class="tooltip-title">Revenue CAGR<span class="tooltip-category">Umsatzwachstum</span></span>
+                                                            <span class="tooltip-desc">Durchschnittliches jährliches Umsatzwachstum (Compound Annual Growth Rate).</span>
+                                                            <span class="tooltip-rule">💡 > 15%: Starkes Wachstum | 5–15%: Solide | < 0%: Schrumpfung.</span>
+                                                        </span>
+                                                    </span>
                                                     <span id="snap_rev_cagr" class="font-bold text-emerald-400 text-[11px]">--</span>
                                                 </div>
                                                 <div class="flex justify-between items-center text-slate-300">
-                                                    <span class="text-slate-400 text-[10px]">EPS-CAGR:</span>
+                                                    <span class="term-tooltip text-slate-400 text-[10px]">EPS-CAGR:
+                                                        <span class="tooltip-box">
+                                                            <span class="tooltip-title">EPS CAGR<span class="tooltip-category">Gewinndynamik</span></span>
+                                                            <span class="tooltip-desc">Jährliches Wachstum des Nettogewinns je Aktie.</span>
+                                                            <span class="tooltip-rule">💡 Sollte idealerweise über dem Umsatzwachstum liegen (Skalierung).</span>
+                                                        </span>
+                                                    </span>
                                                     <span id="snap_eps_cagr" class="font-bold text-emerald-400 text-[11px]">--</span>
                                                 </div>
                                                 <div class="flex justify-between items-center text-slate-300">
-                                                    <span class="text-slate-400 text-[10px]">FCF-CAGR:</span>
+                                                    <span class="term-tooltip text-slate-400 text-[10px]">FCF-CAGR:
+                                                        <span class="tooltip-box">
+                                                            <span class="tooltip-title">FCF CAGR<span class="tooltip-category">Cash-Dynamik</span></span>
+                                                            <span class="tooltip-desc">Jährliches Wachstum des echten freien Cashflows nach allen CapEx-Investitionen.</span>
+                                                            <span class="tooltip-rule">💡 Bestätigt reale Liquiditätsgenerierung unabhängig von Bilanztricks.</span>
+                                                        </span>
+                                                    </span>
                                                     <span id="snap_fcf_cagr" class="font-bold text-emerald-400 text-[11px]">--</span>
                                                 </div>
                                             </div>
@@ -1260,15 +1380,33 @@
                                             </div>
                                             <div class="space-y-1 mt-1 font-mono text-xs">
                                                 <div class="flex justify-between items-center text-slate-300">
-                                                    <span class="text-slate-400 text-[10px]">ROIC:</span>
+                                                    <span class="term-tooltip text-slate-400 text-[10px]">ROIC:
+                                                        <span class="tooltip-box">
+                                                            <span class="tooltip-title">ROIC (Return on Invested Capital)<span class="tooltip-category">Kapitalrendite</span></span>
+                                                            <span class="tooltip-desc">Rendite auf das im Kerngeschäft investierte Gesamtkapital.</span>
+                                                            <span class="tooltip-rule">💡 Liegt der ROIC über dem WACC, entsteht echter ökonomischer Mehrwert.</span>
+                                                        </span>
+                                                    </span>
                                                     <span id="snap_roic" class="font-bold text-white text-[11px]">--</span>
                                                 </div>
                                                 <div class="flex justify-between items-center text-slate-300">
-                                                    <span class="text-slate-400 text-[10px]">ROE:</span>
+                                                    <span class="term-tooltip text-slate-400 text-[10px]">ROE:
+                                                        <span class="tooltip-box">
+                                                            <span class="tooltip-title">ROE (Return on Equity)<span class="tooltip-category">Eigenkapitalrendite</span></span>
+                                                            <span class="tooltip-desc">Reingewinn im Verhältnis zum bilanziellen Eigenkapital.</span>
+                                                            <span class="tooltip-rule">💡 > 15%: Exzellent. Hohe Verschuldung kann den ROE künstlich aufblähen.</span>
+                                                        </span>
+                                                    </span>
                                                     <span id="snap_roe" class="text-[10px] text-slate-200">--</span>
                                                 </div>
                                                 <div class="flex justify-between items-center text-slate-300">
-                                                    <span class="text-slate-400 text-[10px]">Op. Marge:</span>
+                                                    <span class="term-tooltip text-slate-400 text-[10px]">Op. Marge:
+                                                        <span class="tooltip-box">
+                                                            <span class="tooltip-title">Operative EBIT-Marge<span class="tooltip-category">Rentabilität</span></span>
+                                                            <span class="tooltip-desc">EBIT in Prozent des Umsatzes vor Zinsen und Steuern.</span>
+                                                            <span class="tooltip-rule">💡 Hohe und stabile Margen beweisen Preissetzungsmacht (Pricing Power).</span>
+                                                        </span>
+                                                    </span>
                                                     <span id="snap_op_margin" class="text-[10px] text-slate-200">--</span>
                                                 </div>
                                             </div>
@@ -1282,15 +1420,33 @@
                                             </div>
                                             <div class="space-y-1 mt-1 font-mono text-xs">
                                                 <div class="flex justify-between items-center text-slate-300">
-                                                    <span class="text-slate-400 text-[10px]">NetDebt/EBITDA:</span>
+                                                    <span class="term-tooltip text-slate-400 text-[10px]">NetDebt/EBITDA:
+                                                        <span class="tooltip-box">
+                                                            <span class="tooltip-title">Net Debt / EBITDA<span class="tooltip-category">Schuldendeckung</span></span>
+                                                            <span class="tooltip-desc">Nettofinanzschulden geteilt durch operativen Cash-Gewinn (EBITDA).</span>
+                                                            <span class="tooltip-rule">💡 < 0x: Net Cash (sehr sicher) | < 2.0x: Solide | > 3.5x: Riskant.</span>
+                                                        </span>
+                                                    </span>
                                                     <span id="snap_net_debt_ebitda" class="font-bold text-white text-[11px]">--</span>
                                                 </div>
                                                 <div class="flex justify-between items-center text-slate-300">
-                                                    <span class="text-slate-400 text-[10px]">Debt/Equity:</span>
+                                                    <span class="term-tooltip text-slate-400 text-[10px]">Debt/Equity:
+                                                        <span class="tooltip-box">
+                                                            <span class="tooltip-title">Debt to Equity<span class="tooltip-category">Verschuldungsgrad</span></span>
+                                                            <span class="tooltip-desc">Verhältnis von verzinslichem Fremdkapital zu bilanziellem Eigenkapital.</span>
+                                                            <span class="tooltip-rule">💡 < 0.5x: Konservativ | > 1.5x: Deutlich fremdfinanziert.</span>
+                                                        </span>
+                                                    </span>
                                                     <span id="snap_debt_equity" class="text-[10px] text-slate-200">--</span>
                                                 </div>
                                                 <div class="flex justify-between items-center text-slate-300">
-                                                    <span class="text-slate-400 text-[10px]">Zinsdeckung:</span>
+                                                    <span class="term-tooltip text-slate-400 text-[10px]">Zinsdeckung:
+                                                        <span class="tooltip-box">
+                                                            <span class="tooltip-title">Interest Coverage<span class="tooltip-category">Zinstragfähigkeit</span></span>
+                                                            <span class="tooltip-desc">EBIT geteilt durch den jährlichen Zinsaufwand.</span>
+                                                            <span class="tooltip-rule">💡 > 10x: Höchste Bonität | < 3x: Zinslast belastet Ertrag deutlich.</span>
+                                                        </span>
+                                                    </span>
                                                     <span id="snap_interest_cov" class="text-[10px] text-slate-200">--</span>
                                                 </div>
                                             </div>
@@ -1304,15 +1460,33 @@
                                             </div>
                                             <div class="space-y-1 mt-1 font-mono text-xs">
                                                 <div class="flex justify-between items-center text-slate-300">
-                                                    <span class="text-slate-400 text-[10px]">Dividendenrendite:</span>
+                                                    <span class="term-tooltip text-slate-400 text-[10px]">Dividendenrendite:
+                                                        <span class="tooltip-box">
+                                                            <span class="tooltip-title">Dividendenrendite<span class="tooltip-category">Ausschüttung</span></span>
+                                                            <span class="tooltip-desc">Jährliche Dividendenzahlung je Aktie geteilt durch den aktuellen Aktienkurs.</span>
+                                                            <span class="tooltip-rule">💡 Ausschüttungsrendite; muss immer mit der Payout Ratio abgeglichen werden.</span>
+                                                        </span>
+                                                    </span>
                                                     <span id="snap_div_yield" class="font-bold text-slate-200 text-[11px]">--</span>
                                                 </div>
                                                 <div class="flex justify-between items-center text-slate-300">
-                                                    <span class="text-slate-400 text-[10px]">Payout Ratio:</span>
+                                                    <span class="term-tooltip text-slate-400 text-[10px]">Payout Ratio:
+                                                        <span class="tooltip-box">
+                                                            <span class="tooltip-title">Payout Ratio<span class="tooltip-category">Dividendensicherheit</span></span>
+                                                            <span class="tooltip-desc">Ausgeschüttete Dividenden in Prozent des Reingewinns oder FCF.</span>
+                                                            <span class="tooltip-rule">💡 < 60%: Gesunde, nachhaltige Ausschüttung | > 90%: Kürzungsgefahr.</span>
+                                                        </span>
+                                                    </span>
                                                     <span id="snap_payout" class="text-[10px] text-slate-300">--</span>
                                                 </div>
                                                 <div class="flex justify-between items-center text-slate-300">
-                                                    <span class="text-slate-400 text-[10px]">Nächste Earnings:</span>
+                                                    <span class="term-tooltip text-slate-400 text-[10px]">Nächste Earnings:
+                                                        <span class="tooltip-box">
+                                                            <span class="tooltip-title">Quartalsbericht (Earnings)<span class="tooltip-category">Finanzkalender</span></span>
+                                                            <span class="tooltip-desc">Nächster geplanter Veröffentlichungstermin der Quartals- oder Jahresergebnisse.</span>
+                                                            <span class="tooltip-rule">💡 Katalysator für Kursbewegungen basierend auf Konsenserwartungen.</span>
+                                                        </span>
+                                                    </span>
                                                     <span id="snap_earnings_date" class="text-[10px] text-slate-300 truncate">--</span>
                                                 </div>
                                             </div>
@@ -1331,9 +1505,14 @@
                                         </div>
                                         
                                         <div class="flex items-center gap-2">
-                                            <div id="valCorridorBadge" class="px-2.5 py-0.5 rounded text-[10px] font-mono font-medium flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
+                                            <div id="valCorridorBadge" class="term-tooltip px-2.5 py-0.5 rounded text-[10px] font-mono font-medium flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
                                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
                                                 <span id="valCorridorStatusText">Fair Value Modell</span>
+                                                <span class="tooltip-box">
+                                                    <span class="tooltip-title">Valuation Status<span class="tooltip-category">Historischer Rang</span></span>
+                                                    <span class="tooltip-desc">Perzentil-Rang des aktuellen Multiples im Vergleich zur historischen 5-10 Jahres-Spanne.</span>
+                                                    <span class="tooltip-rule">💡 Deep Discount (<20%) | Discount (20-40%) | Fair (40-60%) | Premium (>60%).</span>
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
@@ -1345,7 +1524,13 @@
                                             <span id="valMethodReasonText" class="text-slate-300 text-xs">Standard-Bewertungsmodell für profitables Unternehmen</span>
                                         </div>
                                         <div class="hidden sm:flex items-center gap-2 text-slate-400 text-[10px]">
-                                            <span>Valuation Score:</span>
+                                            <span class="term-tooltip">Valuation Score:
+                                                <span class="tooltip-box">
+                                                    <span class="tooltip-title">Valuation Score (0-100)<span class="tooltip-category">Gesamtbewertung</span></span>
+                                                    <span class="tooltip-desc">Aggregierter Bewertungs-Score über alle relevanten Multiples (KGV, P/FCF, KUV, KBV).</span>
+                                                    <span class="tooltip-rule">💡 100 = Historisch maximal günstig | 0 = Historisch maximal teuer.</span>
+                                                </span>
+                                            </span>
                                             <span id="valHistoricalScore" class="font-bold text-white">--</span>
                                         </div>
                                     </div>
@@ -1358,12 +1543,24 @@
                                             <!-- Left: Valuation Method Buttons -->
                                             <div class="flex flex-wrap items-center gap-1.5 text-[10px]" id="valMethodSelectorButtons">
                                                 <span class="text-slate-400 text-[9px] uppercase font-semibold mr-1">Modell:</span>
-                                                <button type="button" onclick="switchValuationMethod('pe_adj')" id="vMethodBtn_pe_adj" class="v-method-btn px-2 py-0.5 rounded border border-[#D6A83A]/40 bg-[#D6A83A]/10 text-[#D6A83A] font-semibold transition-all">KGV ber.</button>
-                                                <button type="button" onclick="switchValuationMethod('pe_rep')" id="vMethodBtn_pe_rep" class="v-method-btn px-2 py-0.5 rounded border border-[#202630] text-slate-300 hover:text-white transition-all">KGV bil.</button>
-                                                <button type="button" onclick="switchValuationMethod('pfcf')" id="vMethodBtn_pfcf" class="v-method-btn px-2 py-0.5 rounded border border-[#202630] text-slate-300 hover:text-white transition-all">P/FCF</button>
-                                                <button type="button" onclick="switchValuationMethod('pb')" id="vMethodBtn_pb" class="v-method-btn px-2 py-0.5 rounded border border-[#202630] text-slate-300 hover:text-white transition-all">KBV (P/B)</button>
-                                                <button type="button" onclick="switchValuationMethod('ps')" id="vMethodBtn_ps" class="v-method-btn px-2 py-0.5 rounded border border-[#202630] text-slate-300 hover:text-white transition-all">KUV (P/S)</button>
-                                                <button type="button" onclick="switchValuationMethod('ev_ebitda')" id="vMethodBtn_ev_ebitda" class="v-method-btn px-2 py-0.5 rounded border border-[#202630] text-slate-300 hover:text-white transition-all">EV/EBITDA</button>
+                                                <button type="button" onclick="switchValuationMethod('pe_adj')" id="vMethodBtn_pe_adj" class="term-tooltip v-method-btn px-2 py-0.5 rounded border border-[#D6A83A]/40 bg-[#D6A83A]/10 text-[#D6A83A] font-semibold transition-all">KGV ber.
+                                                    <span class="tooltip-box"><span class="tooltip-title">KGV Bereinigt</span><span class="tooltip-desc">Bereinigtes KGV (P/E Adjusted) auf Basis des operativen Kerngewinns.</span></span>
+                                                </button>
+                                                <button type="button" onclick="switchValuationMethod('pe_rep')" id="vMethodBtn_pe_rep" class="term-tooltip v-method-btn px-2 py-0.5 rounded border border-[#202630] text-slate-300 hover:text-white transition-all">KGV bil.
+                                                    <span class="tooltip-box"><span class="tooltip-title">KGV Bilanziert</span><span class="tooltip-desc">Offizielles IFRS/US-GAAP Nettoergebnis KGV.</span></span>
+                                                </button>
+                                                <button type="button" onclick="switchValuationMethod('pfcf')" id="vMethodBtn_pfcf" class="term-tooltip v-method-btn px-2 py-0.5 rounded border border-[#202630] text-slate-300 hover:text-white transition-all">P/FCF
+                                                    <span class="tooltip-box"><span class="tooltip-title">P/FCF (Free Cash Flow)</span><span class="tooltip-desc">Kurs im Verhältnis zum echten freien Cashflow nach Investitionen.</span></span>
+                                                </button>
+                                                <button type="button" onclick="switchValuationMethod('pb')" id="vMethodBtn_pb" class="term-tooltip v-method-btn px-2 py-0.5 rounded border border-[#202630] text-slate-300 hover:text-white transition-all">KBV (P/B)
+                                                    <span class="tooltip-box"><span class="tooltip-title">KBV (Kurs-Buchwert)</span><span class="tooltip-desc">Kurs im Verhältnis zum bilanziellen Eigenkapital (Ideal für Banken/Versicherer).</span></span>
+                                                </button>
+                                                <button type="button" onclick="switchValuationMethod('ps')" id="vMethodBtn_ps" class="term-tooltip v-method-btn px-2 py-0.5 rounded border border-[#202630] text-slate-300 hover:text-white transition-all">KUV (P/S)
+                                                    <span class="tooltip-box"><span class="tooltip-title">KUV (Kurs-Umsatz)</span><span class="tooltip-desc">Marktkapitalisierung im Verhältnis zum Jahresumsatz.</span></span>
+                                                </button>
+                                                <button type="button" onclick="switchValuationMethod('ev_ebitda')" id="vMethodBtn_ev_ebitda" class="term-tooltip v-method-btn px-2 py-0.5 rounded border border-[#202630] text-slate-300 hover:text-white transition-all">EV/EBITDA
+                                                    <span class="tooltip-box"><span class="tooltip-title">EV / EBITDA</span><span class="tooltip-desc">Enterprise Value (inkl. Schulden) geteilt durch operativen Cash-Gewinn.</span></span>
+                                                </button>
                                             </div>
 
                                             <!-- Right: Timeframe Range Buttons (1J, 3J, 5J, 10J, MAX) -->
@@ -2068,17 +2265,32 @@
                     <span class="text-[9.5px] uppercase font-mono font-bold text-slate-400 block mb-2">Ertragslage &amp; Cashflow</span>
                     <div class="grid grid-cols-3 gap-2.5">
                         <div class="p-3 rounded-xl bg-[#11151B] border border-[#202630]">
-                            <span class="text-[10px] text-slate-400 block">Umsatzerlöse</span>
+                            <span class="term-tooltip text-[10px] text-slate-400 block">Umsatzerlöse
+                                <span class="tooltip-box">
+                                    <span class="tooltip-title">Umsatzerlöse (Revenue)<span class="tooltip-category">Top-Line</span></span>
+                                    <span class="tooltip-desc">Gesamtumsatz des Geschäftsjahres vor allen Abzügen.</span>
+                                </span>
+                            </span>
                             <span id="insp_rev" class="text-sm font-bold text-white font-mono mt-0.5 block">--</span>
                             <span id="insp_rev_growth" class="text-[9.5px] text-emerald-400 font-mono block mt-0.5">--</span>
                         </div>
                         <div class="p-3 rounded-xl bg-[#11151B] border border-[#202630]">
-                            <span class="text-[10px] text-slate-400 block">Operativer Gewinn (EBIT)</span>
+                            <span class="term-tooltip text-[10px] text-slate-400 block">Operativer Gewinn (EBIT)
+                                <span class="tooltip-box">
+                                    <span class="tooltip-title">EBIT (Operating Income)<span class="tooltip-category">Rentabilität</span></span>
+                                    <span class="tooltip-desc">Operatives Betriebsergebnis vor Zinsen und Steuern.</span>
+                                </span>
+                            </span>
                             <span id="insp_ebit" class="text-sm font-bold text-white font-mono mt-0.5 block">--</span>
                             <span id="insp_op_margin" class="text-[9.5px] text-slate-300 font-mono block mt-0.5">--</span>
                         </div>
                         <div class="p-3 rounded-xl bg-[#11151B] border border-[#202630]">
-                            <span class="text-[10px] text-slate-400 block">Free Cash Flow</span>
+                            <span class="term-tooltip text-[10px] text-slate-400 block">Free Cash Flow
+                                <span class="tooltip-box">
+                                    <span class="tooltip-title">Free Cash Flow (FCF)<span class="tooltip-category">Liquidität</span></span>
+                                    <span class="tooltip-desc">Operativer Cashflow abzüglich CapEx (Investitionen).</span>
+                                </span>
+                            </span>
                             <span id="insp_fcf" class="text-sm font-bold text-emerald-400 font-mono mt-0.5 block">--</span>
                             <span id="insp_fcf_margin" class="text-[9.5px] text-slate-300 font-mono block mt-0.5">--</span>
                         </div>
@@ -2090,17 +2302,32 @@
                     <span class="text-[9.5px] uppercase font-mono font-bold text-slate-400 block mb-2">Bewertung &amp; Aktienkurs</span>
                     <div class="grid grid-cols-3 gap-2.5">
                         <div class="p-3 rounded-xl bg-[#11151B] border border-[#202630]">
-                            <span class="text-[10px] text-slate-400 block">Gewinn je Aktie (EPS)</span>
+                            <span class="term-tooltip text-[10px] text-slate-400 block">Gewinn je Aktie (EPS)
+                                <span class="tooltip-box">
+                                    <span class="tooltip-title">Earnings Per Share (EPS)<span class="tooltip-category">Ertragskraft</span></span>
+                                    <span class="tooltip-desc">Nettogewinn geteilt durch die Anzahl ausstehender Aktien.</span>
+                                </span>
+                            </span>
                             <span id="insp_eps" class="text-sm font-bold text-white font-mono mt-0.5 block">--</span>
                             <span id="insp_net_inc" class="text-[9.5px] text-slate-400 font-mono block mt-0.5">--</span>
                         </div>
                         <div class="p-3 rounded-xl bg-[#11151B] border border-[#202630]">
-                            <span class="text-[10px] text-slate-400 block">Aktienkurs (Stichtag)</span>
+                            <span class="term-tooltip text-[10px] text-slate-400 block">Aktienkurs (Stichtag)
+                                <span class="tooltip-box">
+                                    <span class="tooltip-title">Schlusskurs (Period End)<span class="tooltip-category">Marktpreis</span></span>
+                                    <span class="tooltip-desc">Offizieller Börsenkurs zum Geschäftsjahresende.</span>
+                                </span>
+                            </span>
                             <span id="insp_price" class="text-sm font-bold text-white font-mono mt-0.5 block">--</span>
                             <span id="insp_pe" class="text-[9.5px] text-amber-400 font-mono block mt-0.5">--</span>
                         </div>
                         <div class="p-3 rounded-xl bg-[#11151B] border border-[#202630]">
-                            <span class="text-[10px] text-slate-400 block">Empirischer Fair Value</span>
+                            <span class="term-tooltip text-[10px] text-slate-400 block">Empirischer Fair Value
+                                <span class="tooltip-box">
+                                    <span class="tooltip-title">Historischer Fair Value<span class="tooltip-category">Modellwert</span></span>
+                                    <span class="tooltip-desc">EPS multipliziert mit dem historischen Median-KGV.</span>
+                                </span>
+                            </span>
                             <span id="insp_fair_val" class="text-sm font-bold text-[#D6A83A] font-mono mt-0.5 block">--</span>
                             <span id="insp_dev" class="text-[9.5px] text-emerald-400 font-mono block mt-0.5">--</span>
                         </div>
@@ -2112,17 +2339,32 @@
                     <span class="text-[9.5px] uppercase font-mono font-bold text-slate-400 block mb-2">Rentabilität &amp; Bilanzstruktur</span>
                     <div class="grid grid-cols-3 gap-2.5">
                         <div class="p-3 rounded-xl bg-[#11151B] border border-[#202630]">
-                            <span class="text-[10px] text-slate-400 block">Kapitalrendite (ROIC)</span>
+                            <span class="term-tooltip text-[10px] text-slate-400 block">Kapitalrendite (ROIC)
+                                <span class="tooltip-box">
+                                    <span class="tooltip-title">ROIC<span class="tooltip-category">Kapitalrendite</span></span>
+                                    <span class="tooltip-desc">Rendite auf das im Kerngeschäft investierte Gesamtkapital.</span>
+                                </span>
+                            </span>
                             <span id="insp_roic" class="text-sm font-bold text-blue-400 font-mono mt-0.5 block">--</span>
                             <span id="insp_roe" class="text-[9.5px] text-slate-300 font-mono block mt-0.5">--</span>
                         </div>
                         <div class="p-3 rounded-xl bg-[#11151B] border border-[#202630]">
-                            <span class="text-[10px] text-slate-400 block">Verschuldungsgrad (D/E)</span>
+                            <span class="term-tooltip text-[10px] text-slate-400 block">Verschuldungsgrad (D/E)
+                                <span class="tooltip-box">
+                                    <span class="tooltip-title">Debt to Equity<span class="tooltip-category">Bilanzhebel</span></span>
+                                    <span class="tooltip-desc">Verhältnis von verzinslichem Fremdkapital zu Eigenkapital.</span>
+                                </span>
+                            </span>
                             <span id="insp_debt_eq" class="text-sm font-bold text-white font-mono mt-0.5 block">--</span>
                             <span id="insp_net_debt" class="text-[9.5px] text-slate-400 font-mono block mt-0.5">--</span>
                         </div>
                         <div class="p-3 rounded-xl bg-[#11151B] border border-[#202630]">
-                            <span class="text-[10px] text-slate-400 block">Dividendenrendite</span>
+                            <span class="term-tooltip text-[10px] text-slate-400 block">Dividendenrendite
+                                <span class="tooltip-box">
+                                    <span class="tooltip-title">Dividendenrendite<span class="tooltip-category">Ausschüttung</span></span>
+                                    <span class="tooltip-desc">Ausgeschüttete Dividende je Aktie geteilt durch den Periodenkurs.</span>
+                                </span>
+                            </span>
                             <span id="insp_div_yield" class="text-sm font-bold text-purple-400 font-mono mt-0.5 block">--</span>
                             <span id="insp_shares" class="text-[9.5px] text-slate-400 font-mono block mt-0.5">--</span>
                         </div>
@@ -3307,7 +3549,49 @@ Latest Reporting Date: [Latest earnings/annual report date]
 Data Timestamp: [${todayIso}]
 </company_identity>\n\n`;
 
-            // 2. Modular Research Prompts (5 Domains)
+            // 2. Empirical Multi-Year Financial Dataset (Single Source of Truth)
+            prompt += `<financial_dataset>
+\`\`\`json
+{
+  "symbol": "[Ticker, e.g. MSFT]",
+  "companyName": "[Official Company Name]",
+  "currency": "[Native Currency Code, e.g. USD, EUR]",
+  "availableYears": [Number of available historical reporting years: 5 to 10],
+  "ttm": {
+    "date": "TTM",
+    "revenue": [TTM Revenue as plain number in native currency],
+    "operatingIncome": [TTM EBIT as plain number],
+    "netIncome": [TTM Net Income as plain number],
+    "freeCashFlow": [TTM Free Cash Flow as plain number],
+    "eps": [TTM EPS as number],
+    "peRatio": [Current P/E ratio as number],
+    "roic": [TTM ROIC in % as number],
+    "roe": [TTM ROE in % as number],
+    "debtToEquity": [TTM Debt/Equity as number],
+    "sharesOutstanding": [Current shares outstanding as plain number]
+  },
+  "annual": [
+    {
+      "year": [Year number, e.g. 2015 ... 2024],
+      "date": "[YYYY-MM-DD or reporting year]",
+      "revenue": [Annual revenue in native currency as plain number],
+      "operatingIncome": [Annual EBIT / Operating Income as plain number],
+      "netIncome": [Annual Net Income as plain number],
+      "freeCashFlow": [Annual Free Cash Flow as plain number],
+      "eps": [EPS as number],
+      "peRatio": [Historical average P/E for this year as number],
+      "roic": [ROIC in % as number],
+      "roe": [ROE in % as number],
+      "debtToEquity": [Debt to Equity ratio as number],
+      "sharesOutstanding": [Shares outstanding number],
+      "periodClosePrice": [Stock price at period end as number]
+    }
+  ]
+}
+\`\`\`
+</financial_dataset>\n\n`;
+
+            // 3. Modular Research Prompts (5 Domains)
             const requestedAgents = Array.isArray(agentIds) ? agentIds : Object.keys(AGENT_PROMPTS);
             requestedAgents.forEach(id => {
                 if (AGENT_PROMPTS[id]) {
@@ -3467,8 +3751,10 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             const data = {};
             if (!text) return data;
 
-            const cleanText = text.replace(/```[a-z]*\n?/gi, '').replace(/```/g, '').trim();
+            const rawText = String(text);
+            const cleanText = rawText.replace(/```[a-z]*\n?/gi, '').replace(/```/g, '').trim();
 
+            // Tier 1: XML Tag Based Parsing
             FRAMEWORK_IDS.forEach(id => {
                 const startTag = `<${id}>`;
                 const endTag = `</${id}>`;
@@ -3494,6 +3780,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                         });
                         content = cleanText.substring(contentStart, nextTagIdx !== -1 ? nextTagIdx : undefined).trim();
                     }
+
                     if (content) {
                         if (id === 'financial_dataset') {
                             try {
@@ -3509,7 +3796,6 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                                 }
                             } catch (jsonErr) {
                                 console.warn('[Framework Parser] Failed to parse financial_dataset JSON:', jsonErr);
-                                data[id] = content;
                             }
                         } else {
                             data[id] = content;
@@ -3517,6 +3803,40 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     }
                 }
             });
+
+            // Tier 2: Resilient Section Fallback Parsing (if XML tags were missed by LLM)
+            const sectionPatterns = {
+                company_identity: /(?:<company_identity>|COMPANY IDENTITY|UNTERNEHMENS-IDENTIT[ÄA]T)([\s\S]*?)(?:<financial_dataset>|<business_quality>|SECTION 1|BUSINESS MODEL|$)/i,
+                business_quality: /(?:<business_quality>|SECTION 1:?|BUSINESS MODEL|GESCH[ÄA]FTSMODELL)([\s\S]*?)(?:<financial_quality>|SECTION 2|FINANCIAL STATEMENTS|$)/i,
+                financial_quality: /(?:<financial_quality>|SECTION 2:?|FINANCIAL STATEMENTS|FINANZQUALIT[ÄA]T)([\s\S]*?)(?:<earnings_expectations>|SECTION 3|EARNINGS|$)/i,
+                earnings_expectations: /(?:<earnings_expectations>|SECTION 3:?|EARNINGS|GEWINNERWARTUNGEN)([\s\S]*?)(?:<valuation>|SECTION 4|INTRINSIC VALUE|FAIR VALUE|$)/i,
+                valuation: /(?:<valuation>|SECTION 4:?|INTRINSIC VALUE|VALUATION|BEWERTUNG)([\s\S]*?)(?:<market_structure>|SECTION 5|PRICE ACTION|MARKTSTRUKTUR|$)/i,
+                market_structure: /(?:<market_structure>|SECTION 5:?|PRICE ACTION|MARKET STRUCTURE|MARKTSTRUKTUR)([\s\S]*?)(?:<executive_summary>|EXECUTIVE SUMMARY|$)/i,
+                executive_summary: /(?:<executive_summary>|EXECUTIVE SUMMARY|INSTITUTIONAL SYNTHESIS|GESAMTFAZIT)([\s\S]*?)(?:<\/executive_summary>|$)/i
+            };
+
+            Object.entries(sectionPatterns).forEach(([id, pattern]) => {
+                if (!data[id]) {
+                    const match = rawText.match(pattern);
+                    if (match && match[1] && match[1].trim().length > 15) {
+                        data[id] = match[1].replace(/```[a-z]*\n?/gi, '').replace(/```/g, '').trim();
+                    }
+                }
+            });
+
+            // Tier 3: Standalone JSON Dataset Hunter (if financial_dataset tag was omitted)
+            if (!data.financial_dataset) {
+                const jsonMatch = rawText.match(/```json\s*(\{[\s\S]*?"annual"[\s\S]*?\})\s*```/i) || rawText.match(/(\{[\s\S]*?"annual"\s*:\s*\[[\s\S]*?\][\s\S]*?\})/);
+                if (jsonMatch && jsonMatch[1]) {
+                    try {
+                        const parsed = JSON.parse(jsonMatch[1]);
+                        if (parsed && Array.isArray(parsed.annual) && parsed.annual.length > 0) {
+                            data.financial_dataset = parsed;
+                        }
+                    } catch (e) {}
+                }
+            }
+
             return data;
         }
 
@@ -5564,7 +5884,14 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             if (!modal || !CURRENT_NORMALIZED_HISTORICAL_DATA) return;
 
             const ann = CURRENT_NORMALIZED_HISTORICAL_DATA.annual || [];
-            const p = ann.find(a => a.year == year) || ann[ann.length - 1];
+            let p = null;
+            const isTTM = String(year).toUpperCase() === 'TTM';
+            
+            if (isTTM) {
+                p = CURRENT_NORMALIZED_HISTORICAL_DATA.ttm || ann[ann.length - 1];
+            } else {
+                p = ann.find(a => a.year == year || a.date == year) || ann[ann.length - 1];
+            }
             if (!p) return;
 
             const cur = CURRENT_NORMALIZED_HISTORICAL_DATA.currency || 'USD';
@@ -5572,22 +5899,23 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
 
             // Find YoY growth
             const pIdx = ann.indexOf(p);
-            const prevP = pIdx > 0 ? ann[pIdx - 1] : null;
+            const prevP = pIdx > 0 ? ann[pIdx - 1] : (isTTM && ann.length > 0 ? ann[ann.length - 1] : null);
             let revGrowthStr = '';
             if (prevP && prevP.revenue && p.revenue) {
                 const g = ((p.revenue - prevP.revenue) / prevP.revenue) * 100;
                 revGrowthStr = `YoY: ${g >= 0 ? '+' : ''}${g.toFixed(1)}%`;
             } else {
-                revGrowthStr = `Historischer Stichtag`;
+                revGrowthStr = isTTM ? 'Laufende 12 Monate' : 'Historischer Stichtag';
             }
 
             // Valuation & Fair Value
             const valRes = CURRENT_VALUATION_RESULT;
             const refMed = valRes?.statistics?.pe_adj?.median || p.peRatio || 25;
-            const fairVal = p.eps ? (p.eps * refMed) : (p.periodClosePrice || 100);
+            const fairVal = p.eps ? (p.eps * refMed) : (p.periodClosePrice || CURRENT_NORMALIZED_HISTORICAL_DATA.currentPrice || 100);
+            const closeP = p.periodClosePrice || CURRENT_NORMALIZED_HISTORICAL_DATA.currentPrice;
             let devStr = '';
-            if (p.periodClosePrice && fairVal) {
-                const dev = ((p.periodClosePrice - fairVal) / fairVal) * 100;
+            if (closeP && fairVal) {
+                const dev = ((closeP - fairVal) / fairVal) * 100;
                 devStr = `${dev >= 0 ? '+' : ''}${dev.toFixed(1)}% (${dev < -10 ? 'Unterbewertet' : dev > 10 ? 'Überbewertet' : 'Fair'})`;
             }
 
@@ -5596,9 +5924,20 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             const subEl = document.getElementById('inspectorCompanySubtitle');
             const typeBadge = document.getElementById('inspectorTypeBadge');
             
-            if (titleEl) titleEl.textContent = `Geschäftsjahr ${p.year} (FY${p.year})`;
-            if (subEl) subEl.textContent = `${compName} • Stichtag: ${p.date || p.year}`;
-            if (typeBadge) typeBadge.textContent = p.year >= new Date().getFullYear() ? 'Konsens-Prognose (Schätzung)' : 'Geprüfter Jahresabschluss';
+            if (titleEl) titleEl.textContent = isTTM ? 'Trailing Twelve Months (TTM)' : `Geschäftsjahr ${p.year} (FY${p.year})`;
+            if (subEl) subEl.textContent = `${compName} • Stichtag: ${p.date || (isTTM ? 'Live / Letzte 4 Quartale' : p.year)}`;
+            if (typeBadge) {
+                if (isTTM) {
+                    typeBadge.textContent = 'Laufende 12 Monate (TTM)';
+                    typeBadge.className = 'text-[9px] font-mono px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-400 font-semibold';
+                } else if (p.year >= new Date().getFullYear()) {
+                    typeBadge.textContent = 'Konsens-Prognose (Schätzung)';
+                    typeBadge.className = 'text-[9px] font-mono px-2 py-0.5 rounded bg-blue-500/10 border border-blue-500/30 text-blue-400 font-semibold';
+                } else {
+                    typeBadge.textContent = 'Geprüfter Jahresabschluss';
+                    typeBadge.className = 'text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-semibold';
+                }
+            }
 
             // Row 1: Ertragslage & Cashflow
             const rEl = document.getElementById('insp_rev');
@@ -5611,9 +5950,9 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             if (rEl) rEl.textContent = p.revenue ? fmtNumber(p.revenue, cur) : '—';
             if (rgEl) rgEl.textContent = revGrowthStr;
             if (ebEl) ebEl.textContent = p.operatingIncome ? fmtNumber(p.operatingIncome, cur) : '—';
-            if (opmEl) opmEl.textContent = p.operatingMargin ? `Marge: ${p.operatingMargin.toFixed(1)}%` : '—';
+            if (opmEl) opmEl.textContent = p.operatingMargin ? `Marge: ${p.operatingMargin.toFixed(1)}%` : (p.operatingIncome && p.revenue ? `Marge: ${((p.operatingIncome/p.revenue)*100).toFixed(1)}%` : '—');
             if (fcfEl) fcfEl.textContent = p.freeCashFlow ? fmtNumber(p.freeCashFlow, cur) : '—';
-            if (fcfmEl) fcfmEl.textContent = p.fcfMargin ? `FCF-Marge: ${p.fcfMargin.toFixed(1)}%` : '—';
+            if (fcfmEl) fcfmEl.textContent = p.fcfMargin ? `FCF-Marge: ${p.fcfMargin.toFixed(1)}%` : (p.freeCashFlow && p.revenue ? `FCF-Marge: ${((p.freeCashFlow/p.revenue)*100).toFixed(1)}%` : '—');
 
             // Row 2: Bewertung & Aktienkurs
             const epsEl = document.getElementById('insp_eps');
@@ -5625,8 +5964,8 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
 
             if (epsEl) epsEl.textContent = p.eps ? `${cur} ${p.eps.toFixed(2)}` : '—';
             if (netEl) netEl.textContent = p.netIncome ? `Netto: ${fmtNumber(p.netIncome, cur)}` : '—';
-            if (prEl) prEl.textContent = p.periodClosePrice ? `${cur} ${p.periodClosePrice.toFixed(2)}` : '—';
-            if (peEl) peEl.textContent = p.peRatio ? `KGV: ${p.peRatio.toFixed(1)}x` : '—';
+            if (prEl) prEl.textContent = closeP ? `${cur} ${closeP.toFixed(2)}` : '—';
+            if (peEl) peEl.textContent = p.peRatio ? `KGV: ${p.peRatio.toFixed(1)}x` : (closeP && p.eps && p.eps > 0 ? `KGV: ${(closeP / p.eps).toFixed(1)}x` : '—');
             if (fvEl) fvEl.textContent = fairVal ? `${cur} ${fairVal.toFixed(2)}` : '—';
             if (devEl) devEl.textContent = devStr;
 
