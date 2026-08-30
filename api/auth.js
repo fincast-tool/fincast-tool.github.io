@@ -576,17 +576,28 @@ module.exports = async function handler(req, res) {
                 return res.status(401).json({ error: 'Session abgelaufen oder ungültig.' });
             }
 
+            const cleanEmail = userEmail.trim().toLowerCase();
             const usersRaw = await redis.get('terminal_users');
             const usersArray = usersRaw ? JSON.parse(usersRaw) : [];
-            const user = usersArray.find(u => u.email === userEmail);
+            const user = usersArray.find(u => u && u.email && u.email.trim().toLowerCase() === cleanEmail);
 
             if (!user) {
                 return res.status(401).json({ error: 'Benutzer nicht gefunden.' });
             }
 
+            const safe = sanitizeUser(user);
+            const envAdminEmail = (process.env.ADMIN_EMAIL || '').trim().toLowerCase();
+            if (safe) {
+                if ((envAdminEmail && cleanEmail === envAdminEmail) || user.isAdmin === true || String(user.isAdmin).toLowerCase() === 'true' || user.tier === 'admin') {
+                    safe.isAdmin = true;
+                } else {
+                    safe.isAdmin = false;
+                }
+            }
+
             return res.status(200).json({
                 success: true,
-                user: sanitizeUser(user)
+                user: safe
             });
         }
 

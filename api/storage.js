@@ -1,7 +1,7 @@
 const Redis = require('ioredis');
 
 async function isCallerAdmin(redis, reqBody) {
-    const { sessionToken, email, adminEmail } = reqBody || {};
+    const { sessionToken, email, adminEmail, userId } = reqBody || {};
     let userEmail = null;
 
     if (sessionToken) {
@@ -9,7 +9,7 @@ async function isCallerAdmin(redis, reqBody) {
     }
 
     if (!userEmail) {
-        userEmail = adminEmail || email;
+        userEmail = adminEmail || email || userId;
     }
 
     if (!userEmail || typeof userEmail !== 'string') {
@@ -28,8 +28,10 @@ async function isCallerAdmin(redis, reqBody) {
             const users = JSON.parse(usersRaw);
             if (Array.isArray(users)) {
                 const found = users.find(u => u && u.email && u.email.trim().toLowerCase() === cleanEmail);
-                if (found && (found.isAdmin === true || (envAdminEmail && found.email.trim().toLowerCase() === envAdminEmail))) {
-                    return true;
+                if (found) {
+                    if (found.isAdmin === true || String(found.isAdmin).toLowerCase() === 'true' || found.tier === 'admin' || (envAdminEmail && found.email.trim().toLowerCase() === envAdminEmail)) {
+                        return true;
+                    }
                 }
             }
         } catch (e) {
@@ -49,10 +51,10 @@ module.exports = async function handler(req, res) {
         if (action === 'get_users') {
             let users = await redis.get('terminal_users');
             let usersArray = users ? JSON.parse(users) : [];
-            const adminEmail = process.env.ADMIN_EMAIL;
+            const adminEmail = (process.env.ADMIN_EMAIL || '').trim().toLowerCase();
             const adminHash = process.env.ADMIN_PASSWORD_HASH;
             
-            if (adminEmail && !usersArray.find(u => u.email === adminEmail)) {
+            if (adminEmail && !usersArray.find(u => u && u.email && u.email.trim().toLowerCase() === adminEmail)) {
                 usersArray.push({
                     email: adminEmail, passwordHash: adminHash, firstName: 'Admin', lastName: 'System',
                     tier: 'premium', isAdmin: true, emailVerified: true, model: 'gemini-3.5-flash', createdAt: new Date().toISOString()
@@ -63,8 +65,13 @@ module.exports = async function handler(req, res) {
             // Note: verificationCode and emailVerified are included so admin can inspect & unlock users in Master Control
             const safeUsers = usersArray.map(u => {
                 const { password, passwordHash, salt, verificationToken, ...safe } = u;
+                const isAdm = (adminEmail && u.email && u.email.trim().toLowerCase() === adminEmail) ||
+                              u.isAdmin === true || 
+                              String(u.isAdmin).toLowerCase() === 'true' || 
+                              u.tier === 'admin';
                 return {
                     ...safe,
+                    isAdmin: isAdm,
                     emailVerified: u.emailVerified !== undefined ? u.emailVerified : true
                 };
             });
