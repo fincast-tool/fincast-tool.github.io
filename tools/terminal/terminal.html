@@ -1299,136 +1299,148 @@
                                 <!-- ==================== LEVEL 1–3: GUIDED VIEW (PROGRESSIVE DISCLOSURE) ==================== -->
                                 <div id="guidedViewContainer" class="mt-6 space-y-6 fade-up">
                                     <!-- 1. Guided Investment Snapshot & Value Range -->
-                                    <div class="p-5 sm:p-6 rounded-xl bg-[#0B0E12] border border-[#202630]">
-                                        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-                                            <div class="flex items-center gap-2">
-                                                <span class="w-2.5 h-2.5 rounded-full bg-gold-400"></span>
-                                                <h2 class="text-sm sm:text-base font-bold text-white tracking-tight">Investment Snapshot &amp; Profil</h2>
-                                                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-gold-400/10 border border-gold-400/30 text-gold-400 font-semibold">Level 1 Summary</span>
+                                    <div class="p-4 sm:p-6 rounded-xl bg-[#0B0E12] border border-[#202630]">
+                                        <div class="flex flex-wrap items-center justify-between gap-2.5 mb-4">
+                                            <div class="flex items-center gap-2 flex-wrap min-w-0">
+                                                <span class="w-2.5 h-2.5 rounded-full bg-gold-400 shrink-0"></span>
+                                                <h2 class="text-sm sm:text-base font-bold text-white tracking-tight break-words">Investment Snapshot &amp; Profil</h2>
+                                                <span class="text-[9.5px] sm:text-[10px] font-mono px-2 py-0.5 rounded bg-gold-400/10 border border-gold-400/30 text-gold-400 font-semibold shrink-0">Level 1 Summary</span>
                                             </div>
-                                            <span class="text-[11px] text-slate-400 font-mono">Verständliche Gesamteinschätzung</span>
+                                            <span class="text-[10.5px] sm:text-[11px] text-slate-400 font-mono">Verständliche Gesamteinschätzung</span>
                                         </div>
 
                                         <!-- 5-Factor Profile Bar -->
-                                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-5">
+                                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3 mb-5">
                                             <!-- Quality -->
-                                            <div class="p-3 rounded-lg bg-[#11151B] border border-[#202630] cursor-pointer hover:border-[#2D3748] transition-colors" onclick="showScoreBreakdown('quality')">
+                                            <div class="p-2.5 sm:p-3 rounded-lg bg-[#11151B] border border-[#202630] cursor-pointer hover:border-[#2D3748] transition-colors min-w-0 flex flex-col justify-between" onclick="showScoreBreakdown('quality')">
                                                 <div class="flex justify-between items-center mb-1">
-                                                    <span class="text-[10px] uppercase font-semibold text-slate-400">Unternehmensqualität</span>
-                                                    <span id="g_quality_score" class="text-[10px] font-mono text-gold-400 font-bold">--/100</span>
+                                                    <span class="text-[9.5px] sm:text-[10px] uppercase font-semibold text-slate-400 truncate">Qualität</span>
+                                                    <span id="g_quality_score" class="text-[10px] font-mono text-gold-400 font-bold ml-1">--/100</span>
                                                 </div>
                                                 <div id="g_quality_status" class="text-xs sm:text-sm font-bold text-white truncate">--</div>
-                                                <span id="g_quality_sub" class="text-[9.5px] text-slate-400 mt-1 block truncate">ROIC &amp; Burggraben</span>
+                                                <span id="g_quality_sub" class="text-[9px] sm:text-[9.5px] text-slate-400 mt-1 block truncate">ROIC &amp; Burggraben</span>
                                             </div>
                                             <!-- Stability -->
-                                            <div class="p-3 rounded-lg bg-[#11151B] border border-[#202630] cursor-pointer hover:border-[#2D3748] transition-colors" onclick="showScoreBreakdown('stability')">
+                                            <div class="p-2.5 sm:p-3 rounded-lg bg-[#11151B] border border-[#202630] cursor-pointer hover:border-[#2D3748] transition-colors min-w-0 flex flex-col justify-between" onclick="showScoreBreakdown('stability')">
                                                 <div class="flex justify-between items-center mb-1">
-                                                    <span class="text-[10px] uppercase font-semibold text-slate-400">Finanzielle Stabilität</span>
-                                                    <span id="g_stability_score" class="text-[10px] font-mono text-emerald-400 font-bold">--/100</span>
+                                                    <span class="text-[9.5px] sm:text-[10px] uppercase font-semibold text-slate-400 truncate">Stabilität</span>
+                                                    <span id="g_stability_score" class="text-[10px] font-mono text-emerald-400 font-bold ml-1">--/100</span>
                                                 </div>
                                                 <div id="g_stability_status" class="text-xs sm:text-sm font-bold text-white truncate">--</div>
-                                                <span id="g_stability_sub" class="text-[9.5px] text-slate-400 mt-1 block truncate">Verschuldung &amp; Bonität</span>
+                                                <span id="g_stability_sub" class="text-[9px] sm:text-[9.5px] text-slate-400 mt-1 block truncate">Bilanz &amp; Hebel</span>
                                             </div>
                                             <!-- Valuation -->
-                                            <div class="p-3 rounded-lg bg-[#11151B] border border-[#202630] cursor-pointer hover:border-[#2D3748] transition-colors" onclick="showScoreBreakdown('valuation')">
+                                            <div class="p-2.5 sm:p-3 rounded-lg bg-[#11151B] border border-[#202630] cursor-pointer hover:border-[#2D3748] transition-colors min-w-0 flex flex-col justify-between" onclick="showScoreBreakdown('valuation')">
                                                 <div class="flex justify-between items-center mb-1">
-                                                    <span class="text-[10px] uppercase font-semibold text-slate-400">Aktuelle Bewertung</span>
-                                                    <span id="g_valuation_score" class="text-[10px] font-mono text-gold-400 font-bold">--/100</span>
+                                                    <span class="text-[9.5px] sm:text-[10px] uppercase font-semibold text-slate-400 truncate">Bewertung</span>
+                                                    <span id="g_valuation_score" class="text-[10px] font-mono text-gold-400 font-bold ml-1">--/100</span>
                                                 </div>
                                                 <div id="g_valuation_status" class="text-xs sm:text-sm font-bold text-emerald-400 truncate">--</div>
-                                                <span id="g_valuation_sub" class="text-[9.5px] text-slate-400 mt-1 block truncate">Fair Value Abstand</span>
+                                                <span id="g_valuation_sub" class="text-[9px] sm:text-[9.5px] text-slate-400 mt-1 block truncate">Fair Value Abstand</span>
                                             </div>
                                             <!-- Growth -->
-                                            <div class="p-3 rounded-lg bg-[#11151B] border border-[#202630] cursor-pointer hover:border-[#2D3748] transition-colors" onclick="showScoreBreakdown('growth')">
+                                            <div class="p-2.5 sm:p-3 rounded-lg bg-[#11151B] border border-[#202630] cursor-pointer hover:border-[#2D3748] transition-colors min-w-0 flex flex-col justify-between" onclick="showScoreBreakdown('growth')">
                                                 <div class="flex justify-between items-center mb-1">
-                                                    <span class="text-[10px] uppercase font-semibold text-slate-400">Wachstumstrend</span>
-                                                    <span id="g_growth_score" class="text-[10px] font-mono text-blue-400 font-bold">--/100</span>
+                                                    <span class="text-[9.5px] sm:text-[10px] uppercase font-semibold text-slate-400 truncate">Wachstum</span>
+                                                    <span id="g_growth_score" class="text-[10px] font-mono text-blue-400 font-bold ml-1">--/100</span>
                                                 </div>
                                                 <div id="g_growth_status" class="text-xs sm:text-sm font-bold text-white truncate">--</div>
-                                                <span id="g_growth_sub" class="text-[9.5px] text-slate-400 mt-1 block truncate">Umsatz- &amp; EPS-CAGR</span>
+                                                <span id="g_growth_sub" class="text-[9px] sm:text-[9.5px] text-slate-400 mt-1 block truncate">Umsatz &amp; EPS</span>
                                             </div>
                                             <!-- Risk -->
-                                            <div class="p-3 rounded-lg bg-[#11151B] border border-[#202630] cursor-pointer hover:border-[#2D3748] transition-colors col-span-2 sm:col-span-1" onclick="showScoreBreakdown('risk')">
+                                            <div class="p-2.5 sm:p-3 rounded-lg bg-[#11151B] border border-[#202630] cursor-pointer hover:border-[#2D3748] transition-colors col-span-2 sm:col-span-1 min-w-0 flex flex-col justify-between" onclick="showScoreBreakdown('risk')">
                                                 <div class="flex justify-between items-center mb-1">
-                                                    <span class="text-[10px] uppercase font-semibold text-slate-400">Gesamtrisiko</span>
-                                                    <span id="g_risk_score" class="text-[10px] font-mono text-slate-400 font-bold">--/100</span>
+                                                    <span class="text-[9.5px] sm:text-[10px] uppercase font-semibold text-slate-400 truncate">Risiko</span>
+                                                    <span id="g_risk_score" class="text-[10px] font-mono text-slate-400 font-bold ml-1">--/100</span>
                                                 </div>
                                                 <div id="g_risk_status" class="text-xs sm:text-sm font-bold text-emerald-400 truncate">Gering</div>
-                                                <span id="g_risk_sub" class="text-[9.5px] text-slate-400 mt-1 block truncate">Value Trap &amp; Hebel</span>
+                                                <span id="g_risk_sub" class="text-[9px] sm:text-[9.5px] text-slate-400 mt-1 block truncate">Value Trap Index</span>
                                             </div>
                                         </div>
 
                                         <!-- Estimated Value Range Card -->
-                                        <div class="p-4 rounded-xl bg-[#11151B] border border-[#202630] mb-5">
+                                        <div class="p-3.5 sm:p-4 rounded-xl bg-[#11151B] border border-[#202630] mb-5">
                                             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#202630]">
-                                                <div>
-                                                    <span class="text-[10px] font-mono uppercase text-slate-400 font-semibold block mb-1">Geschätzter Unternehmenswert (Value Range)</span>
+                                                <div class="min-w-0">
+                                                    <span class="text-[9.5px] sm:text-[10px] font-mono uppercase text-slate-400 font-semibold block mb-1">Geschätzter Unternehmenswert (Value Range)</span>
                                                     <div class="flex items-baseline gap-2 flex-wrap">
-                                                        <span id="g_fair_base_display" class="text-xl sm:text-2xl font-bold font-mono text-gold-400">--</span>
-                                                        <span class="text-xs text-slate-400">(Base Case Schätzung)</span>
-                                                        <span id="g_fair_gap_badge" class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/25">--</span>
+                                                        <span id="g_fair_base_display" class="text-lg sm:text-2xl font-bold font-mono text-gold-400">--</span>
+                                                        <span class="text-xs text-slate-400">(Base Case)</span>
+                                                        <span id="g_fair_gap_badge" class="px-2 py-0.5 rounded text-[11px] sm:text-xs font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/25">--</span>
                                                     </div>
                                                 </div>
-                                                <div class="grid grid-cols-3 gap-2.5 text-center">
-                                                    <div class="p-2 rounded bg-[#0B0E12] border border-[#202630]">
-                                                        <span class="text-[9px] uppercase font-mono text-slate-400 block">Bear Case</span>
-                                                        <span id="g_val_bear" class="text-xs sm:text-sm font-bold font-mono text-rose-400 mt-0.5 block">--</span>
+                                                <div class="grid grid-cols-3 gap-1.5 sm:gap-2.5 text-center">
+                                                    <div class="p-1.5 sm:p-2 rounded bg-[#0B0E12] border border-[#202630] min-w-0">
+                                                        <span class="text-[8.5px] sm:text-[9px] uppercase font-mono text-slate-400 block truncate">Bear Case</span>
+                                                        <span id="g_val_bear" class="text-[11px] sm:text-sm font-bold font-mono text-rose-400 mt-0.5 block truncate">--</span>
                                                     </div>
-                                                    <div class="p-2 rounded bg-[#0B0E12] border border-gold-400/30">
-                                                        <span class="text-[9px] uppercase font-mono text-gold-400 block">Base Case</span>
-                                                        <span id="g_val_base" class="text-xs sm:text-sm font-bold font-mono text-gold-400 mt-0.5 block">--</span>
+                                                    <div class="p-1.5 sm:p-2 rounded bg-[#0B0E12] border border-gold-400/30 min-w-0">
+                                                        <span class="text-[8.5px] sm:text-[9px] uppercase font-mono text-gold-400 block truncate">Base Case</span>
+                                                        <span id="g_val_base" class="text-[11px] sm:text-sm font-bold font-mono text-gold-400 mt-0.5 block truncate">--</span>
                                                     </div>
-                                                    <div class="p-2 rounded bg-[#0B0E12] border border-[#202630]">
-                                                        <span class="text-[9px] uppercase font-mono text-slate-400 block">Bull Case</span>
-                                                        <span id="g_val_bull" class="text-xs sm:text-sm font-bold font-mono text-emerald-400 mt-0.5 block">--</span>
+                                                    <div class="p-1.5 sm:p-2 rounded bg-[#0B0E12] border border-[#202630] min-w-0">
+                                                        <span class="text-[8.5px] sm:text-[9px] uppercase font-mono text-slate-400 block truncate">Bull Case</span>
+                                                        <span id="g_val_bull" class="text-[11px] sm:text-sm font-bold font-mono text-emerald-400 mt-0.5 block truncate">--</span>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="mt-3 flex items-start gap-2 text-[11px] text-slate-400 leading-relaxed">
-                                                <span class="text-gold-400 font-bold">💡 Hinweis:</span>
-                                                <span>Der geschätzte Fair Value ist keine garantierte Kursprognose, sondern ein auf empirischen Multiples basierender Orientierungswert für Value-Investoren.</span>
+                                            <div class="mt-3 flex items-start gap-2 text-[10.5px] sm:text-[11px] text-slate-400 leading-relaxed">
+                                                <div class="p-1 rounded bg-gold-400/10 border border-gold-400/20 text-gold-400 shrink-0 mt-0.5">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 16v-4m0-4h.01"/></svg>
+                                                </div>
+                                                <span><strong class="text-slate-300 font-medium">Methodischer Hinweis:</strong> Der geschätzte Fair Value ist keine garantierte Kursprognose, sondern ein auf empirischen Multiples basierender Orientierungswert für Value-Investoren.</span>
                                             </div>
                                         </div>
 
                                         <!-- 2-Sentence Executive Synthesis -->
-                                        <div class="p-4 rounded-xl bg-[#11151B] border border-[#202630]">
-                                            <span class="text-[10px] font-mono uppercase text-slate-400 font-semibold block mb-1.5">Kurzfazit &amp; Investment-These</span>
-                                            <p id="g_executive_thesis" class="text-xs sm:text-sm text-slate-200 leading-relaxed font-sans">--</p>
+                                        <div class="p-3.5 sm:p-4 rounded-xl bg-[#11151B] border border-[#202630]">
+                                            <span class="text-[9.5px] sm:text-[10px] font-mono uppercase text-slate-400 font-semibold block mb-1.5">Kurzfazit &amp; Investment-These</span>
+                                            <p id="g_executive_thesis" class="text-xs sm:text-sm text-slate-200 leading-relaxed font-sans break-words">--</p>
                                             <div class="mt-3 pt-3 border-t border-[#202630] grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                                                <div class="flex items-start gap-2">
-                                                    <span class="text-emerald-400 font-bold shrink-0">🎯 Katalysator:</span>
-                                                    <span id="g_key_catalyst" class="text-slate-300">--</span>
+                                                <div class="flex items-start gap-2 min-w-0">
+                                                    <div class="p-1 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shrink-0 mt-0.5">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
+                                                    </div>
+                                                    <div class="min-w-0">
+                                                        <span class="text-[9.5px] sm:text-[10px] font-bold text-emerald-400 uppercase tracking-wider block">Katalysator</span>
+                                                        <span id="g_key_catalyst" class="text-slate-300 text-xs break-words">--</span>
+                                                    </div>
                                                 </div>
-                                                <div class="flex items-start gap-2">
-                                                    <span class="text-amber-400 font-bold shrink-0">⚠️ Hauptrisiko:</span>
-                                                    <span id="g_key_risk" class="text-slate-300">--</span>
+                                                <div class="flex items-start gap-2 min-w-0">
+                                                    <div class="p-1 rounded bg-amber-500/10 border border-amber-500/20 text-amber-400 shrink-0 mt-0.5">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+                                                    </div>
+                                                    <div class="min-w-0">
+                                                        <span class="text-[9.5px] sm:text-[10px] font-bold text-amber-400 uppercase tracking-wider block">Hauptrisiko</span>
+                                                        <span id="g_key_risk" class="text-slate-300 text-xs break-words">--</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
                                     <!-- 2. Die 3 wichtigsten Erkenntnisse (Key Insights) -->
-                                    <div class="p-5 sm:p-6 rounded-xl bg-[#0B0E12] border border-[#202630]">
-                                        <div class="flex items-center gap-2 mb-4">
-                                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-                                            <h3 class="text-sm sm:text-base font-bold text-white tracking-tight">Das Wichtigste auf einen Blick (3 Key Insights)</h3>
+                                    <div class="p-4 sm:p-6 rounded-xl bg-[#0B0E12] border border-[#202630]">
+                                        <div class="flex items-center gap-2 mb-4 flex-wrap">
+                                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0"></span>
+                                            <h3 class="text-sm sm:text-base font-bold text-white tracking-tight break-words">Das Wichtigste auf einen Blick (3 Key Insights)</h3>
                                         </div>
-                                        <div id="g_insights_container" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div id="g_insights_container" class="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4">
                                             <!-- Populated dynamically via renderGuidedView -->
                                         </div>
                                     </div>
 
                                     <!-- 3. Chancen & Risiken (Opportunities & Risks) -->
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
                                         <!-- Opportunities -->
-                                        <div class="p-5 rounded-xl bg-[#0B0E12] border border-emerald-500/20 flex flex-col justify-between">
+                                        <div class="p-4 sm:p-5 rounded-xl bg-[#0B0E12] border border-emerald-500/20 flex flex-col justify-between min-w-0">
                                             <div>
-                                                <div class="flex items-center justify-between mb-3 pb-2 border-b border-[#202630]">
-                                                    <div class="flex items-center gap-2">
-                                                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                                                        <h4 class="text-xs sm:text-sm font-bold text-white">Chancen &amp; Kurstreiber</h4>
+                                                <div class="flex items-center justify-between mb-3 pb-2 border-b border-[#202630] gap-2 flex-wrap">
+                                                    <div class="flex items-center gap-2 min-w-0">
+                                                        <span class="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
+                                                        <h4 class="text-xs sm:text-sm font-bold text-white truncate">Chancen &amp; Kurstreiber</h4>
                                                     </div>
-                                                    <span class="text-[10px] font-mono text-emerald-400 font-semibold uppercase">Positives Profil</span>
+                                                    <span class="text-[9.5px] sm:text-[10px] font-mono text-emerald-400 font-semibold uppercase shrink-0">Positives Profil</span>
                                                 </div>
                                                 <div id="g_opportunities_list" class="space-y-3">
                                                     <!-- Populated via renderGuidedView -->
@@ -1437,14 +1449,14 @@
                                         </div>
 
                                         <!-- Risks -->
-                                        <div class="p-5 rounded-xl bg-[#0B0E12] border border-rose-500/20 flex flex-col justify-between">
+                                        <div class="p-4 sm:p-5 rounded-xl bg-[#0B0E12] border border-rose-500/20 flex flex-col justify-between min-w-0">
                                             <div>
-                                                <div class="flex items-center justify-between mb-3 pb-2 border-b border-[#202630]">
-                                                    <div class="flex items-center gap-2">
-                                                        <span class="w-2 h-2 rounded-full bg-rose-400"></span>
-                                                        <h4 class="text-xs sm:text-sm font-bold text-white">Risiken &amp; Belastungsfaktoren</h4>
+                                                <div class="flex items-center justify-between mb-3 pb-2 border-b border-[#202630] gap-2 flex-wrap">
+                                                    <div class="flex items-center gap-2 min-w-0">
+                                                        <span class="w-2 h-2 rounded-full bg-rose-400 shrink-0"></span>
+                                                        <h4 class="text-xs sm:text-sm font-bold text-white truncate">Risiken &amp; Belastungsfaktoren</h4>
                                                     </div>
-                                                    <span class="text-[10px] font-mono text-rose-400 font-semibold uppercase">Kritische Punkte</span>
+                                                    <span class="text-[9.5px] sm:text-[10px] font-mono text-rose-400 font-semibold uppercase shrink-0">Kritische Punkte</span>
                                                 </div>
                                                 <div id="g_risks_list" class="space-y-3">
                                                     <!-- Populated via renderGuidedView -->
@@ -1454,14 +1466,14 @@
                                     </div>
 
                                     <!-- 4. Deep Dive Call-to-Action to switch to Full Research -->
-                                    <div class="p-5 sm:p-6 rounded-xl bg-gradient-to-r from-[#171C23] to-[#11151B] border border-[#2D3748] flex flex-col sm:flex-row items-center justify-between gap-4">
-                                        <div>
-                                            <h4 class="text-sm font-bold text-white mb-1">Möchtest du noch tiefer in die Bilanzen einsteigen?</h4>
-                                            <p class="text-xs text-slate-400 leading-relaxed max-w-xl">
+                                    <div class="p-4 sm:p-6 rounded-xl bg-gradient-to-r from-[#171C23] to-[#11151B] border border-[#2D3748] flex flex-col sm:flex-row items-center justify-between gap-4">
+                                        <div class="min-w-0">
+                                            <h4 class="text-xs sm:text-sm font-bold text-white mb-1">Möchtest du noch tiefer in die Bilanzen einsteigen?</h4>
+                                            <p class="text-[11px] sm:text-xs text-slate-400 leading-relaxed max-w-xl">
                                                 Im Bereich <strong>Full Research</strong> stehen dir alle 50+ Kennzahlen, historische KGV/KBV/KUV-Medianbänder, Peer-Vergleiche und 6 spezialisierte KI-Analysten zur Verfügung.
                                             </p>
                                         </div>
-                                        <button onclick="switchAnalysisView('research', true)" class="px-5 py-2.5 rounded-lg bg-gold-400 hover:bg-gold-500 text-obsidian-950 text-xs font-bold transition-all shadow-md shadow-gold-400/10 shrink-0 flex items-center gap-2">
+                                        <button onclick="switchAnalysisView('research', true)" class="w-full sm:w-auto px-5 py-2.5 rounded-lg bg-gold-400 hover:bg-gold-500 text-obsidian-950 text-xs font-bold transition-all shadow-md shadow-gold-400/10 shrink-0 flex items-center justify-center gap-2">
                                             <span>Zu Full Research wechseln</span>
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
                                         </button>
@@ -1583,7 +1595,7 @@
                                                         <span class="tooltip-box">
                                                             <span class="tooltip-title">Marktkapitalisierung<span class="tooltip-category">Unternehmensgröße</span></span>
                                                             <span class="tooltip-desc">Gesamtwert aller ausstehenden Aktien (Börsenkurs × Aktienanzahl).</span>
-                                                            <span class="tooltip-rule">💡 Mega Cap > $200 Mrd. | Large Cap > $10 Mrd. | Mid Cap $2-10 Mrd.</span>
+                                                            <span class="tooltip-rule">Faustregel: Mega Cap > $200 Mrd. | Large Cap > $10 Mrd. | Mid Cap $2-10 Mrd.</span>
                                                         </span>
                                                     </span>
                                                     <span id="snap_mcap" class="font-bold text-white text-[11px]">--</span>
@@ -1593,7 +1605,7 @@
                                                         <span class="tooltip-box">
                                                             <span class="tooltip-title">KGV (Kurs-Gewinn-Verhältnis)<span class="tooltip-category">Bewertung</span></span>
                                                             <span class="tooltip-desc">Aktienkurs geteilt durch den Jahresgewinn je Aktie (EPS).</span>
-                                                            <span class="tooltip-rule">💡 Niedrig = potenziell günstig | Hoch = hohe Wachstumserwartung.</span>
+                                                            <span class="tooltip-rule">Faustregel: Niedrig = potenziell günstig | Hoch = hohe Wachstumserwartung.</span>
                                                         </span>
                                                     </span>
                                                     <span id="snap_pe_cur" class="font-bold text-white text-[11px]">--</span>
@@ -1613,7 +1625,7 @@
                                                         <span class="tooltip-box">
                                                             <span class="tooltip-title">Revenue CAGR<span class="tooltip-category">Umsatzwachstum</span></span>
                                                             <span class="tooltip-desc">Durchschnittliches jährliches Umsatzwachstum (Compound Annual Growth Rate).</span>
-                                                            <span class="tooltip-rule">💡 > 15%: Starkes Wachstum | 5–15%: Solide | < 0%: Schrumpfung.</span>
+                                                            <span class="tooltip-rule">Faustregel: > 15%: Starkes Wachstum | 5–15%: Solide | < 0%: Schrumpfung.</span>
                                                         </span>
                                                     </span>
                                                     <span id="snap_rev_cagr" class="font-bold text-emerald-400 text-[11px]">--</span>
@@ -1623,7 +1635,7 @@
                                                         <span class="tooltip-box">
                                                             <span class="tooltip-title">EPS CAGR<span class="tooltip-category">Gewinndynamik</span></span>
                                                             <span class="tooltip-desc">Jährliches Wachstum des Nettogewinns je Aktie.</span>
-                                                            <span class="tooltip-rule">💡 Sollte idealerweise über dem Umsatzwachstum liegen (Skalierung).</span>
+                                                            <span class="tooltip-rule">Faustregel: Sollte idealerweise über dem Umsatzwachstum liegen (Skalierung).</span>
                                                         </span>
                                                     </span>
                                                     <span id="snap_eps_cagr" class="font-bold text-emerald-400 text-[11px]">--</span>
@@ -1633,7 +1645,7 @@
                                                         <span class="tooltip-box">
                                                             <span class="tooltip-title">FCF CAGR<span class="tooltip-category">Cash-Dynamik</span></span>
                                                             <span class="tooltip-desc">Jährliches Wachstum des echten freien Cashflows nach allen CapEx-Investitionen.</span>
-                                                            <span class="tooltip-rule">💡 Bestätigt reale Liquiditätsgenerierung unabhängig von Bilanztricks.</span>
+                                                            <span class="tooltip-rule">Faustregel: Bestätigt reale Liquiditätsgenerierung unabhängig von Bilanztricks.</span>
                                                         </span>
                                                     </span>
                                                     <span id="snap_fcf_cagr" class="font-bold text-emerald-400 text-[11px]">--</span>
@@ -1653,7 +1665,7 @@
                                                         <span class="tooltip-box">
                                                             <span class="tooltip-title">ROIC (Return on Invested Capital)<span class="tooltip-category">Kapitalrendite</span></span>
                                                             <span class="tooltip-desc">Rendite auf das im Kerngeschäft investierte Gesamtkapital.</span>
-                                                            <span class="tooltip-rule">💡 Liegt der ROIC über dem WACC, entsteht echter ökonomischer Mehrwert.</span>
+                                                            <span class="tooltip-rule">Faustregel: Liegt der ROIC über dem WACC, entsteht echter ökonomischer Mehrwert.</span>
                                                         </span>
                                                     </span>
                                                     <span id="snap_roic" class="font-bold text-white text-[11px]">--</span>
@@ -1663,7 +1675,7 @@
                                                         <span class="tooltip-box">
                                                             <span class="tooltip-title">ROE (Return on Equity)<span class="tooltip-category">Eigenkapitalrendite</span></span>
                                                             <span class="tooltip-desc">Reingewinn im Verhältnis zum bilanziellen Eigenkapital.</span>
-                                                            <span class="tooltip-rule">💡 > 15%: Exzellent. Hohe Verschuldung kann den ROE künstlich aufblähen.</span>
+                                                            <span class="tooltip-rule">Faustregel: > 15%: Exzellent. Hohe Verschuldung kann den ROE künstlich aufblähen.</span>
                                                         </span>
                                                     </span>
                                                     <span id="snap_roe" class="text-[10px] text-slate-200">--</span>
@@ -1673,7 +1685,7 @@
                                                         <span class="tooltip-box">
                                                             <span class="tooltip-title">Operative EBIT-Marge<span class="tooltip-category">Rentabilität</span></span>
                                                             <span class="tooltip-desc">EBIT in Prozent des Umsatzes vor Zinsen und Steuern.</span>
-                                                            <span class="tooltip-rule">💡 Hohe und stabile Margen beweisen Preissetzungsmacht (Pricing Power).</span>
+                                                            <span class="tooltip-rule">Faustregel: Hohe und stabile Margen beweisen Preissetzungsmacht (Pricing Power).</span>
                                                         </span>
                                                     </span>
                                                     <span id="snap_op_margin" class="text-[10px] text-slate-200">--</span>
@@ -1693,7 +1705,7 @@
                                                         <span class="tooltip-box">
                                                             <span class="tooltip-title">Net Debt / EBITDA<span class="tooltip-category">Schuldendeckung</span></span>
                                                             <span class="tooltip-desc">Nettofinanzschulden geteilt durch operativen Cash-Gewinn (EBITDA).</span>
-                                                            <span class="tooltip-rule">💡 < 0x: Net Cash (sehr sicher) | < 2.0x: Solide | > 3.5x: Riskant.</span>
+                                                            <span class="tooltip-rule">Faustregel: < 0x: Net Cash (sehr sicher) | < 2.0x: Solide | > 3.5x: Riskant.</span>
                                                         </span>
                                                     </span>
                                                     <span id="snap_net_debt_ebitda" class="font-bold text-white text-[11px]">--</span>
@@ -1703,7 +1715,7 @@
                                                         <span class="tooltip-box">
                                                             <span class="tooltip-title">Debt to Equity<span class="tooltip-category">Verschuldungsgrad</span></span>
                                                             <span class="tooltip-desc">Verhältnis von verzinslichem Fremdkapital zu bilanziellem Eigenkapital.</span>
-                                                            <span class="tooltip-rule">💡 < 0.5x: Konservativ | > 1.5x: Deutlich fremdfinanziert.</span>
+                                                            <span class="tooltip-rule">Faustregel: < 0.5x: Konservativ | > 1.5x: Deutlich fremdfinanziert.</span>
                                                         </span>
                                                     </span>
                                                     <span id="snap_debt_equity" class="text-[10px] text-slate-200">--</span>
@@ -1713,7 +1725,7 @@
                                                         <span class="tooltip-box">
                                                             <span class="tooltip-title">Interest Coverage<span class="tooltip-category">Zinstragfähigkeit</span></span>
                                                             <span class="tooltip-desc">EBIT geteilt durch den jährlichen Zinsaufwand.</span>
-                                                            <span class="tooltip-rule">💡 > 10x: Höchste Bonität | < 3x: Zinslast belastet Ertrag deutlich.</span>
+                                                            <span class="tooltip-rule">Faustregel: > 10x: Höchste Bonität | < 3x: Zinslast belastet Ertrag deutlich.</span>
                                                         </span>
                                                     </span>
                                                     <span id="snap_interest_cov" class="text-[10px] text-slate-200">--</span>
@@ -1733,7 +1745,7 @@
                                                         <span class="tooltip-box">
                                                             <span class="tooltip-title">Dividendenrendite<span class="tooltip-category">Ausschüttung</span></span>
                                                             <span class="tooltip-desc">Jährliche Dividendenzahlung je Aktie geteilt durch den aktuellen Aktienkurs.</span>
-                                                            <span class="tooltip-rule">💡 Ausschüttungsrendite; muss immer mit der Payout Ratio abgeglichen werden.</span>
+                                                            <span class="tooltip-rule">Faustregel: Ausschüttungsrendite; muss immer mit der Payout Ratio abgeglichen werden.</span>
                                                         </span>
                                                     </span>
                                                     <span id="snap_div_yield" class="font-bold text-slate-200 text-[11px]">--</span>
@@ -1743,7 +1755,7 @@
                                                         <span class="tooltip-box">
                                                             <span class="tooltip-title">Payout Ratio<span class="tooltip-category">Dividendensicherheit</span></span>
                                                             <span class="tooltip-desc">Ausgeschüttete Dividenden in Prozent des Reingewinns oder FCF.</span>
-                                                            <span class="tooltip-rule">💡 < 60%: Gesunde, nachhaltige Ausschüttung | > 90%: Kürzungsgefahr.</span>
+                                                            <span class="tooltip-rule">Faustregel: < 60%: Gesunde, nachhaltige Ausschüttung | > 90%: Kürzungsgefahr.</span>
                                                         </span>
                                                     </span>
                                                     <span id="snap_payout" class="text-[10px] text-slate-300">--</span>
@@ -1753,7 +1765,7 @@
                                                         <span class="tooltip-box">
                                                             <span class="tooltip-title">Quartalsbericht (Earnings)<span class="tooltip-category">Finanzkalender</span></span>
                                                             <span class="tooltip-desc">Nächster geplanter Veröffentlichungstermin der Quartals- oder Jahresergebnisse.</span>
-                                                            <span class="tooltip-rule">💡 Katalysator für Kursbewegungen basierend auf Konsenserwartungen.</span>
+                                                            <span class="tooltip-rule">Faustregel: Katalysator für Kursbewegungen basierend auf Konsenserwartungen.</span>
                                                         </span>
                                                     </span>
                                                     <span id="snap_earnings_date" class="text-[10px] text-slate-300 truncate">--</span>
@@ -1780,7 +1792,7 @@
                                                 <span class="tooltip-box">
                                                     <span class="tooltip-title">Valuation Status<span class="tooltip-category">Historischer Rang</span></span>
                                                     <span class="tooltip-desc">Perzentil-Rang des aktuellen Multiples im Vergleich zur historischen 5-10 Jahres-Spanne.</span>
-                                                    <span class="tooltip-rule">💡 Deep Discount (<20%) | Discount (20-40%) | Fair (40-60%) | Premium (>60%).</span>
+                                                    <span class="tooltip-rule">Faustregel: Deep Discount (<20%) | Discount (20-40%) | Fair (40-60%) | Premium (>60%).</span>
                                                 </span>
                                             </div>
                                         </div>
@@ -1924,19 +1936,19 @@
                                                 </div>
                                             </div>
                                             <div class="flex flex-col min-w-0">
-                                                <span class="text-[9px] text-amber-400 uppercase">KGV ber. (Aktuell / Median)</span>
+                                                <span class="text-[9px] text-amber-400 uppercase truncate">KGV ber. (Aktuell / Ø)</span>
                                                 <span id="liveMultPe" class="font-bold text-amber-300 mt-0.5 text-[11px] truncate">--</span>
                                             </div>
                                             <div class="flex flex-col min-w-0">
-                                                <span class="text-[9px] text-slate-400 uppercase">KGV bil.</span>
+                                                <span class="text-[9px] text-slate-400 uppercase truncate">KGV bil. (Aktuell / Ø)</span>
                                                 <span id="liveMultPeRep" class="font-bold text-slate-300 mt-0.5 text-[11px] truncate">--</span>
                                             </div>
                                             <div class="flex flex-col min-w-0">
-                                                <span class="text-[9px] text-yellow-400 uppercase">KCV (Cashflow)</span>
+                                                <span class="text-[9px] text-yellow-400 uppercase truncate">KCV (Aktuell / Ø)</span>
                                                 <span id="liveMultPcf" class="font-bold text-yellow-300 mt-0.5 text-[11px] truncate">--</span>
                                             </div>
                                             <div class="flex flex-col min-w-0">
-                                                <span class="text-[9px] text-emerald-400 uppercase">KUV (Umsatz)</span>
+                                                <span class="text-[9px] text-emerald-400 uppercase truncate">KUV (Aktuell / Ø)</span>
                                                 <span id="liveMultPs" class="font-bold text-emerald-400 mt-0.5 text-[11px] truncate">--</span>
                                             </div>
                                             <div class="flex flex-col min-w-0 col-span-2 sm:col-span-1 lg:col-span-1">
@@ -2001,12 +2013,16 @@
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <!-- Card 1: Financial Performance (Umsatz, EPS, FCF) -->
                                         <div class="p-4 rounded-xl bg-[#0B0E12] border border-[#202630] flex flex-col justify-between">
-                                            <div class="flex items-center justify-between pb-2.5 border-b border-[#202630] mb-3">
+                                            <div class="flex flex-wrap items-center justify-between pb-2.5 border-b border-[#202630] mb-3 gap-2">
                                                 <div class="flex items-center gap-2">
                                                     <span class="w-2 h-2 rounded-full bg-gold-400"></span>
                                                     <h4 class="text-xs font-bold text-white">Financial Performance</h4>
                                                 </div>
-                                                <span class="text-[9.5px] font-mono text-slate-400">Umsatz, EPS &amp; FCF</span>
+                                                <div class="flex items-center gap-2 text-[9.5px] font-mono flex-wrap">
+                                                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#D6A83A]"></span><span class="text-slate-300">Umsatz</span></span>
+                                                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#10B981]"></span><span class="text-slate-300">EBIT</span></span>
+                                                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#06B6D4]"></span><span class="text-slate-300">FCF</span></span>
+                                                </div>
                                             </div>
                                             <div id="financialPerformanceChartWrapper" class="w-full h-[180px] sm:h-[210px] relative">
                                                 <svg id="financialPerformanceSvg" class="w-full h-full overflow-visible"></svg>
@@ -2015,12 +2031,17 @@
 
                                         <!-- Card 2: Profitability & Margins (Brutto, Operativ, Netto) -->
                                         <div class="p-4 rounded-xl bg-[#0B0E12] border border-[#202630] flex flex-col justify-between">
-                                            <div class="flex items-center justify-between pb-2.5 border-b border-[#202630] mb-3">
+                                            <div class="flex flex-wrap items-center justify-between pb-2.5 border-b border-[#202630] mb-3 gap-2">
                                                 <div class="flex items-center gap-2">
                                                     <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
                                                     <h4 class="text-xs font-bold text-white">Profitabilität &amp; Margen</h4>
                                                 </div>
-                                                <span class="text-[9.5px] font-mono text-slate-400">Brutto-, Operative &amp; Nettomarge</span>
+                                                <div class="flex items-center gap-2 text-[9.5px] font-mono flex-wrap">
+                                                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#D6A83A]"></span><span class="text-slate-300">Brutto</span></span>
+                                                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#10B981]"></span><span class="text-slate-300">EBIT</span></span>
+                                                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#3B82F6]"></span><span class="text-slate-300">Netto</span></span>
+                                                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#06B6D4]"></span><span class="text-slate-300">FCF</span></span>
+                                                </div>
                                             </div>
                                             <div id="profitabilityChartWrapper" class="w-full h-[180px] sm:h-[210px] relative">
                                                 <svg id="profitabilitySvg" class="w-full h-full overflow-visible"></svg>
@@ -2029,12 +2050,16 @@
 
                                         <!-- Card 3: Capital Efficiency & Balance Sheet (ROIC, ROE, Net Debt) -->
                                         <div class="p-4 rounded-xl bg-[#0B0E12] border border-[#202630] flex flex-col justify-between">
-                                            <div class="flex items-center justify-between pb-2.5 border-b border-[#202630] mb-3">
+                                            <div class="flex flex-wrap items-center justify-between pb-2.5 border-b border-[#202630] mb-3 gap-2">
                                                 <div class="flex items-center gap-2">
                                                     <span class="w-2 h-2 rounded-full bg-blue-400"></span>
                                                     <h4 class="text-xs font-bold text-white">Kapitaleffizienz &amp; Bilanz</h4>
                                                 </div>
-                                                <span class="text-[9.5px] font-mono text-slate-400">ROIC, ROE &amp; Verschuldung</span>
+                                                <div class="flex items-center gap-2 text-[9.5px] font-mono flex-wrap">
+                                                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#3B82F6]"></span><span class="text-slate-300">ROIC</span></span>
+                                                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#8B5CF6]"></span><span class="text-slate-300">ROE</span></span>
+                                                    <span class="flex items-center gap-1"><span class="w-2 h-0.5 bg-[#D6A83A]"></span><span class="text-gold-400 font-semibold">10% WACC</span></span>
+                                                </div>
                                             </div>
                                             <div id="capitalEfficiencyChartWrapper" class="w-full h-[180px] sm:h-[210px] relative">
                                                 <svg id="capitalEfficiencySvg" class="w-full h-full overflow-visible"></svg>
@@ -2043,12 +2068,14 @@
 
                                         <!-- Card 4: Shareholder Returns & FCF Quality (Shares, Buybacks, FCF) -->
                                         <div class="p-4 rounded-xl bg-[#0B0E12] border border-[#202630] flex flex-col justify-between">
-                                            <div class="flex items-center justify-between pb-2.5 border-b border-[#202630] mb-3">
+                                            <div class="flex flex-wrap items-center justify-between pb-2.5 border-b border-[#202630] mb-3 gap-2">
                                                 <div class="flex items-center gap-2">
                                                     <span class="w-2 h-2 rounded-full bg-purple-400"></span>
-                                                    <h4 class="text-xs font-bold text-white">Aktionärsrendite &amp; FCF-Qualität</h4>
+                                                    <h4 class="text-xs font-bold text-white">Aktionärsrendite</h4>
                                                 </div>
-                                                <span class="text-[9.5px] font-mono text-slate-400">Aktienanzahl, Buybacks &amp; OCF/CapEx</span>
+                                                <div class="flex items-center gap-2 text-[9.5px] font-mono flex-wrap">
+                                                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#A855F7]"></span><span class="text-slate-300">Aktien (Mio.)</span></span>
+                                                </div>
                                             </div>
                                             <div id="shareholderChartWrapper" class="w-full h-[180px] sm:h-[210px] relative">
                                                 <svg id="shareholderSvg" class="w-full h-full overflow-visible"></svg>
@@ -5312,7 +5339,13 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     const netIncome = safeNum(item.netIncome);
                     const eps = safeNum(item.eps);
                     const epsAdj = safeNum(item.epsAdj) ?? eps;
-                    const sharesOutstanding = safeNum(item.sharesOutstanding) ?? safeNum(quote.sharesOutstanding);
+                    const sharesOutstanding = safeNum(item.sharesOutstanding) ?? safeNum(quote.sharesOutstanding) ?? (
+                        (netIncome && eps && eps > 0) ? netIncome / eps : (
+                            (revenue && safeNum(item.revenuePerShare) && safeNum(item.revenuePerShare) > 0) ? revenue / safeNum(item.revenuePerShare) : (
+                                (marketCap && currentPrice && currentPrice > 0) ? marketCap / currentPrice : null
+                            )
+                        )
+                    );
                     const revenuePerShare = safeNum(item.revenuePerShare) ?? ((revenue !== null && sharesOutstanding && sharesOutstanding > 0) ? (revenue / sharesOutstanding) : null);
                     const ebitda = safeNum(item.ebitda) ?? operatingIncome;
                     const operatingCashFlow = safeNum(item.operatingCashFlow);
@@ -5396,7 +5429,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     const netIncome = safeNum(inc.netIncome);
                     const eps = safeNum(inc.eps);
                     const epsAdj = safeNum(inc.epsdiluted) ?? eps;
-                    const sharesOutstanding = safeNum(inc.weightedAverageShsOut) ?? safeNum(bal.commonStock) ?? safeNum(quote.sharesOutstanding);
+                    const sharesOutstanding = safeNum(inc.weightedAverageShsOut) ?? safeNum(bal.commonStock) ?? safeNum(quote.sharesOutstanding) ?? ((netIncome && eps && eps > 0) ? netIncome / eps : null);
                     const revenuePerShare = (revenue !== null && sharesOutstanding && sharesOutstanding > 0) ? (revenue / sharesOutstanding) : safeNum(met.revenuePerShare);
 
                     const ebitda = safeNum(inc.ebitda) ?? (
@@ -5521,8 +5554,13 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 if (p.periodClosePrice && p.bookValuePerShare && p.bookValuePerShare > 0 && (!p.pbRatio || p.pbRatio <= 0)) {
                     p.pbRatio = Math.round((p.periodClosePrice / p.bookValuePerShare) * 10) / 10;
                 }
+                if (p.periodClosePrice && (!p.freeCashFlowPerShare || p.freeCashFlowPerShare <= 0) && p.freeCashFlow && p.sharesOutstanding && p.sharesOutstanding > 0) {
+                    p.freeCashFlowPerShare = p.freeCashFlow / p.sharesOutstanding;
+                }
                 if (p.periodClosePrice && p.freeCashFlowPerShare && p.freeCashFlowPerShare > 0 && (!p.pfcfRatio || p.pfcfRatio <= 0)) {
                     p.pfcfRatio = Math.round((p.periodClosePrice / p.freeCashFlowPerShare) * 10) / 10;
+                } else if (p.periodClosePrice && p.freeCashFlow && p.netIncome && p.peRatio && p.freeCashFlow > 0 && p.netIncome > 0 && (!p.pfcfRatio || p.pfcfRatio <= 0)) {
+                    p.pfcfRatio = Math.round(p.peRatio * (p.netIncome / p.freeCashFlow) * 10) / 10;
                 }
                 if (p.periodClosePrice && p.revenuePerShare && p.revenuePerShare > 0 && (!p.psRatio || p.psRatio <= 0)) {
                     p.psRatio = Math.round((p.periodClosePrice / p.revenuePerShare) * 10) / 10;
@@ -6141,7 +6179,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     if (catEl) catEl.textContent = `Kategorie: ${def.category}`;
                     if (expEl) expEl.textContent = def.shortExplanation;
                     if (whyEl) whyEl.textContent = def.whyItMatters;
-                    if (ruleEl) ruleEl.textContent = `💡 ${def.ruleOfThumb}`;
+                    if (ruleEl) ruleEl.textContent = `Faustregel: ${def.ruleOfThumb}`;
                 } else {
                     const titleEl = document.getElementById('modalMetricTitle');
                     const catEl = document.getElementById('modalMetricCategory');
@@ -6152,7 +6190,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     if (catEl) catEl.textContent = 'Progressive Disclosure & Literacy Layer';
                     if (expEl) expEl.textContent = 'Das fincast Terminal berechnet Fair Values, Renditen und Bonitäten aus geprüften Bilanzen und empirischen Multiples. Klicke auf eine beliebige Kennzahl, um die genaue Bedeutung und Faustformeln einzusehen.';
                     if (whyEl) whyEl.textContent = 'Fundamentaldaten ermöglichen es Privatanlegern, den echten Wert von Aktien unabhängig von täglichen Kursschwankungen einzuschätzen.';
-                    if (ruleEl) ruleEl.textContent = '💡 Qualität vor Bewertung: Ein dauerhaft hoher ROIC mit solider Bilanz schlägt spekulative Billigaktien.';
+                    if (ruleEl) ruleEl.textContent = 'Faustregel: Qualität vor Bewertung: Ein dauerhaft hoher ROIC mit solider Bilanz schlägt spekulative Billigaktien.';
                 }
                 modal.classList.remove('hidden');
             } else {
@@ -6182,7 +6220,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 catEl.textContent = `Bewertungsbaustein: ${item.status}`;
                 expEl.textContent = item.explanation;
                 whyEl.innerHTML = `<strong>Zusammensetzung &amp; Treiber:</strong><br>${item.drivers.join('<br>')}`;
-                ruleEl.textContent = `💡 Dieser Score ist kein Kauf-/Verkaufsignal, sondern eine transparente quantitative Einordnung auf Basis fundamentaler Bilanzdaten.`;
+                ruleEl.textContent = `Analytische Einordnung: Dieser Score ist kein Kauf-/Verkaufsignal, sondern eine quantitative Einordnung auf Basis fundamentaler Bilanzdaten.`;
                 modal.classList.remove('hidden');
             }
         }
@@ -6602,11 +6640,13 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                                 <span class="text-emerald-400 font-bold text-sm shrink-0">↑</span>
                                 <div class="min-w-0 flex-1">
                                     <div class="flex items-center justify-between gap-2">
-                                        <h5 class="text-xs font-bold text-white">${opp.title}</h5>
+                                        <h5 class="text-xs font-bold text-white break-words">${opp.title}</h5>
                                     </div>
-                                    <p class="text-xs text-slate-300 leading-relaxed mt-0.5">${opp.explanation}</p>
-                                    <div class="mt-1.5 flex items-center gap-2 text-[10px] font-mono text-emerald-400/90">
-                                        <span>📊 ${opp.evidence}</span>
+                                    <p class="text-xs text-slate-300 leading-relaxed mt-0.5 break-words">${opp.explanation}</p>
+                                    <div class="mt-2 flex items-center gap-1.5 text-[10px] font-mono text-emerald-400/90 flex-wrap">
+                                        <svg class="w-3 h-3 text-emerald-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
+                                        <span class="text-slate-400 font-semibold">[Evidenz]</span>
+                                        <span class="break-words text-slate-200">${opp.evidence}</span>
                                     </div>
                                 </div>
                             </div>
@@ -6627,11 +6667,13 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                                 <span class="text-rose-400 font-bold text-sm shrink-0">↓</span>
                                 <div class="min-w-0 flex-1">
                                     <div class="flex items-center justify-between gap-2">
-                                        <h5 class="text-xs font-bold text-white">${r.title}</h5>
+                                        <h5 class="text-xs font-bold text-white break-words">${r.title}</h5>
                                     </div>
-                                    <p class="text-xs text-slate-300 leading-relaxed mt-0.5">${r.explanation}</p>
-                                    <div class="mt-1.5 flex items-center gap-2 text-[10px] font-mono text-rose-400/90">
-                                        <span>⚠️ ${r.evidence}</span>
+                                    <p class="text-xs text-slate-300 leading-relaxed mt-0.5 break-words">${r.explanation}</p>
+                                    <div class="mt-2 flex items-center gap-1.5 text-[10px] font-mono text-rose-400/90 flex-wrap">
+                                        <svg class="w-3 h-3 text-rose-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+                                        <span class="text-slate-400 font-semibold">[Risikofaktor]</span>
+                                        <span class="break-words text-slate-200">${r.evidence}</span>
                                     </div>
                                 </div>
                             </div>
@@ -7911,7 +7953,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 }
 
                 // Reference Median Line
-                const stats = valResult.statistics[cfg.key];
+                const stats = valResult.statistics[cfg.statKey || cfg.seriesKey || cfg.key];
                 if (stats && stats.median !== null) {
                     const medY = getY(stats.median);
                     medianLinesHtml += `
@@ -7949,9 +7991,21 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     const medStr = (typeof med === 'number') ? med.toFixed(1) : '—';
                     peEl.textContent = (typeof pt.pe_adj === 'number') ? `${pt.pe_adj.toFixed(1)} (Ø ${medStr})` : '—';
                 }
-                if (peRepEl) peRepEl.textContent = (typeof pt.pe_rep === 'number') ? pt.pe_rep.toFixed(1) : '—';
-                if (pcfEl) pcfEl.textContent = (typeof pt.pfcf === 'number') ? pt.pfcf.toFixed(1) : '—';
-                if (psEl) psEl.textContent = (typeof pt.ps === 'number') ? pt.ps.toFixed(1) : '—';
+                if (peRepEl) {
+                    const med = valResult?.statistics?.pe_rep?.median;
+                    const medStr = (typeof med === 'number') ? med.toFixed(1) : '—';
+                    peRepEl.textContent = (typeof pt.pe_rep === 'number') ? `${pt.pe_rep.toFixed(1)} (Ø ${medStr})` : '—';
+                }
+                if (pcfEl) {
+                    const med = valResult?.statistics?.pfcf?.median ?? valResult?.statistics?.pcf?.median;
+                    const medStr = (typeof med === 'number') ? med.toFixed(1) : '—';
+                    pcfEl.textContent = (typeof pt.pfcf === 'number') ? `${pt.pfcf.toFixed(1)} (Ø ${medStr})` : '—';
+                }
+                if (psEl) {
+                    const med = valResult?.statistics?.ps?.median;
+                    const medStr = (typeof med === 'number') ? med.toFixed(1) : '—';
+                    psEl.textContent = (typeof pt.ps === 'number') ? `${pt.ps.toFixed(1)} (Ø ${medStr})` : '—';
+                }
                 if (devEl) {
                     const pePct = valResult?.statistics?.pe_adj?.currentPercentile;
                     const peStat = valResult?.statistics?.pe_adj?.valuationStatus;
@@ -8260,7 +8314,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
 
             svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
             svg.innerHTML = `
-                <text x="${padLeft}" y="${padTop - 6}" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">Umsatz (Gold), EBIT (Grün/Rot), FCF (Cyan) [${dataset.currency}]</text>
+                <text x="${padLeft}" y="${padTop - 6}" fill="#64748B" font-size="8.5" font-family="'JetBrains Mono', monospace">Umsatz, EBIT &amp; FCF [${dataset.currency}]</text>
                 ${gridHtml}
                 ${zeroLineHtml}
                 ${barsHtml}
@@ -8348,7 +8402,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
 
             svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
             svg.innerHTML = `
-                <text x="${padLeft}" y="${padTop - 6}" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">Margen: Brutto (Gold), EBIT (Grün), Netto (Blau), FCF (Cyan)</text>
+                <text x="${padLeft}" y="${padTop - 6}" fill="#64748B" font-size="8.5" font-family="'JetBrains Mono', monospace">Margenentwicklung [%]</text>
                 ${gridHtml}
                 ${grossPath ? `<path d="${grossPath}" fill="none" stroke="#D6A83A" stroke-width="2.2" stroke-linejoin="round" />` : ''}
                 ${opPath ? `<path d="${opPath}" fill="none" stroke="#10B981" stroke-width="2.2" stroke-linejoin="round" />` : ''}
@@ -8441,7 +8495,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
 
             svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
             svg.innerHTML = `
-                <text x="${padLeft}" y="${padTop - 6}" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">ROIC (Blau) vs ROE (Violett) [%]</text>
+                <text x="${padLeft}" y="${padTop - 6}" fill="#64748B" font-size="8.5" font-family="'JetBrains Mono', monospace">Kapitalrenditen (ROIC vs. ROE) [%]</text>
                 ${gridHtml}
                 ${hurdleHtml}
                 ${roicPath ? `<path d="${roicPath}" fill="none" stroke="#3B82F6" stroke-width="2.2" stroke-linejoin="round" />` : ''}
