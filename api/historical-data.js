@@ -34,24 +34,32 @@ module.exports = async function handler(req, res) {
 
     // Resolve symbol if query is a company name, WKN, ISIN, or longer than 5 chars
     let symbol = null;
-    const isStandardTicker = /^[A-Z0-9.\-]{1,6}$/.test(rawQuery.toUpperCase());
-    if (isStandardTicker && rawQuery.length <= 5) {
+    const isStandardTicker = /^[A-Z0-9.\-]{1,5}$/.test(rawQuery.toUpperCase()) && !['MICROSOFT', 'PEPSICO', 'ALPHABET', 'AMAZON', 'NVIDIA', 'TESLA', 'APPLE'].includes(rawQuery.toUpperCase());
+    if (isStandardTicker) {
         symbol = rawQuery.toUpperCase();
     } else {
         try {
             console.log(`[Historical Data] Resolving symbol for query: "${rawQuery}"...`);
-            // 1. Try finding a US ticker (ADR/Primary) first
-            let searchRes = await fetch(`https://financialmodelingprep.com/stable/search?query=${encodeURIComponent(rawQuery)}&limit=3&exchange=NYSE,NASDAQ&apikey=${fmpKey}`);
-            let searchData = await searchRes.json().catch(() => []);
+            // Tier 1: Search by name (FMP stable)
+            let searchRes = await fetch(`https://financialmodelingprep.com/stable/search-name?query=${encodeURIComponent(rawQuery)}&apikey=${fmpKey}`);
+            let searchData = (searchRes && searchRes.ok) ? await searchRes.json().catch(() => []) : [];
 
-            // 2. Fallback to global search if no US ticker is found
-            if (!searchData || searchData.length === 0) {
-                searchRes = await fetch(`https://financialmodelingprep.com/stable/search?query=${encodeURIComponent(rawQuery)}&limit=1&apikey=${fmpKey}`);
-                searchData = await searchRes.json().catch(() => []);
+            // Tier 2: Search global (FMP v3)
+            if (!Array.isArray(searchData) || searchData.length === 0) {
+                searchRes = await fetch(`https://financialmodelingprep.com/api/v3/search?query=${encodeURIComponent(rawQuery)}&limit=5&apikey=${fmpKey}`);
+                searchData = (searchRes && searchRes.ok) ? await searchRes.json().catch(() => []) : [];
             }
 
-            if (searchData && searchData[0] && searchData[0].symbol) {
-                symbol = searchData[0].symbol.toUpperCase();
+            // Tier 3: Search by symbol (FMP stable)
+            if (!Array.isArray(searchData) || searchData.length === 0) {
+                searchRes = await fetch(`https://financialmodelingprep.com/stable/search-symbol?query=${encodeURIComponent(rawQuery)}&apikey=${fmpKey}`);
+                searchData = (searchRes && searchRes.ok) ? await searchRes.json().catch(() => []) : [];
+            }
+
+            if (Array.isArray(searchData) && searchData.length > 0) {
+                // Prefer US primary exchange (NASDAQ, NYSE, AMEX) or USD currency
+                const usMatch = searchData.find(item => item && item.symbol && (item.currency === 'USD' || ['NASDAQ', 'NYSE', 'AMEX'].includes(item.exchangeShortName || item.stockExchange)));
+                symbol = (usMatch && usMatch.symbol) ? usMatch.symbol.toUpperCase() : searchData[0].symbol.toUpperCase();
                 console.log(`[Historical Data] Successfully resolved "${rawQuery}" -> ${symbol}`);
             } else {
                 symbol = rawQuery.toUpperCase();
@@ -104,11 +112,11 @@ module.exports = async function handler(req, res) {
         ] = await Promise.all([
             fetch(`https://financialmodelingprep.com/stable/profile?symbol=${symbol}&apikey=${fmpKey}`).catch(e => { console.error('Profile Err:', e); return null; }),
             fetch(`https://financialmodelingprep.com/stable/quote?symbol=${symbol}&apikey=${fmpKey}`).catch(e => { console.error('Quote Err:', e); return null; }),
-            fetch(`https://financialmodelingprep.com/stable/income-statement?symbol=${symbol}&limit=15&apikey=${fmpKey}`).catch(e => { console.error('Income Err:', e); return null; }),
-            fetch(`https://financialmodelingprep.com/stable/balance-sheet-statement?symbol=${symbol}&limit=15&apikey=${fmpKey}`).catch(e => { console.error('Balance Err:', e); return null; }),
-            fetch(`https://financialmodelingprep.com/stable/cash-flow-statement?symbol=${symbol}&limit=15&apikey=${fmpKey}`).catch(e => { console.error('CF Err:', e); return null; }),
-            fetch(`https://financialmodelingprep.com/stable/key-metrics?symbol=${symbol}&limit=15&apikey=${fmpKey}`).catch(e => { console.error('Metrics Err:', e); return null; }),
-            fetch(`https://financialmodelingprep.com/stable/ratios?symbol=${symbol}&limit=15&apikey=${fmpKey}`).catch(e => { console.error('Ratios Err:', e); return null; }),
+            fetch(`https://financialmodelingprep.com/stable/income-statement?symbol=${symbol}&limit=30&apikey=${fmpKey}`).catch(e => { console.error('Income Err:', e); return null; }),
+            fetch(`https://financialmodelingprep.com/stable/balance-sheet-statement?symbol=${symbol}&limit=30&apikey=${fmpKey}`).catch(e => { console.error('Balance Err:', e); return null; }),
+            fetch(`https://financialmodelingprep.com/stable/cash-flow-statement?symbol=${symbol}&limit=30&apikey=${fmpKey}`).catch(e => { console.error('CF Err:', e); return null; }),
+            fetch(`https://financialmodelingprep.com/stable/key-metrics?symbol=${symbol}&limit=30&apikey=${fmpKey}`).catch(e => { console.error('Metrics Err:', e); return null; }),
+            fetch(`https://financialmodelingprep.com/stable/ratios?symbol=${symbol}&limit=30&apikey=${fmpKey}`).catch(e => { console.error('Ratios Err:', e); return null; }),
             fetch(`https://financialmodelingprep.com/stable/key-metrics-ttm?symbol=${symbol}&apikey=${fmpKey}`).catch(e => { console.error('TTM Err:', e); return null; }),
             fetch(`https://financialmodelingprep.com/api/v3/historical-price-full/${symbol}?apikey=${fmpKey}`).catch(e => { console.error('Prices Err:', e); return null; }),
             fetch(`https://financialmodelingprep.com/stable/analyst-estimates?symbol=${symbol}&limit=5&apikey=${fmpKey}`).catch(e => { console.error('Estimates Err:', e); return null; }),

@@ -1,14 +1,13 @@
 module.exports = async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-    const { ticker, model, geminiBody, apiKey: clientApiKey } = req.body;
+    const { ticker, model, geminiBody, apiKey: clientApiKey, historicalDataset } = req.body;
     const apiKey = (clientApiKey && clientApiKey.trim() !== '') ? clientApiKey.trim() : process.env.GEMINI_API_KEY;
 
     if (!apiKey) return res.status(500).json({ error: 'Kein API-Key gefunden.' });
 
-
     console.log(`[Backend] Processing request for ticker: ${ticker}, model: ${model}`);
-    console.log(`[Backend] Available Env Keys:`, Object.keys(process.env));
+    console.log(`[Backend] Pre-fetched dataset provided:`, Boolean(historicalDataset));
 
     try {
         const fmpKey = process.env.FMP_API_KEY || process.env.API_FMP || process.env.fmp_api_key || process.env.FMP_KEY || process.env.fmp_key;
@@ -17,7 +16,38 @@ module.exports = async function handler(req, res) {
         let systemStatus = `DEBUG: Backend reached. Ticker: ${ticker}. `;
 
         if (ticker && geminiBody && geminiBody.contents) {
-            if (!fmpKey) {
+            let profileData = [];
+            let quoteData = [];
+            let metricsData = [];
+            let ttmData = [];
+            let earnData = [];
+            let rsiDataRaw = [];
+            let macdDataRaw = [];
+            let cfData = [];
+            let incomeData = [];
+            let balanceData = [];
+            let ratiosData = [];
+            let histDataRaw = null;
+            let estData = [];
+            let symbol = ticker.trim().toUpperCase();
+
+            // PATH A: Use pre-fetched single source of truth dataset if provided
+            if (historicalDataset && typeof historicalDataset === 'object') {
+                console.log(`[Backend] Using pre-fetched historical dataset for ${ticker} (Single Source of Truth)`);
+                symbol = (historicalDataset.symbol || ticker).trim().toUpperCase();
+                profileData = historicalDataset.profile ? [historicalDataset.profile] : [];
+                quoteData = historicalDataset.quote ? [historicalDataset.quote] : [];
+                metricsData = Array.isArray(historicalDataset.keyMetrics) ? historicalDataset.keyMetrics : [];
+                ttmData = historicalDataset.ttm ? [historicalDataset.ttm] : [];
+                incomeData = Array.isArray(historicalDataset.incomeStatements) ? historicalDataset.incomeStatements : [];
+                balanceData = Array.isArray(historicalDataset.balanceSheets) ? historicalDataset.balanceSheets : [];
+                cfData = Array.isArray(historicalDataset.cashFlowStatements) ? historicalDataset.cashFlowStatements : [];
+                ratiosData = Array.isArray(historicalDataset.financialRatios) ? historicalDataset.financialRatios : [];
+                estData = Array.isArray(historicalDataset.analystEstimates) ? historicalDataset.analystEstimates : [];
+                earnData = Array.isArray(historicalDataset.earningsSurprises) ? historicalDataset.earningsSurprises : [];
+                histDataRaw = { historical: Array.isArray(historicalDataset.historicalPrices) ? historicalDataset.historicalPrices : [] };
+                systemStatus += `Using Unified Pre-fetched Dataset for ${symbol}. `;
+            } else if (!fmpKey) {
                 console.warn("FMP API Key missing.");
                 systemStatus += "ERROR: FMP_API_KEY_MISSING.";
                 geminiBody.contents[0].parts[0].text = `<system_status>\n${systemStatus}\n</system_status>\n\n` + geminiBody.contents[0].parts[0].text;
@@ -26,30 +56,40 @@ module.exports = async function handler(req, res) {
                 systemStatus += `FMP Key Found (${maskedKey}). `;
                 let fmpDetails = "";
                 try {
-
                     // Detect if ticker is already a symbol (1-5 uppercase letters)
-                    const isTicker = /^[A-Z0-9.\-]{1,6}$/.test(ticker.trim().toUpperCase());
-                    let symbol = isTicker ? ticker.trim().toUpperCase() : null;
+                    const isTicker = /^[A-Z0-9.\-]{1,5}$/.test(ticker.trim().toUpperCase()) && !['MICROSOFT', 'PEPSICO', 'ALPHABET', 'AMAZON', 'NVIDIA', 'TESLA', 'APPLE'].includes(ticker.trim().toUpperCase());
+                    symbol = isTicker ? ticker.trim().toUpperCase() : null;
 
-                    if (!symbol || ticker.length > 5) {
+                    if (!symbol) {
                         console.log(`[Backend] Searching symbol for: ${ticker}`);
                         fmpDetails += "Searching symbol... ";
                         
-                        // 1. Try finding a US ticker (ADR) first to bypass international data restrictions
-                        let searchRes = await fetch(`https://financialmodelingprep.com/stable/search?query=${encodeURIComponent(ticker)}&limit=3&exchange=NYSE,NASDAQ&apikey=${fmpKey}`);
-                        let searchData = await searchRes.json().catch(() => []);
+                        // Tier 1: Search by name (FMP stable)
+                        let searchRes = await fetch(`https://financialmodelingprep.com/stable/search-name?query=${encodeURIComponent(ticker)}&apikey=${fmpKey}`);
+                        let searchData = (searchRes && searchRes.ok) ? await searchRes.json().catch(() => []) : [];
                         
-                        // 2. Fallback to global search if no US ticker is found
-                        if (!searchData || searchData.length === 0) {
-                            searchRes = await fetch(`https://financialmodelingprep.com/stable/search?query=${encodeURIComponent(ticker)}&limit=1&apikey=${fmpKey}`);
-                            searchData = await searchRes.json().catch(() => []);
+                        // Tier 2: Search global (FMP v3)
+                        if (!Array.isArray(searchData) || searchData.length === 0) {
+                            searchRes = await fetch(`https://financialmodelingprep.com/api/v3/search?query=${encodeURIComponent(ticker)}&limit=5&apikey=${fmpKey}`);
+                            searchData = (searchRes && searchRes.ok) ? await searchRes.json().catch(() => []) : [];
                         }
 
-                        symbol = (searchData && searchData[0]) ? searchData[0].symbol : ticker.trim().toUpperCase();
+                        // Tier 3: Search by symbol (FMP stable)
+                        if (!Array.isArray(searchData) || searchData.length === 0) {
+                            searchRes = await fetch(`https://financialmodelingprep.com/stable/search-symbol?query=${encodeURIComponent(ticker)}&apikey=${fmpKey}`);
+                            searchData = (searchRes && searchRes.ok) ? await searchRes.json().catch(() => []) : [];
+                        }
+
+                        if (Array.isArray(searchData) && searchData.length > 0) {
+                            const usMatch = searchData.find(item => item && item.symbol && (item.currency === 'USD' || ['NASDAQ', 'NYSE', 'AMEX'].includes(item.exchangeShortName || item.stockExchange)));
+                            symbol = (usMatch && usMatch.symbol) ? usMatch.symbol.toUpperCase() : searchData[0].symbol.toUpperCase();
+                        } else {
+                            symbol = ticker.trim().toUpperCase();
+                        }
                         console.log(`[Backend] Search result: ${symbol}`);
                     }
 
-                    // Auto-map common cryptocurrencies to FMP-compliant tickers (e.g. BTC -> BTCUSD, SOL -> SOLUSD)
+                    // Auto-map common cryptocurrencies to FMP-compliant tickers
                     const cryptoTickers = ['BTC', 'ETH', 'SOL', 'ADA', 'DOT', 'DOGE', 'SHIB', 'XRP', 'AVAX', 'LINK', 'LTC', 'BCH', 'UNI', 'ATOM', 'ETC', 'ALGO', 'XLM', 'NEAR', 'ICP', 'FIL', 'LDO', 'GRT', 'FTM', 'RNDR', 'CRO', 'OP', 'ARB', 'TON', 'PEPE', 'WIF', 'BONK', 'FLOKI', 'SUI', 'APT', 'TIA'];
                     if (symbol && cryptoTickers.includes(symbol)) {
                         symbol = symbol + 'USD';
@@ -57,46 +97,44 @@ module.exports = async function handler(req, res) {
                     }
 
                     fmpDetails += `Using Symbol: ${symbol}. `;
-
                     console.log(`[Backend] Starting fetches for ${symbol}...`);
 
                     const [profileRes, quoteRes, metricsRes, ttmRes, earnRes, rsiRes, macdRes, cfRes, incomeRes, balanceRes, ratiosRes, histRes, estRes] = await Promise.all([
                         fetch(`https://financialmodelingprep.com/stable/profile?symbol=${symbol}&apikey=${fmpKey}`).catch(e => { console.error("Profile Fetch Error:", e); return null; }),
                         fetch(`https://financialmodelingprep.com/stable/quote?symbol=${symbol}&apikey=${fmpKey}`).catch(e => { console.error("Quote Fetch Error:", e); return null; }),
-                        fetch(`https://financialmodelingprep.com/stable/key-metrics?symbol=${symbol}&limit=15&apikey=${fmpKey}`).catch(e => { console.error("Metrics Fetch Error:", e); return null; }),
+                        fetch(`https://financialmodelingprep.com/stable/key-metrics?symbol=${symbol}&limit=30&apikey=${fmpKey}`).catch(e => { console.error("Metrics Fetch Error:", e); return null; }),
                         fetch(`https://financialmodelingprep.com/stable/key-metrics-ttm?symbol=${symbol}&apikey=${fmpKey}`).catch(e => { console.error("TTM Fetch Error:", e); return null; }),
                         fetch(`https://financialmodelingprep.com/stable/earnings-surprises?symbol=${symbol}&apikey=${fmpKey}`).catch(e => { console.error("Earnings Fetch Error:", e); return null; }),
                         fetch(`https://financialmodelingprep.com/api/v3/technical-indicators/daily/${symbol}?type=rsi&period=14&apikey=${fmpKey}`).catch(e => { console.error("RSI Fetch Error:", e); return null; }),
                         fetch(`https://financialmodelingprep.com/api/v3/technical-indicators/daily/${symbol}?type=macd&apikey=${fmpKey}`).catch(e => { console.error("MACD Fetch Error:", e); return null; }),
-                        fetch(`https://financialmodelingprep.com/stable/cash-flow-statement?symbol=${symbol}&limit=15&apikey=${fmpKey}`).catch(e => { console.error("CF Fetch Error:", e); return null; }),
-                        fetch(`https://financialmodelingprep.com/stable/income-statement?symbol=${symbol}&limit=15&apikey=${fmpKey}`).catch(e => { console.error("Income Fetch Error:", e); return null; }),
-                        fetch(`https://financialmodelingprep.com/stable/balance-sheet-statement?symbol=${symbol}&limit=15&apikey=${fmpKey}`).catch(e => { console.error("Balance Fetch Error:", e); return null; }),
-                        fetch(`https://financialmodelingprep.com/stable/ratios?symbol=${symbol}&limit=15&apikey=${fmpKey}`).catch(e => { console.error("Ratios Fetch Error:", e); return null; }),
+                        fetch(`https://financialmodelingprep.com/stable/cash-flow-statement?symbol=${symbol}&limit=30&apikey=${fmpKey}`).catch(e => { console.error("CF Fetch Error:", e); return null; }),
+                        fetch(`https://financialmodelingprep.com/stable/income-statement?symbol=${symbol}&limit=30&apikey=${fmpKey}`).catch(e => { console.error("Income Fetch Error:", e); return null; }),
+                        fetch(`https://financialmodelingprep.com/stable/balance-sheet-statement?symbol=${symbol}&limit=30&apikey=${fmpKey}`).catch(e => { console.error("Balance Fetch Error:", e); return null; }),
+                        fetch(`https://financialmodelingprep.com/stable/ratios?symbol=${symbol}&limit=30&apikey=${fmpKey}`).catch(e => { console.error("Ratios Fetch Error:", e); return null; }),
                         fetch(`https://financialmodelingprep.com/api/v3/historical-price-full/${symbol}?timeseries=30&apikey=${fmpKey}`).catch(e => { console.error("Hist Fetch Error:", e); return null; }),
                         fetch(`https://financialmodelingprep.com/stable/analyst-estimates?symbol=${symbol}&limit=5&apikey=${fmpKey}`).catch(e => { console.error("Estimates Fetch Error:", e); return null; })
                     ]);
 
                     console.log(`[Backend] Fetches complete. Statuses: Profile=${profileRes?.status}, Quote=${quoteRes?.status}`);
 
-                    if (profileRes && profileRes.status === 403) {
-                        const errBody = await profileRes.text().catch(() => "unknown");
-                        console.error(`[Backend] FMP 403 Error Detail: ${errBody}`);
-                        fmpDetails += `FMP_403_FORBIDDEN: ${errBody}. `;
-                    }
-
-                    const profileData = (profileRes && profileRes.ok) ? await profileRes.json().catch(() => []) : [];
-                    const quoteData = (quoteRes && quoteRes.ok) ? await quoteRes.json().catch(() => []) : [];
-                    const metricsData = (metricsRes && metricsRes.ok) ? await metricsRes.json().catch(() => []) : [];
-                    const ttmData = (ttmRes && ttmRes.ok) ? await ttmRes.json().catch(() => []) : [];
-                    const earnData = (earnRes && earnRes.ok) ? await earnRes.json().catch(() => []) : [];
-                    const rsiDataRaw = (rsiRes && rsiRes.ok) ? await rsiRes.json().catch(() => []) : [];
-                    const macdDataRaw = (macdRes && macdRes.ok) ? await macdRes.json().catch(() => []) : [];
-                    const cfData = (cfRes && cfRes.ok) ? await cfRes.json().catch(() => []) : [];
-                    const incomeData = (incomeRes && incomeRes.ok) ? await incomeRes.json().catch(() => []) : [];
-                    const balanceData = (balanceRes && balanceRes.ok) ? await balanceRes.json().catch(() => []) : [];
-                    const ratiosData = (ratiosRes && ratiosRes.ok) ? await ratiosRes.json().catch(() => []) : [];
-                    const histDataRaw = (histRes && histRes.ok) ? await histRes.json().catch(() => null) : null;
-                    const estData = (estRes && estRes.ok) ? await estRes.json().catch(() => []) : [];
+                    profileData = (profileRes && profileRes.ok) ? await profileRes.json().catch(() => []) : [];
+                    quoteData = (quoteRes && quoteRes.ok) ? await quoteRes.json().catch(() => []) : [];
+                    metricsData = (metricsRes && metricsRes.ok) ? await metricsRes.json().catch(() => []) : [];
+                    ttmData = (ttmRes && ttmRes.ok) ? await ttmRes.json().catch(() => []) : [];
+                    earnData = (earnRes && earnRes.ok) ? await earnRes.json().catch(() => []) : [];
+                    rsiDataRaw = (rsiRes && rsiRes.ok) ? await rsiRes.json().catch(() => []) : [];
+                    macdDataRaw = (macdRes && macdRes.ok) ? await macdRes.json().catch(() => []) : [];
+                    cfData = (cfRes && cfRes.ok) ? await cfRes.json().catch(() => []) : [];
+                    incomeData = (incomeRes && incomeRes.ok) ? await incomeRes.json().catch(() => []) : [];
+                    balanceData = (balanceRes && balanceRes.ok) ? await balanceRes.json().catch(() => []) : [];
+                    ratiosData = (ratiosRes && ratiosRes.ok) ? await ratiosRes.json().catch(() => []) : [];
+                    histDataRaw = (histRes && histRes.ok) ? await histRes.json().catch(() => null) : null;
+                    estData = (estRes && estRes.ok) ? await estRes.json().catch(() => []) : [];
+                } catch (fetchErr) {
+                    console.error("[Backend] FMP Fetch Processing Error:", fetchErr);
+                    fmpDetails += `Fetch error: ${fetchErr.message}. `;
+                }
+            }
 
                     const hasProfile = Array.isArray(profileData) && profileData.length > 0;
                     const hasQuote = Array.isArray(quoteData) && quoteData.length > 0;
