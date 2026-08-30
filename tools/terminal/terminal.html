@@ -3571,7 +3571,7 @@
             if (!symbol) return null;
             try {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 6000);
+                const timeoutId = setTimeout(() => controller.abort(), 12000);
                 const res = await fetch(`/api/historical-data?symbol=${encodeURIComponent(symbol.trim())}`, {
                     signal: controller.signal
                 });
@@ -4165,9 +4165,12 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
 
             for (let i = 0; i <= retries; i++) {
                 try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 55000);
                     const res = await fetch('/api/analyze', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
+                        signal: controller.signal,
                         body: JSON.stringify({
                             ticker: query,
                             model: modelToUse,
@@ -4178,6 +4181,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                             historicalDataset: historicalDataset || undefined
                         })
                     });
+                    clearTimeout(timeoutId);
 
                     const errData = await res.json().catch(() => ({}));
                     const errMsg = errData.error || '';
