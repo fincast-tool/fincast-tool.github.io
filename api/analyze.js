@@ -457,15 +457,18 @@ Nutze Google Grounding, um alle geforderten Fundamentaldaten (Umsatzwachstum, Ma
             delete geminiBody.tools;
         }
 
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+        const activeModel = model || 'gemini-2.5-flash';
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${activeModel}:generateContent?key=${apiKey}`;
         const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(geminiBody)
         });
 
-        const data = await response.json();
-        if (!response.ok) return res.status(response.status).json({ error: data.error?.message });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            return res.status(response.status).json({ error: data.error?.message || `API Error ${response.status}` });
+        }
         res.status(200).json(data);
     } catch (error) {
         console.error("Critical Backend Error:", error);

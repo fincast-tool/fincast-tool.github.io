@@ -125,6 +125,11 @@
       "destination": "/assets/favicons/favicon2.png"
     }
   ],
+  "functions": {
+    "api/analyze.js": {
+      "maxDuration": 60
+    }
+  },
   "crons": [
     {
       "path": "/api/reset-queries",
