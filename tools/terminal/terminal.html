@@ -2824,13 +2824,19 @@
 
                 // Set to loading to show the skeleton
                 setUIState('loading');
-                updateLoadingStatus('Initializing Institutional Research Protocol...', 5);
+                updateLoadingStatus('Fetching Institutional Financial Statements & Historical Valuation...', 15);
 
-                // Fetch institutional research and deep historical fundamentals in parallel
-                let [finalResults, histDataset] = await Promise.all([
-                    runInstitutionalResearch(query, user, currentLangName),
-                    fetchHistoricalDataForTicker(query)
-                ]);
+                // Step 1: Fetch single unified historical fundamentals dataset first
+                let histDataset = await fetchHistoricalDataForTicker(query);
+
+                if (histDataset && histDataset.annual && histDataset.annual.length > 0) {
+                    CURRENT_NORMALIZED_HISTORICAL_DATA = histDataset;
+                    renderValueInvestingLayer(histDataset);
+                }
+
+                // Step 2: Run institutional AI research passing the unified dataset as context
+                updateLoadingStatus('Consulting 5 Institutional Research Domains...', 35);
+                const finalResults = await runInstitutionalResearch(query, user, currentLangName, histDataset);
 
                 // Fallback: If initial search didn't yield annual fundamentals, retry with AI-resolved ticker from company_identity
                 if ((!histDataset || !histDataset.annual || histDataset.annual.length === 0) && finalResults?.company_identity) {
@@ -2848,6 +2854,7 @@
                 if (histDataset) {
                     finalResults.historical_dataset = histDataset;
                     CURRENT_NORMALIZED_HISTORICAL_DATA = histDataset;
+                    renderValueInvestingLayer(histDataset);
                 }
 
                 CURRENT_ANALYSIS_DATA = finalResults;
@@ -2884,7 +2891,7 @@
             }
         }
 
-        async function runInstitutionalResearch(query, user, lang) {
+        async function runInstitutionalResearch(query, user, lang, historicalDataset = null) {
             const researchAgentIds = [
                 'business_quality',
                 'financial_quality',
@@ -2894,9 +2901,9 @@
             ];
 
             // ==================== PHASE 1 — RESEARCH BATCH ====================
-            updateLoadingStatus('Phase 1: Consulting 5 Institutional Research Domains...', 20);
+            updateLoadingStatus('Phase 1: Consulting 5 Institutional Research Domains...', 45);
             const researchPrompt = getBatchPrompt(query, lang, researchAgentIds);
-            const researchText = await fetchSingleBatch(query, user, researchPrompt, 1, true);
+            const researchText = await fetchSingleBatch(query, user, researchPrompt, 1, true, historicalDataset);
             const researchData = parseFrameworks(researchText);
 
             // Validate Phase 1 completeness
@@ -2904,9 +2911,9 @@
             console.log('[Research Protocol] Phase 1 Validation:', validation);
 
             // ==================== PHASE 2 — INVESTMENT COMMITTEE SYNTHESIS ====================
-            updateLoadingStatus('Phase 2: Investment Committee Synthesis & Thesis Validation...', 70);
+            updateLoadingStatus('Phase 2: Investment Committee Synthesis & Thesis Validation...', 75);
             const executivePrompt = getExecutivePrompt(query, lang, researchData, validation);
-            const executiveText = await fetchSingleBatch(query, user, executivePrompt, 1, false);
+            const executiveText = await fetchSingleBatch(query, user, executivePrompt, 1, false, historicalDataset);
             const executiveData = parseFrameworks(executiveText);
 
             // Merge datasets into consistent final research object
@@ -3224,7 +3231,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             return prompt;
         }
 
-        async function fetchSingleBatch(query, user, prompt, retries = 1, enableSearch = true) {
+        async function fetchSingleBatch(query, user, prompt, retries = 1, enableSearch = true, historicalDataset = null) {
             const geminiBody = {
                 contents: [{ parts: [{ text: prompt }] }],
                 generationConfig: {
@@ -3244,7 +3251,14 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     const res = await fetch('/api/analyze', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ ticker: query, model: MODEL_ID, geminiBody, email: user.email, apiKey: user.apiKey })
+                        body: JSON.stringify({
+                            ticker: query,
+                            model: MODEL_ID,
+                            geminiBody,
+                            email: user.email,
+                            apiKey: user.apiKey,
+                            historicalDataset: historicalDataset || undefined
+                        })
                     });
 
                     const errData = await res.json().catch(() => ({}));
@@ -3910,7 +3924,6 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 const sector = getValue('Sector') || getValue('Sektor');
                 const industry = getValue('Industry');
                 const price = getValue('Current Price') || getValue('Aktueller Kurs') || '--';
-                const desc = getValue('Profil') || getValue('Business Model') || getValue('Core Business') || getValue('Description') || (sector && industry ? `${sector} • ${industry}` : '--');
 
                 let codesStr = '';
                 if (isin && isin !== 'N/A' && isin !== '--') codesStr += isin;
@@ -3920,14 +3933,31 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
 
                 let sectorStr = sector || '--';
                 if (industry && industry !== 'N/A' && industry !== sector && sectorStr !== '--') {
-                    sectorStr += ` / ${industry}`;
+                    sectorStr += ` • ${industry}`;
+                }
+
+                // Authentic company description (from FMP profile or AI business model - never duplicate sector/industry)
+                const fmpProfileDesc = allData?.historical_dataset?.profile?.description;
+                let desc = fmpProfileDesc || getValue('Profil') || getValue('Business Model') || getValue('Core Business') || getValue('Description') || '';
+                if (desc && desc.length > 280) {
+                    desc = desc.substring(0, 280).trim() + '...';
                 }
 
                 document.getElementById('id_name').textContent = name;
                 document.getElementById('id_codes').textContent = codesStr;
                 document.getElementById('id_sector').textContent = sectorStr;
                 document.getElementById('id_hq').textContent = country || (exchange ? `Börse: ${exchange}` : '--');
-                document.getElementById('id_desc').textContent = desc;
+                
+                const descEl = document.getElementById('id_desc');
+                if (descEl) {
+                    if (desc && desc !== '--' && !desc.includes(sectorStr)) {
+                        descEl.textContent = desc;
+                        descEl.style.display = 'block';
+                    } else {
+                        descEl.textContent = '';
+                        descEl.style.display = 'none';
+                    }
+                }
                 document.getElementById('id_price').textContent = price;
             }
 
@@ -3936,20 +3966,29 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             updateDcfPotentialDisplay(data);
             renderAgentFazits(data);
 
-            if (data?.historical_dataset) {
+            if (data?.historical_dataset && Array.isArray(data.historical_dataset.annual) && data.historical_dataset.annual.length > 0) {
                 CURRENT_NORMALIZED_HISTORICAL_DATA = data.historical_dataset;
                 renderValueInvestingLayer(data.historical_dataset);
             } else {
+                const nameMatch = (text || '').match(/Name:\s*([^\n]+)/i);
                 const tickerMatch = (text || '').match(/(?:Ticker|Symbol):\s*([A-Z0-9.\-_]+)/i);
-                const tickerToFetch = tickerMatch ? tickerMatch[1].trim() : null;
-                if (tickerToFetch) {
-                    fetchHistoricalDataForTicker(tickerToFetch).then(dataset => {
-                        if (dataset) {
+                const isinMatch = (text || '').match(/ISIN:\s*([A-Z0-9]{12})/i);
+                const queryToFetch = (tickerMatch && tickerMatch[1] && tickerMatch[1] !== 'N/A' && tickerMatch[1] !== '--') ? tickerMatch[1].trim() : ((nameMatch && nameMatch[1]) ? nameMatch[1].trim() : (isinMatch ? isinMatch[1] : null));
+
+                if (queryToFetch) {
+                    fetchHistoricalDataForTicker(queryToFetch).then(dataset => {
+                        if (dataset && dataset.annual && dataset.annual.length > 0) {
                             CURRENT_NORMALIZED_HISTORICAL_DATA = dataset;
                             data.historical_dataset = dataset;
                             renderValueInvestingLayer(dataset);
+                        } else if (data?.historical_dataset) {
+                            CURRENT_NORMALIZED_HISTORICAL_DATA = data.historical_dataset;
+                            renderValueInvestingLayer(data.historical_dataset);
                         }
                     });
+                } else if (data?.historical_dataset) {
+                    CURRENT_NORMALIZED_HISTORICAL_DATA = data.historical_dataset;
+                    renderValueInvestingLayer(data.historical_dataset);
                 } else if (CURRENT_NORMALIZED_HISTORICAL_DATA) {
                     renderValueInvestingLayer(CURRENT_NORMALIZED_HISTORICAL_DATA);
                 }
@@ -5045,7 +5084,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             const maxRev = Math.max(...revVals, 1);
             const numBars = ann.length;
             const groupW = chartW / numBars;
-            const barW = Math.max(4, Math.min(22, groupW * 0.55));
+            const barW = Math.max(3, Math.min(22, groupW * 0.55));
 
             let barsHtml = '';
             let labelsHtml = '';
@@ -5061,9 +5100,17 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     <!-- FCF Dot / Overlay -->
                     ${p.freeCashFlow !== null ? `<circle cx="${xCenter}" cy="${padTop + chartH - (p.freeCashFlow > 0 ? (p.freeCashFlow / maxRev) * (chartH - 10) : 0)}" r="3" fill="${p.freeCashFlow >= 0 ? '#10B981' : '#F87171'}" stroke="#0B0E12" stroke-width="1" />` : ''}
                 `;
-
-                labelsHtml += `<text x="${xCenter}" y="${height - 6}" fill="#64748B" font-size="8.5" font-family="'JetBrains Mono', monospace" text-anchor="middle">${p.year}</text>`;
             });
+
+            const step = ann.length <= 6 ? 1 : Math.max(1, Math.floor(ann.length / 5));
+            for (let i = 0; i < ann.length; i += step) {
+                const xCenter = padLeft + (i + 0.5) * groupW;
+                labelsHtml += `<text x="${xCenter}" y="${height - 6}" fill="#64748B" font-size="8.5" font-family="'JetBrains Mono', monospace" text-anchor="middle">${ann[i].year}</text>`;
+            }
+            if (ann.length > 1 && (ann.length - 1) % step !== 0) {
+                const lastX = padLeft + (ann.length - 0.5) * groupW;
+                labelsHtml += `<text x="${lastX}" y="${height - 6}" fill="#64748B" font-size="8.5" font-family="'JetBrains Mono', monospace" text-anchor="middle">${ann[ann.length - 1].year}</text>`;
+            }
 
             svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
             svg.innerHTML = `
@@ -5124,9 +5171,13 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             const netPath = netPts.length >= 2 ? netPts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${getX(ann.indexOf(p))} ${getY(p.netMargin)}`).join(' ') : '';
 
             let labelsHtml = '';
-            ann.forEach((p, i) => {
-                labelsHtml += `<text x="${getX(i)}" y="${height - 6}" fill="#64748B" font-size="8.5" font-family="'JetBrains Mono', monospace" text-anchor="middle">${p.year}</text>`;
-            });
+            const step = ann.length <= 6 ? 1 : Math.max(1, Math.floor(ann.length / 5));
+            for (let i = 0; i < ann.length; i += step) {
+                labelsHtml += `<text x="${getX(i)}" y="${height - 6}" fill="#64748B" font-size="8.5" font-family="'JetBrains Mono', monospace" text-anchor="middle">${ann[i].year}</text>`;
+            }
+            if (ann.length > 1 && (ann.length - 1) % step !== 0) {
+                labelsHtml += `<text x="${getX(ann.length - 1)}" y="${height - 6}" fill="#64748B" font-size="8.5" font-family="'JetBrains Mono', monospace" text-anchor="middle">${ann[ann.length - 1].year}</text>`;
+            }
 
             svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
             svg.innerHTML = `
@@ -5182,9 +5233,13 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             const roePath = roePts.length >= 2 ? roePts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${getX(ann.indexOf(p))} ${getY(p.roe)}`).join(' ') : '';
 
             let labelsHtml = '';
-            ann.forEach((p, i) => {
-                labelsHtml += `<text x="${getX(i)}" y="${height - 6}" fill="#64748B" font-size="8.5" font-family="'JetBrains Mono', monospace" text-anchor="middle">${p.year}</text>`;
-            });
+            const step = ann.length <= 6 ? 1 : Math.max(1, Math.floor(ann.length / 5));
+            for (let i = 0; i < ann.length; i += step) {
+                labelsHtml += `<text x="${getX(i)}" y="${height - 6}" fill="#64748B" font-size="8.5" font-family="'JetBrains Mono', monospace" text-anchor="middle">${ann[i].year}</text>`;
+            }
+            if (ann.length > 1 && (ann.length - 1) % step !== 0) {
+                labelsHtml += `<text x="${getX(ann.length - 1)}" y="${height - 6}" fill="#64748B" font-size="8.5" font-family="'JetBrains Mono', monospace" text-anchor="middle">${ann[ann.length - 1].year}</text>`;
+            }
 
             svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
             svg.innerHTML = `
@@ -5231,9 +5286,13 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             const sharePath = sharePts.length >= 2 ? sharePts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${getX(ann.indexOf(p))} ${getY(p.sharesOutstanding / 1e6)}`).join(' ') : '';
 
             let labelsHtml = '';
-            ann.forEach((p, i) => {
-                labelsHtml += `<text x="${getX(i)}" y="${height - 6}" fill="#64748B" font-size="8.5" font-family="'JetBrains Mono', monospace" text-anchor="middle">${p.year}</text>`;
-            });
+            const step = ann.length <= 6 ? 1 : Math.max(1, Math.floor(ann.length / 5));
+            for (let i = 0; i < ann.length; i += step) {
+                labelsHtml += `<text x="${getX(i)}" y="${height - 6}" fill="#64748B" font-size="8.5" font-family="'JetBrains Mono', monospace" text-anchor="middle">${ann[i].year}</text>`;
+            }
+            if (ann.length > 1 && (ann.length - 1) % step !== 0) {
+                labelsHtml += `<text x="${getX(ann.length - 1)}" y="${height - 6}" fill="#64748B" font-size="8.5" font-family="'JetBrains Mono', monospace" text-anchor="middle">${ann[ann.length - 1].year}</text>`;
+            }
 
             svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
             svg.innerHTML = `
@@ -5241,6 +5300,44 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 ${sharePath ? `<path d="${sharePath}" fill="none" stroke="#A855F7" stroke-width="2.2" stroke-linejoin="round" />` : ''}
                 ${labelsHtml}
             `;
+        }
+
+        // --- TIMEFRAME BUTTON CONTROLLER ---
+        function updateTimeframeButtonStates(dataset, activeValTf, activeMultTf) {
+            const avail = dataset?.availableYears || 0;
+            const tfList = ['1J', '3J', '5J', '10J', 'MAX'];
+
+            tfList.forEach(tf => {
+                const vBtn = document.getElementById(`valTfBtn_${tf}`);
+                const mBtn = document.getElementById(`multTfBtn_${tf}`);
+
+                let disabled = false;
+                if (tf === '3J' && avail < 2) disabled = true;
+                if (tf === '5J' && avail < 4) disabled = true;
+                if (tf === '10J' && avail < 7) disabled = true;
+
+                if (vBtn) {
+                    vBtn.disabled = disabled;
+                    if (disabled) {
+                        vBtn.className = 'val-tf-btn px-2 py-0.5 rounded text-[10px] font-medium text-slate-600 opacity-30 cursor-not-allowed';
+                    } else if (tf === activeValTf) {
+                        vBtn.className = 'val-tf-btn px-2 py-0.5 rounded text-[10px] font-semibold text-white bg-[#171C23] border border-[#2D3748] shadow-sm';
+                    } else {
+                        vBtn.className = 'val-tf-btn px-2 py-0.5 rounded text-[10px] font-medium text-slate-400 hover:text-white transition-all';
+                    }
+                }
+
+                if (mBtn) {
+                    mBtn.disabled = disabled;
+                    if (disabled) {
+                        mBtn.className = 'mult-tf-btn px-2 py-0.5 rounded text-[10px] font-medium text-slate-600 opacity-30 cursor-not-allowed';
+                    } else if (tf === activeMultTf) {
+                        mBtn.className = 'mult-tf-btn px-2 py-0.5 rounded text-[10px] font-semibold text-white bg-[#171C23] border border-[#2D3748] shadow-sm';
+                    } else {
+                        mBtn.className = 'mult-tf-btn px-2 py-0.5 rounded text-[10px] font-medium text-slate-400 hover:text-white transition-all';
+                    }
+                }
+            });
         }
 
         // --- MASTER VALUE INVESTING DISPATCH FUNCTION ---
@@ -5251,6 +5348,8 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
 
             const valResult = calculateHistoricalValuationJs(dataset, { selectedMethod, timeframe });
             CURRENT_VALUATION_RESULT = valResult;
+
+            updateTimeframeButtonStates(dataset, SELECTED_VALUATION_TIMEFRAME, SELECTED_MULTIPLES_TIMEFRAME);
 
             renderCompanySnapshot(dataset, valResult);
             renderValueChart(dataset, valResult);
