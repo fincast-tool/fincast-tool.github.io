@@ -1141,21 +1141,11 @@
 
                         <div id="resultsState" class="state-hidden">
                             <!-- Company Header & Identity Strip -->
-                            <div id="identityStrip" class="mb-6 p-4 sm:p-6 rounded-xl border border-[#202630] bg-[#11151B] relative">
-                                <button onclick="shareCurrentAnalysis()"
-                                    class="absolute top-4 right-4 p-2 text-slate-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors"
-                                    title="Analyse Teilen">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z">
-                                        </path>
-                                    </svg>
-                                </button>
-
+                            <div id="identityStrip" class="mb-6 p-4 sm:p-6 rounded-xl border border-[#202630] bg-[#11151B]">
                                 <!-- Top Row: Primary Company Identifiers & Live Price -->
                                 <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 pb-5 border-b border-[#202630]">
                                     <!-- Left: Company Name, Ticker, Security Codes & Subtitle -->
-                                    <div class="min-w-0 pr-8">
+                                    <div class="min-w-0 flex-1">
                                         <div class="flex items-center gap-2.5 flex-wrap mb-1.5">
                                             <h1 id="id_name" class="text-lg sm:text-xl md:text-2xl font-bold text-white tracking-tight truncate">--</h1>
                                             <span id="id_codes" class="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-[#171C23] border border-[#252C35] text-slate-300">--</span>
@@ -1169,11 +1159,23 @@
                                         <p id="id_desc" class="text-xs text-slate-400 font-sans leading-relaxed mt-2.5 max-w-3xl">--</p>
                                     </div>
 
-                                    <!-- Right: Current Price & DCF Potential Banner -->
-                                    <div class="flex flex-row lg:flex-col items-start lg:items-end justify-between lg:justify-start gap-2 shrink-0 bg-[#0B0E12]/60 lg:bg-transparent p-3 lg:p-0 rounded-lg border lg:border-none border-[#202630]">
-                                        <div>
-                                            <span class="text-[10px] text-slate-400 font-medium block lg:text-right uppercase tracking-wider">Aktueller Kurs</span>
-                                            <div id="id_price" class="font-mono text-xl sm:text-2xl font-bold text-white tracking-tight lg:text-right">--</div>
+                                    <!-- Right: Current Price, DCF Potential Banner & Share Button -->
+                                    <div class="flex flex-row lg:flex-col items-start lg:items-end justify-between lg:justify-start gap-3 shrink-0 bg-[#0B0E12]/60 lg:bg-transparent p-3 lg:p-0 rounded-lg border lg:border-none border-[#202630]">
+                                        <div class="flex items-center lg:items-start gap-3">
+                                            <div>
+                                                <span class="text-[10px] text-slate-400 font-medium block lg:text-right uppercase tracking-wider">Aktueller Kurs</span>
+                                                <div id="id_price" class="font-mono text-xl sm:text-2xl font-bold text-white tracking-tight lg:text-right">--</div>
+                                            </div>
+                                            <button onclick="shareCurrentAnalysis()"
+                                                class="p-2 text-slate-400 hover:text-white rounded-lg bg-[#171C23] hover:bg-[#202630] border border-[#252C35] transition-colors shrink-0"
+                                                title="Analyse Teilen"
+                                                aria-label="Analyse Teilen">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z">
+                                                    </path>
+                                                </svg>
+                                            </button>
                                         </div>
                                         <div class="lg:mt-1 flex flex-col items-end">
                                             <span class="text-[9px] text-slate-400 font-medium block text-right uppercase tracking-wider mb-0.5" data-de="Kurspotenzial DCF" data-en="DCF Price Potential" data-fr="Potentiel de Cours DCF" data-es="Potencial de Precio DCF">DCF Potenzial</span>
@@ -2746,6 +2748,7 @@
 
         const FRAMEWORK_IDS = [
             'company_identity',
+            'financial_dataset',
             'business_quality',
             'financial_quality',
             'earnings_expectations',
@@ -2824,30 +2827,26 @@
 
                 // Set to loading to show the skeleton
                 setUIState('loading');
-                updateLoadingStatus('Fetching Institutional Financial Statements & Historical Valuation...', 15);
+                updateLoadingStatus('Consulting 5 Institutional Research Domains & Live Google Grounding...', 25);
 
-                // Step 1: Fetch single unified historical fundamentals dataset first
-                let histDataset = await fetchHistoricalDataForTicker(query);
+                // Step 1: Run institutional AI research with Google Search Grounding enabled
+                const finalResults = await runInstitutionalResearch(query, user, currentLangName, null);
 
-                if (histDataset && histDataset.annual && histDataset.annual.length > 0) {
-                    CURRENT_NORMALIZED_HISTORICAL_DATA = histDataset;
-                    renderValueInvestingLayer(histDataset);
+                // Step 2: Extract researched financial dataset (or FMP fallback if available)
+                let histDataset = finalResults.financial_dataset || finalResults.historical_dataset;
+
+                if (histDataset) {
+                    const normalized = normalizeHistoricalFinancialData(histDataset);
+                    if (normalized && normalized.annual && normalized.annual.length > 0) {
+                        histDataset = normalized;
+                    }
                 }
 
-                // Step 2: Run institutional AI research passing the unified dataset as context
-                updateLoadingStatus('Consulting 5 Institutional Research Domains...', 35);
-                const finalResults = await runInstitutionalResearch(query, user, currentLangName, histDataset);
-
-                // Fallback: If initial search didn't yield annual fundamentals, retry with AI-resolved ticker from company_identity
-                if ((!histDataset || !histDataset.annual || histDataset.annual.length === 0) && finalResults?.company_identity) {
-                    const idTickerMatch = finalResults.company_identity.match(/(?:Ticker|Symbol):\s*([A-Z0-9.\-_]+)/i);
-                    const resolvedTicker = idTickerMatch ? idTickerMatch[1].trim() : null;
-                    if (resolvedTicker && resolvedTicker.toUpperCase() !== query.trim().toUpperCase()) {
-                        console.log(`[Research Protocol] Retrying historical fetch with AI-resolved ticker: ${resolvedTicker}`);
-                        const retryDataset = await fetchHistoricalDataForTicker(resolvedTicker);
-                        if (retryDataset && retryDataset.annual && retryDataset.annual.length > 0) {
-                            histDataset = retryDataset;
-                        }
+                // If dataset was not in AI research output, attempt fast background fetch fallback
+                if (!histDataset || !histDataset.annual || histDataset.annual.length === 0) {
+                    const fallbackDataset = await fetchHistoricalDataForTicker(query);
+                    if (fallbackDataset && fallbackDataset.annual && fallbackDataset.annual.length > 0) {
+                        histDataset = fallbackDataset;
                     }
                 }
 
@@ -2901,7 +2900,7 @@
             ];
 
             // ==================== PHASE 1 — RESEARCH BATCH ====================
-            updateLoadingStatus('Phase 1: Consulting 5 Institutional Research Domains...', 45);
+            updateLoadingStatus('Phase 1: Consulting 5 Institutional Research Domains with Google Grounding...', 45);
             const researchPrompt = getBatchPrompt(query, lang, researchAgentIds);
             const researchText = await fetchSingleBatch(query, user, researchPrompt, 1, true, historicalDataset);
             const researchData = parseFrameworks(researchText);
@@ -2919,6 +2918,7 @@
             // Merge datasets into consistent final research object
             const mergedResults = {
                 company_identity: researchData.company_identity || executiveData.company_identity || null,
+                financial_dataset: researchData.financial_dataset || null,
                 business_quality: researchData.business_quality || null,
                 financial_quality: researchData.financial_quality || null,
                 earnings_expectations: researchData.earnings_expectations || null,
@@ -3103,47 +3103,86 @@ Technical Signal: [EXACTLY ONE: [STRONG BULLISH] / [BULLISH] / [NEUTRAL] / [BEAR
             const todayIso = new Date().toISOString().split('T')[0];
             let prompt = `CURRENT DATE: ${todayIso}
 LANGUAGE: Respond EXCLUSIVELY in ${lang}.
-TASK: Phase 1 Institutional Equity Research Deep-Dive Analysis for "${query}". \n\n`;
+TASK: Institutional Equity Research, Live Market Grounding & Deep Historical Fundamentals for "${query}".
 
-            prompt += `STRICT INSTITUTIONAL RESEARCH DIRECTIVES:
-1. PRIMARY DATA SOURCE: Use the [FMP API BLOCK] as your primary, deterministically binding source of truth for all corporate identifiers, metrics, financials, and prices.
-2. DATA CLASSIFICATION: Classify every key figure internally as OBSERVED (direct report/market), CALCULATED (deterministic math), CONSENSUS (analyst mean), MODEL (valuation output), QUALITATIVE (deduction), MISSING (not in data -> output N/A), or STALE (outdated timestamp).
-3. NO INVENTION RULE: Under NO circumstances invent, extrapolate, or guess missing data points. If a metric (e.g. WACC, Terminal Growth, Consensus Revisions, Debt Maturity, Options) is missing, output strictly 'N/A'.
-4. CURRENCY CONSISTENCY (CRITICAL): All financial amounts, price targets, DCF values, and current prices across ALL agents MUST use the EXACT SAME native trading/reporting currency from the FMP API BLOCK (e.g. USD, EUR, NOK, CHF, GBP). Always state the currency code with every price (e.g. '209.17 USD', '305.50 NOK', '45.00 EUR'). NEVER convert or mix currencies.
-5. NO DUPLICATE DATA: Each analytical perspective has strict functional ownership. (Support/Resistance ONLY in market_structure; KGV/DCF ONLY in valuation; ROIC/Debt in financial_quality; Moat in business_quality).
-6. SECTOR-AWARE ANALYSIS:
-   - Banks/Insurance: Focus on RoTE, NIM, CET1, P/B, P/E; DO NOT use EV/EBITDA or standard FCFF.
-   - REITs: Focus on FFO/AFFO, Cap Rate, NAV, Occupancy.
-   - SaaS: Focus on ARR, NRR, Rule of 40, CAC/LTV, SBC dilution.
-   - Commodities/Energy: Focus on AISC, Reserve Life, Production, Realized Pricing, Unit Economics.
-   - Retail: Focus on Same-Store Sales, Gross Margin, Inventory Turn.
-   - Semiconductors: Focus on Cycle Position, Fab Utilization, ASP, CapEx intensity.
-7. OUTPUT STYLE: Concise bullet points: FACT -> CALCULATION -> INTERPRETATION (max 1-2 sentences per qualitative conclusion).
-8. TOOL USAGE: Use google_search ONLY for very recent news (last 24-48h), management changes, M&A, or new guidance. NEVER search for metrics already in FMP block.
-9. OUTPUT FORMAT: Output ONLY the section XML tags in exact order. If <system_status> is provided in prompt, keep it as FIRST section.
+STRICT INSTITUTIONAL RESEARCH DIRECTIVES:
+1. GOOGLE SEARCH GROUNDING (PRIMARY): Use real-time Google Search Grounding to research authoritative corporate financial data across Google Finance, SEC Filings (10-K/20-F), Yahoo Finance, Macrotrends, StockAnalysis, Morningstar, and investor relations. (If [FMP API BLOCK] is present with valid numbers, merge and verify with it).
+2. MAXIMUM HISTORICAL DATA (CRITICAL): Research the MAXIMUM available historical annual financial periods (from the last 3 up to 10+ available years, e.g. 2019–2024 or 2014–2024). Extract Revenue, Operating Income, Net Income, EPS, Operating Cash Flow, Capex, Free Cash Flow, Total Assets, Total Equity, Total Debt, Shares Outstanding, Period Close Price, and historical P/E for each reported year.
+3. DATA INTEGRITY: Output observed reported figures. If an exact item is unavailable, omit or calculate consistently from reported statements.
+4. CURRENCY CONSISTENCY (CRITICAL): All financial amounts, price targets, DCF values, and current prices across ALL sections MUST use the EXACT SAME native trading/reporting currency (e.g. USD, EUR, NOK, CHF, GBP). Always state the currency code with every price (e.g. '513.53 USD', '45.00 EUR').
+5. OUTPUT FORMAT: Output ONLY the requested section XML tags in exact order: <company_identity>, <financial_dataset>, followed by the 5 research perspectives.
 
-Generate the deterministic identity section first, followed by the 5 research perspectives:\n\n`;
+Generate the identity section and the structured financial dataset first, followed by the 5 analytical perspectives:\n\n`;
 
-            // 1. Deterministischer Identity Layer
+            // 1. Identity Layer
             prompt += `<company_identity>
-Name: [Use 'Name' from FMP API BLOCK]
-Ticker: [Use 'Ticker' / 'Symbol' from FMP API BLOCK]
-ISIN: [Use 'ISIN' from FMP API BLOCK or N/A]
-WKN: [Use 'WKN' from FMP API BLOCK or N/A]
-Exchange: [Use 'Exchange' from FMP API BLOCK or N/A]
-Country: [Use 'Country' / 'HQ' from FMP API BLOCK or N/A]
-Currency: [Use 'Currency' from FMP API BLOCK, e.g. USD, EUR, NOK]
-Sector: [Use 'Sector' from FMP API BLOCK or N/A]
-Industry: [Use 'Industry' from FMP API BLOCK or N/A]
-Current Price: [Use 'Current Price' with currency from FMP API BLOCK, e.g. '209.17 USD']
-Market Cap: [Use 'Market Cap' from FMP API BLOCK with currency]
-Enterprise Value: [Use 'Enterprise Value' from FMP API BLOCK or N/A]
-Fiscal Year: [Use 'Fiscal Year' from FMP API BLOCK or N/A]
-Latest Reporting Date: [Use 'Latest Reporting Date' from FMP API BLOCK or N/A]
+Name: [Official Company Name]
+Ticker: [Primary Ticker Symbol, e.g. MSFT, AAPL, SAP]
+ISIN: [ISIN or N/A]
+WKN: [WKN or N/A]
+Exchange: [Primary Exchange, e.g. NASDAQ, NYSE, XETRA]
+Country: [HQ City, Country]
+Currency: [Native Currency Code, e.g. USD, EUR]
+Sector: [GICS Sector]
+Industry: [GICS Industry]
+Current Price: [Current stock price with currency, e.g. '513.53 USD']
+Market Cap: [Market cap with currency, e.g. '3.81 Trillion USD' or '3.81 Bio. USD']
+Enterprise Value: [Enterprise value or N/A]
+Fiscal Year: [Latest completed fiscal year, e.g. FY2024]
+Latest Reporting Date: [Latest earnings/annual report date]
 Data Timestamp: [${todayIso}]
 </company_identity>\n\n`;
 
-            // 2. Modulare Research Prompts (5 Domains)
+            // 2. Structured Financial Dataset (Feeds SVG charts and Empirical Valuation Engine)
+            prompt += `<financial_dataset>
+Extract the MAXIMUM available historical reporting periods (3 to 10+ years) into this clean JSON format (without markdown fences):
+{
+  "symbol": "TICKER",
+  "companyName": "Company Name",
+  "currency": "USD",
+  "sector": "Sector",
+  "industry": "Industry",
+  "currentPrice": 00.00,
+  "marketCap": 000000000000,
+  "yearHigh": 00.00,
+  "yearLow": 00.00,
+  "annual": [
+    {
+      "year": 2020,
+      "date": "2020-12-31",
+      "revenue": 143015000000,
+      "grossProfit": 96937000000,
+      "operatingIncome": 52959000000,
+      "netIncome": 44281000000,
+      "eps": 5.76,
+      "epsAdj": 5.76,
+      "operatingCashFlow": 60675000000,
+      "capex": 15441000000,
+      "freeCashFlow": 45234000000,
+      "totalAssets": 301311000000,
+      "totalEquity": 118304000000,
+      "totalDebt": 70998000000,
+      "cashAndEquivalents": 13397000000,
+      "sharesOutstanding": 7571000000,
+      "periodClosePrice": 203.51,
+      "peRatio": 35.3,
+      "roic": 28.5,
+      "roe": 37.4,
+      "grossMargin": 67.8,
+      "operatingMargin": 37.0,
+      "netMargin": 31.0,
+      "fcfMargin": 31.6,
+      "debtToEquity": 0.60,
+      "dividendPerShare": 2.04
+    }
+  ],
+  "estimates": [
+    { "year": 2025, "revenueAvg": 279000000000, "epsAvg": 13.10 }
+  ]
+}
+</financial_dataset>\n\n`;
+
+            // 3. Modulare Research Prompts (5 Domains)
             const requestedAgents = Array.isArray(agentIds) ? agentIds : Object.keys(AGENT_PROMPTS);
             requestedAgents.forEach(id => {
                 if (AGENT_PROMPTS[id]) {
@@ -3243,7 +3282,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
 
             // Only attach Google Search tool if search is explicitly enabled
             if (enableSearch) {
-                geminiBody.tools = [{ google_search: {} }];
+                geminiBody.tools = [{ googleSearch: {} }];
             }
 
             for (let i = 0; i <= retries; i++) {
@@ -3329,7 +3368,27 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                         });
                         content = cleanText.substring(contentStart, nextTagIdx !== -1 ? nextTagIdx : undefined).trim();
                     }
-                    if (content) data[id] = content;
+                    if (content) {
+                        if (id === 'financial_dataset') {
+                            try {
+                                let jsonStr = content.replace(/```json/gi, '').replace(/```/g, '').trim();
+                                const startObj = jsonStr.indexOf('{');
+                                const endObj = jsonStr.lastIndexOf('}');
+                                if (startObj !== -1 && endObj !== -1 && endObj > startObj) {
+                                    jsonStr = jsonStr.substring(startObj, endObj + 1);
+                                    const parsed = JSON.parse(jsonStr);
+                                    if (parsed && typeof parsed === 'object') {
+                                        data[id] = parsed;
+                                    }
+                                }
+                            } catch (jsonErr) {
+                                console.warn('[Framework Parser] Failed to parse financial_dataset JSON:', jsonErr);
+                                data[id] = content;
+                            }
+                        } else {
+                            data[id] = content;
+                        }
+                    }
                 }
             });
             return data;
@@ -4178,99 +4237,169 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             const seenDates = new Set();
             const annualPeriods = [];
 
-            incomeList.forEach(inc => {
-                if (!inc || !inc.date) return;
-                const dateStr = inc.date.split('T')[0];
-                if (seenDates.has(dateStr)) return;
-                seenDates.add(dateStr);
+            // Case A: Structured annual periods already provided (e.g. from Google Search Grounding)
+            if (Array.isArray(raw.annual) && raw.annual.length > 0) {
+                raw.annual.forEach(item => {
+                    if (!item) return;
+                    const year = Number(item.year) || (item.date ? parseInt(item.date.substring(0, 4), 10) : 0);
+                    const dateStr = item.date || (year ? `${year}-12-31` : '');
+                    if (!year || seenDates.has(dateStr)) return;
+                    seenDates.add(dateStr);
 
-                const year = Number(inc.calendarYear) || parseInt(dateStr.substring(0, 4), 10);
-                const bal = balanceByDate.get(dateStr) || {};
-                const cf = cfByDate.get(dateStr) || {};
-                const met = metricsByDate.get(dateStr) || {};
-                const rat = ratiosByDate.get(dateStr) || {};
+                    const revenue = safeNum(item.revenue);
+                    const grossProfit = safeNum(item.grossProfit);
+                    const operatingIncome = safeNum(item.operatingIncome);
+                    const netIncome = safeNum(item.netIncome);
+                    const eps = safeNum(item.eps);
+                    const epsAdj = safeNum(item.epsAdj) ?? eps;
+                    const sharesOutstanding = safeNum(item.sharesOutstanding) ?? safeNum(quote.sharesOutstanding);
+                    const revenuePerShare = safeNum(item.revenuePerShare) ?? ((revenue !== null && sharesOutstanding && sharesOutstanding > 0) ? (revenue / sharesOutstanding) : null);
+                    const ebitda = safeNum(item.ebitda) ?? operatingIncome;
+                    const operatingCashFlow = safeNum(item.operatingCashFlow);
+                    const capex = safeNum(item.capex);
+                    const freeCashFlow = safeNum(item.freeCashFlow) ?? ((operatingCashFlow !== null && capex !== null) ? operatingCashFlow - Math.abs(capex) : null);
+                    const freeCashFlowPerShare = safeNum(item.freeCashFlowPerShare) ?? ((freeCashFlow !== null && sharesOutstanding && sharesOutstanding > 0) ? freeCashFlow / sharesOutstanding : null);
+                    const totalAssets = safeNum(item.totalAssets);
+                    const totalEquity = safeNum(item.totalEquity);
+                    const totalDebt = safeNum(item.totalDebt);
+                    const netDebt = safeNum(item.netDebt) ?? totalDebt;
+                    const cashAndEquivalents = safeNum(item.cashAndEquivalents);
+                    const bookValuePerShare = safeNum(item.bookValuePerShare) ?? ((totalEquity !== null && sharesOutstanding && sharesOutstanding > 0) ? totalEquity / sharesOutstanding : null);
 
-                const revenue = safeNum(inc.revenue);
-                const grossProfit = safeNum(inc.grossProfit);
-                const operatingIncome = safeNum(inc.operatingIncome);
-                const netIncome = safeNum(inc.netIncome);
-                const eps = safeNum(inc.eps);
-                const epsAdj = safeNum(inc.epsdiluted) ?? eps;
-                const sharesOutstanding = safeNum(inc.weightedAverageShsOut) ?? safeNum(bal.commonStock) ?? safeNum(quote.sharesOutstanding);
-                const revenuePerShare = (revenue !== null && sharesOutstanding && sharesOutstanding > 0) ? (revenue / sharesOutstanding) : safeNum(met.revenuePerShare);
+                    const grossMargin = safeNum(item.grossMargin) ?? ((grossProfit !== null && revenue && revenue > 0) ? (grossProfit / revenue) * 100 : null);
+                    const operatingMargin = safeNum(item.operatingMargin) ?? ((operatingIncome !== null && revenue && revenue > 0) ? (operatingIncome / revenue) * 100 : null);
+                    const ebitMargin = safeNum(item.ebitMargin) ?? operatingMargin;
+                    const netMargin = safeNum(item.netMargin) ?? ((netIncome !== null && revenue && revenue > 0) ? (netIncome / revenue) * 100 : null);
+                    const fcfMargin = safeNum(item.fcfMargin) ?? ((freeCashFlow !== null && revenue && revenue > 0) ? (freeCashFlow / revenue) * 100 : null);
 
-                const ebitda = safeNum(inc.ebitda) ?? (
-                    (operatingIncome !== null && safeNum(cf.depreciationAndAmortization) !== null)
-                        ? operatingIncome + safeNum(cf.depreciationAndAmortization)
-                        : null
-                );
+                    const roic = safeNum(item.roic);
+                    const roe = safeNum(item.roe) ?? ((netIncome !== null && totalEquity && totalEquity > 0) ? (netIncome / totalEquity) * 100 : null);
+                    const roa = safeNum(item.roa) ?? ((netIncome !== null && totalAssets && totalAssets > 0) ? (netIncome / totalAssets) * 100 : null);
+                    const debtToEquity = safeNum(item.debtToEquity) ?? ((totalDebt !== null && totalEquity && totalEquity > 0) ? totalDebt / totalEquity : null);
+                    const netDebtToEbitda = isFinancialSector ? null : (safeNum(item.netDebtToEbitda) ?? ((netDebt !== null && ebitda && ebitda > 0) ? netDebt / ebitda : null));
+                    const interestCoverage = safeNum(item.interestCoverage);
 
-                const operatingCashFlow = safeNum(cf.operatingCashFlow) ?? safeNum(cf.netCashProvidedByOperatingActivities);
-                const capex = safeNum(cf.capitalExpenditure);
-                const freeCashFlow = safeNum(cf.freeCashFlow) ?? (
-                    (operatingCashFlow !== null && capex !== null)
-                        ? operatingCashFlow - Math.abs(capex)
-                        : null
-                );
-                const freeCashFlowPerShare = (freeCashFlow !== null && sharesOutstanding && sharesOutstanding > 0)
-                    ? freeCashFlow / sharesOutstanding
-                    : safeNum(met.freeCashFlowPerShare);
+                    const dividendPerShare = safeNum(item.dividendPerShare);
+                    const dividendYield = safeNum(item.dividendYield);
+                    const payoutRatio = safeNum(item.payoutRatio) ?? ((dividendPerShare !== null && eps && eps > 0) ? (dividendPerShare / eps) * 100 : null);
 
-                const dividendsPaid = safeNum(cf.dividendsPaid) ?? safeNum(cf.commonDividendsPaid);
-                const stockRepurchased = safeNum(cf.commonStockRepurchased) ?? safeNum(cf.repurchaseOfCapitalStock);
+                    const periodClosePrice = safeNum(item.periodClosePrice) ?? findClosestPrice(dateStr);
+                    const peRatio = safeNum(item.peRatio) ?? ((periodClosePrice !== null && eps && eps > 0) ? periodClosePrice / eps : null);
+                    const peRatioAdj = safeNum(item.peRatioAdj) ?? ((periodClosePrice !== null && epsAdj && epsAdj > 0) ? periodClosePrice / epsAdj : peRatio);
+                    const pbRatio = safeNum(item.pbRatio) ?? ((periodClosePrice !== null && bookValuePerShare && bookValuePerShare > 0) ? periodClosePrice / bookValuePerShare : null);
+                    const pfcfRatio = safeNum(item.pfcfRatio) ?? ((periodClosePrice !== null && freeCashFlowPerShare && freeCashFlowPerShare > 0) ? periodClosePrice / freeCashFlowPerShare : null);
+                    const psRatio = safeNum(item.psRatio) ?? ((periodClosePrice !== null && revenuePerShare && revenuePerShare > 0) ? periodClosePrice / revenuePerShare : null);
+                    const evEbitdaRatio = safeNum(item.evEbitdaRatio);
 
-                const totalAssets = safeNum(bal.totalAssets);
-                const totalEquity = safeNum(bal.totalStockholdersEquity) ?? safeNum(bal.totalEquity);
-                const totalDebt = safeNum(bal.totalDebt);
-                const netDebt = safeNum(bal.netDebt) ?? (
-                    (totalDebt !== null && safeNum(bal.cashAndCashEquivalents) !== null)
-                        ? totalDebt - safeNum(bal.cashAndCashEquivalents)
-                        : null
-                );
-                const cashAndEquivalents = safeNum(bal.cashAndCashEquivalents) ?? safeNum(bal.cashAndShortTermInvestments);
-                const bookValuePerShare = (totalEquity !== null && sharesOutstanding && sharesOutstanding > 0)
-                    ? totalEquity / sharesOutstanding
-                    : safeNum(met.bookValuePerShare);
-
-                const grossMargin = (grossProfit !== null && revenue && revenue > 0) ? (grossProfit / revenue) * 100 : (safeNum(rat.grossProfitMargin) !== null ? safeNum(rat.grossProfitMargin) * 100 : null);
-                const operatingMargin = (operatingIncome !== null && revenue && revenue > 0) ? (operatingIncome / revenue) * 100 : (safeNum(rat.operatingProfitMargin) !== null ? safeNum(rat.operatingProfitMargin) * 100 : null);
-                const ebitMargin = (operatingIncome !== null && revenue && revenue > 0) ? (operatingIncome / revenue) * 100 : (safeNum(rat.ebitPerRevenue) !== null ? safeNum(rat.ebitPerRevenue) * 100 : operatingMargin);
-                const netMargin = (netIncome !== null && revenue && revenue > 0) ? (netIncome / revenue) * 100 : (safeNum(rat.netProfitMargin) !== null ? safeNum(rat.netProfitMargin) * 100 : null);
-                const fcfMargin = (freeCashFlow !== null && revenue && revenue > 0) ? (freeCashFlow / revenue) * 100 : null;
-
-                const roic = safeNum(met.roic) !== null ? safeNum(met.roic) * 100 : (safeNum(rat.returnOnCapitalEmployed) !== null ? safeNum(rat.returnOnCapitalEmployed) * 100 : null);
-                const roe = safeNum(met.roe) !== null ? safeNum(met.roe) * 100 : (safeNum(rat.returnOnEquity) !== null ? safeNum(rat.returnOnEquity) * 100 : ((netIncome !== null && totalEquity && totalEquity > 0) ? (netIncome / totalEquity) * 100 : null));
-                const roa = safeNum(met.roa) !== null ? safeNum(met.roa) * 100 : (safeNum(rat.returnOnAssets) !== null ? safeNum(rat.returnOnAssets) * 100 : ((netIncome !== null && totalAssets && totalAssets > 0) ? (netIncome / totalAssets) * 100 : null));
-
-                const debtToEquity = safeNum(rat.debtEquityRatio) ?? safeNum(met.debtToEquity) ?? ((totalDebt !== null && totalEquity && totalEquity > 0) ? totalDebt / totalEquity : null);
-                const netDebtToEbitda = isFinancialSector ? null : (safeNum(met.netDebtToEBITDA) ?? ((netDebt !== null && ebitda && ebitda > 0) ? netDebt / ebitda : null));
-                const interestCoverage = safeNum(rat.interestCoverage) ?? ((operatingIncome !== null && safeNum(inc.interestExpense) && safeNum(inc.interestExpense) > 0) ? operatingIncome / safeNum(inc.interestExpense) : null);
-
-                const dividendPerShare = safeNum(met.dividendPerShare) ?? ((dividendsPaid !== null && sharesOutstanding && sharesOutstanding > 0) ? Math.abs(dividendsPaid) / sharesOutstanding : null);
-                const dividendYield = safeNum(met.dividendYield) !== null ? safeNum(met.dividendYield) * 100 : (safeNum(rat.dividendYield) !== null ? safeNum(rat.dividendYield) * 100 : null);
-                const payoutRatio = safeNum(rat.payoutRatio) !== null ? safeNum(rat.payoutRatio) * 100 : ((dividendPerShare !== null && eps && eps > 0) ? (dividendPerShare / eps) * 100 : null);
-
-                const periodClosePrice = findClosestPrice(dateStr);
-
-                const peRatio = safeNum(met.peRatio) ?? ((periodClosePrice !== null && eps && eps > 0) ? periodClosePrice / eps : null);
-                const peRatioAdj = safeNum(met.priceEarningsToGrowthRatio) ?? ((periodClosePrice !== null && epsAdj && epsAdj > 0) ? periodClosePrice / epsAdj : peRatio);
-                const pbRatio = safeNum(met.pbRatio) ?? ((periodClosePrice !== null && bookValuePerShare && bookValuePerShare > 0) ? periodClosePrice / bookValuePerShare : null);
-                const pfcfRatio = safeNum(met.pocfratio) ?? ((periodClosePrice !== null && freeCashFlowPerShare && freeCashFlowPerShare > 0) ? periodClosePrice / freeCashFlowPerShare : null);
-                const psRatio = safeNum(met.priceToSalesRatio) ?? ((periodClosePrice !== null && revenuePerShare && revenuePerShare > 0) ? periodClosePrice / revenuePerShare : null);
-                const evEbitdaRatio = safeNum(met.enterpriseValueOverEBITDA) ?? safeNum(rat.enterpriseValueMultiple);
-
-                annualPeriods.push({
-                    date: dateStr, year, period: 'FY',
-                    revenue, grossProfit, operatingIncome, ebitda, netIncome, eps, epsAdj, revenuePerShare,
-                    operatingCashFlow, capex, freeCashFlow, freeCashFlowPerShare, dividendsPaid, stockRepurchased,
-                    totalAssets, totalEquity, totalDebt, netDebt, cashAndEquivalents, sharesOutstanding, bookValuePerShare,
-                    grossMargin, operatingMargin, ebitMargin, netMargin, fcfMargin,
-                    roic, roe, roa, debtToEquity, netDebtToEbitda, interestCoverage,
-                    dividendPerShare, dividendYield, payoutRatio,
-                    peRatio, peRatioAdj, pbRatio, pfcfRatio, psRatio, evEbitdaRatio,
-                    periodClosePrice
+                    annualPeriods.push({
+                        date: dateStr, year, period: 'FY',
+                        revenue, grossProfit, operatingIncome, ebitda, netIncome, eps, epsAdj, revenuePerShare,
+                        operatingCashFlow, capex, freeCashFlow, freeCashFlowPerShare,
+                        dividendsPaid: safeNum(item.dividendsPaid), stockRepurchased: safeNum(item.stockRepurchased),
+                        totalAssets, totalEquity, totalDebt, netDebt, cashAndEquivalents, sharesOutstanding, bookValuePerShare,
+                        grossMargin, operatingMargin, ebitMargin, netMargin, fcfMargin,
+                        roic, roe, roa, debtToEquity, netDebtToEbitda, interestCoverage,
+                        dividendPerShare, dividendYield, payoutRatio,
+                        peRatio, peRatioAdj, pbRatio, pfcfRatio, psRatio, evEbitdaRatio,
+                        periodClosePrice
+                    });
                 });
-            });
+            } else {
+                // Case B: Raw FMP statements arrays
+                incomeList.forEach(inc => {
+                    if (!inc || !inc.date) return;
+                    const dateStr = inc.date.split('T')[0];
+                    if (seenDates.has(dateStr)) return;
+                    seenDates.add(dateStr);
+
+                    const year = Number(inc.calendarYear) || parseInt(dateStr.substring(0, 4), 10);
+                    const bal = balanceByDate.get(dateStr) || {};
+                    const cf = cfByDate.get(dateStr) || {};
+                    const met = metricsByDate.get(dateStr) || {};
+                    const rat = ratiosByDate.get(dateStr) || {};
+
+                    const revenue = safeNum(inc.revenue);
+                    const grossProfit = safeNum(inc.grossProfit);
+                    const operatingIncome = safeNum(inc.operatingIncome);
+                    const netIncome = safeNum(inc.netIncome);
+                    const eps = safeNum(inc.eps);
+                    const epsAdj = safeNum(inc.epsdiluted) ?? eps;
+                    const sharesOutstanding = safeNum(inc.weightedAverageShsOut) ?? safeNum(bal.commonStock) ?? safeNum(quote.sharesOutstanding);
+                    const revenuePerShare = (revenue !== null && sharesOutstanding && sharesOutstanding > 0) ? (revenue / sharesOutstanding) : safeNum(met.revenuePerShare);
+
+                    const ebitda = safeNum(inc.ebitda) ?? (
+                        (operatingIncome !== null && safeNum(cf.depreciationAndAmortization) !== null)
+                            ? operatingIncome + safeNum(cf.depreciationAndAmortization)
+                            : null
+                    );
+
+                    const operatingCashFlow = safeNum(cf.operatingCashFlow) ?? safeNum(cf.netCashProvidedByOperatingActivities);
+                    const capex = safeNum(cf.capitalExpenditure);
+                    const freeCashFlow = safeNum(cf.freeCashFlow) ?? (
+                        (operatingCashFlow !== null && capex !== null)
+                            ? operatingCashFlow - Math.abs(capex)
+                            : null
+                    );
+                    const freeCashFlowPerShare = (freeCashFlow !== null && sharesOutstanding && sharesOutstanding > 0)
+                        ? freeCashFlow / sharesOutstanding
+                        : safeNum(met.freeCashFlowPerShare);
+
+                    const dividendsPaid = safeNum(cf.dividendsPaid) ?? safeNum(cf.commonDividendsPaid);
+                    const stockRepurchased = safeNum(cf.commonStockRepurchased) ?? safeNum(cf.repurchaseOfCapitalStock);
+
+                    const totalAssets = safeNum(bal.totalAssets);
+                    const totalEquity = safeNum(bal.totalStockholdersEquity) ?? safeNum(bal.totalEquity);
+                    const totalDebt = safeNum(bal.totalDebt);
+                    const netDebt = safeNum(bal.netDebt) ?? (
+                        (totalDebt !== null && safeNum(bal.cashAndCashEquivalents) !== null)
+                            ? totalDebt - safeNum(bal.cashAndCashEquivalents)
+                            : null
+                    );
+                    const cashAndEquivalents = safeNum(bal.cashAndCashEquivalents) ?? safeNum(bal.cashAndShortTermInvestments);
+                    const bookValuePerShare = (totalEquity !== null && sharesOutstanding && sharesOutstanding > 0)
+                        ? totalEquity / sharesOutstanding
+                        : safeNum(met.bookValuePerShare);
+
+                    const grossMargin = (grossProfit !== null && revenue && revenue > 0) ? (grossProfit / revenue) * 100 : (safeNum(rat.grossProfitMargin) !== null ? safeNum(rat.grossProfitMargin) * 100 : null);
+                    const operatingMargin = (operatingIncome !== null && revenue && revenue > 0) ? (operatingIncome / revenue) * 100 : (safeNum(rat.operatingProfitMargin) !== null ? safeNum(rat.operatingProfitMargin) * 100 : null);
+                    const ebitMargin = (operatingIncome !== null && revenue && revenue > 0) ? (operatingIncome / revenue) * 100 : (safeNum(rat.ebitPerRevenue) !== null ? safeNum(rat.ebitPerRevenue) * 100 : operatingMargin);
+                    const netMargin = (netIncome !== null && revenue && revenue > 0) ? (netIncome / revenue) * 100 : (safeNum(rat.netProfitMargin) !== null ? safeNum(rat.netProfitMargin) * 100 : null);
+                    const fcfMargin = (freeCashFlow !== null && revenue && revenue > 0) ? (freeCashFlow / revenue) * 100 : null;
+
+                    const roic = safeNum(met.roic) !== null ? safeNum(met.roic) * 100 : (safeNum(rat.returnOnCapitalEmployed) !== null ? safeNum(rat.returnOnCapitalEmployed) * 100 : null);
+                    const roe = safeNum(met.roe) !== null ? safeNum(met.roe) * 100 : (safeNum(rat.returnOnEquity) !== null ? safeNum(rat.returnOnEquity) * 100 : ((netIncome !== null && totalEquity && totalEquity > 0) ? (netIncome / totalEquity) * 100 : null));
+                    const roa = safeNum(met.roa) !== null ? safeNum(met.roa) * 100 : (safeNum(rat.returnOnAssets) !== null ? safeNum(rat.returnOnAssets) * 100 : ((netIncome !== null && totalAssets && totalAssets > 0) ? (netIncome / totalAssets) * 100 : null));
+
+                    const debtToEquity = safeNum(rat.debtEquityRatio) ?? safeNum(met.debtToEquity) ?? ((totalDebt !== null && totalEquity && totalEquity > 0) ? totalDebt / totalEquity : null);
+                    const netDebtToEbitda = isFinancialSector ? null : (safeNum(met.netDebtToEBITDA) ?? ((netDebt !== null && ebitda && ebitda > 0) ? netDebt / ebitda : null));
+                    const interestCoverage = safeNum(rat.interestCoverage) ?? ((operatingIncome !== null && safeNum(inc.interestExpense) && safeNum(inc.interestExpense) > 0) ? operatingIncome / safeNum(inc.interestExpense) : null);
+
+                    const dividendPerShare = safeNum(met.dividendPerShare) ?? ((dividendsPaid !== null && sharesOutstanding && sharesOutstanding > 0) ? Math.abs(dividendsPaid) / sharesOutstanding : null);
+                    const dividendYield = safeNum(met.dividendYield) !== null ? safeNum(met.dividendYield) * 100 : (safeNum(rat.dividendYield) !== null ? safeNum(rat.dividendYield) * 100 : null);
+                    const payoutRatio = safeNum(rat.payoutRatio) !== null ? safeNum(rat.payoutRatio) * 100 : ((dividendPerShare !== null && eps && eps > 0) ? (dividendPerShare / eps) * 100 : null);
+
+                    const periodClosePrice = findClosestPrice(dateStr);
+
+                    const peRatio = safeNum(met.peRatio) ?? ((periodClosePrice !== null && eps && eps > 0) ? periodClosePrice / eps : null);
+                    const peRatioAdj = safeNum(met.priceEarningsToGrowthRatio) ?? ((periodClosePrice !== null && epsAdj && epsAdj > 0) ? periodClosePrice / epsAdj : peRatio);
+                    const pbRatio = safeNum(met.pbRatio) ?? ((periodClosePrice !== null && bookValuePerShare && bookValuePerShare > 0) ? periodClosePrice / bookValuePerShare : null);
+                    const pfcfRatio = safeNum(met.pocfratio) ?? ((periodClosePrice !== null && freeCashFlowPerShare && freeCashFlowPerShare > 0) ? periodClosePrice / freeCashFlowPerShare : null);
+                    const psRatio = safeNum(met.priceToSalesRatio) ?? ((periodClosePrice !== null && revenuePerShare && revenuePerShare > 0) ? periodClosePrice / revenuePerShare : null);
+                    const evEbitdaRatio = safeNum(met.enterpriseValueOverEBITDA) ?? safeNum(rat.enterpriseValueMultiple);
+
+                    annualPeriods.push({
+                        date: dateStr, year, period: 'FY',
+                        revenue, grossProfit, operatingIncome, ebitda, netIncome, eps, epsAdj, revenuePerShare,
+                        operatingCashFlow, capex, freeCashFlow, freeCashFlowPerShare, dividendsPaid, stockRepurchased,
+                        totalAssets, totalEquity, totalDebt, netDebt, cashAndEquivalents, sharesOutstanding, bookValuePerShare,
+                        grossMargin, operatingMargin, ebitMargin, netMargin, fcfMargin,
+                        roic, roe, roa, debtToEquity, netDebtToEbitda, interestCoverage,
+                        dividendPerShare, dividendYield, payoutRatio,
+                        peRatio, peRatioAdj, pbRatio, pfcfRatio, psRatio, evEbitdaRatio,
+                        periodClosePrice
+                    });
+                });
+            }
 
             annualPeriods.sort((a, b) => a.date.localeCompare(b.date));
 
@@ -4475,8 +4604,8 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             let fcfCAGR = null, fcfCAGRYears = 0;
 
             if (n >= 2) {
-                const span = Math.min(n - 1, 5);
-                const startPeriod = annual[n - 1 - span];
+                const span = n - 1;
+                const startPeriod = annual[0];
                 const endPeriod = annual[n - 1];
 
                 revenueCAGR = calculateCAGRJs(startPeriod.revenue, endPeriod.revenue, span);
