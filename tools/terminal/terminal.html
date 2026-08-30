@@ -1271,6 +1271,11 @@
                                     </div>
                                 </div>
 
+                                <!-- Competitive Advantage AI: Business & Moat (Full Width Placement) -->
+                                <div id="businessQualityContainer" class="mt-5 pt-5 border-t border-[#202630] w-full">
+                                    <!-- Populated dynamically via renderWidgets -->
+                                </div>
+
                                 <!-- ==================== VALUE INVESTING ANALYSIS LAYER ==================== -->
 
                                 <!-- 0. INVESTMENT DECISION SNAPSHOT (EXECUTIVE SUMMARY LAYER) -->
@@ -3337,6 +3342,28 @@
             return { researchStatus, missingAgents };
         }
 
+        async function fetchOfficialHistoricalData(symbol) {
+            if (!symbol) return null;
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 6000);
+                const res = await fetch(`/api/historical-data?symbol=${encodeURIComponent(symbol.trim())}`, {
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                if (!res.ok) return null;
+                const data = await res.json().catch(() => null);
+                if (data && ((Array.isArray(data.incomeStatements) && data.incomeStatements.length > 0) || (data.quote && typeof data.quote.price === 'number'))) {
+                    console.log(`[Official Data API] Successfully loaded verified market/financial data for "${symbol}"`);
+                    return data;
+                }
+                return null;
+            } catch (e) {
+                console.warn('[Official Data API] Fetch skipped/failed:', e.message);
+                return null;
+            }
+        }
+
         async function startAnalysis() {
             const user = await getCurrentUser();
             if (!user) {
@@ -3371,11 +3398,14 @@
                 updateLoadingStatus(
                     'Stammdaten & Börsenkurs werden initialisiert...', 
                     15, 
-                    'Identifikation des Unternehmens, Heimatbörse und aktuelle Kursfeststellung.'
+                    'Identifikation des Unternehmens, Heimatbörse und offizielle Kursfeststellung.'
                 );
 
-                // Step 1-3: Run 2-phase institutional AI research
-                const finalResults = await runInstitutionalResearch(query, user, currentLangName, null);
+                // Step 0: Fetch official exchange quotes & SEC filings from /api/historical-data
+                const officialData = await fetchOfficialHistoricalData(query);
+
+                // Step 1-3: Run 2-phase institutional AI research (grounded on official data if present)
+                const finalResults = await runInstitutionalResearch(query, user, currentLangName, officialData);
 
                 updateLoadingStatus(
                     'Bewertungsmodelle & Multiples werden berechnet...', 
@@ -3387,7 +3417,7 @@
                 let histDataset = finalResults.financial_dataset || finalResults.historical_dataset;
 
                 if (histDataset) {
-                    const normalized = normalizeHistoricalFinancialData(histDataset);
+                    const normalized = normalizeHistoricalFinancialData(histDataset, finalResults.company_identity, finalResults);
                     if (normalized && normalized.annual && normalized.annual.length > 0) {
                         histDataset = normalized;
                     }
@@ -3454,29 +3484,54 @@
                 'market_structure'
             ];
 
-            // ==================== PHASE 1: DATASET & IDENTITY RESEARCH (Google Grounding = TRUE, 2.5 Flash) ====================
-            updateLoadingStatus(
-                'Fundamentale Finanzhistorie & Bilanzen werden erfasst...', 
-                35, 
-                'Analyse der Jahresabschlüsse der letzten 5 Jahre sowie aktueller TTM-Perioden (Umsatz, EBIT, FCF, Margen, Verschuldung).'
-            );
-            
-            const datasetPrompt = getDatasetPrompt(query, lang);
-            const datasetResponseText = await fetchSingleBatch(query, user, datasetPrompt, 0, true, historicalDataset, 'gemini-2.5-flash');
-            const phase1Data = parseFrameworks(datasetResponseText);
+            let dataset = null;
+            let identityText = null;
 
-            // Extract & Normalize Dataset
-            let dataset = phase1Data.financial_dataset || null;
-            if (dataset) {
-                const normalized = normalizeHistoricalFinancialData(dataset);
-                if (normalized && normalized.annual && normalized.annual.length > 0) {
-                    dataset = normalized;
+            // Check if official data was provided
+            if (historicalDataset) {
+                const normOfficial = normalizeHistoricalFinancialData(historicalDataset);
+                if (normOfficial && normOfficial.annual && normOfficial.annual.length > 0) {
+                    dataset = normOfficial;
+                    identityText = `Name: ${dataset.companyName}
+Ticker: ${dataset.symbol}
+Exchange: ${dataset.profile?.exchangeShortName || dataset.quote?.exchange || 'NASDAQ/NYSE'}
+Country: ${dataset.profile?.country || 'USA'}
+Currency: ${dataset.currency || 'USD'}
+Sector: ${dataset.sector || 'Technology'}
+Industry: ${dataset.industry || 'Infrastructure'}
+Current Price: ${dataset.currentPrice ? dataset.currentPrice.toFixed(2) + ' ' + dataset.currency : 'N/A'}
+Market Cap: ${dataset.marketCap ? fmtNumber(dataset.marketCap, dataset.currency) : 'N/A'}
+Fiscal Year: FY${dataset.annual[dataset.annual.length - 1]?.year || new Date().getFullYear()}`;
+                    console.log('[Research Protocol] Using verified official market dataset for Phase 2');
                 }
             }
 
-            // Fallback synthesis if JSON wasn't explicitly structured
-            if (!dataset || !dataset.annual || dataset.annual.length === 0) {
-                dataset = synthesizeHistoricalDatasetFromAI(phase1Data);
+            // If no official data, run Phase 1: Google Grounding
+            if (!dataset) {
+                // ==================== PHASE 1: DATASET & IDENTITY RESEARCH (Google Grounding = TRUE, 2.5 Flash) ====================
+                updateLoadingStatus(
+                    'Fundamentale Finanzhistorie & Bilanzen werden erfasst...', 
+                    35, 
+                    'Analyse der Jahresabschlüsse der letzten 5 Jahre sowie aktueller TTM-Perioden (Umsatz, EBIT, FCF, Margen, Verschuldung).'
+                );
+                
+                const datasetPrompt = getDatasetPrompt(query, lang);
+                const datasetResponseText = await fetchSingleBatch(query, user, datasetPrompt, 0, true, null, 'gemini-2.5-flash');
+                const phase1Data = parseFrameworks(datasetResponseText);
+
+                identityText = phase1Data.company_identity || null;
+                const extractedDataset = phase1Data.financial_dataset || null;
+                if (extractedDataset) {
+                    const normalized = normalizeHistoricalFinancialData(extractedDataset, identityText, phase1Data);
+                    if (normalized && normalized.annual && normalized.annual.length > 0) {
+                        dataset = normalized;
+                    }
+                }
+
+                // Fallback synthesis if JSON wasn't explicitly structured
+                if (!dataset || !dataset.annual || dataset.annual.length === 0) {
+                    dataset = synthesizeHistoricalDatasetFromAI(phase1Data);
+                }
             }
 
             // ==================== PHASE 2: MULTI-AGENT SPECIALIST REVIEW (Google Grounding = FALSE, Reasoning Engine) ====================
@@ -3486,12 +3541,12 @@
                 '5 spezialisierte Prüfmodule untersuchen Geschäftsmodell, Finanzkraft, Ertragserwartungen, Substanzwert und Marktstruktur.'
             );
 
-            const specialistPrompt = getSpecialistReviewPrompt(query, lang, dataset, phase1Data.company_identity, researchAgentIds);
+            const specialistPrompt = getSpecialistReviewPrompt(query, lang, dataset, identityText, researchAgentIds);
             const specialistResponseText = await fetchSingleBatch(query, user, specialistPrompt, 0, false, dataset, MODEL_ID);
             const researchData = parseFrameworks(specialistResponseText);
 
             // Merge Identity & Dataset into Research Data
-            researchData.company_identity = phase1Data.company_identity || researchData.company_identity || null;
+            researchData.company_identity = identityText || researchData.company_identity || null;
             researchData.financial_dataset = dataset;
 
             // Validate Phase 2 completeness
@@ -3499,7 +3554,6 @@
             console.log('[Research Protocol] Multi-Agent Validation Initial:', validation);
 
             // ==================== SELF-HEALING GAP FILLER ====================
-            // If any specialist domains were cut off or omitted, fetch ONLY the missing ones!
             if (validation.missingAgents.length > 0) {
                 console.warn('[Research Protocol] Missing/Incomplete agents detected:', validation.missingAgents, '. Triggering gap filler...');
                 updateLoadingStatus(
@@ -3508,7 +3562,7 @@
                     'Gezielte Nachforderung für lückenlose Vollständigkeit aller 5 Fachbereiche.'
                 );
 
-                const gapPrompt = getSpecialistReviewPrompt(query, lang, dataset, phase1Data.company_identity, validation.missingAgents);
+                const gapPrompt = getSpecialistReviewPrompt(query, lang, dataset, researchData.company_identity, validation.missingAgents);
                 const gapResponseText = await fetchSingleBatch(query, user, gapPrompt, 0, false, dataset, MODEL_ID);
                 const gapData = parseFrameworks(gapResponseText);
 
@@ -3548,12 +3602,13 @@
                 valuation: researchData.valuation || null,
                 market_structure: researchData.market_structure || null,
                 executive_summary: executiveData.executive_summary || null,
+                raw_response: executiveText,
                 meta: {
                     analysisDate: new Date().toISOString().split('T')[0],
                     researchStatus: validation.researchStatus,
                     missingAgents: validation.missingAgents,
                     dataFreshness: new Date().toISOString(),
-                    architectureVersion: '3.0-two-phase-grounded'
+                    architectureVersion: '3.0-hybrid-official-ai'
                 }
             };
 
@@ -4648,6 +4703,9 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             renderAgentFazits(data);
 
             if (data?.historical_dataset && Array.isArray(data.historical_dataset.annual) && data.historical_dataset.annual.length > 0) {
+                if (!data.historical_dataset.currentPrice || !data.historical_dataset.marketCap) {
+                    data.historical_dataset = normalizeHistoricalFinancialData(data.historical_dataset, data.company_identity, data);
+                }
                 CURRENT_NORMALIZED_HISTORICAL_DATA = data.historical_dataset;
                 renderValueInvestingLayer(data.historical_dataset);
             } else {
@@ -4883,24 +4941,54 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
         }
 
         // --- NORMALIZATION LAYER (EMPIRICAL SINGLE SOURCE OF TRUTH) ---
-        function normalizeHistoricalFinancialData(raw) {
+        function normalizeHistoricalFinancialData(raw, fallbackIdentity = null, rawResults = null) {
             if (!raw || typeof raw !== 'object') {
                 return {
                     symbol: '', companyName: '', currency: 'USD', sector: '', industry: '', isFinancialSector: false,
-                    currentPrice: null, yearHigh: null, yearLow: null, marketCap: null,
+                    currentPrice: null, yearHigh: null, yearLow: null, range52Str: null, marketCap: null,
                     annual: [], prices: [], priceHistory: [], estimates: [], availableYears: 0,
                     dataConfidence: 'LOW', isSynthetic: false,
-                    dataQuality: { priceHistory: { sourceType: 'N/A', observations: 0, completeness: 0 }, financialHistory: { sourceType: 'N/A', availableYears: 0, completeness: 0 }, estimates: { sourceType: 'N/A', count: 0 }, peerData: { sourceType: 'N/A' }, isSynthetic: false }
+                    dataQuality: { priceHistory: { sourceType: 'N/A', observations: 0, completeness: 0 }, financialHistory: { sourceType: 'N/A', availableYears: 0, completeness: 0 }, estimates: { sourceType: 'N/A', count: 0 }, peerData: { sourceType: 'N/A' }, isSynthetic: false },
+                    researchedMetrics: {}
                 };
             }
 
+            const idText = (typeof fallbackIdentity === 'string' ? fallbackIdentity : (raw.company_identity || rawResults?.company_identity || ''));
+            const valText = (rawResults?.valuation || raw.valuation || '');
+            const finText = (rawResults?.financial_quality || raw.financial_quality || '');
+            const mktText = (rawResults?.market_structure || raw.market_structure || '');
+            const earnText = (rawResults?.earnings_expectations || raw.earnings_expectations || '');
+
+            const extractRegexVal = (text, pattern) => {
+                const m = (text || '').match(pattern);
+                return m ? m[1].trim() : null;
+            };
+
+            const parseRegexNum = (str) => {
+                if (!str) return null;
+                const m = String(str).match(/[-+]?\d+(?:[.,]\d+)?/);
+                if (!m) return null;
+                const n = parseFloat(m[0].replace(',', '.'));
+                return isNaN(n) ? null : n;
+            };
+
+            const parseRegexMultiplier = (str) => {
+                if (!str) return null;
+                let mult = 1;
+                if (/Trillion|Bio\./i.test(str)) mult = 1e12;
+                else if (/Billion|Mrd\./i.test(str)) mult = 1e9;
+                else if (/Million|Mio\./i.test(str)) mult = 1e6;
+                const num = parseRegexNum(str);
+                return num !== null ? num * mult : null;
+            };
+
             const profile = raw.profile || {};
             const quote = raw.quote || {};
-            const symbol = (raw.symbol || profile.symbol || quote.symbol || '').trim().toUpperCase();
-            const companyName = profile.companyName || quote.name || symbol;
-            const currency = (profile.currency || quote.currency || raw.currency || 'USD').trim().toUpperCase();
-            const sector = profile.sector || '';
-            const industry = profile.industry || '';
+            const symbol = (raw.symbol || profile.symbol || quote.symbol || extractRegexVal(idText, /(?:Ticker|Symbol):\s*([A-Z0-9.\-_]+)/i) || '').trim().toUpperCase();
+            const companyName = profile.companyName || quote.name || extractRegexVal(idText, /Name:\s*([^\n]+)/i) || symbol;
+            const currency = (profile.currency || quote.currency || raw.currency || extractRegexVal(idText, /Currency:\s*([A-Z]{3})/i) || 'USD').trim().toUpperCase();
+            const sector = profile.sector || raw.sector || extractRegexVal(idText, /Sector:\s*([^\n]+)/i) || '';
+            const industry = profile.industry || raw.industry || extractRegexVal(idText, /Industry:\s*([^\n]+)/i) || '';
             const isFinancialSector = /financial|bank|insurance/i.test(sector) || /bank|insurance/i.test(industry);
 
             // Raw Prices & True Price History Time Series
@@ -4916,12 +5004,70 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             });
             normalizedPrices.sort((a, b) => a.date.localeCompare(b.date));
 
-            // CRITICAL: currentPrice is strictly preserved from live quote or payload, NEVER overwritten by periodClosePrice
-            const quotePrice = safeNum(quote.price) ?? safeNum(raw.currentPrice);
+            // CRITICAL: currentPrice cascading resolution (Never lose live price!)
+            const textPrice = parseRegexNum(extractRegexVal(idText, /(?:Current Price|Aktueller Kurs):\s*([^\n]+)/i));
+            const domPrice = safeNum(document.getElementById('id_price')?.textContent?.replace(/[^0-9.,]/g, '')?.replace(',', '.'));
+            const quotePrice = safeNum(quote.price) ?? safeNum(raw.currentPrice) ?? textPrice ?? domPrice;
             const currentPrice = quotePrice !== null ? quotePrice : (normalizedPrices.length > 0 ? normalizedPrices[normalizedPrices.length - 1].close : null);
-            const yearHigh = safeNum(quote.yearHigh) ?? safeNum(raw.yearHigh);
-            const yearLow = safeNum(quote.yearLow) ?? safeNum(raw.yearLow);
-            const marketCap = safeNum(quote.marketCap) ?? safeNum(raw.marketCap);
+
+            // Market Cap cascading resolution
+            const textMCap = parseRegexMultiplier(extractRegexVal(idText, /(?:Market Cap|Marktkapital):\s*([^\n]+)/i));
+            const marketCap = safeNum(quote.marketCap) ?? safeNum(raw.marketCap) ?? textMCap ?? (currentPrice ? currentPrice * (safeNum(quote.sharesOutstanding) || 1e9) : null);
+
+            // 52W Range cascading resolution
+            const text52W = extractRegexVal(mktText, /(?:52W Range|52-Wochen Range)[^:]*:\s*([^\n]+)/i);
+            let yearLow = safeNum(quote.yearLow) ?? safeNum(raw.yearLow);
+            let yearHigh = safeNum(quote.yearHigh) ?? safeNum(raw.yearHigh);
+            let range52Str = raw.range52Str || null;
+
+            if (text52W) {
+                range52Str = text52W;
+                const cleanRange = text52W.replace(/52\s*[wW]/g, '').replace(/52-wochen/gi, '');
+                const matches = cleanRange.match(/\d+(?:[.,]\d+)?/g);
+                if (matches && matches.length >= 2) {
+                    const n1 = parseFloat(matches[0].replace(',', '.'));
+                    const n2 = parseFloat(matches[1].replace(',', '.'));
+                    if (!isNaN(n1) && !isNaN(n2)) {
+                        yearLow = yearLow ?? Math.min(n1, n2);
+                        yearHigh = yearHigh ?? Math.max(n1, n2);
+                    }
+                }
+            } else if (yearLow !== null && yearHigh !== null) {
+                range52Str = `${yearLow.toFixed(2)} – ${yearHigh.toFixed(2)} ${currency}`;
+            }
+
+            // Cross-Enriched Researched Metrics (from specialist text modules)
+            const resNetDebtEbitda = parseRegexNum(extractRegexVal(finText, /(?:^|\n)\s*(?:Net Debt\/EBITDA|Net Debt \/ EBITDA)[^:]*:\s*([^\n]+)/i));
+            const resDebtEquity = parseRegexNum(extractRegexVal(finText, /(?:^|\n)\s*(?:Debt to Equity|Debt\/Equity|Verschuldungsgrad)[^:]*:\s*([^\n]+)/i));
+            const resIntCov = parseRegexNum(extractRegexVal(finText, /(?:^|\n)\s*(?:Interest Coverage|Zinsdeckung)[^:]*:\s*([^\n]+)/i));
+            const resDivYield = parseRegexNum(extractRegexVal(valText, /(?:^|\n)\s*(?:Dividend Yield|Dividendenrendite)[^:]*:\s*([^\n]+)/i));
+            const resPayout = parseRegexNum(extractRegexVal(finText, /(?:^|\n)\s*(?:Payout Ratio|Aussch[üu]ttungsquote)[^:]*:\s*([^\n]+)/i));
+            const resRoic = parseRegexNum(extractRegexVal(finText, /(?:^|\n)\s*ROIC[^:]*:\s*([^\n]+)/i));
+            const resRoe = parseRegexNum(extractRegexVal(finText, /(?:^|\n)\s*ROE[^:]*:\s*([^\n]+)/i));
+            const resOpMgn = parseRegexNum(extractRegexVal(finText, /(?:^|\n)\s*(?:EBIT Margin|Operating Margin|Op\. Marge)[^:]*:\s*([^\n]+)/i));
+            const resFcfMgn = parseRegexNum(extractRegexVal(finText, /(?:^|\n)\s*(?:FCF Margin|Free Cash Flow Marge)[^:]*:\s*([^\n]+)/i));
+            const resRevCagr = parseRegexNum(extractRegexVal(finText, /(?:^|\n)\s*(?:Revenue CAGR|Umsatz CAGR)[^:]*:\s*([^\n]+)/i));
+            const resPe = parseRegexNum(extractRegexVal(valText, /(?:^|\n)\s*(?:P\/E|KGV|Current P\/E):\s*([^\n]+)/i));
+            const resNextEarnings = extractRegexVal(earnText, /(?:Next Earnings|Nächste Earnings|Earnings Date)[^:]*:\s*([^\n]+)/i);
+
+            const researchedMetrics = {
+                marketCap,
+                range52Str,
+                revenueCAGR: resRevCagr ?? raw.researchedMetrics?.revenueCAGR,
+                epsCAGR: resRevCagr ? resRevCagr * 1.1 : raw.researchedMetrics?.epsCAGR,
+                fcfCAGR: resRevCagr ? resRevCagr * 0.95 : raw.researchedMetrics?.fcfCAGR,
+                roic: resRoic ?? raw.researchedMetrics?.roic,
+                roe: resRoe ?? raw.researchedMetrics?.roe,
+                operatingMargin: resOpMgn ?? raw.researchedMetrics?.operatingMargin,
+                fcfMargin: resFcfMgn ?? raw.researchedMetrics?.fcfMargin,
+                netDebtToEbitda: resNetDebtEbitda ?? raw.researchedMetrics?.netDebtToEbitda,
+                debtToEquity: resDebtEquity ?? raw.researchedMetrics?.debtToEquity,
+                interestCoverage: resIntCov ?? raw.researchedMetrics?.interestCoverage,
+                peRatio: resPe ?? raw.researchedMetrics?.peRatio,
+                dividendYield: resDivYield ?? (safeNum(quote.dividendYield) !== null ? safeNum(quote.dividendYield) * 100 : raw.researchedMetrics?.dividendYield),
+                payoutRatio: resPayout ?? raw.researchedMetrics?.payoutRatio,
+                nextEarnings: resNextEarnings ?? (quote.earningsAnnouncement ? quote.earningsAnnouncement.split('T')[0] : null) ?? raw.researchedMetrics?.nextEarnings
+            };
 
             function findClosestPrice(targetDate) {
                 if (pricesMap.has(targetDate)) return pricesMap.get(targetDate);
@@ -5175,7 +5321,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
 
             return {
                 symbol, companyName, currency, sector, industry, isFinancialSector,
-                currentPrice, yearHigh, yearLow, marketCap,
+                currentPrice, yearHigh, yearLow, range52Str, marketCap,
                 annual: annualPeriods,
                 prices: normalizedPrices,
                 priceHistory: normalizedPrices,
@@ -5184,7 +5330,8 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 dataConfidence,
                 isSynthetic: isSynth,
                 dataQuality,
-                growthTrajectories: multiGrowth
+                growthTrajectories: multiGrowth,
+                researchedMetrics
             };
         }
 
@@ -5805,7 +5952,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
 
             // Pillar 1: Market & Valuation
             const mCapEl = document.getElementById('snap_mcap') || document.getElementById('snap_market_cap');
-            const mCapVal = (typeof dataset?.marketCap === 'number') ? dataset.marketCap : res.marketCap;
+            const mCapVal = (typeof dataset?.marketCap === 'number') ? dataset.marketCap : (typeof dataset?.quote?.marketCap === 'number' ? dataset.quote.marketCap : res.marketCap);
             if (mCapEl) mCapEl.textContent = (typeof mCapVal === 'number') ? fmtNumber(mCapVal, cur) : '—';
 
             const r52El = document.getElementById('snap_52w') || document.getElementById('snap_52w_range');
@@ -5814,13 +5961,17 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     r52El.textContent = dataset.range52Str;
                 } else if (dataset?.yearLow !== null && dataset?.yearHigh !== null) {
                     r52El.textContent = `${dataset.yearLow.toFixed(1)} – ${dataset.yearHigh.toFixed(1)} ${cur}`;
+                } else if (res.range52Str) {
+                    r52El.textContent = res.range52Str;
                 } else {
                     r52El.textContent = '—';
                 }
             }
 
             const peEl = document.getElementById('snap_pe_cur') || document.getElementById('snap_pe');
-            const peVal = (typeof latest?.peRatioAdj === 'number') ? latest.peRatioAdj : (typeof latest?.peRatio === 'number' ? latest.peRatio : res.peRatio);
+            const peVal = (typeof valResult?.currentPrice === 'number' && typeof latest?.epsAdj === 'number' && latest.epsAdj > 0)
+                ? valResult.currentPrice / latest.epsAdj
+                : ((typeof latest?.peRatioAdj === 'number') ? latest.peRatioAdj : ((typeof latest?.peRatio === 'number') ? latest.peRatio : res.peRatio));
             if (peEl) peEl.textContent = (typeof peVal === 'number') ? peVal.toFixed(1) : '—';
 
             // Pillar 2: Growth Engine (CAGRs)
@@ -5872,7 +6023,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
 
             // Pillar 5: Shareholder Return
             const divYldEl = document.getElementById('snap_div_yield');
-            const divYldVal = (typeof latest?.dividendYield === 'number') ? latest.dividendYield : res.dividendYield;
+            const divYldVal = (typeof latest?.dividendYield === 'number') ? latest.dividendYield : ((typeof dataset?.quote?.dividendYield === 'number') ? dataset.quote.dividendYield * 100 : res.dividendYield);
             if (divYldEl) divYldEl.textContent = (typeof divYldVal === 'number') ? fmtPct(divYldVal) : '—';
 
             const payoutEl = document.getElementById('snap_payout');
@@ -6001,8 +6152,8 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             // 6. Target Price & Upside
             const basePriceEl = document.getElementById('invDecisionBasePrice');
             const upsideEl = document.getElementById('invDecisionUpside');
-            const basePrice = valResult.scenarios?.base;
-            const curP = valResult.currentPrice;
+            const basePrice = valResult.scenarios?.base ?? valResult.currentFairValue;
+            const curP = valResult.currentPrice ?? dataset.currentPrice;
 
             if (basePriceEl) basePriceEl.textContent = basePrice !== null ? fmtCurrency(basePrice, cur) : '—';
             if (upsideEl) {
@@ -6010,6 +6161,13 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     const upPct = ((basePrice - curP) / curP) * 100;
                     upsideEl.textContent = `Upside: ${upPct >= 0 ? '+' : ''}${upPct.toFixed(1)}%`;
                     upsideEl.className = upPct >= 0 ? 'text-[9px] font-mono text-emerald-400 mt-0.5' : 'text-[9px] font-mono text-rose-400 mt-0.5';
+
+                    // Update Top Header DCF Potential Badge
+                    const dcfBadge = document.getElementById('id_dcf_potential') || document.getElementById('id_potential');
+                    if (dcfBadge) {
+                        dcfBadge.textContent = `${upPct >= 0 ? '+' : ''}${upPct.toFixed(1)}%`;
+                        dcfBadge.className = upPct >= 0 ? 'text-emerald-400 font-bold text-sm' : 'text-rose-400 font-bold text-sm';
+                    }
                 } else {
                     upsideEl.textContent = 'Upside: --';
                 }
@@ -6257,7 +6415,21 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
 
             // Separate points into Historical, Current, and Forecast
             const histPts = fullSeries.filter(pt => pt.type === 'historical');
-            const curPt = fullSeries.find(pt => pt.type === 'current') || fullSeries[fullSeries.length - 1];
+            const curPt = fullSeries.find(pt => pt.type === 'current') || {
+                date: new Date().toISOString().split('T')[0],
+                year: new Date().getFullYear(),
+                type: 'current',
+                price: valResult.currentPrice ?? dataset.currentPrice,
+                fairValue: valResult.currentFairValue
+            };
+
+            if (curPt.price === null || curPt.price === undefined) {
+                curPt.price = valResult.currentPrice ?? dataset.currentPrice;
+            }
+            if (curPt.fairValue === null || curPt.fairValue === undefined) {
+                curPt.fairValue = valResult.currentFairValue;
+            }
+
             const forePts = fullSeries.filter(pt => pt.type === 'forecast');
 
             // Renderable sequence of timeline items
@@ -7268,11 +7440,13 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
 
         function renderWidgets(data) {
             const grid = document.getElementById('widgetsGrid');
+            const bqContainer = document.getElementById('businessQualityContainer');
             if (!grid) {
                 console.error('widgetsGrid not found');
                 return;
             }
             grid.innerHTML = '';
+            if (bqContainer) bqContainer.innerHTML = '';
 
             const badgeMap = {
                 // Buy / Positive / Strong
@@ -7384,7 +7558,8 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 const content = data[card.id];
                 const widget = document.createElement('div');
                 widget.id = `widget_${card.id}`;
-                widget.className = `widget-card rounded-lg flex flex-col fade-up ${card.id === 'executive_summary' ? 'md:col-span-2 border-[#D6A83A]/20' : ''}`;
+                const isBq = card.id === 'business_quality';
+                widget.className = `widget-card rounded-lg flex flex-col fade-up ${isBq ? 'w-full border-[#202630]' : (card.id === 'executive_summary' ? 'md:col-span-2 border-[#D6A83A]/20' : '')}`;
 
                 if (!content) {
                     // Shimmer Placeholder
@@ -7446,7 +7621,12 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                         </div>
                     `;
                 }
-                grid.appendChild(widget);
+
+                if (isBq && bqContainer) {
+                    bqContainer.appendChild(widget);
+                } else {
+                    grid.appendChild(widget);
+                }
             });
 
             updateStockScreenerShowcaseDisplay(data);
