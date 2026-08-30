@@ -3373,7 +3373,7 @@
                 '5 spezialisierte Prüfmodule untersuchen Geschäftsmodell, Finanzkraft, Ertragserwartungen, Substanzwert und Marktstruktur.'
             );
 
-            const specialistPrompt = getSpecialistReviewPrompt(query, lang, dataset, phase1Data.company_identity);
+            const specialistPrompt = getSpecialistReviewPrompt(query, lang, dataset, phase1Data.company_identity, researchAgentIds);
             const specialistResponseText = await fetchSingleBatch(query, user, specialistPrompt, 0, false, dataset, MODEL_ID);
             const researchData = parseFrameworks(specialistResponseText);
 
@@ -3382,8 +3382,32 @@
             researchData.financial_dataset = dataset;
 
             // Validate Phase 2 completeness
-            const validation = validateResearchData(researchData, researchAgentIds);
-            console.log('[Research Protocol] Multi-Agent Validation:', validation);
+            let validation = validateResearchData(researchData, researchAgentIds);
+            console.log('[Research Protocol] Multi-Agent Validation Initial:', validation);
+
+            // ==================== SELF-HEALING GAP FILLER ====================
+            // If any specialist domains were cut off or omitted, fetch ONLY the missing ones!
+            if (validation.missingAgents.length > 0) {
+                console.warn('[Research Protocol] Missing/Incomplete agents detected:', validation.missingAgents, '. Triggering gap filler...');
+                updateLoadingStatus(
+                    `Vervollständige ausstehende Fachanalysen (${validation.missingAgents.length} Modul${validation.missingAgents.length > 1 ? 'e' : ''})...`,
+                    75,
+                    'Gezielte Nachforderung für lückenlose Vollständigkeit aller 5 Fachbereiche.'
+                );
+
+                const gapPrompt = getSpecialistReviewPrompt(query, lang, dataset, phase1Data.company_identity, validation.missingAgents);
+                const gapResponseText = await fetchSingleBatch(query, user, gapPrompt, 0, false, dataset, MODEL_ID);
+                const gapData = parseFrameworks(gapResponseText);
+
+                validation.missingAgents.forEach(id => {
+                    if (gapData[id] && String(gapData[id]).trim().length >= 20) {
+                        researchData[id] = gapData[id];
+                    }
+                });
+
+                validation = validateResearchData(researchData, researchAgentIds);
+                console.log('[Research Protocol] Multi-Agent Validation Post Gap-Fill:', validation);
+            }
 
             if (validation.researchStatus === 'FAILED') {
                 throw new Error('Die fundamentale Multi-Agenten-Prüfung konnte nicht abgeschlossen werden. Bitte versuche es erneut.');
@@ -3425,28 +3449,19 @@
 
         // ==================== INSTITUTIONAL RESEARCH PROMPTS ====================
         const AGENT_PROMPTS = {
-            business_quality: `SECTION 1: BUSINESS MODEL & COMPETITIVE ADVANTAGE
-ROLE: Senior Equity Research Analyst — Business Model & Competitive Advantage
-OBJECTIVE: Analysiere die wirtschaftliche Qualität des Unternehmens und die Nachhaltigkeit seines Geschäftsmodells.
-ANALYSE-PUNKTE:
-- Core Business, Erlösquellen & Geschäftsmodell (Recurring Revenue Anteil, Preissetzungsmacht)
-- Kunden- & Geografische Konzentration
-- Marktposition, Eintrittsbarrieren, Wechselkosten, Netzwerkeffekte, Kostenvorteile, Brand/IP
-- Branchenstruktur & Wettbewerbsintensität
-- Säkulare Wachstumstreiber & Säkulare Bedrohungen
-- Growth Quality: Organic vs. Acquisition vs. Margin Expansion
-- Moat Score: 0-5 (0=kein Vorteil, 5=außergewöhnlich stark & langfristig geschützt)
-- Moat Type: PRICING POWER / NETWORK EFFECTS / SWITCHING COSTS / COST ADVANTAGE / BRAND / IP / SCALE / NONE
-- Moat Durability: WEAK / MODERATE / STRONG
+            business_quality: `SECTION 1: BUSINESS MODEL, COMPETITIVE ADVANTAGE & MOAT
+ROLE: Senior Equity Research Analyst — Business Quality & Economic Moats
+OBJECTIVE: Analysiere prägnant die wirtschaftliche Qualität des Unternehmens und seinen Burggraben.
+STIL: Präzise Bullet-Points und kurze Begründungen (max. 1–2 Sätze pro Punkt). Keine ausufernden Fließtexte.
 
 OUTPUT FORMAT:
 <business_quality>
-Business Model: [Kurze Beschreibung der Ertragsmechanik]
+Business Model: [Kurze, prägnante Beschreibung der Ertragsmechanik (max 2 Sätze)]
 Revenue Engine: [Haupterlösquellen & Segment-Treiber]
 Recurring Revenue: [Anteil/Qualität wiederkehrender Erlöse oder N/A]
 Organic Growth Quality: [Organic / Acquisition / Price vs Volume Treiber]
-Pricing Power: [Einschätzung der Preissetzungsmacht & Begründung]
-Market Position: [Marktanteil / Relevanz in der Kernnische]
+Pricing Power: [Einschätzung der Preissetzungsmacht (1 Satz)]
+Market Position: [Marktanteil & Relevanz in der Kernnische]
 Competitive Advantage: [Struktureller Wettbewerbsvorteil]
 Industry Structure: [Konzentrationsgrad & Wettbewerbsintensität]
 Secular Growth: [Haupt-Megatrend / Rückenwind]
@@ -3459,13 +3474,8 @@ Business Quality Verdict: [WEAK / MODERATE / STRONG / EXCEPTIONAL]
 
             financial_quality: `SECTION 2: FINANCIAL STATEMENTS, CAPITAL EFFICIENCY & BALANCE SHEET
 ROLE: Senior Fundamental Analyst — Financial Statements, Capital Efficiency & Capital Allocation
-OBJECTIVE: Bewerte die Qualität der finanziellen Ergebnisse, Bilanz und Kapitalverwendung.
-ANALYSE-PUNKTE:
-- Profitability: 5Y Revenue CAGR, EBITDA/EBIT/Netto/Gross Margins & Margen-Trend.
-- Capital Efficiency: ROIC vs WACC, ROE, ROA.
-- Cash Flow Quality: Operating CF, Free Cash Flow, FCF Margin, FCF Conversion.
-- Balance Sheet: Cash, Gross Debt, Net Debt, Net Debt / EBITDA, Interest Coverage, Liquidity, Debt to Equity.
-- Capital Allocation: Dividenden, Buybacks, Share Issuance, Debt Reduction, R&D/CapEx Disziplin.
+OBJECTIVE: Bewerte prägnant die Qualität der finanziellen Ergebnisse, Bilanz und Kapitalverwendung.
+STIL: Präzise Bullet-Points und kurze Begründungen (max. 1–2 Sätze pro Punkt).
 
 OUTPUT FORMAT:
 <financial_quality>
@@ -3475,7 +3485,7 @@ Margin Trend: [EXPANDING / STABLE / CONTRACTING + 1 Satz]
 ROIC: [ROIC Wert in %]
 WACC: [WACC Schätzung in %]
 ROIC vs WACC: [VALUE CREATING / VALUE NEUTRAL / VALUE DESTROYING]
-Economic Value Creation: [1 Satz zur ökonomischen Wertschöpfung]
+Economic Value Creation: [1 prägnanter Satz zur ökonomischen Wertschöpfung]
 FCF Margin: [FCF in % des Umsatzes]
 FCF Conversion: [FCF / Net Income Verhältnis]
 Cash Flow Quality: [HIGH / MODERATE / POOR]
@@ -3491,13 +3501,8 @@ Financial Quality Verdict: [WEAK / MODERATE / STRONG / EXCEPTIONAL]
 
             earnings_expectations: `SECTION 3: EARNINGS, CONSENSUS EXPECTATIONS & CATALYSTS
 ROLE: Senior Equity Research Analyst — Earnings, Consensus Expectations & Catalysts
-OBJECTIVE: Analysiere die Differenz zwischen tatsächlicher Unternehmensentwicklung und Markterwartungen.
-ANALYSE-PUNKTE:
-- Earnings History: EPS Beat/Miss Trend (letzte 4 Quartale), Revenue Beat/Miss.
-- Guidance & Consensus: Management-Guidance vs Consensus, Revisions-Richtung.
-- Street Focus: Maximal 3 entscheidende Kennzahlen.
-- Positive Catalysts & Negative Catalysts.
-- Expectations Risk: LOW / MODERATE / HIGH.
+OBJECTIVE: Analysiere prägnant die Differenz zwischen Unternehmensentwicklung und Markterwartungen.
+STIL: Präzise Bullet-Points und Fakten (max. 1–2 Sätze pro Punkt).
 
 OUTPUT FORMAT:
 <earnings_expectations>
@@ -3518,12 +3523,8 @@ Earnings Verdict: [POSITIVE / NEUTRAL / NEGATIVE / WAIT]
 
             valuation: `SECTION 4: INTRINSIC VALUE, RELATIVE VALUE & DCF
 ROLE: Senior Valuation Analyst — Intrinsic Value, Relative Value & Reverse Valuation
-OBJECTIVE: Bestimme Fair Value Ranges und beurteile, welche Erwartungen im aktuellen Aktienkurs eingepreist sind.
-ANALYSE-PUNKTE:
-- Relative Valuation: KGV, Forward KGV, EV/EBITDA, P/FCF, Dividend Yield.
-- DCF Modell (5-Jahres-Horizont): DCF Bear, DCF Base, DCF Bull in nativer Handelswährung.
-- Reverse DCF: Implizites Wachstum & Marge.
-- Margin of Safety: Differenz zwischen aktuellem Kurs und DCF Base.
+OBJECTIVE: Bestimme Fair Value Ranges und beurteile eingepreiste Markterwartungen.
+STIL: Präzise Bullet-Points und Kennzahlen (max. 1–2 Sätze pro Punkt).
 
 OUTPUT FORMAT:
 <valuation>
@@ -3553,11 +3554,7 @@ Valuation Verdict: [DEEPLY UNDERVALUED / UNDERVALUED / FAIRLY VALUED / OVERVALUE
             market_structure: `SECTION 5: PRICE ACTION, MOMENTUM & MARKET STRUCTURE
 ROLE: Senior Quantitative Market Analyst — Price Action, Momentum & Market Structure
 OBJECTIVE: Analysiere ausschließlich die aktuelle Marktdynamik und Chartstruktur.
-ANALYSE-PUNKTE:
-- Trends & Gleitende Durchschnitte: 50-DMA, 200-DMA Abstände & Crossover.
-- Momentum & Indikatoren: RSI (14D), MACD Signal, Volatilität, Volume Trend.
-- 52-Wochen Range: 52W High, 52W Low, Abstand vom High.
-- Key Levels: Unterstützungszone (Support) und Widerstandszone (Resistance).
+STIL: Präzise Bullet-Points und Kennzahlen.
 
 OUTPUT FORMAT:
 <market_structure>
@@ -3644,7 +3641,7 @@ Data Timestamp: [${todayIso}]
 </financial_dataset>`;
         }
 
-        function getSpecialistReviewPrompt(query, lang, dataset, identityText) {
+        function getSpecialistReviewPrompt(query, lang, dataset, identityText, agentIds = ['business_quality', 'financial_quality', 'earnings_expectations', 'valuation', 'market_structure']) {
             const todayIso = new Date().toISOString().split('T')[0];
             const datasetJson = JSON.stringify(dataset || {}, null, 2);
 
@@ -3653,7 +3650,7 @@ LANGUAGE: Respond EXCLUSIVELY in ${lang}.
 TASK: Institutional Equity Research & Multi-Agent Specialist Analysis for "${query}".
 
 VERIFIED FACTS & HISTORICAL DATASET (Single Source of Truth):
-Use the following verified corporate and financial dataset as the strict factual basis for all 5 specialist reviews. Do NOT contradict these numbers.
+Use the following verified corporate and financial dataset as the strict factual basis for all requested reviews below. Do NOT contradict these numbers.
 
 COMPANY IDENTITY:
 ${identityText || `Company: ${query}`}
@@ -3664,13 +3661,13 @@ ${datasetJson}
 \`\`\`
 
 INSTRUCTIONS:
-You are an institutional investment committee consisting of 5 senior specialist analysts.
-Perform the 5 specialized institutional analyses based on the verified dataset above.
-Output ONLY the requested 5 XML blocks in exact order: <business_quality>, <financial_quality>, <earnings_expectations>, <valuation>, <market_structure>.
+You are an institutional investment committee.
+Perform the specialized institutional analyses based on the verified dataset above.
+Output each requested section in exact XML tags (${agentIds.map(id => `<${id}>...</${id}>`).join(' ')}).
+Keep each point concise, precise, and high-impact. Avoid long filler prose.
 
 `;
 
-            const agentIds = ['business_quality', 'financial_quality', 'earnings_expectations', 'valuation', 'market_structure'];
             agentIds.forEach(id => {
                 if (AGENT_PROMPTS[id]) {
                     prompt += `${AGENT_PROMPTS[id]}\n\n`;
@@ -3726,11 +3723,11 @@ ${researchData.market_structure || 'N/A (Market Structure Assessment Unavailable
 </market_structure>
 
 STRICT SYNTHESIS DIRECTIVES:
-1. NO RE-RESEARCH: Do NOT perform a new DCF calculation, new technical analysis, or new fundamental analysis. Use the research findings provided above.
+1. NO RE-RESEARCH & NO DUPLICATION: Do NOT perform a new DCF calculation or repeat raw price/multiple tables (they are already present in the Valuation module). Focus on strategic qualitative synthesis.
 2. NO MAJORITY VOTING: Weight evidence qualitatively (e.g. High Moat + Fair Valuation outweighs temporary short-term momentum; Poor Balance Sheet + Overvaluation overrides positive momentum).
 3. BUSINESS QUALITY VS. STOCK VALUATION: Strikte Trennung zwischen wirtschaftlicher Unternehmensqualität (Moat, ROIC, Bilanz) und Aktienbewertung (KGV, DCF Base, Reverse DCF). Ein herausragendes Unternehmen kann überbewertet sein (High Quality + Overvalued) und ist dann KEIN Kauf.
-4. HANDLE MISSING DATA: If any domain is N/A, declare it transparently in the synthesis (e.g. 'Technical analysis unavailable'). Under NO circumstances invent missing numbers or assume defaults.
-5. CURRENCY DISCIPLINE: State the exact native trading currency for all price targets and DCF values.
+4. HANDLE MISSING DATA: If any domain is N/A, declare it transparently in the synthesis. Under NO circumstances invent missing numbers or assume defaults.
+5. CONCISE IMPACT: Keep each thesis and risk point to maximum 1-2 punchy sentences.
 6. OUTPUT FORMAT: Output ONLY the <executive_summary> XML block.
 
 OUTPUT FORMAT:
@@ -3741,17 +3738,12 @@ Growth Quality: [LOW / MODERATE / HIGH]
 Capital Allocation: [POOR / MIXED / GOOD / EXCELLENT]
 Economic Moat: [WEAK / MODERATE / STRONG + Typ]
 Valuation: [DEEPLY UNDERVALUED / UNDERVALUED / FAIRLY VALUED / OVERVALUED / DEEPLY OVERVALUED]
-Market Expectations: [Max 2 Sätze: Welche operative Performance fordert der aktuelle Preis?]
-Investment Thesis: [Max 2 Sätze zur Kernthese]
-Counter Thesis: [Max 2 Sätze zum Bärenfall / stärkstes Gegenargument]
+Market Expectations: [Max 1-2 Sätze: Welche operative Performance fordert der aktuelle Preis?]
+Investment Thesis: [Max 2 prägnante Sätze zur Kernthese]
+Counter Thesis: [Max 2 prägnante Sätze zum Bärenfall / stärkstes Gegenargument]
 Key Catalyst: [Genau 1 Hauptkatalysator]
 Key Risk: [Genau 1 Hauptrisiko]
 Thesis Breaker: [Konkretes Ereignis/Schwelle, das die These ungültig machen würde]
-Current Price: [Aktueller Kurs mit Währung]
-DCF Bear: [Bear Case Modellwert aus Valuation oder N/A]
-DCF Base: [Base Case Modellwert aus Valuation oder N/A]
-DCF Bull: [Bull Case Modellwert aus Valuation oder N/A]
-Margin of Safety: [Sicherheitsmarge in % vs Base Case oder N/A]
 Circle of Competence: [HIGH TRANSPARENCY / OBSERVE / TOO HARD]
 Investment Horizon: [SHORT TERM / MEDIUM TERM / LONG TERM + 1 Satz]
 Institutional Verdict: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRLY VALUED] / [OVERVALUED] / [NEGATIVE] / [STRONG NEGATIVE]]
