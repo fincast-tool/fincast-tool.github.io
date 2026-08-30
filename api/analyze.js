@@ -14,6 +14,7 @@ module.exports = async function handler(req, res) {
         
         // Initial system status for debugging
         let systemStatus = `DEBUG: Backend reached. Ticker: ${ticker}. `;
+        let fmpDetails = "";
 
         if (ticker && geminiBody && geminiBody.contents) {
             let profileData = [];
@@ -32,7 +33,7 @@ module.exports = async function handler(req, res) {
             let symbol = ticker.trim().toUpperCase();
 
             // PATH A: Use pre-fetched single source of truth dataset if provided
-            if (historicalDataset && typeof historicalDataset === 'object') {
+            if (historicalDataset && typeof historicalDataset === 'object' && (historicalDataset.profile || historicalDataset.quote || (Array.isArray(historicalDataset.incomeStatements) && historicalDataset.incomeStatements.length > 0))) {
                 console.log(`[Backend] Using pre-fetched historical dataset for ${ticker} (Single Source of Truth)`);
                 symbol = (historicalDataset.symbol || ticker).trim().toUpperCase();
                 profileData = historicalDataset.profile ? [historicalDataset.profile] : [];
@@ -47,14 +48,9 @@ module.exports = async function handler(req, res) {
                 earnData = Array.isArray(historicalDataset.earningsSurprises) ? historicalDataset.earningsSurprises : [];
                 histDataRaw = { historical: Array.isArray(historicalDataset.historicalPrices) ? historicalDataset.historicalPrices : [] };
                 systemStatus += `Using Unified Pre-fetched Dataset for ${symbol}. `;
-            } else if (!fmpKey) {
-                console.warn("FMP API Key missing.");
-                systemStatus += "ERROR: FMP_API_KEY_MISSING.";
-                geminiBody.contents[0].parts[0].text = `<system_status>\n${systemStatus}\n</system_status>\n\n` + geminiBody.contents[0].parts[0].text;
-            } else {
+            } else if (fmpKey) {
                 const maskedKey = fmpKey.length > 5 ? (fmpKey.substring(0, 3) + "..." + fmpKey.substring(fmpKey.length - 3)) : "***";
                 systemStatus += `FMP Key Found (${maskedKey}). `;
-                let fmpDetails = "";
                 try {
                     // Detect if ticker is already a symbol (1-5 uppercase letters)
                     const isTicker = /^[A-Z0-9.\-]{1,5}$/.test(ticker.trim().toUpperCase()) && !['MICROSOFT', 'PEPSICO', 'ALPHABET', 'AMAZON', 'NVIDIA', 'TESLA', 'APPLE'].includes(ticker.trim().toUpperCase());
@@ -134,10 +130,15 @@ module.exports = async function handler(req, res) {
                     console.error("[Backend] FMP Fetch Processing Error:", fetchErr);
                     fmpDetails += `Fetch error: ${fetchErr.message}. `;
                 }
+            } else {
+                console.warn("FMP API Key missing.");
+                systemStatus += "ERROR: FMP_API_KEY_MISSING. ";
             }
 
-                    const hasProfile = Array.isArray(profileData) && profileData.length > 0;
-                    const hasQuote = Array.isArray(quoteData) && quoteData.length > 0;
+            // COMMON CONTEXT INJECTION (Works for both PATH A and PATH C)
+            try {
+                const hasProfile = Array.isArray(profileData) && profileData.length > 0;
+                const hasQuote = Array.isArray(quoteData) && quoteData.length > 0;
 
                     if (hasProfile || hasQuote) {
                         systemStatus += ` | Profile: ${hasProfile ? 'OK' : 'N/A'} | Quote: ${hasQuote ? 'OK' : 'N/A'} | Symbol: ${symbol}`;
@@ -386,12 +387,11 @@ Die FMP API hat für dieses internationale Symbol keine Daten geliefert. Nutze z
                             geminiBody.tools.push({ googleSearch: {} });
                         }
                     }
-                } catch (e) { 
-                    console.error("FMP Error:", e);
-                    const targetPart = geminiBody?.contents?.[0]?.parts?.[0];
-                    if (targetPart) {
-                        targetPart.text = `<system_status>\n${systemStatus}${fmpDetails} | EXCEPTION: ${e.message}\n</system_status>\n\n` + targetPart.text;
-                    }
+            } catch (ctxErr) { 
+                console.error("[Backend] Context Building Error:", ctxErr);
+                const targetPart = geminiBody?.contents?.[0]?.parts?.[0];
+                if (targetPart) {
+                    targetPart.text = `<system_status>\n${systemStatus}${fmpDetails} | EXCEPTION: ${ctxErr.message}\n</system_status>\n\n` + targetPart.text;
                 }
             }
         } else {
