@@ -3580,6 +3580,18 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             }
         }
 
+        function parseCurrencyAndPrice(priceText) {
+            if (!priceText || priceText === '--') return { price: null, currency: '$' };
+            let currency = '$';
+            if (priceText.includes('€') || /EUR/i.test(priceText)) currency = '€';
+            else if (priceText.includes('CHF')) currency = 'CHF';
+            else if (priceText.includes('£') || /GBP/i.test(priceText)) currency = '£';
+            
+            const numStr = priceText.replace(/[^\d.,]/g, '').replace(',', '.');
+            const price = parseFloat(numStr);
+            return { price: (typeof price === 'number' && Number.isFinite(price)) ? price : null, currency };
+        }
+
         // DCF Potential extraction — STRICT OWNERSHIP: valuation module
         function extractDcfPotential(dcfText, allData = null) {
             const raw = dcfText || (allData ? allData.valuation : '') || '';
@@ -3605,11 +3617,13 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 const baseMatch = clean.match(/DCF\s*Base:\s*([\d.,]+)/i);
                 const rawPriceText = document.getElementById('id_price')?.textContent || '';
                 const { price: currentPrice } = parseCurrencyAndPrice(rawPriceText);
-                if (baseMatch && baseMatch[1] && currentPrice > 0) {
+                if (baseMatch && baseMatch[1] && currentPrice && currentPrice > 0) {
                     const dcfBase = parseFloat(baseMatch[1].replace(',', '.'));
-                    if (dcfBase > 0) {
+                    if (dcfBase && dcfBase > 0) {
                         const pct = ((dcfBase - currentPrice) / currentPrice) * 100;
-                        pot = `${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%`;
+                        if (typeof pct === 'number' && Number.isFinite(pct)) {
+                            pot = `${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%`;
+                        }
                     }
                 }
             }
@@ -3767,7 +3781,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 bullNum = parsePriceNumber(bullRaw);
                 bearNum = parsePriceNumber(bearRaw);
                 targetCurrency = extractCurrency(bullRaw) || extractCurrency(bearRaw);
-                targets = `${bearNum !== null ? bearNum.toFixed(2) : bearRaw} / ${bullNum !== null ? bullNum.toFixed(2) : bullRaw}`;
+                targets = `${typeof bearNum === 'number' && Number.isFinite(bearNum) ? bearNum.toFixed(2) : bearRaw} / ${typeof bullNum === 'number' && Number.isFinite(bullNum) ? bullNum.toFixed(2) : bullRaw}`;
             }
 
             // 5. Reverse DCF Fields
@@ -3786,12 +3800,12 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
 
             // 6. Bull / Bear Potentials
             let currentPriceNum = parsePriceNumber(currentPriceText);
-            if (currentPriceNum && currentPriceNum > 0 && bullNum !== null && bearNum !== null) {
+            if (typeof currentPriceNum === 'number' && currentPriceNum > 0 && typeof bullNum === 'number' && typeof bearNum === 'number') {
                 const bullPct = ((bullNum - currentPriceNum) / currentPriceNum) * 100;
                 const bearPct = ((bearNum - currentPriceNum) / currentPriceNum) * 100;
                 const bullSign = bullPct >= 0 ? '+' : '';
                 const bearSign = bearPct >= 0 ? '+' : '';
-                potentials = `${bearSign}${bearPct.toFixed(1)}% / ${bullSign}${bullPct.toFixed(1)}%`;
+                potentials = `${bearSign}${typeof bearPct === 'number' && Number.isFinite(bearPct) ? bearPct.toFixed(1) : '—'}% / ${bullSign}${typeof bullPct === 'number' && Number.isFinite(bullPct) ? bullPct.toFixed(1) : '—'}%`;
             }
 
             return {
@@ -3851,7 +3865,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             }
 
             if (potentialsEl) {
-                if (showcase.bullPct !== null && showcase.bearPct !== null) {
+                if (typeof showcase.bullPct === 'number' && Number.isFinite(showcase.bullPct) && typeof showcase.bearPct === 'number' && Number.isFinite(showcase.bearPct)) {
                     const bullSign = showcase.bullPct >= 0 ? '+' : '';
                     const bearSign = showcase.bearPct >= 0 ? '+' : '';
                     const bullColor = showcase.bullPct >= 0 ? 'text-emerald-400' : 'text-rose-400';
@@ -4496,7 +4510,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
 
             const sp52El = document.getElementById('snap_52w');
             if (sp52El) {
-                if (dataset.yearLow && dataset.yearHigh) {
+                if (typeof dataset.yearLow === 'number' && typeof dataset.yearHigh === 'number') {
                     sp52El.textContent = `${dataset.yearLow.toFixed(1)} – ${dataset.yearHigh.toFixed(1)} ${cur}`;
                 } else {
                     sp52El.textContent = '—';
@@ -4505,19 +4519,19 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
 
             const peCurEl = document.getElementById('snap_pe_cur');
             if (peCurEl) {
-                const peVal = valResult?.statistics?.pe_adj?.current || valResult?.statistics?.pe_rep?.current;
-                peCurEl.textContent = peVal ? peVal.toFixed(1) : '—';
+                const peVal = valResult?.statistics?.pe_adj?.current ?? valResult?.statistics?.pe_rep?.current;
+                peCurEl.textContent = (typeof peVal === 'number') ? peVal.toFixed(1) : '—';
             }
 
             // Pillar 2: Growth Profile
             const revCagrEl = document.getElementById('snap_rev_cagr');
-            if (revCagrEl) revCagrEl.textContent = valResult?.growth?.revenueCAGR !== null ? fmtPct(valResult.growth.revenueCAGR, true) : '—';
+            if (revCagrEl) revCagrEl.textContent = (typeof valResult?.growth?.revenueCAGR === 'number') ? fmtPct(valResult.growth.revenueCAGR, true) : '—';
 
             const epsCagrEl = document.getElementById('snap_eps_cagr');
-            if (epsCagrEl) epsCagrEl.textContent = valResult?.growth?.epsCAGR !== null ? fmtPct(valResult.growth.epsCAGR, true) : '—';
+            if (epsCagrEl) epsCagrEl.textContent = (typeof valResult?.growth?.epsCAGR === 'number') ? fmtPct(valResult.growth.epsCAGR, true) : '—';
 
             const fcfCagrEl = document.getElementById('snap_fcf_cagr');
-            if (fcfCagrEl) fcfCagrEl.textContent = valResult?.growth?.fcfCAGR !== null ? fmtPct(valResult.growth.fcfCAGR, true) : '—';
+            if (fcfCagrEl) fcfCagrEl.textContent = (typeof valResult?.growth?.fcfCAGR === 'number') ? fmtPct(valResult.growth.fcfCAGR, true) : '—';
 
             const cagrSpanEl = document.getElementById('snap_cagr_span');
             if (cagrSpanEl && valResult?.growth?.revenueCAGRYears) {
@@ -4526,13 +4540,13 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
 
             // Pillar 3: Capital Quality
             const roicEl = document.getElementById('snap_roic');
-            if (roicEl) roicEl.textContent = latest.roic !== null ? fmtPct(latest.roic) : '—';
+            if (roicEl) roicEl.textContent = (typeof latest?.roic === 'number') ? fmtPct(latest.roic) : '—';
 
             const roeEl = document.getElementById('snap_roe');
-            if (roeEl) roeEl.textContent = latest.roe !== null ? fmtPct(latest.roe) : '—';
+            if (roeEl) roeEl.textContent = (typeof latest?.roe === 'number') ? fmtPct(latest.roe) : '—';
 
             const opMgnEl = document.getElementById('snap_op_margin');
-            if (opMgnEl) opMgnEl.textContent = latest.operatingMargin !== null ? fmtPct(latest.operatingMargin) : '—';
+            if (opMgnEl) opMgnEl.textContent = (typeof latest?.operatingMargin === 'number') ? fmtPct(latest.operatingMargin) : '—';
 
             // Pillar 4: Balance & Leverage
             const netDebtEbitdaEl = document.getElementById('snap_net_debt_ebitda');
@@ -4541,23 +4555,23 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     netDebtEbitdaEl.textContent = 'Not applicable';
                     netDebtEbitdaEl.className = 'font-mono text-slate-400 text-[10px]';
                 } else {
-                    netDebtEbitdaEl.textContent = latest.netDebtToEbitda !== null ? latest.netDebtToEbitda.toFixed(2) : '—';
+                    netDebtEbitdaEl.textContent = (typeof latest?.netDebtToEbitda === 'number') ? latest.netDebtToEbitda.toFixed(2) : '—';
                     netDebtEbitdaEl.className = 'font-bold text-white text-[11px]';
                 }
             }
 
             const debtEqEl = document.getElementById('snap_debt_equity');
-            if (debtEqEl) debtEqEl.textContent = latest.debtToEquity !== null ? latest.debtToEquity.toFixed(2) : '—';
+            if (debtEqEl) debtEqEl.textContent = (typeof latest?.debtToEquity === 'number') ? latest.debtToEquity.toFixed(2) : '—';
 
             const intCovEl = document.getElementById('snap_interest_cov');
-            if (intCovEl) intCovEl.textContent = latest.interestCoverage !== null ? `${latest.interestCoverage.toFixed(1)}x` : '—';
+            if (intCovEl) intCovEl.textContent = (typeof latest?.interestCoverage === 'number') ? `${latest.interestCoverage.toFixed(1)}x` : '—';
 
             // Pillar 5: Shareholder Return
             const divYldEl = document.getElementById('snap_div_yield');
-            if (divYldEl) divYldEl.textContent = latest.dividendYield !== null ? fmtPct(latest.dividendYield) : '—';
+            if (divYldEl) divYldEl.textContent = (typeof latest?.dividendYield === 'number') ? fmtPct(latest.dividendYield) : '—';
 
             const payoutEl = document.getElementById('snap_payout');
-            if (payoutEl) payoutEl.textContent = latest.payoutRatio !== null ? fmtPct(latest.payoutRatio) : '—';
+            if (payoutEl) payoutEl.textContent = (typeof latest?.payoutRatio === 'number') ? fmtPct(latest.payoutRatio) : '—';
 
             const earnDateEl = document.getElementById('snap_earnings_date');
             if (earnDateEl) {
@@ -4763,7 +4777,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 if (fEl) fEl.textContent = pt.fairValue !== null ? fmtCurrency(pt.fairValue, dataset.currency) : '—';
 
                 if (devEl) {
-                    if (pt.price !== null && pt.fairValue !== null && pt.fairValue > 0) {
+                    if (typeof pt.price === 'number' && typeof pt.fairValue === 'number' && pt.fairValue > 0) {
                         const dev = ((pt.price - pt.fairValue) / pt.fairValue) * 100;
                         const sign = dev >= 0 ? '+' : '';
                         devEl.textContent = `${sign}${dev.toFixed(1)}% (${dev < -10 ? 'Unterbewertet' : dev > 10 ? 'Überbewertet' : 'Fair'})`;
@@ -4774,21 +4788,21 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 }
 
                 if (bandEl) {
-                    if (pt.lowerBand !== null && pt.upperBand !== null) {
-                        bandEl.textContent = `${pt.lowerBand.toFixed(1)} – ${pt.upperBand.toFixed(1)} ${dataset.currency}`;
+                    if (typeof pt.lowerBand === 'number' && typeof pt.upperBand === 'number') {
+                        bandEl.textContent = `${pt.lowerBand.toFixed(1)} – ${pt.upperBand.toFixed(1)} ${dataset.currency || '$'}`;
                     } else {
                         bandEl.textContent = '—';
                     }
                 }
 
                 if (pctEl) {
-                    pctEl.textContent = activeStats?.currentPercentile !== null ? `${activeStats.currentPercentile}% (${status})` : '—';
+                    pctEl.textContent = (typeof activeStats?.currentPercentile === 'number') ? `${activeStats.currentPercentile}% (${status})` : '—';
                 }
             }
 
             // Initial HUD
-            const defaultPt = series[Math.max(0, histEndIndex - 1)];
-            updateLiveHUD(defaultPt);
+            const defaultPt = series.length > 0 ? (series[Math.max(0, histEndIndex - 1)] || series[series.length - 1]) : null;
+            if (defaultPt) updateLiveHUD(defaultPt);
 
             const handlePointer = (clientX) => {
                 if (clientX === null || clientX === undefined) return;
@@ -4946,16 +4960,24 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 const psEl = document.getElementById('liveMultPs');
                 const devEl = document.getElementById('liveMultDeviation');
 
-                if (dEl) dEl.textContent = `${pt.year}`;
-                if (peEl) peEl.textContent = pt.pe_adj ? `${pt.pe_adj.toFixed(1)} (Ø ${valResult.statistics.pe_adj.median || '—'})` : '—';
-                if (peRepEl) peRepEl.textContent = pt.pe_rep ? pt.pe_rep.toFixed(1) : '—';
-                if (pcfEl) pcfEl.textContent = pt.pfcf ? pt.pfcf.toFixed(1) : '—';
-                if (psEl) psEl.textContent = pt.ps ? pt.ps.toFixed(1) : '—';
-                if (devEl) devEl.textContent = valResult.statistics.pe_adj.currentPercentile !== null ? `${valResult.statistics.pe_adj.currentPercentile}% (${valResult.statistics.pe_adj.valuationStatus})` : '—';
+                if (dEl) dEl.textContent = `${pt.year || pt.date || '--'}`;
+                if (peEl) {
+                    const med = valResult?.statistics?.pe_adj?.median;
+                    const medStr = (typeof med === 'number') ? med.toFixed(1) : '—';
+                    peEl.textContent = (typeof pt.pe_adj === 'number') ? `${pt.pe_adj.toFixed(1)} (Ø ${medStr})` : '—';
+                }
+                if (peRepEl) peRepEl.textContent = (typeof pt.pe_rep === 'number') ? pt.pe_rep.toFixed(1) : '—';
+                if (pcfEl) pcfEl.textContent = (typeof pt.pfcf === 'number') ? pt.pfcf.toFixed(1) : '—';
+                if (psEl) psEl.textContent = (typeof pt.ps === 'number') ? pt.ps.toFixed(1) : '—';
+                if (devEl) {
+                    const pePct = valResult?.statistics?.pe_adj?.currentPercentile;
+                    const peStat = valResult?.statistics?.pe_adj?.valuationStatus;
+                    devEl.textContent = (typeof pePct === 'number') ? `${pePct}% (${peStat || 'FAIR'})` : '—';
+                }
             }
 
-            const defaultPt = series[series.length - 1];
-            updateMultiplesHUD(defaultPt);
+            const defaultPt = series.length > 0 ? series[series.length - 1] : null;
+            if (defaultPt) updateMultiplesHUD(defaultPt);
 
             const hoverLine = svg.querySelector('#mHoverLine');
             const hoverSurface = svg.querySelector('#mHoverSurface');
