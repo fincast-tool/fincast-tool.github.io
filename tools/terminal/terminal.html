@@ -5543,6 +5543,438 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             });
         }
 
+        // ==================== INSTITUTIONAL DATA INSPECTOR CONTROLLER ====================
+        function showInstitutionalDetailInspector(year) {
+            const modal = document.getElementById('financialDataInspectorModal');
+            const card = document.getElementById('financialDataInspectorCard');
+            if (!modal || !CURRENT_NORMALIZED_HISTORICAL_DATA) return;
+
+            const ann = CURRENT_NORMALIZED_HISTORICAL_DATA.annual || [];
+            const p = ann.find(a => a.year == year) || ann[ann.length - 1];
+            if (!p) return;
+
+            const cur = CURRENT_NORMALIZED_HISTORICAL_DATA.currency || 'USD';
+            const compName = CURRENT_NORMALIZED_HISTORICAL_DATA.companyName || CURRENT_NORMALIZED_HISTORICAL_DATA.symbol || 'Unternehmen';
+
+            // Find YoY growth
+            const pIdx = ann.indexOf(p);
+            const prevP = pIdx > 0 ? ann[pIdx - 1] : null;
+            let revGrowthStr = '';
+            if (prevP && prevP.revenue && p.revenue) {
+                const g = ((p.revenue - prevP.revenue) / prevP.revenue) * 100;
+                revGrowthStr = `YoY: ${g >= 0 ? '+' : ''}${g.toFixed(1)}%`;
+            } else {
+                revGrowthStr = `Historischer Stichtag`;
+            }
+
+            // Valuation & Fair Value
+            const valRes = CURRENT_VALUATION_RESULT;
+            const refMed = valRes?.statistics?.pe_adj?.median || p.peRatio || 25;
+            const fairVal = p.eps ? (p.eps * refMed) : (p.periodClosePrice || 100);
+            let devStr = '';
+            if (p.periodClosePrice && fairVal) {
+                const dev = ((p.periodClosePrice - fairVal) / fairVal) * 100;
+                devStr = `${dev >= 0 ? '+' : ''}${dev.toFixed(1)}% (${dev < -10 ? 'Unterbewertet' : dev > 10 ? 'Überbewertet' : 'Fair'})`;
+            }
+
+            // Populate Modal Fields
+            const titleEl = document.getElementById('inspectorYearTitle');
+            const subEl = document.getElementById('inspectorCompanySubtitle');
+            const typeBadge = document.getElementById('inspectorTypeBadge');
+            
+            if (titleEl) titleEl.textContent = `Geschäftsjahr ${p.year} (FY${p.year})`;
+            if (subEl) subEl.textContent = `${compName} • Stichtag: ${p.date || p.year}`;
+            if (typeBadge) typeBadge.textContent = p.year >= new Date().getFullYear() ? 'Konsens-Prognose (Schätzung)' : 'Geprüfter Jahresabschluss';
+
+            // Row 1: Ertragslage & Cashflow
+            const rEl = document.getElementById('insp_rev');
+            const rgEl = document.getElementById('insp_rev_growth');
+            const ebEl = document.getElementById('insp_ebit');
+            const opmEl = document.getElementById('insp_op_margin');
+            const fcfEl = document.getElementById('insp_fcf');
+            const fcfmEl = document.getElementById('insp_fcf_margin');
+
+            if (rEl) rEl.textContent = p.revenue ? fmtNumber(p.revenue, cur) : '—';
+            if (rgEl) rgEl.textContent = revGrowthStr;
+            if (ebEl) ebEl.textContent = p.operatingIncome ? fmtNumber(p.operatingIncome, cur) : '—';
+            if (opmEl) opmEl.textContent = p.operatingMargin ? `Marge: ${p.operatingMargin.toFixed(1)}%` : '—';
+            if (fcfEl) fcfEl.textContent = p.freeCashFlow ? fmtNumber(p.freeCashFlow, cur) : '—';
+            if (fcfmEl) fcfmEl.textContent = p.fcfMargin ? `FCF-Marge: ${p.fcfMargin.toFixed(1)}%` : '—';
+
+            // Row 2: Bewertung & Aktienkurs
+            const epsEl = document.getElementById('insp_eps');
+            const netEl = document.getElementById('insp_net_inc');
+            const prEl = document.getElementById('insp_price');
+            const peEl = document.getElementById('insp_pe');
+            const fvEl = document.getElementById('insp_fair_val');
+            const devEl = document.getElementById('insp_dev');
+
+            if (epsEl) epsEl.textContent = p.eps ? `${cur} ${p.eps.toFixed(2)}` : '—';
+            if (netEl) netEl.textContent = p.netIncome ? `Netto: ${fmtNumber(p.netIncome, cur)}` : '—';
+            if (prEl) prEl.textContent = p.periodClosePrice ? `${cur} ${p.periodClosePrice.toFixed(2)}` : '—';
+            if (peEl) peEl.textContent = p.peRatio ? `KGV: ${p.peRatio.toFixed(1)}x` : '—';
+            if (fvEl) fvEl.textContent = fairVal ? `${cur} ${fairVal.toFixed(2)}` : '—';
+            if (devEl) devEl.textContent = devStr;
+
+            // Row 3: Rentabilität & Bilanzstruktur
+            const roicEl = document.getElementById('insp_roic');
+            const roeEl = document.getElementById('insp_roe');
+            const debtEl = document.getElementById('insp_debt_eq');
+            const netDebtEl = document.getElementById('insp_net_debt');
+            const divEl = document.getElementById('insp_div_yield');
+            const shEl = document.getElementById('insp_shares');
+
+            if (roicEl) roicEl.textContent = p.roic ? `${p.roic.toFixed(1)}%` : '—';
+            if (roeEl) roeEl.textContent = p.roe ? `ROE: ${p.roe.toFixed(1)}%` : '—';
+            if (debtEl) debtEl.textContent = p.debtToEquity ? `${p.debtToEquity.toFixed(2)}x` : '—';
+            if (netDebtEl) netDebtEl.textContent = p.netDebt ? `Net Debt: ${fmtNumber(p.netDebt, cur)}` : '—';
+            if (divEl) divEl.textContent = p.dividendYield ? `${p.dividendYield.toFixed(2)}%` : '—';
+            if (shEl) shEl.textContent = p.sharesOutstanding ? `Aktien: ${(p.sharesOutstanding / 1e6).toFixed(0)}M` : '—';
+
+            // Show Modal
+            modal.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                modal.classList.remove('opacity-0');
+                if (card) {
+                    card.classList.remove('scale-95');
+                    card.classList.add('scale-100');
+                }
+            });
+        }
+
+        function closeFinancialDataInspector() {
+            const modal = document.getElementById('financialDataInspectorModal');
+            const card = document.getElementById('financialDataInspectorCard');
+            if (!modal) return;
+            modal.classList.add('opacity-0');
+            if (card) {
+                card.classList.remove('scale-100');
+                card.classList.add('scale-95');
+            }
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeFinancialDataInspector();
+        });
+
+        // --- FINANCIAL PERFORMANCE SVG RENDERER (DUAL BARS: REVENUE & EBIT + FCF DOTS) ---
+        function renderFinancialPerformanceCharts(dataset) {
+            const svg = document.getElementById('financialPerformanceSvg');
+            const wrapper = document.getElementById('financialPerformanceChartWrapper');
+            if (!svg || !wrapper || !dataset) return;
+
+            const ann = dataset.annual || [];
+            if (ann.length === 0) {
+                svg.innerHTML = `<text x="50%" y="50%" fill="#64748B" font-family="'JetBrains Mono', monospace" font-size="11" text-anchor="middle">Keine Finanzdaten vorhanden</text>`;
+                return;
+            }
+
+            const bRect = wrapper.getBoundingClientRect();
+            const width = Math.max(280, bRect.width || 380);
+            const height = Math.max(160, bRect.height || 190);
+            const padLeft = 45;
+            const padRight = 15;
+            const padTop = 20;
+            const padBottom = 28;
+            const chartW = width - padLeft - padRight;
+            const chartH = height - padTop - padBottom;
+
+            const revVals = ann.map(p => p.revenue || 0);
+            const maxRev = Math.max(...revVals, 1) * 1.15;
+            const numBars = ann.length;
+            const groupW = chartW / numBars;
+            const singleBarW = Math.max(3, Math.min(14, groupW * 0.32));
+
+            // Grid lines
+            let gridHtml = '';
+            for (let i = 0; i <= 3; i++) {
+                const yVal = (maxRev / 3) * i;
+                const yPos = padTop + chartH - (i / 3) * chartH;
+                gridHtml += `
+                    <line x1="${padLeft}" y1="${yPos}" x2="${width - padRight}" y2="${yPos}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="2,2" stroke-width="1" />
+                    <text x="${padLeft - 6}" y="${yPos + 3.5}" fill="#64748B" font-size="8.5" font-family="'JetBrains Mono', monospace" text-anchor="end">${fmtNumber(yVal, '')}</text>
+                `;
+            }
+
+            let barsHtml = '';
+            let labelsHtml = '';
+
+            ann.forEach((p, i) => {
+                const xGroupCenter = padLeft + (i + 0.5) * groupW;
+                const revH = (p.revenue ? (p.revenue / maxRev) : 0) * chartH;
+                const revY = padTop + chartH - revH;
+
+                const ebitH = (p.operatingIncome ? (p.operatingIncome / maxRev) : 0) * chartH;
+                const ebitY = padTop + chartH - ebitH;
+
+                const fcfY = padTop + chartH - (p.freeCashFlow ? (p.freeCashFlow / maxRev) * chartH : 0);
+
+                barsHtml += `
+                    <!-- Interactive Group for FY${p.year} -->
+                    <g class="cursor-pointer group" onclick="showInstitutionalDetailInspector(${p.year})" style="cursor: pointer;">
+                        <title>FY${p.year}: Umsatz ${fmtNumber(p.revenue, dataset.currency)} | EBIT ${fmtNumber(p.operatingIncome, dataset.currency)} | FCF ${fmtNumber(p.freeCashFlow, dataset.currency)} (Klicken für Details)</title>
+                        <rect x="${xGroupCenter - groupW * 0.45}" y="${padTop}" width="${groupW * 0.9}" height="${chartH}" fill="transparent" class="hover:fill-white/5 transition-colors" />
+                        <rect x="${xGroupCenter - singleBarW - 1}" y="${revY}" width="${singleBarW}" height="${Math.max(2, revH)}" rx="2" fill="#D6A83A" opacity="0.9" class="group-hover:opacity-100 transition-opacity" />
+                        <rect x="${xGroupCenter + 1}" y="${ebitY}" width="${singleBarW}" height="${Math.max(2, ebitH)}" rx="2" fill="#10B981" opacity="0.9" class="group-hover:opacity-100 transition-opacity" />
+                        ${p.freeCashFlow ? `<circle cx="${xGroupCenter}" cy="${fcfY}" r="3" fill="#06B6D4" stroke="#0B0E12" stroke-width="1.2" />` : ''}
+                    </g>
+                `;
+
+                labelsHtml += `<text x="${xGroupCenter}" y="${height - 8}" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle" class="cursor-pointer" onclick="showInstitutionalDetailInspector(${p.year})">${p.year}</text>`;
+            });
+
+            svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+            svg.innerHTML = `
+                <text x="${padLeft}" y="${padTop - 6}" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">Umsatz &amp; EBIT (${dataset.currency})</text>
+                ${gridHtml}
+                ${barsHtml}
+                ${labelsHtml}
+            `;
+        }
+
+        // --- PROFITABILITY & MARGINS SVG RENDERER (LINES: GROSS, EBIT, NET) ---
+        function renderProfitabilityCharts(dataset) {
+            const svg = document.getElementById('profitabilitySvg');
+            const wrapper = document.getElementById('profitabilityChartWrapper');
+            if (!svg || !wrapper || !dataset) return;
+
+            const ann = dataset.annual || [];
+            if (ann.length === 0) {
+                svg.innerHTML = `<text x="50%" y="50%" fill="#64748B" font-family="'JetBrains Mono', monospace" font-size="11" text-anchor="middle">Keine Margendaten vorhanden</text>`;
+                return;
+            }
+
+            const bRect = wrapper.getBoundingClientRect();
+            const width = Math.max(280, bRect.width || 380);
+            const height = Math.max(160, bRect.height || 190);
+            const padLeft = 40;
+            const padRight = 15;
+            const padTop = 20;
+            const padBottom = 28;
+            const chartW = width - padLeft - padRight;
+            const chartH = height - padTop - padBottom;
+
+            const allM = [];
+            ann.forEach(p => {
+                if (p.grossMargin !== null) allM.push(p.grossMargin);
+                if (p.operatingMargin !== null) allM.push(p.operatingMargin);
+                if (p.netMargin !== null) allM.push(p.netMargin);
+            });
+
+            if (allM.length === 0) allM.push(0, 50);
+            const minM = 0;
+            const maxM = Math.max(20, Math.ceil(Math.max(...allM) * 1.15 / 10) * 10);
+            const spanM = Math.max(1, maxM - minM);
+
+            const getX = (idx) => padLeft + (idx / Math.max(1, ann.length - 1)) * chartW;
+            const getY = (val) => padTop + chartH - ((val - minM) / spanM) * chartH;
+
+            // Grid lines
+            let gridHtml = '';
+            for (let i = 0; i <= 3; i++) {
+                const val = (maxM / 3) * i;
+                const yPos = padTop + chartH - (i / 3) * chartH;
+                gridHtml += `
+                    <line x1="${padLeft}" y1="${yPos}" x2="${width - padRight}" y2="${yPos}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="2,2" stroke-width="1" />
+                    <text x="${padLeft - 6}" y="${yPos + 3.5}" fill="#64748B" font-size="8.5" font-family="'JetBrains Mono', monospace" text-anchor="end">${val.toFixed(0)}%</text>
+                `;
+            }
+
+            const grossPts = ann.filter(p => p.grossMargin !== null);
+            const opPts = ann.filter(p => p.operatingMargin !== null);
+            const netPts = ann.filter(p => p.netMargin !== null);
+
+            const grossPath = grossPts.length >= 2 ? grossPts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${getX(ann.indexOf(p))} ${getY(p.grossMargin)}`).join(' ') : '';
+            const opPath = opPts.length >= 2 ? opPts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${getX(ann.indexOf(p))} ${getY(p.operatingMargin)}`).join(' ') : '';
+            const netPath = netPts.length >= 2 ? netPts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${getX(ann.indexOf(p))} ${getY(p.netMargin)}`).join(' ') : '';
+
+            let dotsHtml = '';
+            let labelsHtml = '';
+            ann.forEach((p, i) => {
+                const x = getX(i);
+                const grossY = getY(p.grossMargin || 0);
+                const opY = getY(p.operatingMargin || 0);
+                const netY = getY(p.netMargin || 0);
+
+                dotsHtml += `
+                    <g class="cursor-pointer group" onclick="showInstitutionalDetailInspector(${p.year})" style="cursor: pointer;">
+                        <title>FY${p.year}: Brutto ${p.grossMargin ? p.grossMargin.toFixed(1) : '--'}% | EBIT ${p.operatingMargin ? p.operatingMargin.toFixed(1) : '--'}% | Netto ${p.netMargin ? p.netMargin.toFixed(1) : '--'}%</title>
+                        <circle cx="${x}" cy="${grossY}" r="3.5" fill="#D6A83A" stroke="#0B0E12" stroke-width="1.5" />
+                        <circle cx="${x}" cy="${opY}" r="3.5" fill="#10B981" stroke="#0B0E12" stroke-width="1.5" />
+                        <circle cx="${x}" cy="${netY}" r="3.5" fill="#3B82F6" stroke="#0B0E12" stroke-width="1.5" />
+                    </g>
+                `;
+                labelsHtml += `<text x="${x}" y="${height - 8}" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle" class="cursor-pointer" onclick="showInstitutionalDetailInspector(${p.year})">${p.year}</text>`;
+            });
+
+            svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+            svg.innerHTML = `
+                <text x="${padLeft}" y="${padTop - 6}" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">Margen (%)</text>
+                ${gridHtml}
+                ${grossPath ? `<path d="${grossPath}" fill="none" stroke="#D6A83A" stroke-width="2.2" stroke-linejoin="round" />` : ''}
+                ${opPath ? `<path d="${opPath}" fill="none" stroke="#10B981" stroke-width="2.2" stroke-linejoin="round" />` : ''}
+                ${netPath ? `<path d="${netPath}" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linejoin="round" />` : ''}
+                ${dotsHtml}
+                ${labelsHtml}
+            `;
+        }
+
+        // --- CAPITAL EFFICIENCY & BALANCE SHEET SVG RENDERER (ROIC & ROE) ---
+        function renderCapitalEfficiencyCharts(dataset) {
+            const svg = document.getElementById('capitalEfficiencySvg');
+            const wrapper = document.getElementById('capitalEfficiencyChartWrapper');
+            if (!svg || !wrapper || !dataset) return;
+
+            const ann = dataset.annual || [];
+            if (ann.length === 0) {
+                svg.innerHTML = `<text x="50%" y="50%" fill="#64748B" font-family="'JetBrains Mono', monospace" font-size="11" text-anchor="middle">Keine Bilanzdaten vorhanden</text>`;
+                return;
+            }
+
+            const bRect = wrapper.getBoundingClientRect();
+            const width = Math.max(280, bRect.width || 380);
+            const height = Math.max(160, bRect.height || 190);
+            const padLeft = 40;
+            const padRight = 15;
+            const padTop = 20;
+            const padBottom = 28;
+            const chartW = width - padLeft - padRight;
+            const chartH = height - padTop - padBottom;
+
+            const allR = [];
+            ann.forEach(p => {
+                if (p.roic !== null) allR.push(p.roic);
+                if (p.roe !== null) allR.push(p.roe);
+            });
+
+            if (allR.length === 0) allR.push(0, 25);
+            const minR = 0;
+            const maxR = Math.max(15, Math.ceil(Math.max(...allR) * 1.15 / 10) * 10);
+            const spanR = Math.max(1, maxR - minR);
+
+            const getX = (idx) => padLeft + (idx / Math.max(1, ann.length - 1)) * chartW;
+            const getY = (val) => padTop + chartH - ((val - minR) / spanR) * chartH;
+
+            // Grid lines
+            let gridHtml = '';
+            for (let i = 0; i <= 3; i++) {
+                const val = (maxR / 3) * i;
+                const yPos = padTop + chartH - (i / 3) * chartH;
+                gridHtml += `
+                    <line x1="${padLeft}" y1="${yPos}" x2="${width - padRight}" y2="${yPos}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="2,2" stroke-width="1" />
+                    <text x="${padLeft - 6}" y="${yPos + 3.5}" fill="#64748B" font-size="8.5" font-family="'JetBrains Mono', monospace" text-anchor="end">${val.toFixed(0)}%</text>
+                `;
+            }
+
+            const roicPts = ann.filter(p => p.roic !== null);
+            const roePts = ann.filter(p => p.roe !== null);
+
+            const roicPath = roicPts.length >= 2 ? roicPts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${getX(ann.indexOf(p))} ${getY(p.roic)}`).join(' ') : '';
+            const roePath = roePts.length >= 2 ? roePts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${getX(ann.indexOf(p))} ${getY(p.roe)}`).join(' ') : '';
+
+            let dotsHtml = '';
+            let labelsHtml = '';
+            ann.forEach((p, i) => {
+                const x = getX(i);
+                const roicY = getY(p.roic || 0);
+                const roeY = getY(p.roe || 0);
+
+                dotsHtml += `
+                    <g class="cursor-pointer group" onclick="showInstitutionalDetailInspector(${p.year})" style="cursor: pointer;">
+                        <title>FY${p.year}: ROIC ${p.roic ? p.roic.toFixed(1) : '--'}% | ROE ${p.roe ? p.roe.toFixed(1) : '--'}% | Debt/Equity ${p.debtToEquity ? p.debtToEquity.toFixed(2) : '--'}</title>
+                        <circle cx="${x}" cy="${roicY}" r="3.5" fill="#3B82F6" stroke="#0B0E12" stroke-width="1.5" />
+                        <circle cx="${x}" cy="${roeY}" r="3.5" fill="#8B5CF6" stroke="#0B0E12" stroke-width="1.5" />
+                    </g>
+                `;
+                labelsHtml += `<text x="${x}" y="${height - 8}" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle" class="cursor-pointer" onclick="showInstitutionalDetailInspector(${p.year})">${p.year}</text>`;
+            });
+
+            svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+            svg.innerHTML = `
+                <text x="${padLeft}" y="${padTop - 6}" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">ROIC / ROE (%)</text>
+                ${gridHtml}
+                ${roicPath ? `<path d="${roicPath}" fill="none" stroke="#3B82F6" stroke-width="2.2" stroke-linejoin="round" />` : ''}
+                ${roePath ? `<path d="${roePath}" fill="none" stroke="#8B5CF6" stroke-width="2" stroke-linejoin="round" />` : ''}
+                ${dotsHtml}
+                ${labelsHtml}
+            `;
+        }
+
+        // --- SHAREHOLDER RETURNS & SHARES OUTSTANDING SVG RENDERER ---
+        function renderShareholderCharts(dataset) {
+            const svg = document.getElementById('shareholderSvg');
+            const wrapper = document.getElementById('shareholderChartWrapper');
+            if (!svg || !wrapper || !dataset) return;
+
+            const ann = dataset.annual || [];
+            if (ann.length === 0) {
+                svg.innerHTML = `<text x="50%" y="50%" fill="#64748B" font-family="'JetBrains Mono', monospace" font-size="11" text-anchor="middle">Keine Aktionärsdaten vorhanden</text>`;
+                return;
+            }
+
+            const bRect = wrapper.getBoundingClientRect();
+            const width = Math.max(280, bRect.width || 380);
+            const height = Math.max(160, bRect.height || 190);
+            const padLeft = 45;
+            const padRight = 15;
+            const padTop = 20;
+            const padBottom = 28;
+            const chartW = width - padLeft - padRight;
+            const chartH = height - padTop - padBottom;
+
+            const shares = ann.map(p => p.sharesOutstanding ? p.sharesOutstanding / 1e6 : 0).filter(s => s > 0);
+            if (shares.length === 0) shares.push(10, 100);
+
+            const minS = Math.min(...shares) * 0.95;
+            const maxS = Math.max(...shares) * 1.05;
+            const spanS = Math.max(1, maxS - minS);
+
+            const getX = (idx) => padLeft + (idx / Math.max(1, ann.length - 1)) * chartW;
+            const getY = (val) => padTop + chartH - ((val - minS) / spanS) * chartH;
+
+            // Grid lines
+            let gridHtml = '';
+            for (let i = 0; i <= 3; i++) {
+                const val = minS + (spanS / 3) * i;
+                const yPos = padTop + chartH - (i / 3) * chartH;
+                gridHtml += `
+                    <line x1="${padLeft}" y1="${yPos}" x2="${width - padRight}" y2="${yPos}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="2,2" stroke-width="1" />
+                    <text x="${padLeft - 6}" y="${yPos + 3.5}" fill="#64748B" font-size="8.5" font-family="'JetBrains Mono', monospace" text-anchor="end">${val.toFixed(0)}M</text>
+                `;
+            }
+
+            const sharePts = ann.filter(p => p.sharesOutstanding && p.sharesOutstanding > 0);
+            const sharePath = sharePts.length >= 2 ? sharePts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${getX(ann.indexOf(p))} ${getY(p.sharesOutstanding / 1e6)}`).join(' ') : '';
+
+            let dotsHtml = '';
+            let labelsHtml = '';
+            ann.forEach((p, i) => {
+                const x = getX(i);
+                const sVal = p.sharesOutstanding ? (p.sharesOutstanding / 1e6) : minS;
+                const y = getY(sVal);
+
+                dotsHtml += `
+                    <g class="cursor-pointer group" onclick="showInstitutionalDetailInspector(${p.year})" style="cursor: pointer;">
+                        <title>FY${p.year}: ${(sVal).toFixed(0)} Mio. Aktien | Dividendenrendite: ${p.dividendYield ? p.dividendYield.toFixed(2) : '--'}%</title>
+                        <circle cx="${x}" cy="${y}" r="3.5" fill="#A855F7" stroke="#0B0E12" stroke-width="1.5" />
+                    </g>
+                `;
+                labelsHtml += `<text x="${x}" y="${height - 8}" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle" class="cursor-pointer" onclick="showInstitutionalDetailInspector(${p.year})">${p.year}</text>`;
+            });
+
+            svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+            svg.innerHTML = `
+                <text x="${padLeft}" y="${padTop - 6}" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">Aktienanzahl (Mio.)</text>
+                ${gridHtml}
+                ${sharePath ? `<path d="${sharePath}" fill="none" stroke="#A855F7" stroke-width="2.2" stroke-linejoin="round" />` : ''}
+                ${dotsHtml}
+                ${labelsHtml}
+            `;
+        }
+
         // --- MASTER VALUE INVESTING DISPATCH FUNCTION ---
         function renderValueInvestingLayer(dataset, selectedMethod = ACTIVE_VALUATION_METHOD, timeframe = SELECTED_VALUATION_TIMEFRAME) {
             if (!dataset) return;
