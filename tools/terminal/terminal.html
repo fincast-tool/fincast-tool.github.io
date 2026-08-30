@@ -8533,7 +8533,8 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             CURRENT_VALUATION_RESULT = valResult;
 
             // Generate structured Progressive Disclosure insights
-            const insights = generateInvestmentInsights(dataset, valResult, LAST_PARSED_FINAL_RESULTS);
+            const rawData = typeof CURRENT_ANALYSIS_DATA !== 'undefined' ? CURRENT_ANALYSIS_DATA : null;
+            const insights = generateInvestmentInsights(dataset, valResult, rawData);
             CURRENT_INSIGHTS = insights;
 
             updateTimeframeButtonStates(dataset, SELECTED_VALUATION_TIMEFRAME, SELECTED_MULTIPLES_TIMEFRAME);
