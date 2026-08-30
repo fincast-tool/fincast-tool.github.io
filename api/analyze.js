@@ -52,53 +52,114 @@ module.exports = async function handler(req, res) {
                 const maskedKey = fmpKey.length > 5 ? (fmpKey.substring(0, 3) + "..." + fmpKey.substring(fmpKey.length - 3)) : "***";
                 systemStatus += `FMP Key Found (${maskedKey}). `;
                 try {
-                    // Detect if ticker is already a symbol (1-5 uppercase letters)
-                    const isTicker = /^[A-Z0-9.\-]{1,5}$/.test(ticker.trim().toUpperCase()) && !['MICROSOFT', 'PEPSICO', 'ALPHABET', 'AMAZON', 'NVIDIA', 'TESLA', 'APPLE'].includes(ticker.trim().toUpperCase());
-                    symbol = isTicker ? ticker.trim().toUpperCase() : null;
+                    const KNOWN_SYMBOL_MAP = {
+                        'LVMH': 'MC.PA', 'LVMUY': 'LVMUY', 'MC.PA': 'MC.PA', 'HERMES': 'RMS.PA', 'RMS.PA': 'RMS.PA',
+                        'LOREAL': 'OR.PA', 'OR.PA': 'OR.PA', 'KERING': 'KER.PA', 'KER.PA': 'KER.PA', 'FERRARI': 'RACE',
+                        'INDITEX': 'ITX.MC', 'ZARA': 'ITX.MC', 'ZALANDO': 'ZAL.DE', 'ADIDAS': 'ADS.DE', 'PUMA': 'PUM.DE',
+                        'HENKEL': 'HEN3.DE', 'BEIERSDORF': 'BEI.DE', 'NESTLE': 'NESN.SW', 'NSRGY': 'NSRGY',
+                        'HEINEKEN': 'HEIA.AS', 'DANONE': 'BN.PA', 'PERNOD': 'RI.PA', 'DIAGEO': 'DGE.L', 'UNILEVER': 'ULVR.L', 'LVMHF': 'LVMUY',
+                        'SAP': 'SAP', 'ASML': 'ASML', 'SIEMENS': 'SIE.DE', 'SIE.DE': 'SIE.DE', 'AIRBUS': 'AIR.PA', 'AIR.PA': 'AIR.PA',
+                        'SCHNEIDER': 'SU.PA', 'SU.PA': 'SU.PA', 'INFINEON': 'IFX.DE', 'IFX.DE': 'IFX.DE', 'STM': 'STMPA.PA',
+                        'DASSAULT': 'DSY.PA', 'SAFRAN': 'SAF.PA', 'ABB': 'ABBN.SW', 'LEGRAND': 'LR.PA',
+                        'BMW': 'BMW.DE', 'BMW.DE': 'BMW.DE', 'MERCEDES': 'MBG.DE', 'MBG': 'MBG.DE', 'DAIMLER': 'MBG.DE',
+                        'VW': 'VOW3.DE', 'VOLKSWAGEN': 'VOW3.DE', 'VOW3': 'VOW3.DE', 'PORSCHE': 'P911.DE', 'PAH3': 'PAH3.DE',
+                        'STELLANTIS': 'STLAM.MI', 'RENAULT': 'RNO.PA', 'VOLVO': 'VOLV-B.ST',
+                        'NOVO': 'NVO', 'NOVOB': 'NOVO-B.CO', 'NVO': 'NVO', 'NOVARTIS': 'NOVN.SW', 'NVS': 'NVS',
+                        'ROCHE': 'ROG.SW', 'RHHBY': 'RHHBY', 'SANOFI': 'SAN.PA', 'SNY': 'SNY', 'BAYER': 'BAYN.DE', 'BAYN': 'BAYN.DE',
+                        'MERCKKGAA': 'MRK.DE', 'ASTRAZENECA': 'AZN', 'GSK': 'GSK', 'LONZA': 'LONN.SW', 'FRESENIUS': 'FRE.DE',
+                        'TOTAL': 'TTE', 'TOTALENERGIES': 'TTE', 'SHELL': 'SHEL', 'BP': 'BP', 'BASF': 'BAS.DE', 'BAS.DE': 'BAS.DE',
+                        'LINDE': 'LIN', 'AIRLIQUIDE': 'AI.PA', 'ENI': 'ENI.MI', 'EQUINOR': 'EQNR', 'IBERDROLA': 'IBE.MC',
+                        'ENEL': 'ENEL.MI', 'RWE': 'RWE.DE', 'EON': 'EOAN.DE',
+                        'ALLIANZ': 'ALV.DE', 'ALV.DE': 'ALV.DE', 'MUNICHRE': 'MUV2.DE', 'MUV2': 'MUV2.DE',
+                        'DEUTSCHEBANK': 'DBK.DE', 'DBK': 'DBK.DE', 'COMMERZBANK': 'CBK.DE', 'BNP': 'BNP.PA',
+                        'SANTANDER': 'SAN.MC', 'BBVA': 'BBVA', 'UBS': 'UBS', 'ZURICH': 'ZURN.SW', 'AXA': 'CS.PA',
+                        'INTESA': 'ISP.MI', 'ING': 'INGA.AS'
+                    };
 
-                    if (!symbol) {
-                        console.log(`[Backend] Searching symbol for: ${ticker}`);
-                        fmpDetails += "Searching symbol... ";
-                        
-                        // Tier 1: Search by name (FMP stable)
-                        let searchRes = await fetch(`https://financialmodelingprep.com/stable/search-name?query=${encodeURIComponent(ticker)}&apikey=${fmpKey}`);
-                        let searchData = (searchRes && searchRes.ok) ? await searchRes.json().catch(() => []) : [];
-                        
-                        // Tier 2: Search global (FMP v3)
-                        if (!Array.isArray(searchData) || searchData.length === 0) {
-                            searchRes = await fetch(`https://financialmodelingprep.com/api/v3/search?query=${encodeURIComponent(ticker)}&limit=5&apikey=${fmpKey}`);
-                            searchData = (searchRes && searchRes.ok) ? await searchRes.json().catch(() => []) : [];
-                        }
-
-                        // Tier 3: Search by symbol (FMP stable)
-                        if (!Array.isArray(searchData) || searchData.length === 0) {
-                            searchRes = await fetch(`https://financialmodelingprep.com/stable/search-symbol?query=${encodeURIComponent(ticker)}&apikey=${fmpKey}`);
-                            searchData = (searchRes && searchRes.ok) ? await searchRes.json().catch(() => []) : [];
-                        }
-
-                        if (Array.isArray(searchData) && searchData.length > 0) {
-                            const usMatch = searchData.find(item => item && item.symbol && (item.currency === 'USD' || ['NASDAQ', 'NYSE', 'AMEX'].includes(item.exchangeShortName || item.stockExchange)));
-                            symbol = (usMatch && usMatch.symbol) ? usMatch.symbol.toUpperCase() : searchData[0].symbol.toUpperCase();
-                        } else {
-                            symbol = ticker.trim().toUpperCase();
-                        }
-                        console.log(`[Backend] Search result: ${symbol}`);
-                    }
-
-                    // Auto-map common cryptocurrencies to FMP-compliant tickers
                     const cryptoTickers = ['BTC', 'ETH', 'SOL', 'ADA', 'DOT', 'DOGE', 'SHIB', 'XRP', 'AVAX', 'LINK', 'LTC', 'BCH', 'UNI', 'ATOM', 'ETC', 'ALGO', 'XLM', 'NEAR', 'ICP', 'FIL', 'LDO', 'GRT', 'FTM', 'RNDR', 'CRO', 'OP', 'ARB', 'TON', 'PEPE', 'WIF', 'BONK', 'FLOKI', 'SUI', 'APT', 'TIA'];
-                    if (symbol && cryptoTickers.includes(symbol)) {
-                        symbol = symbol + 'USD';
-                        fmpDetails += "Mapped crypto ticker to USD pair. ";
+
+                    async function resolveSymbolSmartBackend(query) {
+                        if (!query) return null;
+                        const cleanQ = query.trim().toUpperCase().replace(/[\s\-_]+/g, '');
+                        
+                        if (KNOWN_SYMBOL_MAP[cleanQ]) {
+                            console.log(`[Backend] Exact match in alias registry: "${query}" -> ${KNOWN_SYMBOL_MAP[cleanQ]}`);
+                            return KNOWN_SYMBOL_MAP[cleanQ];
+                        }
+                        if (cryptoTickers.includes(cleanQ)) {
+                            return cleanQ + 'USD';
+                        }
+
+                        const isTickerLike = /^[A-Z0-9.\-]{1,7}$/.test(query.trim().toUpperCase()) && !['MICROSOFT', 'PEPSICO', 'ALPHABET', 'AMAZON', 'NVIDIA', 'TESLA', 'APPLE'].includes(query.trim().toUpperCase());
+                        if (isTickerLike) {
+                            const directSymbol = query.trim().toUpperCase();
+                            try {
+                                const probeRes = await fetch(`https://financialmodelingprep.com/stable/quote?symbol=${encodeURIComponent(directSymbol)}&apikey=${fmpKey}`, {
+                                    signal: AbortSignal.timeout(2000)
+                                });
+                                if (probeRes.ok) {
+                                    const probeData = await probeRes.json().catch(() => []);
+                                    if (Array.isArray(probeData) && probeData.length > 0 && typeof probeData[0]?.price === 'number') {
+                                        console.log(`[Backend] Direct ticker probe verified: ${directSymbol}`);
+                                        return directSymbol;
+                                    }
+                                }
+                            } catch (e) {}
+                        }
+
+                        try {
+                            console.log(`[Backend] Searching FMP for: "${query}"...`);
+                            let searchData = [];
+                            try {
+                                const r1 = await fetch(`https://financialmodelingprep.com/stable/search-name?query=${encodeURIComponent(query.trim())}&apikey=${fmpKey}`, {
+                                    signal: AbortSignal.timeout(2500)
+                                });
+                                if (r1.ok) searchData = await r1.json().catch(() => []);
+                            } catch (e) {}
+
+                            if (!Array.isArray(searchData) || searchData.length === 0) {
+                                try {
+                                    const r2 = await fetch(`https://financialmodelingprep.com/api/v3/search?query=${encodeURIComponent(query.trim())}&limit=10&apikey=${fmpKey}`, {
+                                        signal: AbortSignal.timeout(2500)
+                                    });
+                                    if (r2.ok) searchData = await r2.json().catch(() => []);
+                                } catch (e) {}
+                            }
+
+                            if (Array.isArray(searchData) && searchData.length > 0) {
+                                const euExchanges = ['EURONEXT', 'XETRA', 'PARIS', 'FRANKFURT', 'SWX', 'SIX', 'LSE', 'MADRID', 'MILAN', 'AMSTERDAM', 'COPENHAGEN'];
+                                const euMatch = searchData.find(item => {
+                                    if (!item || !item.symbol) return false;
+                                    const ex = (item.exchangeShortName || item.stockExchange || '').toUpperCase();
+                                    const sym = item.symbol.toUpperCase();
+                                    return euExchanges.some(e => ex.includes(e)) || sym.includes('.PA') || sym.includes('.DE') || sym.includes('.AS') || sym.includes('.SW') || sym.includes('.MC');
+                                });
+                                const usMatch = searchData.find(item => {
+                                    if (!item || !item.symbol) return false;
+                                    const ex = (item.exchangeShortName || item.stockExchange || '').toUpperCase();
+                                    return ['NASDAQ', 'NYSE', 'AMEX'].includes(ex) || item.currency === 'USD';
+                                });
+
+                                const bestMatch = euMatch || usMatch || searchData[0];
+                                if (bestMatch && bestMatch.symbol) {
+                                    const resSym = bestMatch.symbol.toUpperCase();
+                                    console.log(`[Backend] Successfully resolved "${query}" -> ${resSym}`);
+                                    return resSym;
+                                }
+                            }
+                        } catch (e) {}
+
+                        return query.trim().toUpperCase();
                     }
 
+                    symbol = await resolveSymbolSmartBackend(ticker);
                     fmpDetails += `Using Symbol: ${symbol}. `;
                     console.log(`[Backend] Starting fetches for ${symbol}...`);
 
                     async function fetchEndpointWithFallback(urls) {
                         for (const url of urls) {
                             try {
-                                const res = await fetch(url);
+                                const res = await fetch(url, { signal: AbortSignal.timeout(3500) });
                                 if (res && res.ok) {
                                     const data = await res.json().catch(() => null);
                                     if (Array.isArray(data) && data.length > 0 && !data[0]?.['Error Message']) {
@@ -462,7 +523,8 @@ Nutze Google Grounding, um alle geforderten Fundamentaldaten (Umsatzwachstum, Ma
         const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(geminiBody)
+            body: JSON.stringify(geminiBody),
+            signal: AbortSignal.timeout(45000)
         });
 
         const data = await response.json().catch(() => ({}));
@@ -472,6 +534,9 @@ Nutze Google Grounding, um alle geforderten Fundamentaldaten (Umsatzwachstum, Ma
         res.status(200).json(data);
     } catch (error) {
         console.error("Critical Backend Error:", error);
+        if (error.name === 'TimeoutError' || error.message?.includes('aborted')) {
+            return res.status(504).json({ error: 'Server Timeout (504): Die Verbindung zu den Marktdaten oder Gemini hat das Zeitlimit überschritten.' });
+        }
         res.status(500).json({ error: 'Server-Fehler: ' + error.message });
     }
 }

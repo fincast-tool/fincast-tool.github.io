@@ -32,49 +32,219 @@ module.exports = async function handler(req, res) {
         return res.status(500).json({ error: 'FMP API key is not configured on server.' });
     }
 
-    // Resolve symbol if query is a company name, WKN, ISIN, or longer than 5 chars
-    let symbol = null;
-    const isStandardTicker = /^[A-Z0-9.\-]{1,5}$/.test(rawQuery.toUpperCase()) && !['MICROSOFT', 'PEPSICO', 'ALPHABET', 'AMAZON', 'NVIDIA', 'TESLA', 'APPLE'].includes(rawQuery.toUpperCase());
-    if (isStandardTicker) {
-        symbol = rawQuery.toUpperCase();
-    } else {
-        try {
-            console.log(`[Historical Data] Resolving symbol for query: "${rawQuery}"...`);
-            // Tier 1: Search by name (FMP stable)
-            let searchRes = await fetch(`https://financialmodelingprep.com/stable/search-name?query=${encodeURIComponent(rawQuery)}&apikey=${fmpKey}`);
-            let searchData = (searchRes && searchRes.ok) ? await searchRes.json().catch(() => []) : [];
+    // Known European and Global Ticker & Name Mappings
+    const KNOWN_SYMBOL_MAP = {
+        // Luxury & Consumer
+        'LVMH': 'MC.PA',
+        'LVMUY': 'LVMUY',
+        'MC.PA': 'MC.PA',
+        'HERMES': 'RMS.PA',
+        'RMS.PA': 'RMS.PA',
+        'LOREAL': 'OR.PA',
+        'OR.PA': 'OR.PA',
+        'KERING': 'KER.PA',
+        'KER.PA': 'KER.PA',
+        'FERRARI': 'RACE',
+        'INDITEX': 'ITX.MC',
+        'ZARA': 'ITX.MC',
+        'ZALANDO': 'ZAL.DE',
+        'ADIDAS': 'ADS.DE',
+        'PUMA': 'PUM.DE',
+        'HENKEL': 'HEN3.DE',
+        'BEIERSDORF': 'BEI.DE',
+        'NESTLE': 'NESN.SW',
+        'NSRGY': 'NSRGY',
+        'HEINEKEN': 'HEIA.AS',
+        'DANONE': 'BN.PA',
+        'PERNOD': 'RI.PA',
+        'DIAGEO': 'DGE.L',
+        'UNILEVER': 'ULVR.L',
+        'LVMHF': 'LVMUY',
 
-            // Tier 2: Search global (FMP v3)
+        // Tech & Industrials
+        'SAP': 'SAP',
+        'ASML': 'ASML',
+        'SIEMENS': 'SIE.DE',
+        'SIE.DE': 'SIE.DE',
+        'AIRBUS': 'AIR.PA',
+        'AIR.PA': 'AIR.PA',
+        'SCHNEIDER': 'SU.PA',
+        'SU.PA': 'SU.PA',
+        'INFINEON': 'IFX.DE',
+        'IFX.DE': 'IFX.DE',
+        'STM': 'STMPA.PA',
+        'DASSAULT': 'DSY.PA',
+        'SAFRAN': 'SAF.PA',
+        'ABB': 'ABBN.SW',
+        'LEGRAND': 'LR.PA',
+
+        // Auto
+        'BMW': 'BMW.DE',
+        'BMW.DE': 'BMW.DE',
+        'MERCEDES': 'MBG.DE',
+        'MBG': 'MBG.DE',
+        'DAIMLER': 'MBG.DE',
+        'VW': 'VOW3.DE',
+        'VOLKSWAGEN': 'VOW3.DE',
+        'VOW3': 'VOW3.DE',
+        'PORSCHE': 'P911.DE',
+        'PAH3': 'PAH3.DE',
+        'STELLANTIS': 'STLAM.MI',
+        'RENAULT': 'RNO.PA',
+        'VOLVO': 'VOLV-B.ST',
+
+        // Pharma & Healthcare
+        'NOVO': 'NVO',
+        'NOVOB': 'NOVO-B.CO',
+        'NVO': 'NVO',
+        'NOVARTIS': 'NOVN.SW',
+        'NVS': 'NVS',
+        'ROCHE': 'ROG.SW',
+        'RHHBY': 'RHHBY',
+        'SANOFI': 'SAN.PA',
+        'SNY': 'SNY',
+        'BAYER': 'BAYN.DE',
+        'BAYN': 'BAYN.DE',
+        'MERCKKGAA': 'MRK.DE',
+        'ASTRAZENECA': 'AZN',
+        'GSK': 'GSK',
+        'LONZA': 'LONN.SW',
+        'FRESENIUS': 'FRE.DE',
+
+        // Energy & Materials
+        'TOTAL': 'TTE',
+        'TOTALENERGIES': 'TTE',
+        'SHELL': 'SHEL',
+        'BP': 'BP',
+        'BASF': 'BAS.DE',
+        'BAS.DE': 'BAS.DE',
+        'LINDE': 'LIN',
+        'AIRLIQUIDE': 'AI.PA',
+        'ENI': 'ENI.MI',
+        'EQUINOR': 'EQNR',
+        'IBERDROLA': 'IBE.MC',
+        'ENEL': 'ENEL.MI',
+        'RWE': 'RWE.DE',
+        'EON': 'EOAN.DE',
+
+        // Financials
+        'ALLIANZ': 'ALV.DE',
+        'ALV.DE': 'ALV.DE',
+        'MUNICHRE': 'MUV2.DE',
+        'MUV2': 'MUV2.DE',
+        'DEUTSCHEBANK': 'DBK.DE',
+        'DBK': 'DBK.DE',
+        'COMMERZBANK': 'CBK.DE',
+        'BNP': 'BNP.PA',
+        'SANTANDER': 'SAN.MC',
+        'BBVA': 'BBVA',
+        'UBS': 'UBS',
+        'ZURICH': 'ZURN.SW',
+        'AXA': 'CS.PA',
+        'INTESA': 'ISP.MI',
+        'ING': 'INGA.AS'
+    };
+
+    // Auto-map common cryptocurrencies
+    const cryptoTickers = ['BTC', 'ETH', 'SOL', 'ADA', 'DOT', 'DOGE', 'SHIB', 'XRP', 'AVAX', 'LINK', 'LTC', 'BCH', 'UNI', 'ATOM', 'ETC', 'ALGO', 'XLM', 'NEAR', 'ICP', 'FIL', 'LDO', 'GRT', 'FTM', 'RNDR', 'CRO', 'OP', 'ARB', 'TON', 'PEPE', 'WIF', 'BONK', 'FLOKI', 'SUI', 'APT', 'TIA'];
+
+    async function resolveSymbolSmart(query) {
+        if (!query) return null;
+        const cleanQ = query.trim().toUpperCase().replace(/[\s\-_]+/g, '');
+        
+        // 1. Direct match in Known Symbol Map
+        if (KNOWN_SYMBOL_MAP[cleanQ]) {
+            console.log(`[Historical Data] Exact match in alias registry: "${query}" -> ${KNOWN_SYMBOL_MAP[cleanQ]}`);
+            return KNOWN_SYMBOL_MAP[cleanQ];
+        }
+
+        if (cryptoTickers.includes(cleanQ)) {
+            return cleanQ + 'USD';
+        }
+        
+        // 2. Direct Probe for 1-7 char tickers (e.g. AAPL, NVDA, SAP, MC.PA)
+        const isTickerLike = /^[A-Z0-9.\-]{1,7}$/.test(query.trim().toUpperCase()) && !['MICROSOFT', 'PEPSICO', 'ALPHABET', 'AMAZON', 'NVIDIA', 'TESLA', 'APPLE'].includes(query.trim().toUpperCase());
+        if (isTickerLike) {
+            const directSymbol = query.trim().toUpperCase();
+            try {
+                const probeRes = await fetch(`https://financialmodelingprep.com/stable/quote?symbol=${encodeURIComponent(directSymbol)}&apikey=${fmpKey}`, {
+                    signal: AbortSignal.timeout(2000)
+                });
+                if (probeRes.ok) {
+                    const probeData = await probeRes.json().catch(() => []);
+                    if (Array.isArray(probeData) && probeData.length > 0 && typeof probeData[0]?.price === 'number') {
+                        console.log(`[Historical Data] Direct ticker probe verified: ${directSymbol}`);
+                        return directSymbol;
+                    }
+                }
+            } catch (probeErr) {
+                // Proceed to search fallback
+            }
+        }
+
+        // 3. Multi-tier FMP Search (search-name, search?query=, search-symbol)
+        try {
+            console.log(`[Historical Data] Searching FMP for: "${query}"...`);
+            let searchData = [];
+
+            // Tier A: search-name
+            try {
+                const r1 = await fetch(`https://financialmodelingprep.com/stable/search-name?query=${encodeURIComponent(query.trim())}&apikey=${fmpKey}`, {
+                    signal: AbortSignal.timeout(2500)
+                });
+                if (r1.ok) searchData = await r1.json().catch(() => []);
+            } catch (e) {}
+
+            // Tier B: search?query=
             if (!Array.isArray(searchData) || searchData.length === 0) {
-                searchRes = await fetch(`https://financialmodelingprep.com/api/v3/search?query=${encodeURIComponent(rawQuery)}&limit=5&apikey=${fmpKey}`);
-                searchData = (searchRes && searchRes.ok) ? await searchRes.json().catch(() => []) : [];
+                try {
+                    const r2 = await fetch(`https://financialmodelingprep.com/api/v3/search?query=${encodeURIComponent(query.trim())}&limit=10&apikey=${fmpKey}`, {
+                        signal: AbortSignal.timeout(2500)
+                    });
+                    if (r2.ok) searchData = await r2.json().catch(() => []);
+                } catch (e) {}
             }
 
-            // Tier 3: Search by symbol (FMP stable)
+            // Tier C: search-symbol
             if (!Array.isArray(searchData) || searchData.length === 0) {
-                searchRes = await fetch(`https://financialmodelingprep.com/stable/search-symbol?query=${encodeURIComponent(rawQuery)}&apikey=${fmpKey}`);
-                searchData = (searchRes && searchRes.ok) ? await searchRes.json().catch(() => []) : [];
+                try {
+                    const r3 = await fetch(`https://financialmodelingprep.com/stable/search-symbol?query=${encodeURIComponent(query.trim())}&apikey=${fmpKey}`, {
+                        signal: AbortSignal.timeout(2500)
+                    });
+                    if (r3.ok) searchData = await r3.json().catch(() => []);
+                } catch (e) {}
             }
 
             if (Array.isArray(searchData) && searchData.length > 0) {
-                // Prefer US primary exchange (NASDAQ, NYSE, AMEX) or USD currency
-                const usMatch = searchData.find(item => item && item.symbol && (item.currency === 'USD' || ['NASDAQ', 'NYSE', 'AMEX'].includes(item.exchangeShortName || item.stockExchange)));
-                symbol = (usMatch && usMatch.symbol) ? usMatch.symbol.toUpperCase() : searchData[0].symbol.toUpperCase();
-                console.log(`[Historical Data] Successfully resolved "${rawQuery}" -> ${symbol}`);
-            } else {
-                symbol = rawQuery.toUpperCase();
+                const euExchanges = ['EURONEXT', 'XETRA', 'PARIS', 'FRANKFURT', 'SWX', 'SIX', 'LSE', 'MADRID', 'MILAN', 'AMSTERDAM', 'COPENHAGEN'];
+                const euMatch = searchData.find(item => {
+                    if (!item || !item.symbol) return false;
+                    const ex = (item.exchangeShortName || item.stockExchange || '').toUpperCase();
+                    const sym = item.symbol.toUpperCase();
+                    return euExchanges.some(e => ex.includes(e)) || sym.includes('.PA') || sym.includes('.DE') || sym.includes('.AS') || sym.includes('.SW') || sym.includes('.MC');
+                });
+                const usMatch = searchData.find(item => {
+                    if (!item || !item.symbol) return false;
+                    const ex = (item.exchangeShortName || item.stockExchange || '').toUpperCase();
+                    return ['NASDAQ', 'NYSE', 'AMEX'].includes(ex) || item.currency === 'USD';
+                });
+
+                const bestMatch = euMatch || usMatch || searchData[0];
+                if (bestMatch && bestMatch.symbol) {
+                    const resSym = bestMatch.symbol.toUpperCase();
+                    console.log(`[Historical Data] Successfully resolved "${query}" -> ${resSym}`);
+                    return resSym;
+                }
             }
-        } catch (resolveErr) {
-            console.warn('[Historical Data] Symbol resolution error:', resolveErr.message);
-            symbol = rawQuery.toUpperCase();
+        } catch (searchErr) {
+            console.warn('[Historical Data] Search resolution failed:', searchErr.message);
         }
+
+        return query.trim().toUpperCase();
     }
 
-    // Auto-map common cryptocurrencies to FMP USD pair tickers
-    const cryptoTickers = ['BTC', 'ETH', 'SOL', 'ADA', 'DOT', 'DOGE', 'SHIB', 'XRP', 'AVAX', 'LINK', 'LTC', 'BCH', 'UNI', 'ATOM', 'ETC', 'ALGO', 'XLM', 'NEAR', 'ICP', 'FIL', 'LDO', 'GRT', 'FTM', 'RNDR', 'CRO', 'OP', 'ARB', 'TON', 'PEPE', 'WIF', 'BONK', 'FLOKI', 'SUI', 'APT', 'TIA'];
-    if (symbol && cryptoTickers.includes(symbol)) {
-        symbol = symbol + 'USD';
-    }
+    const symbol = await resolveSymbolSmart(rawQuery);
+    console.log(`[Historical Data] Final resolved symbol for "${rawQuery}": ${symbol}`);
 
     // Attempt Redis cache lookup (1 hour TTL)
     const cacheKey = `historical_data:${symbol}`;
@@ -82,7 +252,7 @@ module.exports = async function handler(req, res) {
     try {
         const redisUrl = process.env.KV_REDIS_URL || process.env.REDIS_URL;
         if (redisUrl && Redis) {
-            redis = new Redis(redisUrl, { connectTimeout: 3000, maxRetriesPerRequest: 1 });
+            redis = new Redis(redisUrl, { connectTimeout: 2000, maxRetriesPerRequest: 1 });
             const cached = await redis.get(cacheKey);
             if (cached) {
                 const parsed = JSON.parse(cached);
@@ -97,11 +267,11 @@ module.exports = async function handler(req, res) {
     try {
         console.log(`[Historical Data] Fetching deep data for ${symbol}...`);
 
-        // Helper: Fetches first successful non-error endpoint in fallback list
+        // Helper: Fetches first successful non-error endpoint in fallback list with strict timeout
         async function fetchEndpointWithFallback(urls) {
             for (const url of urls) {
                 try {
-                    const res = await fetch(url);
+                    const res = await fetch(url, { signal: AbortSignal.timeout(3500) });
                     if (res && res.ok) {
                         const data = await res.json().catch(() => null);
                         if (Array.isArray(data) && data.length > 0 && !data[0]?.['Error Message']) {
@@ -112,7 +282,7 @@ module.exports = async function handler(req, res) {
                         }
                     }
                 } catch (e) {
-                    // Try next fallback
+                    // Try next fallback immediately
                 }
             }
             return [];
@@ -121,7 +291,7 @@ module.exports = async function handler(req, res) {
         async function fetchPricesWithFallback(urls) {
             for (const url of urls) {
                 try {
-                    const res = await fetch(url);
+                    const res = await fetch(url, { signal: AbortSignal.timeout(3500) });
                     if (res && res.ok) {
                         const data = await res.json().catch(() => null);
                         if (data && Array.isArray(data.historical) && data.historical.length > 0) {
