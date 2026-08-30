@@ -2827,10 +2827,23 @@
                 updateLoadingStatus('Initializing Institutional Research Protocol...', 5);
 
                 // Fetch institutional research and deep historical fundamentals in parallel
-                const [finalResults, histDataset] = await Promise.all([
+                let [finalResults, histDataset] = await Promise.all([
                     runInstitutionalResearch(query, user, currentLangName),
                     fetchHistoricalDataForTicker(query)
                 ]);
+
+                // Fallback: If initial search didn't yield annual fundamentals, retry with AI-resolved ticker from company_identity
+                if ((!histDataset || !histDataset.annual || histDataset.annual.length === 0) && finalResults?.company_identity) {
+                    const idTickerMatch = finalResults.company_identity.match(/(?:Ticker|Symbol):\s*([A-Z0-9.\-_]+)/i);
+                    const resolvedTicker = idTickerMatch ? idTickerMatch[1].trim() : null;
+                    if (resolvedTicker && resolvedTicker.toUpperCase() !== query.trim().toUpperCase()) {
+                        console.log(`[Research Protocol] Retrying historical fetch with AI-resolved ticker: ${resolvedTicker}`);
+                        const retryDataset = await fetchHistoricalDataForTicker(resolvedTicker);
+                        if (retryDataset && retryDataset.annual && retryDataset.annual.length > 0) {
+                            histDataset = retryDataset;
+                        }
+                    }
+                }
 
                 if (histDataset) {
                     finalResults.historical_dataset = histDataset;
