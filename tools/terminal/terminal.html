@@ -3421,6 +3421,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                             geminiBody,
                             email: user.email,
                             apiKey: user.apiKey,
+                            enableSearch: Boolean(enableSearch),
                             historicalDataset: historicalDataset || undefined
                         })
                     });
@@ -4194,6 +4195,19 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             if (abs >= 1e9) return `${sign}${(abs / 1e9).toFixed(2)} Mrd. ${currency}`;
             if (abs >= 1e6) return `${sign}${(abs / 1e6).toFixed(2)} Mio. ${currency}`;
             return `${sign}${abs.toFixed(2)} ${currency}`;
+        }
+
+        function fmtNumber(val, currency = '') {
+            if (val === null || val === undefined || isNaN(val)) return '—';
+            const abs = Math.abs(val);
+            const sign = val < 0 ? '-' : '';
+            let formatted = '';
+            if (abs >= 1e12) formatted = `${sign}${(abs / 1e12).toFixed(2)} Bio.`;
+            else if (abs >= 1e9) formatted = `${sign}${(abs / 1e9).toFixed(2)} Mrd.`;
+            else if (abs >= 1e6) formatted = `${sign}${(abs / 1e6).toFixed(2)} Mio.`;
+            else if (abs >= 1e3) formatted = `${sign}${(abs / 1e3).toFixed(1)} Tsd.`;
+            else formatted = `${sign}${abs.toFixed(2)}`;
+            return currency ? `${formatted} ${currency}`.trim() : formatted;
         }
 
         function fmtPct(val, includeSign = false) {
@@ -4978,11 +4992,11 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             }
 
             // Pillar 1: Market & Valuation
-            const mCapEl = document.getElementById('snap_market_cap');
+            const mCapEl = document.getElementById('snap_mcap') || document.getElementById('snap_market_cap');
             const mCapVal = (typeof dataset?.marketCap === 'number') ? dataset.marketCap : res.marketCap;
             if (mCapEl) mCapEl.textContent = (typeof mCapVal === 'number') ? fmtNumber(mCapVal, cur) : '—';
 
-            const r52El = document.getElementById('snap_52w_range');
+            const r52El = document.getElementById('snap_52w') || document.getElementById('snap_52w_range');
             if (r52El) {
                 if (dataset?.range52Str) {
                     r52El.textContent = dataset.range52Str;
@@ -4993,7 +5007,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 }
             }
 
-            const peEl = document.getElementById('snap_pe');
+            const peEl = document.getElementById('snap_pe_cur') || document.getElementById('snap_pe');
             const peVal = (typeof latest?.peRatioAdj === 'number') ? latest.peRatioAdj : (typeof latest?.peRatio === 'number' ? latest.peRatio : res.peRatio);
             if (peEl) peEl.textContent = (typeof peVal === 'number') ? peVal.toFixed(1) : '—';
 
