@@ -1,7 +1,7 @@
 module.exports = async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-    const { ticker, model, geminiBody, apiKey: clientApiKey, historicalDataset } = req.body;
+    const { ticker, model, geminiBody, apiKey: clientApiKey, historicalDataset, enableSearch } = req.body;
     const apiKey = (clientApiKey && clientApiKey.trim() !== '') ? clientApiKey.trim() : process.env.GEMINI_API_KEY;
 
     if (!apiKey) return res.status(500).json({ error: 'Kein API-Key gefunden.' });
@@ -448,9 +448,13 @@ Nutze Google Grounding, um alle geforderten Fundamentaldaten (Umsatzwachstum, Ma
             console.error("Request Body Mismatch:", { hasTicker: !!ticker, hasBody: !!geminiBody });
         }
 
-        // Enforce Google Search Grounding for all AI research
-        if (!geminiBody.tools || geminiBody.tools.length === 0) {
-            geminiBody.tools = [{ googleSearch: {} }];
+        // Attach Google Search Grounding if search is enabled (default true, unless explicitly disabled)
+        if (enableSearch !== false) {
+            if (!geminiBody.tools || geminiBody.tools.length === 0) {
+                geminiBody.tools = [{ googleSearch: {} }];
+            }
+        } else {
+            delete geminiBody.tools;
         }
 
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
