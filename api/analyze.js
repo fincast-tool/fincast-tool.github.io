@@ -324,7 +324,9 @@ module.exports = async function handler(req, res) {
                         // Sector awareness check (Banks / Financials)
                         const isFinancialSector = /financial|bank|insurance/i.test(profile.sector || '') || /bank|insurance/i.test(profile.industry || '');
 
-                        const fmpContext = `
+                        let fmpContext = '';
+                        if (incomeData && incomeData.length > 0) {
+                            fmpContext = `
 [FMP API BLOCK]
 Name: ${profile.companyName || 'N/A'}
 Symbol: ${symbol}
@@ -390,54 +392,49 @@ Next Earnings: ${quote.earningsAnnouncement || 'N/A'}
 ${histString}
 [/FMP API BLOCK]
 `;
+                        } else {
+                            fmpContext = `
+[MARKET REFERENCE]
+Name: ${profile.companyName || symbol}
+Symbol: ${symbol}
+Ticker: ${symbol}
+ISIN: ${profile.isin || 'N/A'}
+WKN: ${profile.cusip || 'N/A'}
+Exchange: ${profile.exchangeShortName || quote.exchange || 'N/A'}
+Country: ${profile.country || 'N/A'}
+Currency: ${currency}
+Sector: ${profile.sector || 'N/A'}
+Industry: ${profile.industry || 'N/A'}
+Current Price: ${quote.price != null ? `${quote.price} ${currency}` : 'N/A'}
+52W High: ${quote.yearHigh != null ? `${quote.yearHigh} ${currency}` : 'N/A'}
+52W Low: ${quote.yearLow != null ? `${quote.yearLow} ${currency}` : 'N/A'}
+Market Cap: ${quote.marketCap ? `${(quote.marketCap / 1e9).toFixed(2)} Billion ${currency}` : 'N/A'}
+[/MARKET REFERENCE]
+
+<system_instruction>
+Nutze Google Grounding, um alle geforderten Fundamentaldaten (Umsatzwachstum, operative Marge, ROIC, ROE, Verschuldungsgrad, KGV, Dividende, DCF) in Echtzeit zu recherchieren und die XML-Tags vollständig auszufüllen.
+</system_instruction>
+`;
+                        }
+
                         const targetPart = geminiBody?.contents?.[0]?.parts?.[0];
                         if (targetPart) {
-                            targetPart.text = fmpContext + "\n<system_status>\n" + systemStatus + fmpDetails + "FMP_SUCCESS\n</system_status>\n\n" + targetPart.text;
+                            targetPart.text = fmpContext + "\n<system_status>\n" + systemStatus + fmpDetails + "LIVE_GROUNDING_ACTIVE\n</system_status>\n\n" + targetPart.text;
                         }
                     } else {
                         const targetPart = geminiBody?.contents?.[0]?.parts?.[0];
                         if (targetPart) {
                             const fallbackFmpContext = `
-[FMP API BLOCK]
-Name: ${symbol} (International / Not Found)
+[MARKET REFERENCE]
+Name: ${symbol}
 Symbol: ${symbol}
-ISIN: N/A
-WKN: N/A
-Sector/Industry: N/A
-HQ: N/A
-Description: N/A
-Current Price: N/A
-Market Cap: N/A
---- FINANCIAL TRENDS ---
-Revenue (5Y): N/A
-5Y Revenue CAGR: N/A
-Op. Margins (5Y): N/A
-FCF Trend (5Y): N/A
-EPS Surprise History: N/A
---- VALUATION METRICS ---
-Current P/E: N/A
-5Y Avg P/E: N/A
-10Y Avg P/E: N/A
-Current P/S: N/A
-Debt to Equity: N/A
-ROE: N/A
-Dividend Yield: N/A
-Payout Ratio: N/A
-DCF Fair Value Estimate: N/A
---- TECHNICAL INDICATORS ---
-14-Day RSI: N/A
-MACD: N/A
-50-DMA: N/A
-200-DMA: N/A
-Short Interest: N/A
-Next Earnings: N/A
-[/FMP API BLOCK]
+[/MARKET REFERENCE]
 
 <system_instruction>
-Die FMP API hat für dieses Symbol keine Detaildaten geliefert. Nutze zwingend dein integriertes Google Search Tool, um die aktuellsten Finanzkennzahlen (KGV, Umsatzwachstum, Margen, ROIC, Schulden, Dividendenrendite etc.) aus verlässlichen Quellen wie Google Finance, SEC Filings und Yahoo Finance in Echtzeit zu recherchieren. Fülle damit alle geforderten Tags und Felder.
+Nutze Google Grounding, um alle geforderten Fundamentaldaten (Umsatzwachstum, Margen, ROIC, ROE, Schulden, KGV, Dividende, DCF) in Echtzeit zu recherchieren und alle geforderten XML-Tags vollständig auszufüllen.
 </system_instruction>
 `;
-                            targetPart.text = fallbackFmpContext + `<system_status>\n${systemStatus}${fmpDetails} | ERROR: No Profile data for ${symbol}\n</system_status>\n\n` + targetPart.text;
+                            targetPart.text = fallbackFmpContext + `<system_status>\n${systemStatus}${fmpDetails} | LIVE_GROUNDING_ACTIVE\n</system_status>\n\n` + targetPart.text;
                         }
                     }
             } catch (ctxErr) { 
