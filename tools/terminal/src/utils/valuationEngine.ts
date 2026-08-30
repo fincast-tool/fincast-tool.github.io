@@ -1,28 +1,14 @@
 /**
- * Unified Valuation Engine
+ * Unified Valuation Engine (Single Source of Truth)
  * 
- * Mathematically sound single source of truth for fundamental valuation corridors,
- * empirical multiple statistics (P25, Median, P75), and forecast trajectories.
- * 
- * Replaces all synthetic trigonometric noise and circular smoothing with empirical quantiles.
+ * Mathematically rigorous and 100% empirical valuation calculation layer.
+ * ZERO synthetic noise, ZERO trigonometric cycles, ZERO circular convergence.
  */
 
-export interface HistoricalFundamentalPoint {
-  date: string; // YYYY-MM-DD or YYYY-MM
-  price: number;
-  eps_adj?: number | null;
-  eps_rep?: number | null;
-  fcf_per_share?: number | null;
-  sales_per_share?: number | null;
-  ebitda_per_share?: number | null;
-}
+import type { NormalizedFinancialPeriod, NormalizedHistoricalDataset } from './normalization.ts';
 
-export interface ForecastFundamentalPoint {
-  date: string; // YYYY-MM-DD or YYYY-MM
-  eps_consensus?: number | null;
-  fcf_consensus?: number | null;
-  sales_consensus?: number | null;
-}
+export type ValuationMetricType = 'pe_adj' | 'pe_rep' | 'pb' | 'pfcf' | 'ps' | 'ev_ebitda';
+export type ValuationPositionCategory = 'DEEP DISCOUNT' | 'DISCOUNT' | 'FAIR' | 'PREMIUM' | 'EXTREME PREMIUM' | 'N/A';
 
 export interface MultipleStatistics {
   count: number;
@@ -34,55 +20,103 @@ export interface MultipleStatistics {
   max: number | null;
   current: number | null;
   currentPercentile: number | null; // 0 to 100
-  valuationStatus: 'DEEPLY_UNDERVALUED' | 'UNDERVALUED' | 'FAIR' | 'OVERVALUED' | 'DEEPLY_OVERVALUED' | 'N/A';
+  valuationStatus: ValuationPositionCategory;
 }
 
-export interface UnifiedValuationData {
+export interface FairValueSeriesPoint {
+  date: string;
+  year: number;
+  isForecast: boolean;
+  price: number | null;
+  fundamentalValue: number | null; // Base metric per share (e.g. EPS, FCF/Share, BVPS, Sales/Share)
+  fairValue: number | null;        // fundamentalValue * Median Multiple
+  lowerBand: number | null;        // fundamentalValue * P25 Multiple
+  upperBand: number | null;        // fundamentalValue * P75 Multiple
+}
+
+export interface ValuationEngineResult {
+  symbol: string;
+  currency: string;
+  currentPrice: number | null;
   timeframe: string;
-  splitDate: string; // Current date / latest actual reporting date
+  splitDate: string;
+  availableYears: number;
   
-  // 1. Time Series for Multiples Chart
+  // Selected Primary Valuation Method
+  selectedMethod: ValuationMetricType;
+  defaultMethod: ValuationMetricType;
+  defaultMethodReason: string;
+  
+  // Empirical Multiple Statistics per Metric
+  statistics: {
+    pe_adj: MultipleStatistics;
+    pe_rep: MultipleStatistics;
+    pb: MultipleStatistics;
+    pfcf: MultipleStatistics;
+    ps: MultipleStatistics;
+    ev_ebitda: MultipleStatistics;
+  };
+  
+  // Fair Value Time Series (Price vs. Empirical Fair Value Line + P25/P75 Corridor)
+  fairValueSeries: FairValueSeriesPoint[];
+  
+  // Multiples Time Series for Valuation History
   multiplesSeries: Array<{
     date: string;
+    year: number;
     isForecast: boolean;
     pe_adj: number | null;
     pe_rep: number | null;
-    pcf: number | null;
+    pb: number | null;
+    pfcf: number | null;
     ps: number | null;
     ev_ebitda: number | null;
   }>;
   
-  // 2. Statistical Bands for Multiples
-  statistics: {
-    pe_adj: MultipleStatistics;
-    pe_rep: MultipleStatistics;
-    pcf: MultipleStatistics;
-    ps: MultipleStatistics;
-    ev_ebitda: MultipleStatistics;
+  // Overall Valuation Score (0-100) & Confidence
+  valuationScore: number | null;
+  valuationConfidence: 'HIGH' | 'MEDIUM' | 'LOW';
+  
+  // Growth Metrics
+  growth: {
+    revenueCAGR: number | null;
+    revenueCAGRYears: number;
+    epsCAGR: number | null;
+    epsCAGRYears: number;
+    fcfCAGR: number | null;
+    fcfCAGRYears: number;
   };
-
-  // 3. Time Series for Fundamental Growth & Fair Value Chart
-  growthSeries: Array<{
-    date: string;
-    isForecast: boolean;
-    price: number | null;
-    fairValue: number;          // Metric (e.g. EPS) * Median Multiple
-    lowerBand: number;          // Metric (e.g. EPS) * P25 Multiple
-    upperBand: number;          // Metric (e.g. EPS) * P75 Multiple
-    metricValue: number | null; // Base fundamental per share
-  }>;
-}
-
-export interface ValuationEngineOptions {
-  primaryMetric?: 'eps_adj' | 'eps_rep' | 'fcf' | 'sales' | 'ebitda';
-  timeframe?: string; // 'YTD' | '1J' | '3J' | '5J' | '8J' | '10J' | '15J' | 'MAX'
-  customMultipleMedian?: number | null;
-  customMultipleP25?: number | null;
-  customMultipleP75?: number | null;
 }
 
 /**
- * Calculates quantile (0.0 to 1.0) using standard linear interpolation on sorted array.
+ * Filters array to only valid positive finite numbers.
+ */
+export function getValidObservations(values: (number | null | undefined)[]): number[] {
+  return values.filter((v): v is number =>
+    typeof v === 'number' && Number.isFinite(v) && v > 0
+  );
+}
+
+/**
+ * Removes extreme statistical outliers using conservative Interquartile Range (IQR) method.
+ */
+export function filterOutliersIQR(values: number[]): number[] {
+  if (values.length < 4) return values;
+  const sorted = [...values].sort((a, b) => a - b);
+  const q25 = calculateQuantile(sorted, 0.25);
+  const q75 = calculateQuantile(sorted, 0.75);
+  if (q25 === null || q75 === null) return sorted;
+  
+  const iqr = q75 - q25;
+  const lowerBound = q25 - 1.5 * iqr;
+  const upperBound = q75 + 1.5 * iqr;
+  
+  const filtered = sorted.filter(v => v >= lowerBound && v <= upperBound);
+  return filtered.length > 0 ? filtered : sorted;
+}
+
+/**
+ * Calculates quantile (0.0 to 1.0) using linear interpolation on sorted array.
  */
 export function calculateQuantile(sortedValues: number[], q: number): number | null {
   if (!sortedValues || sortedValues.length === 0) return null;
@@ -100,7 +134,7 @@ export function calculateQuantile(sortedValues: number[], q: number): number | n
 }
 
 /**
- * Calculates empirical percentile rank (0 to 100) of value x within a sorted array.
+ * Calculates empirical percentile rank (0 to 100) of value within observed distribution.
  */
 export function calculatePercentileRank(sortedValues: number[], value: number | null | undefined): number | null {
   if (!sortedValues || sortedValues.length === 0 || value === null || value === undefined || isNaN(value)) {
@@ -113,7 +147,7 @@ export function calculatePercentileRank(sortedValues: number[], value: number | 
   for (let i = 0; i < sortedValues.length; i++) {
     if (sortedValues[i] < value) {
       countBelow++;
-    } else if (Math.abs(sortedValues[i] - value) < 1e-6) {
+    } else if (Math.abs(sortedValues[i] - value) < 1e-4) {
       countEqual++;
     }
   }
@@ -123,46 +157,33 @@ export function calculatePercentileRank(sortedValues: number[], value: number | 
 }
 
 /**
- * Evaluates valuation status based on percentile rank and empirical quantiles.
+ * Categorizes valuation position based on empirical historical percentile.
+ * 0–20%   -> DEEP DISCOUNT
+ * 20–40%  -> DISCOUNT
+ * 40–60%  -> FAIR
+ * 60–80%  -> PREMIUM
+ * 80–100% -> EXTREME PREMIUM
  */
-export function determineValuationStatus(
-  percentileRank: number | null,
-  current: number | null,
-  p25: number | null,
-  p75: number | null
-): 'DEEPLY_UNDERVALUED' | 'UNDERVALUED' | 'FAIR' | 'OVERVALUED' | 'DEEPLY_OVERVALUED' | 'N/A' {
-  if (percentileRank === null || current === null || p25 === null || p75 === null) {
-    return 'N/A';
-  }
-  
-  if (percentileRank <= 10 || current < p25 * 0.85) {
-    return 'DEEPLY_UNDERVALUED';
-  }
-  if (percentileRank <= 25 || current <= p25) {
-    return 'UNDERVALUED';
-  }
-  if (percentileRank >= 90 || current > p75 * 1.15) {
-    return 'DEEPLY_OVERVALUED';
-  }
-  if (percentileRank >= 75 || current >= p75) {
-    return 'OVERVALUED';
-  }
-  return 'FAIR';
+export function getValuationCategory(percentile: number | null): ValuationPositionCategory {
+  if (percentile === null || percentile === undefined) return 'N/A';
+  if (percentile <= 20) return 'DEEP DISCOUNT';
+  if (percentile <= 40) return 'DISCOUNT';
+  if (percentile <= 60) return 'FAIR';
+  if (percentile <= 80) return 'PREMIUM';
+  return 'EXTREME PREMIUM';
 }
 
 /**
- * Calculates complete distribution statistics for a multiple series.
+ * Calculates complete distribution statistics for multiple series.
  */
 export function calculateMultipleStatistics(
   rawValues: (number | null | undefined)[],
   currentValue: number | null | undefined
 ): MultipleStatistics {
-  const validValues = rawValues
-    .filter((v): v is number => typeof v === 'number' && !isNaN(v) && isFinite(v) && v > 0)
-    .sort((a, b) => a - b);
-  
-  const count = validValues.length;
-  const current = (typeof currentValue === 'number' && !isNaN(currentValue) && isFinite(currentValue) && currentValue > 0)
+  const validObs = getValidObservations(rawValues);
+  const filtered = filterOutliersIQR(validObs).sort((a, b) => a - b);
+  const count = filtered.length;
+  const current = (typeof currentValue === 'number' && Number.isFinite(currentValue) && currentValue > 0)
     ? currentValue
     : null;
   
@@ -177,25 +198,25 @@ export function calculateMultipleStatistics(
       max: null,
       current,
       currentPercentile: null,
-      valuationStatus: 'N/A',
+      valuationStatus: 'N/A'
     };
   }
   
-  const sum = validValues.reduce((acc, v) => acc + v, 0);
+  const sum = filtered.reduce((acc, v) => acc + v, 0);
   const mean = Math.round((sum / count) * 100) / 100;
-  const min = Math.round(validValues[0] * 100) / 100;
-  const max = Math.round(validValues[count - 1] * 100) / 100;
+  const min = Math.round(filtered[0] * 100) / 100;
+  const max = Math.round(filtered[count - 1] * 100) / 100;
   
-  const p25Raw = calculateQuantile(validValues, 0.25);
-  const medianRaw = calculateQuantile(validValues, 0.50);
-  const p75Raw = calculateQuantile(validValues, 0.75);
+  const p25Raw = calculateQuantile(filtered, 0.25);
+  const medianRaw = calculateQuantile(filtered, 0.50);
+  const p75Raw = calculateQuantile(filtered, 0.75);
   
   const p25 = p25Raw !== null ? Math.round(p25Raw * 100) / 100 : null;
   const median = medianRaw !== null ? Math.round(medianRaw * 100) / 100 : null;
   const p75 = p75Raw !== null ? Math.round(p75Raw * 100) / 100 : null;
   
-  const currentPercentile = calculatePercentileRank(validValues, current);
-  const valuationStatus = determineValuationStatus(currentPercentile, current, p25, p75);
+  const currentPercentile = calculatePercentileRank(filtered, current);
+  const valuationStatus = getValuationCategory(currentPercentile);
   
   return {
     count,
@@ -207,450 +228,250 @@ export function calculateMultipleStatistics(
     max,
     current,
     currentPercentile,
-    valuationStatus,
+    valuationStatus
   };
 }
 
 /**
- * Filters historical fundamental points according to the selected timeframe.
+ * Computes Compound Annual Growth Rate (CAGR) strictly when >= 2 valid positive periods exist.
  */
-export function filterHistoricalPointsByTimeframe(
-  points: HistoricalFundamentalPoint[],
-  timeframe: string,
-  splitDate?: string
-): HistoricalFundamentalPoint[] {
-  if (!points || points.length === 0) return [];
-  
-  const sorted = [...points].sort((a, b) => a.date.localeCompare(b.date));
-  const effectiveSplitDate = splitDate || sorted[sorted.length - 1].date;
-  const splitIdx = sorted.findIndex(p => p.date === effectiveSplitDate);
-  const endIndex = splitIdx >= 0 ? splitIdx + 1 : sorted.length;
-  const histPoints = sorted.slice(0, endIndex);
-  
-  if (timeframe === 'MAX') {
-    return histPoints;
-  }
-  
-  let targetMonths = 36;
-  if (timeframe === 'YTD') {
-    const d = new Date(effectiveSplitDate);
-    targetMonths = Math.max(1, d.getMonth() + 1);
-  } else if (timeframe === '1J') {
-    targetMonths = 12;
-  } else if (timeframe === '3J') {
-    targetMonths = 36;
-  } else if (timeframe === '5J') {
-    targetMonths = 60;
-  } else if (timeframe === '8J') {
-    targetMonths = 96;
-  } else if (timeframe === '10J') {
-    targetMonths = 120;
-  } else if (timeframe === '15J') {
-    targetMonths = 180;
-  }
-  
-  if (histPoints.length <= targetMonths) {
-    return histPoints;
-  }
-  
-  return histPoints.slice(histPoints.length - targetMonths);
+export function calculateCAGR(startVal: number | null, endVal: number | null, years: number): number | null {
+  if (startVal === null || endVal === null || years < 1) return null;
+  if (startVal <= 0 || endVal <= 0) return null;
+  const cagr = (Math.pow(endVal / startVal, 1 / years) - 1) * 100;
+  return Math.round(cagr * 100) / 100;
 }
 
 /**
- * Builds the UnifiedValuationData structure from historical fundamental records and analyst forecasts.
- * Completely deterministic and empirical without artificial smoothing or trigonometric noise.
+ * Master Valuation Engine: Calculates single-source-of-truth valuation models and series.
  */
-export function buildUnifiedValuationData(
-  historicalPoints: HistoricalFundamentalPoint[],
-  forecastPoints: ForecastFundamentalPoint[],
-  options: ValuationEngineOptions = {}
-): UnifiedValuationData {
-  const primaryMetric = options.primaryMetric || 'eps_adj';
-  const timeframe = options.timeframe || '3J';
+export function calculateHistoricalValuation(
+  dataset: NormalizedHistoricalDataset,
+  options: {
+    selectedMethod?: ValuationMetricType;
+    timeframe?: string; // '1J' | '3J' | '5J' | '10J' | 'MAX'
+  } = {}
+): ValuationEngineResult {
+  const annual = dataset.annual || [];
+  const currentPrice = dataset.currentPrice;
+  const timeframe = options.timeframe || 'MAX';
   
-  const sortedHist = [...historicalPoints].sort((a, b) => a.date.localeCompare(b.date));
-  const filteredHist = filterHistoricalPointsByTimeframe(sortedHist, timeframe);
+  // 1. Determine available periods according to timeframe
+  let periods = [...annual];
+  if (timeframe === '1J' && periods.length > 1) {
+    periods = periods.slice(periods.length - 2);
+  } else if (timeframe === '3J' && periods.length > 3) {
+    periods = periods.slice(periods.length - 4);
+  } else if (timeframe === '5J' && periods.length > 5) {
+    periods = periods.slice(periods.length - 6);
+  } else if (timeframe === '10J' && periods.length > 10) {
+    periods = periods.slice(periods.length - 11);
+  }
   
-  const splitDate = sortedHist.length > 0
-    ? sortedHist[sortedHist.length - 1].date
-    : (forecastPoints.length > 0 ? forecastPoints[0].date : '');
+  // 2. Extract multiple observations across historical periods
+  const peAdjObs: (number | null)[] = [];
+  const peRepObs: (number | null)[] = [];
+  const pbObs: (number | null)[] = [];
+  const pfcfObs: (number | null)[] = [];
+  const psObs: (number | null)[] = [];
+  const evEbitdaObs: (number | null)[] = [];
   
-  const lastHistPoint = sortedHist.length > 0 ? sortedHist[sortedHist.length - 1] : null;
-  const currentPrice = lastHistPoint?.price ?? null;
-  
-  // 1. Calculate raw multiples series for historical points
-  const rawPeAdjHist: (number | null)[] = [];
-  const rawPeRepHist: (number | null)[] = [];
-  const rawPcfHist: (number | null)[] = [];
-  const rawPsHist: (number | null)[] = [];
-  const rawEvEbitdaHist: (number | null)[] = [];
-  
-  const histMultiplesSeries = filteredHist.map(pt => {
-    const p = pt.price;
-    const pe_adj = (p > 0 && pt.eps_adj && pt.eps_adj > 0) ? Math.round((p / pt.eps_adj) * 100) / 100 : null;
-    const pe_rep = (p > 0 && pt.eps_rep && pt.eps_rep > 0) ? Math.round((p / pt.eps_rep) * 100) / 100 : null;
-    const pcf = (p > 0 && pt.fcf_per_share && pt.fcf_per_share > 0) ? Math.round((p / pt.fcf_per_share) * 100) / 100 : null;
-    const ps = (p > 0 && pt.sales_per_share && pt.sales_per_share > 0) ? Math.round((p / pt.sales_per_share) * 100) / 100 : null;
-    const ev_ebitda = (p > 0 && pt.ebitda_per_share && pt.ebitda_per_share > 0) ? Math.round((p / pt.ebitda_per_share) * 100) / 100 : null;
-    
-    rawPeAdjHist.push(pe_adj);
-    rawPeRepHist.push(pe_rep);
-    rawPcfHist.push(pcf);
-    rawPsHist.push(ps);
-    rawEvEbitdaHist.push(ev_ebitda);
-    
-    return {
-      date: pt.date,
-      isForecast: false,
-      pe_adj,
-      pe_rep,
-      pcf,
-      ps,
-      ev_ebitda,
-    };
+  periods.forEach(p => {
+    peAdjObs.push(p.peRatioAdj);
+    peRepObs.push(p.peRatio);
+    pbObs.push(p.pbRatio);
+    pfcfObs.push(p.pfcfRatio);
+    psObs.push(p.psRatio);
+    evEbitdaObs.push(p.evEbitdaRatio);
   });
   
-  // Latest/current multiples at split date
-  const latestPeAdj = lastHistPoint && lastHistPoint.eps_adj && lastHistPoint.eps_adj > 0 && currentPrice
-    ? currentPrice / lastHistPoint.eps_adj : null;
-  const latestPeRep = lastHistPoint && lastHistPoint.eps_rep && lastHistPoint.eps_rep > 0 && currentPrice
-    ? currentPrice / lastHistPoint.eps_rep : null;
-  const latestPcf = lastHistPoint && lastHistPoint.fcf_per_share && lastHistPoint.fcf_per_share > 0 && currentPrice
-    ? currentPrice / lastHistPoint.fcf_per_share : null;
-  const latestPs = lastHistPoint && lastHistPoint.sales_per_share && lastHistPoint.sales_per_share > 0 && currentPrice
-    ? currentPrice / lastHistPoint.sales_per_share : null;
-  const latestEvEbitda = lastHistPoint && lastHistPoint.ebitda_per_share && lastHistPoint.ebitda_per_share > 0 && currentPrice
-    ? currentPrice / lastHistPoint.ebitda_per_share : null;
+  const latestPeriod = annual.length > 0 ? annual[annual.length - 1] : null;
+  const currentPeAdj = (currentPrice && latestPeriod?.epsAdj && latestPeriod.epsAdj > 0) ? currentPrice / latestPeriod.epsAdj : latestPeriod?.peRatioAdj;
+  const currentPeRep = (currentPrice && latestPeriod?.eps && latestPeriod.eps > 0) ? currentPrice / latestPeriod.eps : latestPeriod?.peRatio;
+  const currentPb = (currentPrice && latestPeriod?.bookValuePerShare && latestPeriod.bookValuePerShare > 0) ? currentPrice / latestPeriod.bookValuePerShare : latestPeriod?.pbRatio;
+  const currentPfcf = (currentPrice && latestPeriod?.freeCashFlowPerShare && latestPeriod.freeCashFlowPerShare > 0) ? currentPrice / latestPeriod.freeCashFlowPerShare : latestPeriod?.pfcfRatio;
+  const currentPs = (currentPrice && latestPeriod?.revenuePerShare && latestPeriod.revenuePerShare > 0) ? currentPrice / latestPeriod.revenuePerShare : latestPeriod?.psRatio;
+  const currentEvEbitda = latestPeriod?.evEbitdaRatio;
   
-  // 2. Statistical Bands
+  // 3. Compute statistics for all methods
   const statistics = {
-    pe_adj: calculateMultipleStatistics(rawPeAdjHist, latestPeAdj),
-    pe_rep: calculateMultipleStatistics(rawPeRepHist, latestPeRep),
-    pcf: calculateMultipleStatistics(rawPcfHist, latestPcf),
-    ps: calculateMultipleStatistics(rawPsHist, latestPs),
-    ev_ebitda: calculateMultipleStatistics(rawEvEbitdaHist, latestEvEbitda),
+    pe_adj: calculateMultipleStatistics(peAdjObs, currentPeAdj),
+    pe_rep: calculateMultipleStatistics(peRepObs, currentPeRep),
+    pb: calculateMultipleStatistics(pbObs, currentPb),
+    pfcf: calculateMultipleStatistics(pfcfObs, currentPfcf),
+    ps: calculateMultipleStatistics(psObs, currentPs),
+    ev_ebitda: calculateMultipleStatistics(evEbitdaObs, currentEvEbitda)
   };
   
-  // Apply custom overrides if provided
-  if (options.customMultipleMedian !== undefined && options.customMultipleMedian !== null) {
-    statistics.pe_adj.median = options.customMultipleMedian;
-  }
-  if (options.customMultipleP25 !== undefined && options.customMultipleP25 !== null) {
-    statistics.pe_adj.p25 = options.customMultipleP25;
-  }
-  if (options.customMultipleP75 !== undefined && options.customMultipleP75 !== null) {
-    statistics.pe_adj.p75 = options.customMultipleP75;
+  // 4. Select default valuation method intelligently
+  let defaultMethod: ValuationMetricType = 'pe_adj';
+  let defaultMethodReason = 'Standard valuation metric for profitable enterprise';
+  
+  if (dataset.isFinancialSector) {
+    if (statistics.pb.count >= 2) {
+      defaultMethod = 'pb';
+      defaultMethodReason = 'Book value (P/B) is the primary valuation benchmark for financial institutions.';
+    } else {
+      defaultMethod = 'pe_rep';
+      defaultMethodReason = 'P/E multiple for financial services institution.';
+    }
+  } else if (statistics.pfcf.count >= 3 && latestPeriod?.freeCashFlow && latestPeriod.freeCashFlow > 0) {
+    defaultMethod = 'pfcf';
+    defaultMethodReason = 'Free cash flow generation provides the most robust empirical cash multiple.';
+  } else if (statistics.pe_adj.count >= 2 && latestPeriod?.epsAdj && latestPeriod.epsAdj > 0) {
+    defaultMethod = 'pe_adj';
+    defaultMethodReason = 'Adjusted P/E reflecting core underlying operational earnings.';
+  } else if (statistics.pe_rep.count >= 2 && latestPeriod?.eps && latestPeriod.eps > 0) {
+    defaultMethod = 'pe_rep';
+    defaultMethodReason = 'Reported P/E based on GAAP/IFRS net earnings.';
+  } else if (statistics.ps.count >= 2) {
+    defaultMethod = 'ps';
+    defaultMethodReason = 'Revenue-based valuation: Earnings/FCF currently transitioning or unprofitable.';
   }
   
-  // 3. Forecast Multiples Series (forward multiple based on current price & analyst consensus)
-  const sortedForecast = [...forecastPoints].sort((a, b) => a.date.localeCompare(b.date));
-  const forecastMultiplesSeries = sortedForecast.map(f => {
-    const pe_adj = (currentPrice && f.eps_consensus && f.eps_consensus > 0)
-      ? Math.round((currentPrice / f.eps_consensus) * 100) / 100 : null;
-    const pcf = (currentPrice && f.fcf_consensus && f.fcf_consensus > 0)
-      ? Math.round((currentPrice / f.fcf_consensus) * 100) / 100 : null;
-    const ps = (currentPrice && f.sales_consensus && f.sales_consensus > 0)
-      ? Math.round((currentPrice / f.sales_consensus) * 100) / 100 : null;
+  const selectedMethod = options.selectedMethod || defaultMethod;
+  const targetStats = statistics[selectedMethod] || statistics.pe_adj;
+  const refMedian = targetStats.median;
+  const refP25 = targetStats.p25;
+  const refP75 = targetStats.p75;
+  
+  // 5. Build Fair Value Time Series (Price vs. Empirical Fair Value Line)
+  const fairValueSeries: FairValueSeriesPoint[] = [];
+  
+  periods.forEach(p => {
+    let fundamentalValue: number | null = null;
+    if (selectedMethod === 'pe_adj') fundamentalValue = p.epsAdj;
+    else if (selectedMethod === 'pe_rep') fundamentalValue = p.eps;
+    else if (selectedMethod === 'pb') fundamentalValue = p.bookValuePerShare;
+    else if (selectedMethod === 'pfcf') fundamentalValue = p.freeCashFlowPerShare;
+    else if (selectedMethod === 'ps') fundamentalValue = p.revenuePerShare;
+    else if (selectedMethod === 'ev_ebitda') fundamentalValue = p.ebitda ? (p.ebitda / (p.sharesOutstanding || 1)) : null;
     
-    return {
-      date: f.date,
-      isForecast: true,
-      pe_adj,
-      pe_rep: pe_adj ? Math.round((pe_adj * 1.04) * 100) / 100 : null,
-      pcf,
-      ps,
-      ev_ebitda: null,
-    };
-  });
-  
-  const multiplesSeries = [...histMultiplesSeries, ...forecastMultiplesSeries];
-  
-  // 4. Time Series for Fundamental Growth & Fair Value Chart
-  // Determine relevant median and quartiles for the primary metric
-  const primaryStats = primaryMetric === 'pcf'
-    ? statistics.pcf
-    : primaryMetric === 'ps'
-    ? statistics.ps
-    : primaryMetric === 'ebitda'
-    ? statistics.ev_ebitda
-    : statistics.pe_adj;
-  
-  // Fallback multiples if data is sparse
-  const medianMultiple = primaryStats.median || (primaryStats.mean || 20.0);
-  const p25Multiple = primaryStats.p25 || Math.round(medianMultiple * 0.85 * 100) / 100;
-  const p75Multiple = primaryStats.p75 || Math.round(medianMultiple * 1.15 * 100) / 100;
-  
-  const growthSeries: UnifiedValuationData['growthSeries'] = [];
-  
-  // Historical growth points
-  filteredHist.forEach(pt => {
-    let metricValue: number | null = null;
-    if (primaryMetric === 'eps_adj') {
-      metricValue = pt.eps_adj ?? pt.eps_rep ?? null;
-    } else if (primaryMetric === 'eps_rep') {
-      metricValue = pt.eps_rep ?? pt.eps_adj ?? null;
-    } else if (primaryMetric === 'fcf') {
-      metricValue = pt.fcf_per_share ?? null;
-    } else if (primaryMetric === 'sales') {
-      metricValue = pt.sales_per_share ?? null;
-    } else if (primaryMetric === 'ebitda') {
-      metricValue = pt.ebitda_per_share ?? null;
+    let fairValue: number | null = null;
+    let lowerBand: number | null = null;
+    let upperBand: number | null = null;
+    
+    if (fundamentalValue !== null && fundamentalValue > 0 && refMedian !== null) {
+      fairValue = Math.round(fundamentalValue * refMedian * 100) / 100;
+      lowerBand = refP25 !== null ? Math.round(fundamentalValue * refP25 * 100) / 100 : null;
+      upperBand = refP75 !== null ? Math.round(fundamentalValue * refP75 * 100) / 100 : null;
     }
     
-    const baseVal = (metricValue !== null && metricValue > 0) ? metricValue : (pt.price / medianMultiple);
-    const fairValue = Math.round(baseVal * medianMultiple * 100) / 100;
-    const lowerBand = Math.round(baseVal * p25Multiple * 100) / 100;
-    const upperBand = Math.round(baseVal * p75Multiple * 100) / 100;
-    
-    growthSeries.push({
-      date: pt.date,
+    fairValueSeries.push({
+      date: p.date,
+      year: p.year,
       isForecast: false,
-      price: pt.price,
+      price: p.periodClosePrice,
+      fundamentalValue,
       fairValue,
       lowerBand,
-      upperBand,
-      metricValue,
+      upperBand
     });
   });
   
-  // Forecast growth points
-  sortedForecast.forEach(f => {
-    let metricValue: number | null = null;
-    if (primaryMetric === 'eps_adj' || primaryMetric === 'eps_rep') {
-      metricValue = f.eps_consensus ?? null;
-    } else if (primaryMetric === 'fcf') {
-      metricValue = f.fcf_consensus ?? null;
-    } else if (primaryMetric === 'sales') {
-      metricValue = f.sales_consensus ?? null;
+  // 6. Add Forecast Points strictly from Analyst Consensus Estimates (dashed series)
+  const estimates = dataset.estimates || [];
+  estimates.forEach(est => {
+    let fundamentalEst: number | null = null;
+    if (selectedMethod === 'pe_adj' || selectedMethod === 'pe_rep') fundamentalEst = est.epsAvg;
+    else if (selectedMethod === 'ps') fundamentalEst = est.revenueAvg ? (est.revenueAvg / (latestPeriod?.sharesOutstanding || 1)) : null;
+    else if (selectedMethod === 'ev_ebitda') fundamentalEst = est.ebitdaAvg ? (est.ebitdaAvg / (latestPeriod?.sharesOutstanding || 1)) : null;
+    
+    let fairValue: number | null = null;
+    let lowerBand: number | null = null;
+    let upperBand: number | null = null;
+    
+    if (fundamentalEst !== null && fundamentalEst > 0 && refMedian !== null) {
+      fairValue = Math.round(fundamentalEst * refMedian * 100) / 100;
+      lowerBand = refP25 !== null ? Math.round(fundamentalEst * refP25 * 100) / 100 : null;
+      upperBand = refP75 !== null ? Math.round(fundamentalEst * refP75 * 100) / 100 : null;
     }
     
-    const baseVal = (metricValue !== null && metricValue > 0) ? metricValue : 1.0;
-    const fairValue = Math.round(baseVal * medianMultiple * 100) / 100;
-    const lowerBand = Math.round(baseVal * p25Multiple * 100) / 100;
-    const upperBand = Math.round(baseVal * p75Multiple * 100) / 100;
-    
-    growthSeries.push({
-      date: f.date,
+    fairValueSeries.push({
+      date: est.date,
+      year: est.year,
       isForecast: true,
       price: null,
+      fundamentalValue: fundamentalEst,
       fairValue,
       lowerBand,
-      upperBand,
-      metricValue,
+      upperBand
     });
   });
+  
+  // 7. Multiples Historical Time Series
+  const multiplesSeries = periods.map(p => ({
+    date: p.date,
+    year: p.year,
+    isForecast: false,
+    pe_adj: p.peRatioAdj,
+    pe_rep: p.peRatio,
+    pb: p.pbRatio,
+    pfcf: p.pfcfRatio,
+    ps: p.psRatio,
+    ev_ebitda: p.evEbitdaRatio
+  }));
+  
+  // 8. Valuation Score (Weighted average of available percentiles)
+  const availablePercentiles: number[] = [];
+  if (statistics.pe_adj.currentPercentile !== null) availablePercentiles.push(statistics.pe_adj.currentPercentile);
+  else if (statistics.pe_rep.currentPercentile !== null) availablePercentiles.push(statistics.pe_rep.currentPercentile);
+  if (statistics.pfcf.currentPercentile !== null) availablePercentiles.push(statistics.pfcf.currentPercentile);
+  if (statistics.pb.currentPercentile !== null) availablePercentiles.push(statistics.pb.currentPercentile);
+  if (statistics.ps.currentPercentile !== null) availablePercentiles.push(statistics.ps.currentPercentile);
+  
+  let valuationScore: number | null = null;
+  if (availablePercentiles.length > 0) {
+    const avgPct = availablePercentiles.reduce((a, b) => a + b, 0) / availablePercentiles.length;
+    valuationScore = Math.round(avgPct * 10) / 10;
+  }
+  
+  // 9. Growth Calculations (CAGR)
+  const n = annual.length;
+  let revenueCAGR: number | null = null;
+  let revenueCAGRYears = 0;
+  let epsCAGR: number | null = null;
+  let epsCAGRYears = 0;
+  let fcfCAGR: number | null = null;
+  let fcfCAGRYears = 0;
+  
+  if (n >= 2) {
+    const span = Math.min(n - 1, 5);
+    const startPeriod = annual[n - 1 - span];
+    const endPeriod = annual[n - 1];
+    
+    revenueCAGR = calculateCAGR(startPeriod.revenue, endPeriod.revenue, span);
+    revenueCAGRYears = span;
+    
+    epsCAGR = calculateCAGR(startPeriod.eps, endPeriod.eps, span);
+    epsCAGRYears = span;
+    
+    fcfCAGR = calculateCAGR(startPeriod.freeCashFlow, endPeriod.freeCashFlow, span);
+    fcfCAGRYears = span;
+  }
   
   return {
+    symbol: dataset.symbol,
+    currency: dataset.currency,
+    currentPrice,
     timeframe,
-    splitDate,
-    multiplesSeries,
+    splitDate: latestPeriod?.date || '',
+    availableYears: dataset.availableYears,
+    selectedMethod,
+    defaultMethod,
+    defaultMethodReason,
     statistics,
-    growthSeries,
-  };
-}
-
-/**
- * Realistic fundamental benchmark profiles for sample testing without trigonometric noise.
- */
-export interface BenchmarkTickerProfile {
-  ticker: string;
-  name: string;
-  currency: string;
-  currentPrice: number;
-  historyYears: number;
-  baseEps: number;
-  epsCagr: number;
-  baseFcf: number;
-  baseSales: number;
-  baseEbitda: number;
-  targetMedianPe: number;
-  targetP25Pe: number;
-  targetP75Pe: number;
-  forecastEps1Y: number;
-  forecastEps2Y: number;
-  forecastEps3Y: number;
-}
-
-export const BENCHMARK_PROFILES: Record<string, BenchmarkTickerProfile> = {
-  AAPL: {
-    ticker: 'AAPL',
-    name: 'Apple Inc.',
-    currency: '$',
-    currentPrice: 228.40,
-    historyYears: 5,
-    baseEps: 6.60,
-    epsCagr: 0.11,
-    baseFcf: 6.85,
-    baseSales: 24.80,
-    baseEbitda: 8.20,
-    targetMedianPe: 29.5,
-    targetP25Pe: 26.2,
-    targetP75Pe: 33.1,
-    forecastEps1Y: 7.42,
-    forecastEps2Y: 8.25,
-    forecastEps3Y: 9.15,
-  },
-  MSFT: {
-    ticker: 'MSFT',
-    name: 'Microsoft Corporation',
-    currency: '$',
-    currentPrice: 442.10,
-    historyYears: 5,
-    baseEps: 11.80,
-    epsCagr: 0.145,
-    baseFcf: 9.50,
-    baseSales: 32.50,
-    baseEbitda: 15.60,
-    targetMedianPe: 34.2,
-    targetP25Pe: 30.5,
-    targetP75Pe: 37.8,
-    forecastEps1Y: 13.50,
-    forecastEps2Y: 15.45,
-    forecastEps3Y: 17.65,
-  },
-  NVDA: {
-    ticker: 'NVDA',
-    name: 'NVIDIA Corporation',
-    currency: '$',
-    currentPrice: 126.80,
-    historyYears: 5,
-    baseEps: 2.85,
-    epsCagr: 0.35,
-    baseFcf: 2.45,
-    baseSales: 4.80,
-    baseEbitda: 3.10,
-    targetMedianPe: 45.0,
-    targetP25Pe: 38.0,
-    targetP75Pe: 54.0,
-    forecastEps1Y: 4.10,
-    forecastEps2Y: 5.25,
-    forecastEps3Y: 6.30,
-  },
-  SAP: {
-    ticker: 'SAP',
-    name: 'SAP SE',
-    currency: '€',
-    currentPrice: 198.50,
-    historyYears: 5,
-    baseEps: 6.20,
-    epsCagr: 0.12,
-    baseFcf: 5.40,
-    baseSales: 28.00,
-    baseEbitda: 8.40,
-    targetMedianPe: 27.5,
-    targetP25Pe: 23.8,
-    targetP75Pe: 31.0,
-    forecastEps1Y: 7.10,
-    forecastEps2Y: 8.05,
-    forecastEps3Y: 9.10,
-  },
-  ALV: {
-    ticker: 'ALV',
-    name: 'Allianz SE',
-    currency: '€',
-    currentPrice: 268.00,
-    historyYears: 5,
-    baseEps: 24.50,
-    epsCagr: 0.08,
-    baseFcf: 22.10,
-    baseSales: 410.00,
-    baseEbitda: 36.00,
-    targetMedianPe: 11.2,
-    targetP25Pe: 9.8,
-    targetP75Pe: 12.6,
-    forecastEps1Y: 26.80,
-    forecastEps2Y: 29.10,
-    forecastEps3Y: 31.40,
-  },
-};
-
-/**
- * Generates an empirical monthly historical trajectory and forecast dataset for a benchmark profile.
- * Every historical fundamental and price point is grounded in actual step earnings reports and historical valuations.
- */
-export function generateEmpiricalDatasetForProfile(
-  profile: BenchmarkTickerProfile,
-  timeframe: string = '3J',
-  baseDate: Date = new Date(2026, 7, 25)
-): UnifiedValuationData {
-  const totalHistoryMonths = profile.historyYears * 12;
-  const historicalPoints: HistoricalFundamentalPoint[] = [];
-  
-  const startHistDate = new Date(baseDate);
-  startHistDate.setMonth(startHistDate.getMonth() - totalHistoryMonths);
-  
-  // Historical step reporting trajectory
-  for (let m = 0; m <= totalHistoryMonths; m++) {
-    const curDate = new Date(startHistDate);
-    curDate.setMonth(curDate.getMonth() + m);
-    
-    const year = curDate.getFullYear();
-    const month = String(curDate.getMonth() + 1).padStart(2, '0');
-    const day = '01';
-    const dateStr = `${year}-${month}-${day}`;
-    
-    const monthsFromEnd = totalHistoryMonths - m;
-    const yearsFromEnd = monthsFromEnd / 12;
-    
-    // Fundamental value compounds backwards with epsCagr
-    const histEps = profile.baseEps / Math.pow(1 + profile.epsCagr, yearsFromEnd);
-    const histFcf = profile.baseFcf / Math.pow(1 + profile.epsCagr, yearsFromEnd);
-    const histSales = profile.baseSales / Math.pow(1 + profile.epsCagr * 0.8, yearsFromEnd);
-    const histEbitda = profile.baseEbitda / Math.pow(1 + profile.epsCagr, yearsFromEnd);
-    
-    // Market valuation cycle variation across quartiles
-    const cyclePosition = (m % 24) / 24; // 2-year market cycle
-    const peMultipleAtMonth = profile.targetP25Pe + (profile.targetP75Pe - profile.targetP25Pe) * (0.5 + 0.5 * Math.cos(cyclePosition * 2 * Math.PI));
-    
-    let price = m === totalHistoryMonths ? profile.currentPrice : Math.round(histEps * peMultipleAtMonth * 100) / 100;
-    
-    historicalPoints.push({
-      date: dateStr,
-      price,
-      eps_adj: Math.round(histEps * 100) / 100,
-      eps_rep: Math.round(histEps * 0.95 * 100) / 100,
-      fcf_per_share: Math.round(histFcf * 100) / 100,
-      sales_per_share: Math.round(histSales * 100) / 100,
-      ebitda_per_share: Math.round(histEbitda * 100) / 100,
-    });
-  }
-  
-  // 36 Months Analyst Consensus Forecast Points (12, 24, 36 months)
-  const forecastPoints: ForecastFundamentalPoint[] = [];
-  const forecastMonths = 36;
-  
-  for (let f = 1; f <= forecastMonths; f++) {
-    const fDate = new Date(baseDate);
-    fDate.setMonth(fDate.getMonth() + f);
-    
-    const year = fDate.getFullYear();
-    const month = String(fDate.getMonth() + 1).padStart(2, '0');
-    const day = '01';
-    const dateStr = `${year}-${month}-${day}`;
-    
-    const yearFraction = f / 12;
-    let epsEst = profile.baseEps;
-    if (yearFraction <= 1) {
-      epsEst = profile.baseEps + (profile.forecastEps1Y - profile.baseEps) * yearFraction;
-    } else if (yearFraction <= 2) {
-      epsEst = profile.forecastEps1Y + (profile.forecastEps2Y - profile.forecastEps1Y) * (yearFraction - 1);
-    } else {
-      epsEst = profile.forecastEps2Y + (profile.forecastEps3Y - profile.forecastEps2Y) * (yearFraction - 2);
+    fairValueSeries,
+    multiplesSeries,
+    valuationScore,
+    valuationConfidence: dataset.dataConfidence,
+    growth: {
+      revenueCAGR,
+      revenueCAGRYears,
+      epsCAGR,
+      epsCAGRYears,
+      fcfCAGR,
+      fcfCAGRYears
     }
-    
-    const fcfEst = epsEst * (profile.baseFcf / profile.baseEps);
-    const salesEst = profile.baseSales * Math.pow(1 + profile.epsCagr * 0.75, yearFraction);
-    
-    forecastPoints.push({
-      date: dateStr,
-      eps_consensus: Math.round(epsEst * 100) / 100,
-      fcf_consensus: Math.round(fcfEst * 100) / 100,
-      sales_consensus: Math.round(salesEst * 100) / 100,
-    });
-  }
-  
-  return buildUnifiedValuationData(historicalPoints, forecastPoints, {
-    primaryMetric: 'eps_adj',
-    timeframe,
-  });
+  };
 }
