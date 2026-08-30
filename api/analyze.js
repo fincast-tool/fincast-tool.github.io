@@ -95,37 +95,94 @@ module.exports = async function handler(req, res) {
                     fmpDetails += `Using Symbol: ${symbol}. `;
                     console.log(`[Backend] Starting fetches for ${symbol}...`);
 
-                    const [profileRes, quoteRes, metricsRes, ttmRes, earnRes, rsiRes, macdRes, cfRes, incomeRes, balanceRes, ratiosRes, histRes, estRes] = await Promise.all([
-                        fetch(`https://financialmodelingprep.com/stable/profile?symbol=${symbol}&apikey=${fmpKey}`).catch(e => { console.error("Profile Fetch Error:", e); return null; }),
-                        fetch(`https://financialmodelingprep.com/stable/quote?symbol=${symbol}&apikey=${fmpKey}`).catch(e => { console.error("Quote Fetch Error:", e); return null; }),
-                        fetch(`https://financialmodelingprep.com/stable/key-metrics?symbol=${symbol}&limit=30&apikey=${fmpKey}`).catch(e => { console.error("Metrics Fetch Error:", e); return null; }),
-                        fetch(`https://financialmodelingprep.com/stable/key-metrics-ttm?symbol=${symbol}&apikey=${fmpKey}`).catch(e => { console.error("TTM Fetch Error:", e); return null; }),
-                        fetch(`https://financialmodelingprep.com/stable/earnings-surprises?symbol=${symbol}&apikey=${fmpKey}`).catch(e => { console.error("Earnings Fetch Error:", e); return null; }),
-                        fetch(`https://financialmodelingprep.com/api/v3/technical-indicators/daily/${symbol}?type=rsi&period=14&apikey=${fmpKey}`).catch(e => { console.error("RSI Fetch Error:", e); return null; }),
-                        fetch(`https://financialmodelingprep.com/api/v3/technical-indicators/daily/${symbol}?type=macd&apikey=${fmpKey}`).catch(e => { console.error("MACD Fetch Error:", e); return null; }),
-                        fetch(`https://financialmodelingprep.com/stable/cash-flow-statement?symbol=${symbol}&limit=30&apikey=${fmpKey}`).catch(e => { console.error("CF Fetch Error:", e); return null; }),
-                        fetch(`https://financialmodelingprep.com/stable/income-statement?symbol=${symbol}&limit=30&apikey=${fmpKey}`).catch(e => { console.error("Income Fetch Error:", e); return null; }),
-                        fetch(`https://financialmodelingprep.com/stable/balance-sheet-statement?symbol=${symbol}&limit=30&apikey=${fmpKey}`).catch(e => { console.error("Balance Fetch Error:", e); return null; }),
-                        fetch(`https://financialmodelingprep.com/stable/ratios?symbol=${symbol}&limit=30&apikey=${fmpKey}`).catch(e => { console.error("Ratios Fetch Error:", e); return null; }),
-                        fetch(`https://financialmodelingprep.com/api/v3/historical-price-full/${symbol}?timeseries=30&apikey=${fmpKey}`).catch(e => { console.error("Hist Fetch Error:", e); return null; }),
-                        fetch(`https://financialmodelingprep.com/stable/analyst-estimates?symbol=${symbol}&limit=5&apikey=${fmpKey}`).catch(e => { console.error("Estimates Fetch Error:", e); return null; })
+                    async function fetchEndpointWithFallback(urls) {
+                        for (const url of urls) {
+                            try {
+                                const res = await fetch(url);
+                                if (res && res.ok) {
+                                    const data = await res.json().catch(() => null);
+                                    if (Array.isArray(data) && data.length > 0 && !data[0]?.['Error Message']) {
+                                        return data;
+                                    }
+                                    if (data && typeof data === 'object' && !Array.isArray(data) && !data['Error Message']) {
+                                        return [data];
+                                    }
+                                }
+                            } catch (e) {}
+                        }
+                        return [];
+                    }
+
+                    const [profileDataRes, quoteDataRes, metricsDataRes, ttmDataRes, earnDataRes, rsiDataRawRes, macdDataRawRes, cfDataRes, incomeDataRes, balanceDataRes, ratiosDataRes, histRes, estDataRes] = await Promise.all([
+                        fetchEndpointWithFallback([
+                            `https://financialmodelingprep.com/stable/profile?symbol=${symbol}&apikey=${fmpKey}`,
+                            `https://financialmodelingprep.com/api/v3/profile/${symbol}?apikey=${fmpKey}`
+                        ]),
+                        fetchEndpointWithFallback([
+                            `https://financialmodelingprep.com/stable/quote?symbol=${symbol}&apikey=${fmpKey}`,
+                            `https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=${fmpKey}`
+                        ]),
+                        fetchEndpointWithFallback([
+                            `https://financialmodelingprep.com/stable/key-metrics?symbol=${symbol}&limit=30&apikey=${fmpKey}`,
+                            `https://financialmodelingprep.com/api/v3/key-metrics/${symbol}?limit=30&apikey=${fmpKey}`,
+                            `https://financialmodelingprep.com/stable/key-metrics?symbol=${symbol}&limit=5&apikey=${fmpKey}`,
+                            `https://financialmodelingprep.com/api/v3/key-metrics/${symbol}?limit=5&apikey=${fmpKey}`
+                        ]),
+                        fetchEndpointWithFallback([
+                            `https://financialmodelingprep.com/stable/key-metrics-ttm?symbol=${symbol}&apikey=${fmpKey}`,
+                            `https://financialmodelingprep.com/api/v3/key-metrics-ttm/${symbol}?apikey=${fmpKey}`,
+                            `https://financialmodelingprep.com/api/v3/ratios-ttm/${symbol}?apikey=${fmpKey}`
+                        ]),
+                        fetchEndpointWithFallback([
+                            `https://financialmodelingprep.com/stable/earnings-surprises?symbol=${symbol}&apikey=${fmpKey}`,
+                            `https://financialmodelingprep.com/api/v3/earnings-surprises/${symbol}?apikey=${fmpKey}`
+                        ]),
+                        fetch(`https://financialmodelingprep.com/api/v3/technical-indicators/daily/${symbol}?type=rsi&period=14&apikey=${fmpKey}`).then(r => r.ok ? r.json() : []).catch(() => []),
+                        fetch(`https://financialmodelingprep.com/api/v3/technical-indicators/daily/${symbol}?type=macd&apikey=${fmpKey}`).then(r => r.ok ? r.json() : []).catch(() => []),
+                        fetchEndpointWithFallback([
+                            `https://financialmodelingprep.com/stable/cash-flow-statement?symbol=${symbol}&limit=30&apikey=${fmpKey}`,
+                            `https://financialmodelingprep.com/api/v3/cash-flow-statement/${symbol}?limit=30&apikey=${fmpKey}`,
+                            `https://financialmodelingprep.com/stable/cash-flow-statement?symbol=${symbol}&limit=5&apikey=${fmpKey}`,
+                            `https://financialmodelingprep.com/api/v3/cash-flow-statement/${symbol}?limit=5&apikey=${fmpKey}`
+                        ]),
+                        fetchEndpointWithFallback([
+                            `https://financialmodelingprep.com/stable/income-statement?symbol=${symbol}&limit=30&apikey=${fmpKey}`,
+                            `https://financialmodelingprep.com/api/v3/income-statement/${symbol}?limit=30&apikey=${fmpKey}`,
+                            `https://financialmodelingprep.com/stable/income-statement?symbol=${symbol}&limit=5&apikey=${fmpKey}`,
+                            `https://financialmodelingprep.com/api/v3/income-statement/${symbol}?limit=5&apikey=${fmpKey}`
+                        ]),
+                        fetchEndpointWithFallback([
+                            `https://financialmodelingprep.com/stable/balance-sheet-statement?symbol=${symbol}&limit=30&apikey=${fmpKey}`,
+                            `https://financialmodelingprep.com/api/v3/balance-sheet-statement/${symbol}?limit=30&apikey=${fmpKey}`,
+                            `https://financialmodelingprep.com/stable/balance-sheet-statement?symbol=${symbol}&limit=5&apikey=${fmpKey}`,
+                            `https://financialmodelingprep.com/api/v3/balance-sheet-statement/${symbol}?limit=5&apikey=${fmpKey}`
+                        ]),
+                        fetchEndpointWithFallback([
+                            `https://financialmodelingprep.com/stable/ratios?symbol=${symbol}&limit=30&apikey=${fmpKey}`,
+                            `https://financialmodelingprep.com/api/v3/ratios/${symbol}?limit=30&apikey=${fmpKey}`,
+                            `https://financialmodelingprep.com/stable/ratios?symbol=${symbol}&limit=5&apikey=${fmpKey}`,
+                            `https://financialmodelingprep.com/api/v3/ratios/${symbol}?limit=5&apikey=${fmpKey}`
+                        ]),
+                        fetch(`https://financialmodelingprep.com/api/v3/historical-price-full/${symbol}?timeseries=30&apikey=${fmpKey}`).then(r => r.ok ? r.json() : null).catch(() => null),
+                        fetchEndpointWithFallback([
+                            `https://financialmodelingprep.com/stable/analyst-estimates?symbol=${symbol}&limit=5&apikey=${fmpKey}`,
+                            `https://financialmodelingprep.com/api/v3/analyst-estimates/${symbol}?limit=5&apikey=${fmpKey}`
+                        ])
                     ]);
 
-                    console.log(`[Backend] Fetches complete. Statuses: Profile=${profileRes?.status}, Quote=${quoteRes?.status}`);
-
-                    profileData = (profileRes && profileRes.ok) ? await profileRes.json().catch(() => []) : [];
-                    quoteData = (quoteRes && quoteRes.ok) ? await quoteRes.json().catch(() => []) : [];
-                    metricsData = (metricsRes && metricsRes.ok) ? await metricsRes.json().catch(() => []) : [];
-                    ttmData = (ttmRes && ttmRes.ok) ? await ttmRes.json().catch(() => []) : [];
-                    earnData = (earnRes && earnRes.ok) ? await earnRes.json().catch(() => []) : [];
-                    rsiDataRaw = (rsiRes && rsiRes.ok) ? await rsiRes.json().catch(() => []) : [];
-                    macdDataRaw = (macdRes && macdRes.ok) ? await macdRes.json().catch(() => []) : [];
-                    cfData = (cfRes && cfRes.ok) ? await cfRes.json().catch(() => []) : [];
-                    incomeData = (incomeRes && incomeRes.ok) ? await incomeRes.json().catch(() => []) : [];
-                    balanceData = (balanceRes && balanceRes.ok) ? await balanceRes.json().catch(() => []) : [];
-                    ratiosData = (ratiosRes && ratiosRes.ok) ? await ratiosRes.json().catch(() => []) : [];
-                    histDataRaw = (histRes && histRes.ok) ? await histRes.json().catch(() => null) : null;
-                    estData = (estRes && estRes.ok) ? await estRes.json().catch(() => []) : [];
+                    profileData = profileDataRes;
+                    quoteData = quoteDataRes;
+                    metricsData = metricsDataRes;
+                    ttmData = ttmDataRes;
+                    earnData = earnDataRes;
+                    rsiDataRaw = rsiDataRawRes;
+                    macdDataRaw = macdDataRawRes;
+                    cfData = cfDataRes;
+                    incomeData = incomeDataRes;
+                    balanceData = balanceDataRes;
+                    ratiosData = ratiosDataRes;
+                    histDataRaw = histRes;
+                    estData = estDataRes;
                 } catch (fetchErr) {
                     console.error("[Backend] FMP Fetch Processing Error:", fetchErr);
                     fmpDetails += `Fetch error: ${fetchErr.message}. `;
@@ -377,14 +434,10 @@ Next Earnings: N/A
 [/FMP API BLOCK]
 
 <system_instruction>
-Die FMP API hat für dieses internationale Symbol keine Daten geliefert. Nutze zwingend dein integriertes Google Search Tool, um die aktuellsten Finanzkennzahlen (KGV, Umsatzwachstum, Dividendenrendite etc.) aus verlässlichen Quellen wie Google Finance, Yahoo Finance oder ähnlichen Finanzportalen in Echtzeit zu recherchieren, anstatt sie nur zu schätzen. Fülle damit die fehlenden Felder. Schreibe NICHT "FMP API BLOCK benötigt".
+Die FMP API hat für dieses Symbol keine Detaildaten geliefert. Nutze zwingend dein integriertes Google Search Tool, um die aktuellsten Finanzkennzahlen (KGV, Umsatzwachstum, Margen, ROIC, Schulden, Dividendenrendite etc.) aus verlässlichen Quellen wie Google Finance, SEC Filings und Yahoo Finance in Echtzeit zu recherchieren. Fülle damit alle geforderten Tags und Felder.
 </system_instruction>
 `;
                             targetPart.text = fallbackFmpContext + `<system_status>\n${systemStatus}${fmpDetails} | ERROR: No Profile data for ${symbol}\n</system_status>\n\n` + targetPart.text;
-                            
-                            // Enable Google Search for fallback
-                            if (!geminiBody.tools) geminiBody.tools = [];
-                            geminiBody.tools.push({ googleSearch: {} });
                         }
                     }
             } catch (ctxErr) { 
@@ -396,6 +449,11 @@ Die FMP API hat für dieses internationale Symbol keine Daten geliefert. Nutze z
             }
         } else {
             console.error("Request Body Mismatch:", { hasTicker: !!ticker, hasBody: !!geminiBody });
+        }
+
+        // Enforce Google Search Grounding for all AI research
+        if (!geminiBody.tools || geminiBody.tools.length === 0) {
+            geminiBody.tools = [{ googleSearch: {} }];
         }
 
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
