@@ -2969,6 +2969,10 @@
             const validation = validateResearchData(researchData, researchAgentIds);
             console.log('[Research Protocol] Phase 1 Validation:', validation);
 
+            if (validation.researchStatus === 'FAILED') {
+                throw new Error('Die fundamentale Recherche konnte nicht abgeschlossen werden. Bitte versuche es erneut.');
+            }
+
             // ==================== PHASE 2 — INVESTMENT COMMITTEE SYNTHESIS ====================
             updateLoadingStatus('Führe finale Synthese und Modellbewertung durch...', 75);
             const executivePrompt = getExecutivePrompt(query, lang, researchData, validation);
@@ -2999,17 +3003,17 @@
 
         // ==================== INSTITUTIONAL RESEARCH PROMPTS ====================
         const AGENT_PROMPTS = {
-            business_quality: `<business_quality>
+            business_quality: `SECTION 1: BUSINESS MODEL & COMPETITIVE ADVANTAGE
 ROLE: Senior Equity Research Analyst — Business Model & Competitive Advantage
 OBJECTIVE: Analysiere die wirtschaftliche Qualität des Unternehmens und die Nachhaltigkeit seines Geschäftsmodells.
-ANALYSE-PUNKTE (Erkläre in maximal einem prägnanten Satz je Punkt, WARUM ein Vor-/Nachteil für die langfristige Ertragskraft relevant ist):
+ANALYSE-PUNKTE:
 - Core Business, Erlösquellen & Geschäftsmodell (Recurring Revenue Anteil, Preissetzungsmacht)
 - Kunden- & Geografische Konzentration
 - Marktposition, Eintrittsbarrieren, Wechselkosten, Netzwerkeffekte, Kostenvorteile, Brand/IP
 - Branchenstruktur & Wettbewerbsintensität
 - Säkulare Wachstumstreiber & Säkulare Bedrohungen
-- Growth Quality: Unterscheide soweit Daten verfügbar: Organic vs. Acquisition vs. Price vs. Volume vs. Margin Expansion vs. Geographic Expansion. (Keine Wachstumsrate als gut bewerten ohne Herkunft).
-- Moat Score: 0-5 (0=kein Vorteil, 1=schwach/angreifbar, 2=moderat, 3=klarer Wettbewerbsvorteil, 4=stark/schwer angreifbar, 5=außergewöhnlich stark & langfristig geschützt).
+- Growth Quality: Organic vs. Acquisition vs. Margin Expansion
+- Moat Score: 0-5 (0=kein Vorteil, 5=außergewöhnlich stark & langfristig geschützt)
 - Moat Type: PRICING POWER / NETWORK EFFECTS / SWITCHING COSTS / COST ADVANTAGE / BRAND / IP / SCALE / NONE
 - Moat Durability: WEAK / MODERATE / STRONG
 
@@ -3029,52 +3033,49 @@ Moat Type: [PRICING POWER / NETWORK EFFECTS / SWITCHING COSTS / COST ADVANTAGE /
 Moat Score: [0-5]
 Moat Durability: [WEAK / MODERATE / STRONG]
 Business Quality Verdict: [WEAK / MODERATE / STRONG / EXCEPTIONAL]
-</business_quality>
-(WICHTIG: Keine Bewertung der Aktie, keine technische Analyse, keine KGV-Analyse, keine DCF-Berechnung)`,
+</business_quality>`,
 
-            financial_quality: `<financial_quality>
+            financial_quality: `SECTION 2: FINANCIAL STATEMENTS, CAPITAL EFFICIENCY & BALANCE SHEET
 ROLE: Senior Fundamental Analyst — Financial Statements, Capital Efficiency & Capital Allocation
 OBJECTIVE: Bewerte die Qualität der finanziellen Ergebnisse, Bilanz und Kapitalverwendung.
 ANALYSE-PUNKTE:
 - Profitability: 5Y Revenue CAGR, EBITDA/EBIT/Netto/Gross Margins & Margen-Trend.
-- Capital Efficiency: ROIC vs WACC (Vergleiche ROIC mit WACC -> VALUE CREATING [ROIC >> WACC] / VALUE NEUTRAL [ROIC ~= WACC] / VALUE DESTROYING [ROIC < WACC]), ROE, ROA, Asset Turnover, Capital Intensity. (Nicht blind urteilen wenn Daten fehlen).
-- Cash Flow Quality: Operating CF, Free Cash Flow, FCF Margin, FCF Conversion (FCF / Net Income), Net Income vs. OCF Diskrepanzen, CapEx & Working Capital Belastung.
-- Balance Sheet: Cash, Gross Debt, Net Debt, Net Debt / EBITDA, Interest Coverage, Liquidity, Debt Maturity Risk, Share Dilution (Verwässerung durch SBC/Kapitalerhöhungen).
-- Capital Allocation: Dividenden, Buybacks, Share Issuance, M&A Track Record, Debt Reduction, R&D/CapEx Disziplin. Beurteile: CAPITAL ALLOCATION: EXCELLENT / GOOD / MIXED / POOR (max 2 kurze Punkte).
+- Capital Efficiency: ROIC vs WACC, ROE, ROA.
+- Cash Flow Quality: Operating CF, Free Cash Flow, FCF Margin, FCF Conversion.
+- Balance Sheet: Cash, Gross Debt, Net Debt, Net Debt / EBITDA, Interest Coverage, Liquidity, Debt to Equity.
+- Capital Allocation: Dividenden, Buybacks, Share Issuance, Debt Reduction, R&D/CapEx Disziplin.
 
 OUTPUT FORMAT:
 <financial_quality>
-Revenue CAGR: [5Y CAGR aus FMP Block oder N/A]
-EBIT Margin: [Aktuelle EBIT-Marge & historische Spanne]
+Revenue CAGR: [5Y CAGR in %]
+EBIT Margin: [Aktuelle EBIT-Marge in %]
 Margin Trend: [EXPANDING / STABLE / CONTRACTING + 1 Satz]
-ROIC: [ROIC Wert aus Daten/Berechnung oder N/A]
-WACC: [WACC Schätzung/Angabe oder N/A]
-ROIC vs WACC: [VALUE CREATING / VALUE NEUTRAL / VALUE DESTROYING / N/A]
+ROIC: [ROIC Wert in %]
+WACC: [WACC Schätzung in %]
+ROIC vs WACC: [VALUE CREATING / VALUE NEUTRAL / VALUE DESTROYING]
 Economic Value Creation: [1 Satz zur ökonomischen Wertschöpfung]
 FCF Margin: [FCF in % des Umsatzes]
-FCF Conversion: [FCF / Net Income Verhältnis & Cash-Qualität]
-Cash Flow Quality: [HIGH / MODERATE / POOR + 1 Satz Diskrepanz Accounting vs Cash]
+FCF Conversion: [FCF / Net Income Verhältnis]
+Cash Flow Quality: [HIGH / MODERATE / POOR]
 Net Debt: [Nettoverschuldung mit Währung]
-Net Debt/EBITDA: [Verschuldungsgrad oder Net Cash Position]
+Net Debt/EBITDA: [Verschuldungsgrad oder Net Cash]
+Debt to Equity: [Debt to Equity Verhältnis]
 Interest Coverage: [EBIT / Zinsaufwand oder N/A]
-Share Dilution: [NEGLIGIBLE / MODERATE / HIGH + Trend Aktienanzahl]
+Share Dilution: [NEGLIGIBLE / MODERATE / HIGH]
 Capital Allocation: [EXCELLENT / GOOD / MIXED / POOR]
-Balance Sheet Risk: [LOW / MODERATE / HIGH + 1 Satz]
+Balance Sheet Risk: [LOW / MODERATE / HIGH]
 Financial Quality Verdict: [WEAK / MODERATE / STRONG / EXCEPTIONAL]
-</financial_quality>
-(WICHTIG: Keine technische Analyse, keine Chartanalyse, keine Kurszielberechnung)`,
+</financial_quality>`,
 
-            earnings_expectations: `<earnings_expectations>
+            earnings_expectations: `SECTION 3: EARNINGS, CONSENSUS EXPECTATIONS & CATALYSTS
 ROLE: Senior Equity Research Analyst — Earnings, Consensus Expectations & Catalysts
 OBJECTIVE: Analysiere die Differenz zwischen tatsächlicher Unternehmensentwicklung und Markterwartungen.
 ANALYSE-PUNKTE:
-- Earnings History: EPS Beat/Miss Trend (letzte 4 Quartale), Revenue Beat/Miss, Guidance Beat/Miss Muster.
-- Market Reaction: Marktreaktion nach Earnings (Good Results + Pos/Neg Reaction, Bad Results + Pos/Neg Reaction).
-- Guidance & Consensus: Management-Guidance vs Consensus, EPS & Revenue Consensus, Revisions-Richtung (UPWARD / DOWNWARD / NEUTRAL) & Magnitude. (Wenn historische Revisionsdaten fehlen: N/A, niemals erfinden!).
-- Street Focus: Maximal 3 Kennzahlen, die für die nächste Berichtsperiode entscheidend sind (z.B. Organic Growth, Gross Margin, ARR, Volume, ASP, FCF).
-- Positive Catalysts: Maximal 3 konkrete positive Katalysatoren.
-- Negative Catalysts: Maximal 3 konkrete negative Katalysatoren/Risiken.
-- Expectations Risk: LOW / MODERATE / HIGH (HIGH = aktueller Kurs erfordert bereits außergewöhnliche operative Perfektion).
+- Earnings History: EPS Beat/Miss Trend (letzte 4 Quartale), Revenue Beat/Miss.
+- Guidance & Consensus: Management-Guidance vs Consensus, Revisions-Richtung.
+- Street Focus: Maximal 3 entscheidende Kennzahlen.
+- Positive Catalysts & Negative Catalysts.
+- Expectations Risk: LOW / MODERATE / HIGH.
 
 OUTPUT FORMAT:
 <earnings_expectations>
@@ -3091,66 +3092,57 @@ Positive Catalyst: [Max 2 konkrete positive Katalysatoren]
 Negative Catalyst: [Max 2 konkrete negative Risikofaktoren]
 Expectations Risk: [LOW / MODERATE / HIGH + 1 Satz Begründung]
 Earnings Verdict: [POSITIVE / NEUTRAL / NEGATIVE / WAIT]
-</earnings_expectations>
-(WICHTIG: Keine DCF-Berechnung, keine technische Analyse)`,
+</earnings_expectations>`,
 
-            valuation: `<valuation>
+            valuation: `SECTION 4: INTRINSIC VALUE, RELATIVE VALUE & DCF
 ROLE: Senior Valuation Analyst — Intrinsic Value, Relative Value & Reverse Valuation
 OBJECTIVE: Bestimme Fair Value Ranges und beurteile, welche Erwartungen im aktuellen Aktienkurs eingepreist sind.
 ANALYSE-PUNKTE:
-- Relative Valuation: KGV, Forward KGV, EV/EBITDA, EV/Sales, P/FCF, FCF Yield vs. historischer Durchschnitt & Peer/Sektor (Nicht jeden Multiple zwanghaft verwenden).
-- DCF Modell (5-Jahres-Horizont): Explizite Inputs angeben: Revenue Growth, EBIT Marge, Tax Rate, D&A, CapEx, Working Capital, FCFF, WACC, Terminal Growth. (DCF = MODEL OUTPUT, keine absolute Wahrheit).
-- DCF Sensitivity: WACC × Terminal Growth Matrix & Revenue Growth × Margin.
-- Fair Value Range: DCF Bear, DCF Base, DCF Bull in nativer Handelswährung (Keine Scheingenauigkeit, plausible Spanne).
-- Reverse DCF: Welche langfristigen Wachstums- und Margenannahmen sind zwingend erforderlich, um den AKTUELLEN Kurs zu rechtfertigen?
+- Relative Valuation: KGV, Forward KGV, EV/EBITDA, P/FCF, Dividend Yield.
+- DCF Modell (5-Jahres-Horizont): DCF Bear, DCF Base, DCF Bull in nativer Handelswährung.
+- Reverse DCF: Implizites Wachstum & Marge.
 - Margin of Safety: Differenz zwischen aktuellem Kurs und DCF Base.
 
 OUTPUT FORMAT:
 <valuation>
-Current Price: [Aktueller Kurs mit Währungscode aus FMP Block]
-P/E: [Aktuelles KGV oder N/A]
-Forward P/E: [Forward KGV oder N/A]
-EV/EBITDA: [EV/EBITDA Multiple oder N/A]
-P/FCF: [Kurs-FCF-Verhältnis oder N/A]
+Current Price: [Aktueller Kurs mit Währungscode]
+P/E: [Aktuelles KGV]
+Forward P/E: [Forward KGV]
+EV/EBITDA: [EV/EBITDA Multiple]
+P/FCF: [Kurs-FCF-Verhältnis]
 FCF Yield: [Free Cash Flow Rendite in %]
-Historical Valuation: [UNDERVALUED / FAIR / OVERVALUED vs 5Y/10Y Avg]
+Dividend Yield: [Dividendenrendite in %]
+Historical Valuation: [UNDERVALUED / FAIR / OVERVALUED vs 5Y Avg]
 Peer Valuation: [PREMIUM / IN-LINE / DISCOUNT vs Sector]
 DCF Bear: [Konservativer Fair Value mit Währungscode (MODEL)]
 DCF Base: [Basis Fair Value mit Währungscode (MODEL)]
 DCF Bull: [Optimistischer Fair Value mit Währungscode (MODEL)]
-WACC: [Verwendeter WACC in % oder N/A]
-Terminal Growth: [Verwendetes Terminal Growth in % oder N/A]
+WACC: [Verwendeter WACC in %]
+Terminal Growth: [Verwendetes Terminal Growth in %]
 DCF Upside/Downside: [+/-XX% Potenzial Base vs. Current Price]
-Reverse DCF Growth: [Implizites jährliches Wachstum, das im Kurs steckt]
-Reverse DCF Margin: [Implizite nachhaltige Marge, die im Kurs steckt]
+Reverse DCF Growth: [Implizites jährliches Wachstum im Kurs]
+Reverse DCF Margin: [Implizite Marge im Kurs]
 Expectation Burden: [LOW / MODERATE / HIGH]
-Market Expectations Embedded: [1-2 Sätze: Was verlangt der aktuelle Kurs vom Unternehmen?]
-Margin of Safety: [XX% Sicherheitsmarge oder ÜBERBEWERTET / NEGATIV]
+Market Expectations Embedded: [1-2 Sätze: Was verlangt der Kurs?]
+Margin of Safety: [XX% Sicherheitsmarge oder ÜBERBEWERTET]
 Valuation Verdict: [DEEPLY UNDERVALUED / UNDERVALUED / FAIRLY VALUED / OVERVALUED / DEEPLY OVERVALUED]
-</valuation>
-(WICHTIG: DCF-Werte als MODEL OUTPUT deklarieren, keine erfundenen Inputs bei Datenlücken)`,
+</valuation>`,
 
-            market_structure: `<market_structure>
+            market_structure: `SECTION 5: PRICE ACTION, MOMENTUM & MARKET STRUCTURE
 ROLE: Senior Quantitative Market Analyst — Price Action, Momentum & Market Structure
-OBJECTIVE: Analysiere ausschließlich die aktuelle Marktdynamik und Chartstruktur. (Keine Fundamentaldaten, kein KGV, kein DCF).
+OBJECTIVE: Analysiere ausschließlich die aktuelle Marktdynamik und Chartstruktur.
 ANALYSE-PUNKTE:
-- Trends & Gleitende Durchschnitte: Daily, Weekly, Monthly Trend; 50-DMA, 100-DMA, 200-DMA Abstände & Crossover.
-- Momentum & Indikatoren: RSI (14D), MACD Signal, Bollinger Band Positionierung, Volatilität, Volume Trend.
-- 52-Wochen Range & Drawdown: 52W High, 52W Low, aktueller Abstand/Drawdown vom ATH/52W-High.
-- Key Levels: Wichtigste Unterstützungszone (Support) und Widerstandszone (Resistance) in nativer Währung (NUR EINMAL ausgeben, keine Duplikate von Pivot/Fibonacci).
-- Regime-Klassifizierung:
-  TREND: BULLISH / NEUTRAL / BEARISH
-  MOMENTUM: STRONG / MODERATE / WEAK
-  VOLATILITY: LOW / NORMAL / HIGH
-  MARKET STRUCTURE: ACCUMULATION / TRENDING / CONSOLIDATING / DISTRIBUTION
-- Technical Signal: EXACTLY ONE: [STRONG BULLISH], [BULLISH], [NEUTRAL], [BEARISH], [STRONG BEARISH]
+- Trends & Gleitende Durchschnitte: 50-DMA, 200-DMA Abstände & Crossover.
+- Momentum & Indikatoren: RSI (14D), MACD Signal, Volatilität, Volume Trend.
+- 52-Wochen Range: 52W High, 52W Low, Abstand vom High.
+- Key Levels: Unterstützungszone (Support) und Widerstandszone (Resistance).
 
 OUTPUT FORMAT:
 <market_structure>
-Trend Daily/Weekly/Monthly: [BULLISH / NEUTRAL / BEARISH über Zeitebenen]
-Moving Averages: [Kurs vs 50D & 200D MA, z.B. Über 50-DMA, Golden/Death Cross Status]
+Trend Daily/Weekly/Monthly: [BULLISH / NEUTRAL / BEARISH]
+Moving Averages: [Kurs vs 50D & 200D MA]
 Momentum & RSI: [RSI-Wert & MACD Dynamik]
-Volatility & Volume: [LOW / NORMAL / HIGH & Volumenbestätigung]
+Volatility & Volume: [LOW / NORMAL / HIGH]
 52W Range & Drawdown: [52W High/Low & Drawdown in %]
 Key Support: [Genau 1 primäre Unterstützungsmarke mit Währung]
 Key Resistance: [Genau 1 primäre Widerstandsmarke mit Währung]
@@ -3163,16 +3155,15 @@ Technical Signal: [EXACTLY ONE: [STRONG BULLISH] / [BULLISH] / [NEUTRAL] / [BEAR
             const todayIso = new Date().toISOString().split('T')[0];
             let prompt = `CURRENT DATE: ${todayIso}
 LANGUAGE: Respond EXCLUSIVELY in ${lang}.
-TASK: Institutional Equity Research, Live Market Grounding & Deep Historical Fundamentals for "${query}".
+TASK: Institutional Equity Research, Live Market Grounding & Deep Fundamentals for "${query}".
 
 STRICT INSTITUTIONAL RESEARCH DIRECTIVES:
-1. GOOGLE SEARCH GROUNDING (PRIMARY): Use real-time Google Search Grounding to research authoritative corporate financial data across Google Finance, SEC Filings (10-K/20-F), Yahoo Finance, Macrotrends, StockAnalysis, Morningstar, and investor relations. (If [FMP API BLOCK] is present with valid numbers, merge and verify with it).
-2. MAXIMUM HISTORICAL DATA (CRITICAL): Research the MAXIMUM available historical annual financial periods (from the last 3 up to 10+ available years, e.g. 2019–2024 or 2014–2024). Extract Revenue, Operating Income, Net Income, EPS, Operating Cash Flow, Capex, Free Cash Flow, Total Assets, Total Equity, Total Debt, Shares Outstanding, Period Close Price, and historical P/E for each reported year.
-3. DATA INTEGRITY: Output observed reported figures. If an exact item is unavailable, omit or calculate consistently from reported statements.
-4. CURRENCY CONSISTENCY (CRITICAL): All financial amounts, price targets, DCF values, and current prices across ALL sections MUST use the EXACT SAME native trading/reporting currency (e.g. USD, EUR, NOK, CHF, GBP). Always state the currency code with every price (e.g. '513.53 USD', '45.00 EUR').
-5. OUTPUT FORMAT: Output ONLY the requested section XML tags in exact order: <company_identity>, <financial_dataset>, followed by the 5 research perspectives.
+1. GOOGLE SEARCH GROUNDING: Use real-time Google Grounding to research authoritative corporate financial data across Google Finance, SEC Filings (10-K/20-F), Yahoo Finance, Morningstar, and investor relations.
+2. ACCURATE FUNDAMENTALS: Extract Revenue CAGR, EBIT Margins, ROIC, ROE, Debt to Equity, Net Debt, P/E, 52W High/Low, Market Cap, and Dividend Yield.
+3. CURRENCY CONSISTENCY: All financial amounts, price targets, DCF values, and current prices across ALL sections MUST use the EXACT SAME native trading currency (e.g. USD, EUR, CHF, GBP). Always state the currency code with every price (e.g. '513.53 USD').
+4. OUTPUT FORMAT: Output ONLY the requested XML blocks in exact order: <company_identity>, followed by the 5 research perspectives.
 
-Generate the identity section and the structured financial dataset first, followed by the 5 analytical perspectives:\n\n`;
+Generate the identity section first, followed by the 5 analytical perspectives:\n\n`;
 
             // 1. Identity Layer
             prompt += `<company_identity>
@@ -3193,56 +3184,7 @@ Latest Reporting Date: [Latest earnings/annual report date]
 Data Timestamp: [${todayIso}]
 </company_identity>\n\n`;
 
-            // 2. Structured Financial Dataset (Feeds SVG charts and Empirical Valuation Engine)
-            prompt += `<financial_dataset>
-Extract the MAXIMUM available historical reporting periods (3 to 10+ years) into this clean JSON format (without markdown fences):
-{
-  "symbol": "TICKER",
-  "companyName": "Company Name",
-  "currency": "USD",
-  "sector": "Sector",
-  "industry": "Industry",
-  "currentPrice": 00.00,
-  "marketCap": 000000000000,
-  "yearHigh": 00.00,
-  "yearLow": 00.00,
-  "annual": [
-    {
-      "year": 2020,
-      "date": "2020-12-31",
-      "revenue": 143015000000,
-      "grossProfit": 96937000000,
-      "operatingIncome": 52959000000,
-      "netIncome": 44281000000,
-      "eps": 5.76,
-      "epsAdj": 5.76,
-      "operatingCashFlow": 60675000000,
-      "capex": 15441000000,
-      "freeCashFlow": 45234000000,
-      "totalAssets": 301311000000,
-      "totalEquity": 118304000000,
-      "totalDebt": 70998000000,
-      "cashAndEquivalents": 13397000000,
-      "sharesOutstanding": 7571000000,
-      "periodClosePrice": 203.51,
-      "peRatio": 35.3,
-      "roic": 28.5,
-      "roe": 37.4,
-      "grossMargin": 67.8,
-      "operatingMargin": 37.0,
-      "netMargin": 31.0,
-      "fcfMargin": 31.6,
-      "debtToEquity": 0.60,
-      "dividendPerShare": 2.04
-    }
-  ],
-  "estimates": [
-    { "year": 2025, "revenueAvg": 279000000000, "epsAvg": 13.10 }
-  ]
-}
-</financial_dataset>\n\n`;
-
-            // 3. Modulare Research Prompts (5 Domains)
+            // 2. Modular Research Prompts (5 Domains)
             const requestedAgents = Array.isArray(agentIds) ? agentIds : Object.keys(AGENT_PROMPTS);
             requestedAgents.forEach(id => {
                 if (AGENT_PROMPTS[id]) {
@@ -3267,7 +3209,7 @@ Status: ${validation.researchStatus}
 Missing Perspectives: ${validation.missingAgents.length > 0 ? validation.missingAgents.join(', ') : 'None (All 5 Domains Complete)'}
 
 INPUT CONTRACT (Analyst Findings):
-These are analyst findings. They are not facts by themselves. Use the underlying [FMP API BLOCK] as the factual anchor.
+These are the verified findings of the 5 specialist analysts. Synthesize your final investment verdict strictly based on the findings below.
 
 BUSINESS RESEARCH:
 <business_quality>
