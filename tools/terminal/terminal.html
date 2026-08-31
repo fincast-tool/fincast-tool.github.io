@@ -1814,16 +1814,25 @@
                                                 <button type="button" onclick="switchValuationMethod('ev_ebitda')" id="vMethodBtn_ev_ebitda" class="v-method-btn px-2 py-0.5 rounded border border-[#202630] text-slate-300 hover:text-white transition-all">EV/EBITDA</button>
                                             </div>
 
-                                            <!-- Right: Timeframe Range Buttons (1M, 3M, 6M, 1J, 3J, 5J, 10J, MAX) -->
-                                            <div class="flex items-center gap-1 bg-[#11151B] p-0.5 rounded border border-[#202630]" id="valCorridorTimeframeButtons">
-                                                <button type="button" onclick="selectValuationTimeframe('1M')" id="valTfBtn_1M" class="val-tf-btn px-1.5 py-0.5 rounded text-[10px] font-medium text-slate-400 hover:text-white transition-all">1M</button>
-                                                <button type="button" onclick="selectValuationTimeframe('3M')" id="valTfBtn_3M" class="val-tf-btn px-1.5 py-0.5 rounded text-[10px] font-medium text-slate-400 hover:text-white transition-all">3M</button>
-                                                <button type="button" onclick="selectValuationTimeframe('6M')" id="valTfBtn_6M" class="val-tf-btn px-1.5 py-0.5 rounded text-[10px] font-medium text-slate-400 hover:text-white transition-all">6M</button>
-                                                <button type="button" onclick="selectValuationTimeframe('1J')" id="valTfBtn_1J" class="val-tf-btn px-1.5 py-0.5 rounded text-[10px] font-medium text-slate-400 hover:text-white transition-all">1J</button>
-                                                <button type="button" onclick="selectValuationTimeframe('3J')" id="valTfBtn_3J" class="val-tf-btn px-1.5 py-0.5 rounded text-[10px] font-semibold text-white bg-[#171C23] border border-[#2D3748] transition-all">3J</button>
-                                                <button type="button" onclick="selectValuationTimeframe('5J')" id="valTfBtn_5J" class="val-tf-btn px-1.5 py-0.5 rounded text-[10px] font-medium text-slate-400 hover:text-white transition-all">5J</button>
-                                                <button type="button" onclick="selectValuationTimeframe('10J')" id="valTfBtn_10J" class="val-tf-btn px-1.5 py-0.5 rounded text-[10px] font-medium text-slate-400 hover:text-white transition-all">10J</button>
-                                                <button type="button" onclick="selectValuationTimeframe('MAX')" id="valTfBtn_MAX" class="val-tf-btn px-1.5 py-0.5 rounded text-[10px] font-medium text-slate-400 hover:text-white transition-all">MAX</button>
+                                            <!-- Right: Granularity Switch (W/M) & Timeframe Range Buttons -->
+                                            <div class="flex flex-wrap items-center gap-2">
+                                                <!-- Granularity Selector: W (Woche) vs M (Monat) -->
+                                                <div class="flex items-center gap-0.5 bg-[#11151B] p-0.5 rounded border border-[#202630]" id="valCorridorGranularityButtons" title="Datenauflösung: Wöchentlich (W) oder Monatlich (M)">
+                                                    <button type="button" onclick="selectValuationGranularity('W')" id="valGranBtn_W" class="val-gran-btn px-1.5 py-0.5 rounded text-[10px] font-semibold text-white bg-[#171C23] border border-[#2D3748] transition-all">W</button>
+                                                    <button type="button" onclick="selectValuationGranularity('M')" id="valGranBtn_M" class="val-gran-btn px-1.5 py-0.5 rounded text-[10px] font-medium text-slate-400 hover:text-white transition-all">M</button>
+                                                </div>
+
+                                                <!-- Timeframe Buttons -->
+                                                <div class="flex items-center gap-1 bg-[#11151B] p-0.5 rounded border border-[#202630]" id="valCorridorTimeframeButtons">
+                                                    <button type="button" onclick="selectValuationTimeframe('1M')" id="valTfBtn_1M" class="val-tf-btn px-1.5 py-0.5 rounded text-[10px] font-medium text-slate-400 hover:text-white transition-all">1M</button>
+                                                    <button type="button" onclick="selectValuationTimeframe('3M')" id="valTfBtn_3M" class="val-tf-btn px-1.5 py-0.5 rounded text-[10px] font-medium text-slate-400 hover:text-white transition-all">3M</button>
+                                                    <button type="button" onclick="selectValuationTimeframe('6M')" id="valTfBtn_6M" class="val-tf-btn px-1.5 py-0.5 rounded text-[10px] font-medium text-slate-400 hover:text-white transition-all">6M</button>
+                                                    <button type="button" onclick="selectValuationTimeframe('1J')" id="valTfBtn_1J" class="val-tf-btn px-1.5 py-0.5 rounded text-[10px] font-medium text-slate-400 hover:text-white transition-all">1J</button>
+                                                    <button type="button" onclick="selectValuationTimeframe('3J')" id="valTfBtn_3J" class="val-tf-btn px-1.5 py-0.5 rounded text-[10px] font-medium text-slate-400 hover:text-white transition-all">3J</button>
+                                                    <button type="button" onclick="selectValuationTimeframe('5J')" id="valTfBtn_5J" class="val-tf-btn px-1.5 py-0.5 rounded text-[10px] font-semibold text-white bg-[#171C23] border border-[#2D3748] transition-all">5J</button>
+                                                    <button type="button" onclick="selectValuationTimeframe('10J')" id="valTfBtn_10J" class="val-tf-btn px-1.5 py-0.5 rounded text-[10px] font-medium text-slate-400 hover:text-white transition-all">10J</button>
+                                                    <button type="button" onclick="selectValuationTimeframe('MAX')" id="valTfBtn_MAX" class="val-tf-btn px-1.5 py-0.5 rounded text-[10px] font-medium text-slate-400 hover:text-white transition-all">MAX</button>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -4954,6 +4963,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
         let CURRENT_VALUATION_RESULT = null;
         let ACTIVE_VALUATION_METHOD = 'pe_adj'; // 'pe_adj' | 'pe_rep' | 'pfcf' | 'pb' | 'ps' | 'ev_ebitda'
         let SELECTED_VALUATION_TIMEFRAME = 'MAX'; // '1J' | '3J' | '5J' | '10J' | 'MAX'
+        let SELECTED_VALUATION_GRANULARITY = 'W'; // 'W' (Weekly) | 'M' (Monthly)
         let SELECTED_MULTIPLES_TIMEFRAME = 'MAX'; // '3J' | '5J' | '10J' | 'MAX'
         let ACTIVE_MULTIPLES_METRICS = { pe_adj: true, pe_rep: false, pcf: false, ps: false, pb: false };
         let AVAILABLE_HISTORY_YEARS = 5;
@@ -5128,8 +5138,18 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             return { cagr10Y, cagr5Y, cagr3Y, cagr1Y, trend, trendLabel };
         }
 
-        // Granular Price History Downsampling & Aggregation (1M, 3M, 6M, 1Y, 3Y, 5Y, 10Y, MAX)
-        function aggregatePriceHistory(priceHistory, timeframe = 'MAX') {
+        // Helper: Calculate ISO Week String (YYYY-Www)
+        function getISOWeekKey(dateStr) {
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return dateStr;
+            d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+            return `${d.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
+        }
+
+        // Resample Price History to Weekly (W) or Monthly (M) Bars
+        function resamplePriceHistory(priceHistory, timeframe = 'MAX', granularity = 'W') {
             if (!Array.isArray(priceHistory) || priceHistory.length === 0) return [];
             const sorted = [...priceHistory].filter(p => p && p.date && typeof p.close === 'number' && Number.isFinite(p.close)).sort((a, b) => a.date.localeCompare(b.date));
             if (sorted.length === 0) return [];
@@ -5151,22 +5171,96 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             let filtered = sorted.filter(p => p.date >= startDateStr);
             if (filtered.length === 0) filtered = sorted.slice(-30);
 
-            let maxTargetPoints = 250;
-            if (tfUpper === '1M' || tfUpper === '3M' || tfUpper === '6M') maxTargetPoints = 150;
-            else if (tfUpper === '1J' || tfUpper === '1Y') maxTargetPoints = 250;
-            else if (tfUpper === '3J' || tfUpper === '3Y') maxTargetPoints = 180;
-            else if (tfUpper === '5J' || tfUpper === '5Y') maxTargetPoints = 220;
+            // Group by Week or Month
+            const groups = new Map();
+            filtered.forEach(p => {
+                let key = '';
+                if (granularity === 'M') {
+                    key = p.date.substring(0, 7); // YYYY-MM
+                } else {
+                    key = getISOWeekKey(p.date); // YYYY-Www
+                }
+                // Overwrite with the latest trading day in that period
+                groups.set(key, p);
+            });
 
-            if (filtered.length <= maxTargetPoints) return filtered;
+            const resampled = Array.from(groups.values()).sort((a, b) => a.date.localeCompare(b.date));
 
-            const step = filtered.length / maxTargetPoints;
-            const downsampled = [];
-            for (let i = 0; i < maxTargetPoints - 1; i++) {
-                const idx = Math.floor(i * step);
-                downsampled.push(filtered[idx]);
+            // Ensure the very last available point in sorted is present
+            const lastRaw = sorted[sorted.length - 1];
+            if (resampled.length > 0 && resampled[resampled.length - 1].date !== lastRaw.date) {
+                resampled.push(lastRaw);
             }
-            downsampled.push(filtered[filtered.length - 1]);
-            return downsampled;
+
+            return resampled;
+        }
+
+        // Legacy wrapper for backward compatibility
+        function aggregatePriceHistory(priceHistory, timeframe = 'MAX') {
+            return resamplePriceHistory(priceHistory, timeframe, 'W');
+        }
+
+        // Helper: Extract fundamental value for a specific valuation method
+        function getFundamentalMetricFromPeriod(period, method) {
+            if (!period) return null;
+            if (method === 'pe_adj') return safeNum(period.epsAdj) ?? safeNum(period.eps);
+            if (method === 'pe_rep') return safeNum(period.eps);
+            if (method === 'pb') return safeNum(period.bookValuePerShare);
+            if (method === 'pfcf') return safeNum(period.freeCashFlowPerShare);
+            if (method === 'ps') return safeNum(period.revenuePerShare);
+            if (method === 'ev_ebitda') return period.ebitda ? (safeNum(period.ebitda) / (safeNum(period.sharesOutstanding) || 1)) : null;
+            return safeNum(period.epsAdj) ?? safeNum(period.eps);
+        }
+
+        // Helper: Continuous linear interpolation of fundamental metrics over time
+        function getInterpolatedFundamentalValue(annualPeriods, method, dateStr, estimates = []) {
+            if (!Array.isArray(annualPeriods) || annualPeriods.length === 0) return null;
+            const valid = annualPeriods.filter(p => p && p.date && getFundamentalMetricFromPeriod(p, method) !== null).sort((a, b) => a.date.localeCompare(b.date));
+            if (valid.length === 0) return null;
+
+            const targetTime = new Date(dateStr).getTime();
+            if (isNaN(targetTime)) return getFundamentalMetricFromPeriod(valid[valid.length - 1], method);
+
+            const firstTime = new Date(valid[0].date).getTime();
+            if (targetTime <= firstTime) {
+                return getFundamentalMetricFromPeriod(valid[0], method);
+            }
+
+            const lastPeriod = valid[valid.length - 1];
+            const lastTime = new Date(lastPeriod.date).getTime();
+
+            if (targetTime >= lastTime) {
+                const lastVal = getFundamentalMetricFromPeriod(lastPeriod, method);
+                if (Array.isArray(estimates) && estimates.length > 0 && estimates[0]?.date) {
+                    const nextEst = estimates[0];
+                    let nextEstVal = null;
+                    if (method === 'pe_adj' || method === 'pe_rep') nextEstVal = safeNum(nextEst.epsAvg);
+                    else if (method === 'ps') nextEstVal = nextEst.revenueAvg ? (safeNum(nextEst.revenueAvg) / (safeNum(lastPeriod.sharesOutstanding) || 1)) : null;
+                    else if (method === 'ev_ebitda') nextEstVal = nextEst.ebitdaAvg ? (safeNum(nextEst.ebitdaAvg) / (safeNum(lastPeriod.sharesOutstanding) || 1)) : null;
+
+                    const estTime = new Date(nextEst.date).getTime();
+                    if (nextEstVal !== null && nextEstVal > 0 && lastVal !== null && lastVal > 0 && estTime > lastTime && targetTime < estTime) {
+                        const ratio = (targetTime - lastTime) / (estTime - lastTime);
+                        return lastVal + ratio * (nextEstVal - lastVal);
+                    }
+                }
+                return lastVal;
+            }
+
+            for (let i = 0; i < valid.length - 1; i++) {
+                const t1 = new Date(valid[i].date).getTime();
+                const t2 = new Date(valid[i + 1].date).getTime();
+                if (targetTime >= t1 && targetTime <= t2) {
+                    const v1 = getFundamentalMetricFromPeriod(valid[i], method);
+                    const v2 = getFundamentalMetricFromPeriod(valid[i + 1], method);
+                    if (v1 === null || v2 === null) return v2 ?? v1;
+                    const span = Math.max(1, t2 - t1);
+                    const ratio = (targetTime - t1) / span;
+                    return v1 + ratio * (v2 - v1);
+                }
+            }
+
+            return getFundamentalMetricFromPeriod(lastPeriod, method);
         }
 
         // --- NORMALIZATION LAYER (EMPIRICAL SINGLE SOURCE OF TRUTH) ---
@@ -5724,19 +5818,12 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             const refP25 = targetStats.p25;
             const refP75 = targetStats.p75;
 
-            // Strict Typed Separation of Fair Value Series
-            const fairValueSeries = [];
+            const granularity = options.granularity || SELECTED_VALUATION_GRANULARITY || 'W';
 
-            // 1. HISTORICAL ZONE
+            // 1. ANNUAL MILESTONES FAIR VALUE SERIES (for backwards compatibility & annual overview)
+            const annualFairValueSeries = [];
             periods.forEach(p => {
-                let fundamentalValue = null;
-                if (selectedMethod === 'pe_adj') fundamentalValue = p.epsAdj;
-                else if (selectedMethod === 'pe_rep') fundamentalValue = p.eps;
-                else if (selectedMethod === 'pb') fundamentalValue = p.bookValuePerShare;
-                else if (selectedMethod === 'pfcf') fundamentalValue = p.freeCashFlowPerShare;
-                else if (selectedMethod === 'ps') fundamentalValue = p.revenuePerShare;
-                else if (selectedMethod === 'ev_ebitda') fundamentalValue = p.ebitda ? (p.ebitda / (p.sharesOutstanding || 1)) : null;
-
+                const fundamentalValue = getFundamentalMetricFromPeriod(p, selectedMethod);
                 let fairValue = null;
                 let lowerBand = null;
                 let upperBand = null;
@@ -5747,9 +5834,10 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     upperBand = refP75 !== null ? Math.round(fundamentalValue * refP75 * 100) / 100 : null;
                 }
 
-                fairValueSeries.push({
+                annualFairValueSeries.push({
                     date: p.date,
                     year: p.year,
+                    timestamp: new Date(p.date).getTime(),
                     type: 'historical',
                     isForecast: false,
                     price: p.periodClosePrice,
@@ -5761,23 +5849,57 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 });
             });
 
-            // 2. CURRENT ZONE (CURRENT MARKET PRICE & LATEST FAIR VALUE)
-            let latestFundValue = null;
-            if (selectedMethod === 'pe_adj') latestFundValue = latestPeriod?.epsAdj;
-            else if (selectedMethod === 'pe_rep') latestFundValue = latestPeriod?.eps;
-            else if (selectedMethod === 'pb') latestFundValue = latestPeriod?.bookValuePerShare;
-            else if (selectedMethod === 'pfcf') latestFundValue = latestPeriod?.freeCashFlowPerShare;
-            else if (selectedMethod === 'ps') latestFundValue = latestPeriod?.revenuePerShare;
-            else if (selectedMethod === 'ev_ebitda') latestFundValue = latestPeriod?.ebitda ? (latestPeriod.ebitda / (latestPeriod.sharesOutstanding || 1)) : null;
+            // 2. HIGH-RESOLUTION CONTINUOUS FAIR VALUE SERIES (Weekly or Monthly resampled)
+            const fairValueSeries = [];
+            const estimates = dataset.estimates || [];
+            const rawPriceHistory = dataset.priceHistory || dataset.prices || [];
+            const resampledPrices = resamplePriceHistory(rawPriceHistory, timeframe, granularity);
 
+            if (resampledPrices.length >= 2) {
+                resampledPrices.forEach(p => {
+                    const fundVal = getInterpolatedFundamentalValue(annual, selectedMethod, p.date, estimates);
+                    let fv = null;
+                    let lb = null;
+                    let ub = null;
+
+                    if (fundVal !== null && fundVal > 0 && refMedian !== null) {
+                        fv = Math.round(fundVal * refMedian * 100) / 100;
+                        lb = refP25 !== null ? Math.round(fundVal * refP25 * 100) / 100 : null;
+                        ub = refP75 !== null ? Math.round(fundVal * refP75 * 100) / 100 : null;
+                    }
+
+                    fairValueSeries.push({
+                        date: p.date,
+                        year: parseInt(p.date.substring(0, 4), 10) || new Date(p.date).getFullYear(),
+                        timestamp: new Date(p.date).getTime(),
+                        type: 'historical',
+                        isForecast: false,
+                        price: p.close,
+                        historicalPrice: p.close,
+                        fundamentalValue: fundVal,
+                        fairValue: fv,
+                        lowerBand: lb,
+                        upperBand: ub
+                    });
+                });
+            } else {
+                annualFairValueSeries.forEach(item => {
+                    fairValueSeries.push({ ...item });
+                });
+            }
+
+            // 3. CURRENT ZONE (CURRENT MARKET PRICE & LATEST FAIR VALUE)
+            let latestFundValue = getFundamentalMetricFromPeriod(latestPeriod, selectedMethod);
             const currentFairValue = (latestFundValue !== null && latestFundValue > 0 && refMedian !== null) ? Math.round(latestFundValue * refMedian * 100) / 100 : null;
             const currentLowerBand = (latestFundValue !== null && latestFundValue > 0 && refP25 !== null) ? Math.round(latestFundValue * refP25 * 100) / 100 : null;
             const currentUpperBand = (latestFundValue !== null && latestFundValue > 0 && refP75 !== null) ? Math.round(latestFundValue * refP75 * 100) / 100 : null;
             const currentValuationGap = (currentPrice !== null && currentFairValue !== null && currentFairValue > 0) ? Math.round(((currentPrice - currentFairValue) / currentFairValue) * 1000) / 10 : null;
 
-            fairValueSeries.push({
-                date: latestPeriod?.date || new Date().toISOString().split('T')[0],
-                year: latestPeriod?.year || new Date().getFullYear(),
+            const todayIso = new Date().toISOString().split('T')[0];
+            const curPt = {
+                date: latestPeriod?.date || todayIso,
+                year: new Date().getFullYear(),
+                timestamp: new Date(todayIso).getTime(),
                 type: 'current',
                 isForecast: false,
                 price: currentPrice,
@@ -5787,15 +5909,17 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 lowerBand: currentLowerBand,
                 upperBand: currentUpperBand,
                 valuationGapPct: currentValuationGap
-            });
+            };
 
-            // 3. FORECAST ZONE (ANALYST ESTIMATES / FORWARD FUNDAMENTALS)
-            const estimates = dataset.estimates || [];
+            annualFairValueSeries.push(curPt);
+            fairValueSeries.push(curPt);
+
+            // 4. FORECAST ZONE (ANALYST ESTIMATES / FORWARD FUNDAMENTALS)
             estimates.forEach(est => {
                 let fundamentalEst = null;
-                if (selectedMethod === 'pe_adj' || selectedMethod === 'pe_rep') fundamentalEst = est.epsAvg;
-                else if (selectedMethod === 'ps') fundamentalEst = est.revenueAvg ? (est.revenueAvg / (latestPeriod?.sharesOutstanding || 1)) : null;
-                else if (selectedMethod === 'ev_ebitda') fundamentalEst = est.ebitdaAvg ? (est.ebitdaAvg / (latestPeriod?.sharesOutstanding || 1)) : null;
+                if (selectedMethod === 'pe_adj' || selectedMethod === 'pe_rep') fundamentalEst = safeNum(est.epsAvg);
+                else if (selectedMethod === 'ps') fundamentalEst = est.revenueAvg ? (safeNum(est.revenueAvg) / (safeNum(latestPeriod?.sharesOutstanding) || 1)) : null;
+                else if (selectedMethod === 'ev_ebitda') fundamentalEst = est.ebitdaAvg ? (safeNum(est.ebitdaAvg) / (safeNum(latestPeriod?.sharesOutstanding) || 1)) : null;
 
                 let fairValue = null;
                 let lowerBand = null;
@@ -5807,9 +5931,10 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     upperBand = refP75 !== null ? Math.round(fundamentalEst * refP75 * 100) / 100 : null;
                 }
 
-                fairValueSeries.push({
+                const forePt = {
                     date: est.date,
                     year: est.year,
+                    timestamp: new Date(est.date).getTime(),
                     type: 'forecast',
                     isForecast: true,
                     price: null,
@@ -5818,7 +5943,10 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     fairValue,
                     lowerBand,
                     upperBand
-                });
+                };
+
+                annualFairValueSeries.push(forePt);
+                fairValueSeries.push(forePt);
             });
 
             const multiplesSeries = periods.map(p => ({
@@ -5893,10 +6021,10 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             const valueTrapFlags = [];
             const growthData = dataset.growthTrajectories || {};
 
-            if (growthData.revenue?.trend === 'Deceleration' || (growthData.revenue?.cagr3Y !== null && growthData.revenue.cagr3Y < 0)) {
+            if (growthData.revenue?.trend === 'Deceleration' || (typeof growthData.revenue?.cagr3Y === 'number' && growthData.revenue.cagr3Y < 0)) {
                 valueTrapFlags.push('Umsatzdynamik verlangsamt sich spürbar');
             }
-            if (growthData.eps?.trend === 'Deceleration' || (growthData.eps?.cagr3Y !== null && growthData.eps.cagr3Y < 0)) {
+            if (growthData.eps?.trend === 'Deceleration' || (typeof growthData.eps?.cagr3Y === 'number' && growthData.eps.cagr3Y < 0)) {
                 valueTrapFlags.push('Gewinn je Aktie (EPS) rückläufig oder volatil');
             }
             if (latestPeriod?.operatingMargin !== null && periods.length >= 3) {
@@ -5964,6 +6092,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 currency: dataset.currency,
                 currentPrice,
                 timeframe,
+                granularity,
                 splitDate: latestPeriod?.date || '',
                 availableYears: dataset.availableYears,
                 selectedMethod,
@@ -5971,6 +6100,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 defaultMethodReason,
                 statistics,
                 fairValueSeries,
+                annualFairValueSeries,
                 multiplesSeries,
                 currentFairValue,
                 currentValuationGap,
@@ -6713,8 +6843,8 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 }
             }
 
-            if (vSvg && vWrapper && valResult?.fairValueSeries?.length > 0) {
-                const series = valResult.fairValueSeries;
+            if (vSvg && vWrapper && (valResult?.annualFairValueSeries?.length > 0 || valResult?.fairValueSeries?.length > 0)) {
+                const series = valResult.annualFairValueSeries || valResult.fairValueSeries;
                 const bRect = vWrapper.getBoundingClientRect();
                 const width = Math.max(260, bRect.width || 360);
                 const height = Math.max(140, bRect.height || 180);
@@ -7595,8 +7725,6 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
 
             // Filter series for timeframe
             const tf = SELECTED_VALUATION_TIMEFRAME || 'MAX';
-            const isShortTf = ['1M', '3M', '6M', '1J'].includes(tf);
-
             const bRect = wrapper.getBoundingClientRect();
             const width = Math.max(320, bRect.width || 800);
             const height = Math.max(240, bRect.height || 280);
@@ -7612,6 +7740,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             const curPt = fullSeries.find(pt => pt.type === 'current') || {
                 date: new Date().toISOString().split('T')[0],
                 year: new Date().getFullYear(),
+                timestamp: new Date().getTime(),
                 type: 'current',
                 price: valResult.currentPrice ?? dataset.currentPrice,
                 fairValue: valResult.currentFairValue
@@ -7623,11 +7752,17 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             if (curPt.fairValue === null || curPt.fairValue === undefined) {
                 curPt.fairValue = valResult.currentFairValue;
             }
+            if (!curPt.timestamp && curPt.date) {
+                curPt.timestamp = new Date(curPt.date).getTime();
+            }
 
             const forePts = fullSeries.filter(pt => pt.type === 'forecast');
 
-            // Renderable sequence of timeline items
-            const timelineSeries = [...histPts, curPt, ...forePts];
+            // Renderable sequence of timeline items with valid timestamps
+            const timelineSeries = [...histPts, curPt, ...forePts].map(pt => ({
+                ...pt,
+                timestamp: pt.timestamp || (pt.date ? new Date(pt.date).getTime() : 0)
+            })).sort((a, b) => a.timestamp - b.timestamp);
 
             // Collect all Y values for scaling
             const allY = [];
@@ -7638,22 +7773,20 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 if (pt.upperBand !== null && typeof pt.upperBand === 'number') allY.push(pt.upperBand);
             });
 
-            // If short timeframe price history exists, include in scaling
-            const dailyPrices = (isShortTf && dataset.priceHistory?.length > 0) ? aggregatePriceHistory(dataset.priceHistory, tf) : [];
-            dailyPrices.forEach(dp => { if (dp.close) allY.push(dp.close); });
-
             if (allY.length === 0) allY.push(10, 100);
             const minY = Math.max(0, Math.min(...allY) * 0.85);
             const maxY = Math.max(...allY) * 1.15;
             const spanY = Math.max(1, maxY - minY);
 
-            const getX = (idx) => padLeft + (idx / Math.max(1, timelineSeries.length - 1)) * chartW;
+            // Time proportional X scale
+            const tMin = timelineSeries[0].timestamp || 0;
+            const tMax = timelineSeries[timelineSeries.length - 1].timestamp || 1;
+            const timeSpan = Math.max(1, tMax - tMin);
+
+            const getX = (t) => padLeft + ((t - tMin) / timeSpan) * chartW;
             const getY = (val) => padTop + chartH - ((val - minY) / spanY) * chartH;
 
-            // Indices
-            const curIndex = histPts.length;
-            const curX = getX(curIndex);
-            const foreStartIndex = curIndex + 1;
+            const curX = getX(curPt.timestamp);
 
             // Grid lines
             let gridHtml = '';
@@ -7667,50 +7800,67 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 `;
             }
 
-            // X Labels
+            // X Labels (Smart Time Ticks)
             let xLabelsHtml = '';
-            timelineSeries.forEach((pt, idx) => {
-                const x = getX(idx);
-                let label = String(pt.year);
-                if (pt.type === 'current') label = 'Heute';
-                else if (pt.type === 'forecast') label = `FY${pt.year}e`;
-                xLabelsHtml += `<text x="${x}" y="${height - 8}" fill="${pt.type === 'current' ? '#D6A83A' : '#64748B'}" font-size="9" font-weight="${pt.type === 'current' ? 'bold' : 'normal'}" font-family="'JetBrains Mono', monospace" text-anchor="middle">${label}</text>`;
+            const startYear = new Date(tMin).getFullYear();
+            const endYear = new Date(tMax).getFullYear();
+            const tickYears = [];
+            for (let y = startYear; y <= endYear; y++) {
+                tickYears.push(y);
+            }
+            let displayYears = tickYears;
+            if (tickYears.length > 7) {
+                const step = Math.ceil(tickYears.length / 6);
+                displayYears = tickYears.filter((y, idx) => idx % step === 0 || y === tickYears[tickYears.length - 1]);
+            }
+            const currentYear = new Date().getFullYear();
+            displayYears.forEach(year => {
+                const midYearTime = new Date(`${year}-07-01`).getTime();
+                if (midYearTime >= tMin && midYearTime <= tMax) {
+                    const x = getX(midYearTime);
+                    const isFore = year > currentYear;
+                    const label = isFore ? `FY${year}e` : String(year);
+                    if (Math.abs(x - curX) > 28) {
+                        xLabelsHtml += `<text x="${x}" y="${height - 8}" fill="${isFore ? '#D6A83A' : '#64748B'}" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">${label}</text>`;
+                    }
+                }
             });
+            xLabelsHtml += `<text x="${curX}" y="${height - 8}" fill="#D6A83A" font-size="9" font-weight="bold" font-family="'JetBrains Mono', monospace" text-anchor="middle">Heute</text>`;
 
             // 1. Corridor Polygon (P25 to P75)
             let corridorHistPath = '';
             let corridorForePath = '';
-            const validBandHist = [...histPts, curPt].filter(pt => pt.lowerBand !== null && pt.upperBand !== null);
+            const validBandHist = [...histPts, curPt].filter(pt => pt.lowerBand !== null && pt.upperBand !== null).sort((a, b) => a.timestamp - b.timestamp);
             if (validBandHist.length >= 2) {
-                const topP = validBandHist.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${getX(timelineSeries.indexOf(pt))} ${getY(pt.upperBand)}`).join(' ');
-                const botP = [...validBandHist].reverse().map(pt => `L ${getX(timelineSeries.indexOf(pt))} ${getY(pt.lowerBand)}`).join(' ');
+                const topP = validBandHist.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${getX(pt.timestamp)} ${getY(pt.upperBand)}`).join(' ');
+                const botP = [...validBandHist].reverse().map(pt => `L ${getX(pt.timestamp)} ${getY(pt.lowerBand)}`).join(' ');
                 corridorHistPath = `<path d="${topP} ${botP} Z" fill="rgba(16, 185, 129, 0.08)" stroke="rgba(16, 185, 129, 0.25)" stroke-width="1" />`;
             }
 
-            const validBandFore = [curPt, ...forePts].filter(pt => pt.lowerBand !== null && pt.upperBand !== null);
+            const validBandFore = [curPt, ...forePts].filter(pt => pt.lowerBand !== null && pt.upperBand !== null).sort((a, b) => a.timestamp - b.timestamp);
             if (validBandFore.length >= 2) {
-                const topP = validBandFore.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${getX(timelineSeries.indexOf(pt))} ${getY(pt.upperBand)}`).join(' ');
-                const botP = [...validBandFore].reverse().map(pt => `L ${getX(timelineSeries.indexOf(pt))} ${getY(pt.lowerBand)}`).join(' ');
+                const topP = validBandFore.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${getX(pt.timestamp)} ${getY(pt.upperBand)}`).join(' ');
+                const botP = [...validBandFore].reverse().map(pt => `L ${getX(pt.timestamp)} ${getY(pt.lowerBand)}`).join(' ');
                 corridorForePath = `<path d="${topP} ${botP} Z" fill="rgba(214, 168, 58, 0.05)" stroke="rgba(214, 168, 58, 0.20)" stroke-dasharray="3,3" stroke-width="1" />`;
             }
 
-            // 2. Historical Price Line (solid white)
+            // 2. Historical Price Line (solid white, continuous weekly/monthly)
             let priceHistPath = '';
-            const histPricePts = [...histPts, curPt].filter(pt => pt.price !== null);
+            const histPricePts = [...histPts, curPt].filter(pt => pt.price !== null && typeof pt.price === 'number').sort((a, b) => a.timestamp - b.timestamp);
             if (histPricePts.length >= 2) {
-                priceHistPath = histPricePts.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${getX(timelineSeries.indexOf(pt))} ${getY(pt.price)}`).join(' ');
+                priceHistPath = histPricePts.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${getX(pt.timestamp)} ${getY(pt.price)}`).join(' ');
             }
 
             // 3. Fair Value Lines
             let fairHistPath = '';
             let fairForePath = '';
-            const histFairPts = [...histPts, curPt].filter(pt => pt.fairValue !== null);
+            const histFairPts = [...histPts, curPt].filter(pt => pt.fairValue !== null && typeof pt.fairValue === 'number').sort((a, b) => a.timestamp - b.timestamp);
             if (histFairPts.length >= 2) {
-                fairHistPath = histFairPts.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${getX(timelineSeries.indexOf(pt))} ${getY(pt.fairValue)}`).join(' ');
+                fairHistPath = histFairPts.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${getX(pt.timestamp)} ${getY(pt.fairValue)}`).join(' ');
             }
-            const foreFairPts = [curPt, ...forePts].filter(pt => pt.fairValue !== null);
+            const foreFairPts = [curPt, ...forePts].filter(pt => pt.fairValue !== null && typeof pt.fairValue === 'number').sort((a, b) => a.timestamp - b.timestamp);
             if (foreFairPts.length >= 2) {
-                fairForePath = foreFairPts.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${getX(timelineSeries.indexOf(pt))} ${getY(pt.fairValue)}`).join(' ');
+                fairForePath = foreFairPts.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${getX(pt.timestamp)} ${getY(pt.fairValue)}`).join(' ');
             }
 
             // 4. Current Marker & Price Dot
@@ -7780,7 +7930,17 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 const bandEl = document.getElementById('liveValBand');
                 const pctEl = document.getElementById('liveValPercentile');
 
-                if (dEl) dEl.textContent = pt.type === 'current' ? 'HEUTE / LIVE' : `${pt.year} (${pt.date})`;
+                if (dEl) {
+                    if (pt.type === 'current') {
+                        dEl.textContent = 'HEUTE / LIVE';
+                    } else if (pt.type === 'forecast') {
+                        dEl.textContent = `FY${pt.year}e (${pt.date || ''})`;
+                    } else {
+                        const dObj = new Date(pt.date);
+                        const dateFormatted = !isNaN(dObj.getTime()) ? dObj.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) : pt.date;
+                        dEl.textContent = `${dateFormatted}`;
+                    }
+                }
                 if (mEl) {
                     if (pt.type === 'current') {
                         mEl.textContent = 'LIVE';
@@ -7829,30 +7989,38 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 const relX = clientX - rect.left;
                 if (relX < padLeft - 10 || relX > width - padRight + 10) return;
                 const clampedX = Math.max(padLeft, Math.min(width - padRight, relX));
-                const ratio = (clampedX - padLeft) / chartW;
-                const idx = Math.round(ratio * (timelineSeries.length - 1));
-                const pt = timelineSeries[idx];
-                if (!pt) return;
+                const targetTimestamp = tMin + ((clampedX - padLeft) / chartW) * timeSpan;
 
-                const ptX = getX(idx);
+                let closestPt = timelineSeries[0];
+                let minDiff = Infinity;
+                for (const pt of timelineSeries) {
+                    const diff = Math.abs(pt.timestamp - targetTimestamp);
+                    if (diff < minDiff) {
+                        minDiff = diff;
+                        closestPt = pt;
+                    }
+                }
+                if (!closestPt) return;
+
+                const ptX = getX(closestPt.timestamp);
                 if (hoverLine) {
                     hoverLine.setAttribute('x1', ptX);
                     hoverLine.setAttribute('x2', ptX);
                     hoverLine.style.display = 'block';
                 }
-                if (hoverDotPrice && pt.price !== null) {
+                if (hoverDotPrice && closestPt.price !== null) {
                     hoverDotPrice.setAttribute('cx', ptX);
-                    hoverDotPrice.setAttribute('cy', getY(pt.price));
+                    hoverDotPrice.setAttribute('cy', getY(closestPt.price));
                     hoverDotPrice.style.display = 'block';
                 } else if (hoverDotPrice) hoverDotPrice.style.display = 'none';
 
-                if (hoverDotFair && pt.fairValue !== null) {
+                if (hoverDotFair && closestPt.fairValue !== null) {
                     hoverDotFair.setAttribute('cx', ptX);
-                    hoverDotFair.setAttribute('cy', getY(pt.fairValue));
+                    hoverDotFair.setAttribute('cy', getY(closestPt.fairValue));
                     hoverDotFair.style.display = 'block';
                 } else if (hoverDotFair) hoverDotFair.style.display = 'none';
 
-                updateLiveHUD(pt);
+                updateLiveHUD(closestPt);
             };
 
             if (hoverSurface) {
@@ -7868,10 +8036,17 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     const rect = wrapper.getBoundingClientRect();
                     const relX = e.clientX - rect.left;
                     if (relX >= padLeft && relX <= width - padRight) {
-                        const ratio = (relX - padLeft) / chartW;
-                        const idx = Math.round(ratio * (timelineSeries.length - 1));
-                        const pt = timelineSeries[idx];
-                        if (pt && pt.year) showInstitutionalDetailInspector(pt.year);
+                        const targetTimestamp = tMin + ((relX - padLeft) / chartW) * timeSpan;
+                        let closestPt = timelineSeries[0];
+                        let minDiff = Infinity;
+                        for (const pt of timelineSeries) {
+                            const diff = Math.abs(pt.timestamp - targetTimestamp);
+                            if (diff < minDiff) {
+                                minDiff = diff;
+                                closestPt = pt;
+                            }
+                        }
+                        if (closestPt && closestPt.year) showInstitutionalDetailInspector(closestPt.year);
                     }
                 };
             }
@@ -8056,8 +8231,21 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             }
         }
 
-        // --- TIMEFRAME BUTTON CONTROLLER ---
-        function updateTimeframeButtonStates(dataset, activeValTf, activeMultTf) {
+        // --- GRANULARITY & TIMEFRAME BUTTON CONTROLLERS ---
+        function updateGranularityButtonStates(activeGran = SELECTED_VALUATION_GRANULARITY) {
+            ['W', 'M'].forEach(g => {
+                const btn = document.getElementById(`valGranBtn_${g}`);
+                if (!btn) return;
+                if (g === activeGran) {
+                    btn.className = 'val-gran-btn px-1.5 py-0.5 rounded text-[10px] font-semibold text-white bg-[#171C23] border border-[#2D3748] shadow-sm';
+                } else {
+                    btn.className = 'val-gran-btn px-1.5 py-0.5 rounded text-[10px] font-medium text-slate-400 hover:text-white transition-all';
+                }
+            });
+        }
+
+        function updateTimeframeButtonStates(dataset, activeValTf, activeMultTf, activeGran = SELECTED_VALUATION_GRANULARITY) {
+            updateGranularityButtonStates(activeGran);
             const avail = dataset?.availableYears || 0;
             const tfList = ['1M', '3M', '6M', '1J', '3J', '5J', '10J', 'MAX'];
 
@@ -8582,12 +8770,13 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
         }
 
         // --- MASTER VALUE INVESTING DISPATCH FUNCTION ---
-        function renderValueInvestingLayer(dataset, selectedMethod = ACTIVE_VALUATION_METHOD, timeframe = SELECTED_VALUATION_TIMEFRAME) {
+        function renderValueInvestingLayer(dataset, selectedMethod = ACTIVE_VALUATION_METHOD, timeframe = SELECTED_VALUATION_TIMEFRAME, granularity = SELECTED_VALUATION_GRANULARITY) {
             if (!dataset) return;
             ACTIVE_VALUATION_METHOD = selectedMethod;
             SELECTED_VALUATION_TIMEFRAME = timeframe;
+            SELECTED_VALUATION_GRANULARITY = granularity;
 
-            const valResult = calculateHistoricalValuationJs(dataset, { selectedMethod, timeframe });
+            const valResult = calculateHistoricalValuationJs(dataset, { selectedMethod, timeframe, granularity });
             CURRENT_VALUATION_RESULT = valResult;
 
             // Generate structured Progressive Disclosure insights
@@ -8595,7 +8784,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             const insights = generateInvestmentInsights(dataset, valResult, rawData);
             CURRENT_INSIGHTS = insights;
 
-            updateTimeframeButtonStates(dataset, SELECTED_VALUATION_TIMEFRAME, SELECTED_MULTIPLES_TIMEFRAME);
+            updateTimeframeButtonStates(dataset, SELECTED_VALUATION_TIMEFRAME, SELECTED_MULTIPLES_TIMEFRAME, SELECTED_VALUATION_GRANULARITY);
 
             // 1. Render Level 1–3: Guided View (Progressive Disclosure)
             renderGuidedView(insights, dataset, valResult);
@@ -8623,14 +8812,23 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
         function switchValuationMethod(method) {
             ACTIVE_VALUATION_METHOD = method;
             if (CURRENT_NORMALIZED_HISTORICAL_DATA) {
-                renderValueInvestingLayer(CURRENT_NORMALIZED_HISTORICAL_DATA, method, SELECTED_VALUATION_TIMEFRAME);
+                renderValueInvestingLayer(CURRENT_NORMALIZED_HISTORICAL_DATA, method, SELECTED_VALUATION_TIMEFRAME, SELECTED_VALUATION_GRANULARITY);
             }
         }
 
         function selectValuationTimeframe(tf) {
             SELECTED_VALUATION_TIMEFRAME = tf;
             if (CURRENT_NORMALIZED_HISTORICAL_DATA) {
-                renderValueInvestingLayer(CURRENT_NORMALIZED_HISTORICAL_DATA, ACTIVE_VALUATION_METHOD, tf);
+                renderValueInvestingLayer(CURRENT_NORMALIZED_HISTORICAL_DATA, ACTIVE_VALUATION_METHOD, tf, SELECTED_VALUATION_GRANULARITY);
+            }
+        }
+
+        function selectValuationGranularity(granularity) {
+            if (granularity !== 'W' && granularity !== 'M') return;
+            SELECTED_VALUATION_GRANULARITY = granularity;
+            updateGranularityButtonStates(SELECTED_VALUATION_GRANULARITY);
+            if (CURRENT_NORMALIZED_HISTORICAL_DATA) {
+                renderValueInvestingLayer(CURRENT_NORMALIZED_HISTORICAL_DATA, ACTIVE_VALUATION_METHOD, SELECTED_VALUATION_TIMEFRAME, granularity);
             }
         }
 
