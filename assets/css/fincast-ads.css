@@ -39,11 +39,11 @@
 .fc-interstitial-card {
     position: relative;
     width: 100%;
-    max-width: 620px;
+    max-width: 540px;
     background: var(--fc-ad-bg);
     border: 1px solid var(--fc-ad-border);
-    border-radius: 18px;
-    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 40px -10px rgba(214, 168, 58, 0.15);
+    border-radius: 16px;
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 40px -10px rgba(214, 168, 58, 0.12);
     overflow: hidden;
     transform: scale(0.94) translateY(10px);
     transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
@@ -59,7 +59,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.85rem 1.25rem;
+    padding: 0.75rem 1rem;
     background: #0B0E12;
     border-bottom: 1px solid var(--fc-ad-border);
 }
@@ -95,14 +95,14 @@
     color: var(--fc-ad-text-muted);
     background: var(--fc-ad-bg-elevated);
     border: 1px solid var(--fc-ad-border);
-    padding: 0.3rem 0.75rem;
+    padding: 0.25rem 0.65rem;
     border-radius: 20px;
     user-select: none;
 }
 
 .fc-countdown-timer-icon {
-    width: 14px;
-    height: 14px;
+    width: 13px;
+    height: 13px;
     stroke: var(--fc-ad-gold);
     animation: fc-spin-slow 3s linear infinite;
 }
@@ -112,83 +112,65 @@
     100% { transform: rotate(360deg); }
 }
 
-.fc-close-btn {
+/* Subtle, transparent-grey round close button */
+.fc-close-circle-btn {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    font-family: 'Inter', sans-serif;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #0B0E12;
-    background: var(--fc-ad-gold);
-    border: none;
-    padding: 0.35rem 0.85rem;
-    border-radius: 20px;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #94A3B8;
     cursor: pointer;
-    transition: background-color 0.2s, transform 0.15s;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s, transform 0.15s;
+    padding: 0;
 }
 
-.fc-close-btn:hover {
-    background: var(--fc-ad-gold-hover);
-    transform: scale(1.03);
+.fc-close-circle-btn:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.25);
+    color: #FFFFFF;
+    transform: scale(1.05);
 }
 
-.fc-close-btn:active {
-    transform: scale(0.97);
+.fc-close-circle-btn:active {
+    transform: scale(0.95);
 }
 
 .fc-interstitial-body {
-    padding: 1.5rem;
+    padding: 2rem 1.5rem;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 280px;
-    background: radial-gradient(circle at 50% 0%, rgba(214, 168, 58, 0.08) 0%, rgba(17, 21, 27, 0) 70%);
-}
-
-.fc-interstitial-footer {
-    padding: 0.75rem 1.25rem;
-    background: #0B0E12;
-    border-top: 1px solid var(--fc-ad-border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 0.72rem;
-    color: var(--fc-ad-text-dim);
-}
-
-.fc-interstitial-footer a {
-    color: var(--fc-ad-gold);
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.2s;
-}
-
-.fc-interstitial-footer a:hover {
-    color: var(--fc-ad-gold-hover);
-    text-decoration: underline;
+    min-height: 250px;
+    background: radial-gradient(circle at 50% 0%, rgba(214, 168, 58, 0.06) 0%, rgba(17, 21, 27, 0) 70%);
 }
 
 /* ==================== In-Page Ad Container Styles ==================== */
 .fc-ad-slot {
     position: relative;
     width: 100%;
-    margin: 1.5rem 0;
+    margin: 1.25rem 0;
     overflow: hidden;
     transition: opacity 0.3s ease;
 }
 
-/* Leaderboard (Top / Mid) */
+/* Standard Leaderboard (728x90 Desktop / Responsive) */
 .fc-ad-leaderboard {
     max-width: 1100px;
+    min-height: 90px;
     margin-left: auto;
     margin-right: auto;
 }
 
-/* Rectangle */
+/* Standard Medium Rectangle (300x250 / 336x280) */
 .fc-ad-rectangle {
-    max-width: 360px;
+    max-width: 336px;
+    min-height: 250px;
+    height: 250px;
     margin-left: auto;
     margin-right: auto;
 }
@@ -240,169 +222,110 @@
     background: #171C23;
 }
 
-/* ==================== Placeholder Banner Card UI ==================== */
+/* ==================== Clean Placeholder Container UI ==================== */
 .fc-placeholder-card {
     position: relative;
     width: 100%;
     background: linear-gradient(135deg, #11151B 0%, #171C23 100%);
-    border: 1px dashed rgba(214, 168, 58, 0.35);
-    border-radius: 14px;
-    padding: 1.25rem 1.5rem;
+    border: 1px dashed rgba(214, 168, 58, 0.25);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
     box-sizing: border-box;
-    transition: border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+    transition: border-color 0.25s ease, background 0.25s ease;
 }
 
 .fc-placeholder-card:hover {
-    border-color: rgba(214, 168, 58, 0.7);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
-}
-
-.fc-placeholder-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 0.75rem;
+    border-color: rgba(214, 168, 58, 0.45);
 }
 
 .fc-placeholder-tag {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.65rem;
+    font-size: 0.62rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
     color: var(--fc-ad-gold);
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
+    margin-bottom: 0.3rem;
 }
 
 .fc-placeholder-title {
-    font-size: 1.05rem;
+    font-size: 0.95rem;
     font-weight: 700;
     color: var(--fc-ad-text);
     letter-spacing: -0.01em;
-    margin-bottom: 0.35rem;
-    line-height: 1.3;
+    margin-bottom: 0.15rem;
+    line-height: 1.2;
 }
 
 .fc-placeholder-desc {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: var(--fc-ad-text-muted);
-    line-height: 1.45;
-    margin-bottom: 1rem;
+    line-height: 1.35;
+    margin: 0;
 }
 
-.fc-placeholder-features {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-bottom: 1.2rem;
-}
-
-.fc-feature-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    font-size: 0.7rem;
-    color: #94A3B8;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 0.2rem 0.55rem;
-    border-radius: 6px;
-}
-
-.fc-feature-icon {
-    width: 12px;
-    height: 12px;
-    stroke: var(--fc-ad-gold);
-}
-
-.fc-placeholder-actions {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
-    padding-top: 0.75rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.fc-placeholder-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    background: var(--fc-ad-gold);
-    color: #0B0E12;
-    font-size: 0.78rem;
-    font-weight: 700;
-    padding: 0.45rem 1rem;
-    border-radius: 8px;
-    text-decoration: none;
-    transition: background-color 0.2s, transform 0.15s;
-}
-
-.fc-placeholder-btn:hover {
-    background: var(--fc-ad-gold-hover);
-    transform: translateY(-1px);
-}
-
-.fc-premium-hint {
-    font-size: 0.72rem;
-    color: var(--fc-ad-text-dim);
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-}
-
-.fc-premium-hint a {
-    color: var(--fc-ad-gold);
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.fc-premium-hint a:hover {
-    text-decoration: underline;
-}
-
-/* Compact Horizontal Layout for Leaderboard Slot */
+/* Clean Horizontal Layout for 728x90 Leaderboard Slot */
 .fc-placeholder-horizontal {
     flex-direction: row;
+    justify-content: space-between;
     align-items: center;
-    padding: 1rem 1.5rem;
-    min-height: 86px;
+    min-height: 90px;
+    height: 90px;
+    padding: 0.75rem 1.5rem;
+    text-align: left;
 }
 
 .fc-placeholder-horizontal .fc-placeholder-left {
     display: flex;
     flex-direction: column;
-    gap: 0.2rem;
+    justify-content: center;
+    gap: 0.15rem;
 }
 
-.fc-placeholder-horizontal .fc-placeholder-title {
-    margin-bottom: 0;
-    font-size: 0.95rem;
+.fc-placeholder-horizontal .fc-placeholder-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--fc-ad-text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
 }
 
-.fc-placeholder-horizontal .fc-placeholder-desc {
-    margin-bottom: 0;
-    font-size: 0.75rem;
+/* Clean Box Layout for 300x250 Medium Rectangle Slot */
+.fc-placeholder-box {
+    min-height: 250px;
+    height: 250px;
+    padding: 1.5rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
 }
 
 /* Responsive adjustments */
 @media (max-width: 640px) {
     .fc-placeholder-horizontal {
         flex-direction: column;
-        align-items: flex-start;
-        gap: 0.75rem;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        min-height: 80px;
+        height: auto;
+        padding: 0.85rem 1rem;
     }
     
-    .fc-placeholder-actions {
-        width: 100%;
-        justify-content: space-between;
+    .fc-placeholder-horizontal .fc-placeholder-right {
+        display: none;
     }
     
     .fc-interstitial-card {
@@ -411,7 +334,7 @@
     }
     
     .fc-interstitial-body {
-        padding: 1rem;
-        min-height: 220px;
+        padding: 1.5rem 1rem;
+        min-height: 200px;
     }
 }
