@@ -3594,13 +3594,7 @@
                 welcome.classList.remove(hideClass);
                 if (execBtn) execBtn.classList.remove('btn-loading');
             } else if (state === 'loading') {
-                if (skeleton) {
-                    skeleton.classList.remove(hideClass);
-                    skeleton.style.display = 'flex';
-                }
-                if (execBtn) execBtn.classList.add('btn-loading');
-            } else if (state === 'results' && results) {
-                results.classList.remove(hideClass);
+                         results.classList.remove(hideClass);
                 results.style.display = 'block';
                 if (execBtn) execBtn.classList.remove('btn-loading');
 
@@ -3703,19 +3697,60 @@
             return { researchStatus, missingAgents };
         }
 
+        // Known European and Global Ticker & Name Mappings (Frontend Fast-Path)
+        const FRONTEND_KNOWN_SYMBOL_MAP = {
+            // US Tech & Standard Leaders
+            'SALESFORCE': 'CRM', 'GOOGLE': 'GOOGL', 'ALPHABET': 'GOOGL', 'META': 'META', 'FACEBOOK': 'META',
+            'MICROSOFT': 'MSFT', 'APPLE': 'AAPL', 'AMAZON': 'AMZN', 'TESLA': 'TSLA', 'NVIDIA': 'NVDA',
+            'NETFLIX': 'NFLX', 'BERKSHIRE': 'BRK-B', 'BERKSHIREHATHAWAY': 'BRK-B', 'BROADCOM': 'AVGO',
+            'ORACLE': 'ORCL', 'ADOBE': 'ADBE', 'CISCO': 'CSCO', 'QUALCOMM': 'QCOM', 'AMD': 'AMD', 'INTEL': 'INTC',
+            'PALANTIR': 'PLTR', 'SERVICENOW': 'NOW', 'UBER': 'UBER', 'AIRBNB': 'ABNB', 'SNOWFLAKE': 'SNOW',
+            'CROWDSTRIKE': 'CRWD', 'PALOALTO': 'PANW', 'WALMART': 'WMT', 'COSTCO': 'COST', 'PROCTER': 'PG',
+            'PROCTERGAMBLE': 'PG', 'COCACOLA': 'KO', 'PEPSI': 'PEP', 'PEPSICO': 'PEP', 'MCDONALDS': 'MCD',
+            'STARBUCKS': 'SBUX', 'NIKE': 'NKE', 'DISNEY': 'DIS', 'WALTDISNEY': 'DIS', 'JNJ': 'JNJ',
+            'JOHNSONJOHNSON': 'JNJ', 'PFIZER': 'PFE', 'ELILILLY': 'LLY', 'LILLY': 'LLY', 'JPMORGAN': 'JPM',
+            'JPM': 'JPM', 'GOLDMAN': 'GS', 'GOLDMANSACHS': 'GS', 'VISA': 'V', 'MASTERCARD': 'MA', 'PAYPAL': 'PYPL',
+
+            // Luxury & Consumer
+            'LVMH': 'MC.PA', 'LVMUY': 'LVMUY', 'MC.PA': 'MC.PA', 'HERMES': 'RMS.PA', 'RMS.PA': 'RMS.PA',
+            'LOREAL': 'OR.PA', 'OR.PA': 'OR.PA', 'KERING': 'KER.PA', 'KER.PA': 'KER.PA', 'FERRARI': 'RACE',
+            'INDITEX': 'ITX.MC', 'ZARA': 'ITX.MC', 'ZALANDO': 'ZAL.DE', 'ADIDAS': 'ADS.DE', 'PUMA': 'PUM.DE',
+            'HENKEL': 'HEN3.DE', 'BEIERSDORF': 'BEI.DE', 'NESTLE': 'NESN.SW', 'NSRGY': 'NSRGY',
+            'HEINEKEN': 'HEIA.AS', 'DANONE': 'BN.PA', 'PERNOD': 'RI.PA', 'DIAGEO': 'DGE.L', 'UNILEVER': 'ULVR.L', 'LVMHF': 'LVMUY',
+            'SAP': 'SAP', 'ASML': 'ASML', 'SIEMENS': 'SIE.DE', 'SIE.DE': 'SIE.DE', 'AIRBUS': 'AIR.PA', 'AIR.PA': 'AIR.PA',
+            'SCHNEIDER': 'SU.PA', 'SU.PA': 'SU.PA', 'INFINEON': 'IFX.DE', 'IFX.DE': 'IFX.DE', 'STM': 'STMPA.PA',
+            'DASSAULT': 'DSY.PA', 'SAFRAN': 'SAF.PA', 'ABB': 'ABBN.SW', 'LEGRAND': 'LR.PA',
+            'BMW': 'BMW.DE', 'BMW.DE': 'BMW.DE', 'MERCEDES': 'MBG.DE', 'MBG': 'MBG.DE', 'DAIMLER': 'MBG.DE',
+            'VW': 'VOW3.DE', 'VOLKSWAGEN': 'VOW3.DE', 'VOW3': 'VOW3.DE', 'PORSCHE': 'P911.DE', 'PAH3': 'PAH3.DE',
+            'STELLANTIS': 'STLAM.MI', 'RENAULT': 'RNO.PA', 'VOLVO': 'VOLV-B.ST',
+            'NOVO': 'NVO', 'NOVOB': 'NOVO-B.CO', 'NVO': 'NVO', 'NOVARTIS': 'NOVN.SW', 'NVS': 'NVS',
+            'ROCHE': 'ROG.SW', 'RHHBY': 'RHHBY', 'SANOFI': 'SAN.PA', 'SNY': 'SNY', 'BAYER': 'BAYN.DE', 'BAYN': 'BAYN.DE',
+            'MERCKKGAA': 'MRK.DE', 'ASTRAZENECA': 'AZN', 'GSK': 'GSK', 'LONZA': 'LONN.SW', 'FRESENIUS': 'FRE.DE',
+            'TOTAL': 'TTE', 'TOTALENERGIES': 'TTE', 'SHELL': 'SHEL', 'BP': 'BP', 'BASF': 'BAS.DE', 'BAS.DE': 'BAS.DE',
+            'LINDE': 'LIN', 'AIRLIQUIDE': 'AI.PA', 'ENI': 'ENI.MI', 'EQUINOR': 'EQNR', 'IBERDROLA': 'IBE.MC',
+            'ENEL': 'ENEL.MI', 'RWE': 'RWE.DE', 'EON': 'EOAN.DE',
+            'ALLIANZ': 'ALV.DE', 'ALV.DE': 'ALV.DE', 'MUNICHRE': 'MUV2.DE', 'MUV2': 'MUV2.DE',
+            'DEUTSCHEBANK': 'DBK.DE', 'DBK': 'DBK.DE', 'COMMERZBANK': 'CBK.DE', 'BNP': 'BNP.PA',
+            'SANTANDER': 'SAN.MC', 'BBVA': 'BBVA', 'UBS': 'UBS', 'ZURICH': 'ZURN.SW', 'AXA': 'CS.PA',
+            'INTESA': 'ISP.MI', 'ING': 'INGA.AS'
+        };
+
         async function fetchOfficialHistoricalData(symbol) {
             if (!symbol) return null;
             try {
+                const cleanQ = String(symbol).trim().toUpperCase().replace(/[\s\-_]+/g, '');
+                const targetSymbol = FRONTEND_KNOWN_SYMBOL_MAP[cleanQ] || symbol.trim();
+
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 12000);
-                const res = await fetch(`/api/historical-data?symbol=${encodeURIComponent(symbol.trim())}`, {
+                const res = await fetch(`/api/historical-data?symbol=${encodeURIComponent(targetSymbol)}`, {
                     signal: controller.signal
                 });
                 clearTimeout(timeoutId);
                 if (!res.ok) return null;
                 const data = await res.json().catch(() => null);
                 if (data && ((Array.isArray(data.incomeStatements) && data.incomeStatements.length > 0) || (data.quote && typeof data.quote.price === 'number'))) {
-                    console.log(`[Official Data API] Successfully loaded verified market/financial data for "${symbol}"`);
+                    console.log(`[Official Data API] Successfully loaded verified market/financial data for "${targetSymbol}"`);
                     return data;
                 }
                 return null;
@@ -3881,17 +3916,45 @@ Fiscal Year: FY${dataset.annual[dataset.annual.length - 1]?.year || new Date().g
                 const phase1Data = parseFrameworks(datasetResponseText);
 
                 identityText = phase1Data.company_identity || null;
-                const extractedDataset = phase1Data.financial_dataset || null;
-                if (extractedDataset) {
-                    const normalized = normalizeHistoricalFinancialData(extractedDataset, identityText, phase1Data);
-                    if (normalized && normalized.annual && normalized.annual.length > 0) {
-                        dataset = normalized;
+
+                // Extract identified primary ticker or ISIN from Google Grounding identity
+                const identifiedTicker = (
+                    identityText?.match(/(?:Ticker|Symbol):\s*([A-Z0-9.\-_]+)/i)?.[1] ||
+                    identityText?.match(/ISIN:\s*([A-Z0-9]{12})/i)?.[1]
+                )?.trim();
+
+                let officialFromPhase1 = null;
+                if (identifiedTicker && identifiedTicker !== 'N/A' && identifiedTicker.toUpperCase() !== 'N/A') {
+                    console.log(`[Research Protocol] Phase 1 identified official ticker: "${identifiedTicker}" for "${query}". Querying FMP...`);
+                    updateLoadingStatus(
+                        `Offizielle Bilanzen & Börsenkurse werden geladen (${identifiedTicker})...`, 
+                        45, 
+                        'Verbindung zu FMP mit dem verifizierten Börsenkürzel.'
+                    );
+                    officialFromPhase1 = await fetchOfficialHistoricalData(identifiedTicker);
+                }
+
+                if (officialFromPhase1) {
+                    const normOfficial = normalizeHistoricalFinancialData(officialFromPhase1);
+                    if (normOfficial && normOfficial.annual && normOfficial.annual.length > 0) {
+                        dataset = normOfficial;
+                        console.log(`[Research Protocol] Successfully upgraded to official FMP dataset via Phase 1 ticker resolution (${identifiedTicker})`);
                     }
                 }
 
-                // Fallback synthesis if JSON wasn't explicitly structured
-                if (!dataset || !dataset.annual || dataset.annual.length === 0) {
-                    dataset = synthesizeHistoricalDatasetFromAI(phase1Data);
+                if (!dataset) {
+                    const extractedDataset = phase1Data.financial_dataset || null;
+                    if (extractedDataset) {
+                        const normalized = normalizeHistoricalFinancialData(extractedDataset, identityText, phase1Data);
+                        if (normalized && normalized.annual && normalized.annual.length > 0) {
+                            dataset = normalized;
+                        }
+                    }
+
+                    // Fallback synthesis if JSON wasn't explicitly structured
+                    if (!dataset || !dataset.annual || dataset.annual.length === 0) {
+                        dataset = synthesizeHistoricalDatasetFromAI(phase1Data);
+                    }
                 }
             }
 
