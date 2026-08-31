@@ -293,7 +293,9 @@ module.exports = async function handler(req, res) {
             ttmData,
             historicalPrices,
             estData,
-            earnSurprisesData
+            earnSurprisesData,
+            incomeQuarterlyData,
+            metricsQuarterlyData
         ] = await Promise.all([
             fetchEndpointWithFallback([
                 `https://financialmodelingprep.com/api/v3/profile/${symbol}?apikey=${fmpKey}`
@@ -329,6 +331,12 @@ module.exports = async function handler(req, res) {
             ]),
             fetchEndpointWithFallback([
                 `https://financialmodelingprep.com/api/v3/earnings-surprises/${symbol}?apikey=${fmpKey}`
+            ]),
+            fetchEndpointWithFallback([
+                `https://financialmodelingprep.com/api/v3/income-statement/${symbol}?period=quarter&limit=20&apikey=${fmpKey}`
+            ]),
+            fetchEndpointWithFallback([
+                `https://financialmodelingprep.com/api/v3/key-metrics/${symbol}?period=quarter&limit=20&apikey=${fmpKey}`
             ])
         ]);
 
@@ -348,6 +356,8 @@ module.exports = async function handler(req, res) {
             cashFlowStatements: Array.isArray(cfData) ? cfData : [],
             keyMetrics: Array.isArray(metricsData) ? metricsData : [],
             financialRatios: Array.isArray(ratiosData) ? ratiosData : [],
+            incomeStatementsQuarterly: Array.isArray(incomeQuarterlyData) ? incomeQuarterlyData : [],
+            keyMetricsQuarterly: Array.isArray(metricsQuarterlyData) ? metricsQuarterlyData : [],
             historicalPrices,
             analystEstimates: Array.isArray(estData) ? estData : [],
             earningsSurprises: Array.isArray(earnSurprisesData) ? earnSurprisesData : [],
