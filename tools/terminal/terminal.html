@@ -1434,6 +1434,13 @@
                                         </div>
                                     </div>
 
+                                    <!-- In-Analysis Ad Slot Guided View (Between Insights & Value Chart) -->
+                                    <div class="fc-ad-slot fc-ad-leaderboard my-6" 
+                                         data-fc-ad-slot="terminalGuidedMid" 
+                                         data-fc-title="Hier könnte Ihre Werbung stehen" 
+                                         data-fc-desc="Erreichen Sie tausende aktive Investoren und Analysten direkt im fincast Research Terminal.">
+                                    </div>
+
                                     <!-- 3. VALUE CHART (REALKURS VS. FAIR VALUE & P25-P75 KORRIDOR) - 1:1 GUIDED EXPANSION -->
                                     <div id="guided_valuationCorridorSection" class="p-4 sm:p-6 rounded-xl bg-[#0B0E12] border border-[#202630]">
                                         <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
@@ -1670,6 +1677,15 @@
                                             <span>Sicherheitsmarge: <strong id="invScenarioMoS" class="text-emerald-400 font-bold">--</strong></span>
                                         </div>
                                     </div>
+                                </div>
+
+                                
+
+                                <!-- In-Analysis Ad Slot Full Research (Between Decision Matrix & Company Snapshot) -->
+                                <div class="fc-ad-slot fc-ad-leaderboard my-6" 
+                                     data-fc-ad-slot="terminalResearchMid" 
+                                     data-fc-title="Werbepartner auf fincast Terminal" 
+                                     data-fc-desc="Präsentieren Sie Ihr Fintech, Brokerage oder Research-Tool zielgenau im Full-Research-Modus.">
                                 </div>
 
                                 <!-- 1. COMPANY SNAPSHOT / INSTITUTIONELLES DATENBLATT -->
@@ -3593,6 +3609,9 @@
                     requestAnimationFrame(() => {
                         if (CURRENT_NORMALIZED_HISTORICAL_DATA) {
                             renderValueInvestingLayer(CURRENT_NORMALIZED_HISTORICAL_DATA);
+                        }
+                        if (window.FincastAds && typeof window.FincastAds.refresh === 'function') {
+                            window.FincastAds.refresh();
                         }
                     });
                 });
@@ -7337,6 +7356,10 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     btnGuided.className = 'flex-1 sm:flex-initial px-4 py-2 rounded-md text-xs font-semibold flex items-center justify-center gap-2 transition-all text-slate-400 hover:text-white';
                 }
                 if (descEl) descEl.textContent = 'Level 4: Full Institutional Suite (50+ Kennzahlen, Multiples & Modelle)';
+
+            if (window.FincastAds && typeof window.FincastAds.refresh === 'function') {
+                window.FincastAds.refresh();
+            }
 
                 // Redraw Research charts with accurate geometry
                 if (CURRENT_NORMALIZED_HISTORICAL_DATA && CURRENT_VALUATION_RESULT) {
