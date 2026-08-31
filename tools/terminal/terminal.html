@@ -5805,10 +5805,64 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 dividend: calculateMultiHorizonCAGRJs(annualPeriods, 'dividendPerShare')
             };
 
+            // Quarterly Statements & TTM Processing (Option A)
+            const rawIncQ = Array.isArray(raw.incomeStatementsQuarterly) ? raw.incomeStatementsQuarterly : [];
+            const rawMetQ = Array.isArray(raw.keyMetricsQuarterly) ? raw.keyMetricsQuarterly : [];
+            const quarterlyPeriods = [];
+
+            if (rawIncQ.length > 0) {
+                const metQMap = new Map();
+                rawMetQ.forEach(m => {
+                    if (m && m.date) metQMap.set(m.date.split('T')[0], m);
+                });
+
+                const sortedIncQ = [...rawIncQ].filter(q => q && q.date).sort((a, b) => a.date.localeCompare(b.date));
+                
+                for (let i = 0; i < sortedIncQ.length; i++) {
+                    const qItem = sortedIncQ[i];
+                    const dateStr = qItem.date.split('T')[0];
+                    const metItem = metQMap.get(dateStr) || {};
+
+                    const ttmSlice = sortedIncQ.slice(Math.max(0, i - 3), i + 1);
+                    const mult = (ttmSlice.length === 4) ? 1 : (4 / Math.max(1, ttmSlice.length));
+
+                    const sumRevenue = ttmSlice.reduce((acc, q) => acc + (safeNum(q.revenue) || 0), 0) * mult;
+                    const sumNetIncome = ttmSlice.reduce((acc, q) => acc + (safeNum(q.netIncome) || 0), 0) * mult;
+                    const sumEps = ttmSlice.reduce((acc, q) => acc + (safeNum(q.eps) || safeNum(q.epsdiluted) || 0), 0) * mult;
+                    const sumEbitda = ttmSlice.reduce((acc, q) => acc + (safeNum(q.ebitda) || 0), 0) * mult;
+
+                    const shares = safeNum(qItem.weightedAverageShsOutDil) || safeNum(qItem.weightedAverageShsOut) || safeNum(metItem.sharesOutstanding) || (annualPeriods.length > 0 ? annualPeriods[annualPeriods.length - 1].sharesOutstanding : 1e6);
+                    const bookValuePerShare = safeNum(metItem.bookValuePerShare);
+                    const fcfPerShare = safeNum(metItem.freeCashFlowPerShare);
+                    const epsAdj = safeNum(metItem.netIncomePerShare) || sumEps;
+                    const revenuePerShare = (shares && shares > 0) ? sumRevenue / shares : (safeNum(metItem.revenuePerShare) || null);
+
+                    quarterlyPeriods.push({
+                        date: dateStr,
+                        year: parseInt(dateStr.substring(0, 4), 10) || new Date(dateStr).getFullYear(),
+                        period: qItem.period || 'Q',
+                        isQuarterly: true,
+                        eps: Math.round(sumEps * 100) / 100,
+                        epsAdj: Math.round(epsAdj * 100) / 100,
+                        revenue: sumRevenue,
+                        netIncome: sumNetIncome,
+                        ebitda: sumEbitda,
+                        bookValuePerShare,
+                        freeCashFlowPerShare: fcfPerShare,
+                        revenuePerShare,
+                        sharesOutstanding: shares
+                    });
+                }
+            }
+
+            const fundamentalPeriods = quarterlyPeriods.length >= 4 ? quarterlyPeriods : annualPeriods;
+
             return {
                 symbol, companyName, currency, sector, industry, isFinancialSector,
                 currentPrice, yearHigh, yearLow, range52Str, marketCap,
                 annual: annualPeriods,
+                quarterly: quarterlyPeriods,
+                fundamentalPeriods,
                 prices: normalizedPrices,
                 priceHistory: normalizedPrices,
                 estimates: normalizedEstimates,
@@ -5928,15 +5982,37 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 });
             });
 
-            // 2. HIGH-RESOLUTION CONTINUOUS FAIR VALUE SERIES (Weekly or Monthly resampled)
+            // Multi-Horizon CAGRs for Growth Analysis & Forecast Fallback
+            const n = annual.length;
+            let revenueCAGR = null, revenueCAGRYears = 0;
+            let epsCAGR = null, epsCAGRYears = 0;
+            let fcfCAGR = null, fcfCAGRYears = 0;
+
+            if (n >= 2) {
+                const span = n - 1;
+                const startPeriod = annual[0];
+                const endPeriod = annual[n - 1];
+
+                revenueCAGR = calculateCAGRJs(startPeriod.revenue, endPeriod.revenue, span);
+                revenueCAGRYears = span;
+
+                epsCAGR = calculateCAGRJs(startPeriod.eps, endPeriod.eps, span);
+                epsCAGRYears = span;
+
+                fcfCAGR = calculateCAGRJs(startPeriod.freeCashFlow, endPeriod.freeCashFlow, span);
+                fcfCAGRYears = span;
+            }
+
+            // 2. HIGH-RESOLUTION CONTINUOUS FAIR VALUE SERIES (Weekly or Monthly resampled with Quarterly TTM)
             const fairValueSeries = [];
             const estimates = dataset.estimates || [];
+            const fundamentalPeriods = dataset.fundamentalPeriods || dataset.quarterly || annual;
             const rawPriceHistory = dataset.priceHistory || dataset.prices || [];
             const resampledPrices = resamplePriceHistory(rawPriceHistory, timeframe, granularity, annual, currentPrice);
 
             if (resampledPrices.length >= 2) {
                 resampledPrices.forEach(p => {
-                    const fundVal = getInterpolatedFundamentalValue(annual, selectedMethod, p.date, estimates);
+                    const fundVal = getInterpolatedFundamentalValue(fundamentalPeriods, selectedMethod, p.date, estimates);
                     let fv = null;
                     let lb = null;
                     let ub = null;
@@ -5993,35 +6069,83 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             annualFairValueSeries.push(curPt);
             fairValueSeries.push(curPt);
 
-            // 4. FORECAST ZONE (ANALYST ESTIMATES / FORWARD FUNDAMENTALS)
-            estimates.forEach(est => {
-                let fundamentalEst = null;
-                if (selectedMethod === 'pe_adj' || selectedMethod === 'pe_rep') fundamentalEst = safeNum(est.epsAvg);
-                else if (selectedMethod === 'ps') fundamentalEst = est.revenueAvg ? (safeNum(est.revenueAvg) / (safeNum(latestPeriod?.sharesOutstanding) || 1)) : null;
-                else if (selectedMethod === 'ev_ebitda') fundamentalEst = est.ebitdaAvg ? (safeNum(est.ebitdaAvg) / (safeNum(latestPeriod?.sharesOutstanding) || 1)) : null;
+            // 4. FORECAST ZONE (ANALYST ESTIMATES / ROBUST CAGR GROWTH MODEL)
+            const currentYear = new Date().getFullYear();
+            const validFutureEstimates = estimates.filter(est => {
+                const y = est.year || parseInt(est.date?.substring(0, 4), 10);
+                return y >= currentYear && (est.epsAvg || est.revenueAvg || est.ebitdaAvg);
+            });
 
+            let forecastSource = 'ANALYST_CONSENSUS';
+            let forecastLabel = 'Analysten-Konsens';
+            let forecastGrowthRate = null;
+            let finalForecastItems = [];
+
+            if (validFutureEstimates.length > 0) {
+                forecastSource = 'ANALYST_CONSENSUS';
+                forecastLabel = 'Analysten-Konsens';
+                finalForecastItems = validFutureEstimates.map(est => {
+                    let fundamentalEst = null;
+                    if (selectedMethod === 'pe_adj' || selectedMethod === 'pe_rep') fundamentalEst = safeNum(est.epsAvg);
+                    else if (selectedMethod === 'ps') fundamentalEst = est.revenueAvg ? (safeNum(est.revenueAvg) / (safeNum(latestPeriod?.sharesOutstanding) || 1)) : null;
+                    else if (selectedMethod === 'ev_ebitda') fundamentalEst = est.ebitdaAvg ? (safeNum(est.ebitdaAvg) / (safeNum(latestPeriod?.sharesOutstanding) || 1)) : null;
+                    else if (selectedMethod === 'pb') fundamentalEst = latestFundValue;
+                    else if (selectedMethod === 'pfcf') fundamentalEst = latestFundValue;
+                    if (fundamentalEst === null) fundamentalEst = safeNum(est.epsAvg) ?? latestFundValue;
+                    return {
+                        date: est.date,
+                        year: est.year,
+                        fundamentalEst
+                    };
+                });
+            } else if (latestFundValue !== null && latestFundValue > 0) {
+                forecastSource = 'CAGR_GROWTH_MODEL';
+                let rawGrowth = epsCAGR ?? fcfCAGR ?? revenueCAGR ?? 0.07;
+                if (typeof rawGrowth !== 'number' || isNaN(rawGrowth)) rawGrowth = 0.07;
+                // Conservative value investing bounds (-5% to +15%)
+                forecastGrowthRate = Math.max(-0.05, Math.min(0.15, rawGrowth));
+                const ratePctStr = (forecastGrowthRate >= 0 ? '+' : '') + (forecastGrowthRate * 100).toFixed(1) + '% p.a.';
+                forecastLabel = `CAGR-Wachstumsmodell (${ratePctStr})`;
+
+                const latestYear = latestPeriod?.year || currentYear;
+                const year1 = Math.max(currentYear + 1, latestYear + 1);
+                const year2 = year1 + 1;
+
+                const f1 = latestFundValue * (1 + forecastGrowthRate);
+                const f2 = f1 * (1 + forecastGrowthRate * 0.9);
+
+                finalForecastItems = [
+                    { date: `${year1}-12-31`, year: year1, fundamentalEst: Math.round(f1 * 100) / 100 },
+                    { date: `${year2}-12-31`, year: year2, fundamentalEst: Math.round(f2 * 100) / 100 }
+                ];
+            }
+
+            finalForecastItems.forEach(item => {
                 let fairValue = null;
                 let lowerBand = null;
                 let upperBand = null;
 
-                if (fundamentalEst !== null && fundamentalEst > 0 && refMedian !== null) {
-                    fairValue = Math.round(fundamentalEst * refMedian * 100) / 100;
-                    lowerBand = refP25 !== null ? Math.round(fundamentalEst * refP25 * 100) / 100 : null;
-                    upperBand = refP75 !== null ? Math.round(fundamentalEst * refP75 * 100) / 100 : null;
+                if (item.fundamentalEst !== null && item.fundamentalEst > 0 && refMedian !== null) {
+                    fairValue = Math.round(item.fundamentalEst * refMedian * 100) / 100;
+                    lowerBand = refP25 !== null ? Math.round(item.fundamentalEst * refP25 * 100) / 100 : null;
+                    upperBand = refP75 !== null ? Math.round(item.fundamentalEst * refP75 * 100) / 100 : null;
                 }
 
                 const forePt = {
-                    date: est.date,
-                    year: est.year,
-                    timestamp: new Date(est.date).getTime(),
+                    date: item.date,
+                    year: item.year,
+                    timestamp: new Date(item.date).getTime(),
                     type: 'forecast',
                     isForecast: true,
                     price: null,
                     forecastPrice: null,
-                    fundamentalValue: fundamentalEst,
+                    fundamentalValue: item.fundamentalEst,
                     fairValue,
                     lowerBand,
-                    upperBand
+                    upperBand,
+                    forecastSource,
+                    forecastLabel,
+                    forecastGrowthRate
                 };
 
                 annualFairValueSeries.push(forePt);
@@ -6145,33 +6269,15 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 riskRewardRatio = Math.round((upside / downside) * 10) / 10;
             }
 
-            // Multi-Horizon CAGRs for backward compatibility
-            const n = annual.length;
-            let revenueCAGR = null, revenueCAGRYears = 0;
-            let epsCAGR = null, epsCAGRYears = 0;
-            let fcfCAGR = null, fcfCAGRYears = 0;
-
-            if (n >= 2) {
-                const span = n - 1;
-                const startPeriod = annual[0];
-                const endPeriod = annual[n - 1];
-
-                revenueCAGR = calculateCAGRJs(startPeriod.revenue, endPeriod.revenue, span);
-                revenueCAGRYears = span;
-
-                epsCAGR = calculateCAGRJs(startPeriod.eps, endPeriod.eps, span);
-                epsCAGRYears = span;
-
-                fcfCAGR = calculateCAGRJs(startPeriod.freeCashFlow, endPeriod.freeCashFlow, span);
-                fcfCAGRYears = span;
-            }
-
             return {
                 symbol: dataset.symbol,
                 currency: dataset.currency,
                 currentPrice,
                 timeframe,
                 granularity,
+                forecastSource,
+                forecastLabel,
+                forecastGrowthRate,
                 splitDate: latestPeriod?.date || '',
                 availableYears: dataset.availableYears,
                 selectedMethod,
@@ -7957,10 +8063,11 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 ${gridHtml}
                 ${xLabelsHtml}
                 
-                <!-- Zone 3: Forecast Shaded Background -->
+                <!-- Zone 3: Forecast Shaded Background & Source Badge -->
                 ${forePts.length > 0 ? `
                     <rect x="${curX}" y="${padTop}" width="${width - padRight - curX}" height="${chartH}" fill="url(#valForeGrad)" />
-                    <text x="${curX + 6}" y="${padTop + 12}" fill="#D6A83A" font-size="8.5" font-weight="bold" font-family="'JetBrains Mono', monospace">PROGNOSE-ZONE</text>
+                    <rect x="${curX + 6}" y="${padTop + 4}" width="${valResult.forecastSource === 'ANALYST_CONSENSUS' ? 180 : 225}" height="15" rx="3" fill="${valResult.forecastSource === 'ANALYST_CONSENSUS' ? 'rgba(214, 168, 58, 0.15)' : 'rgba(56, 189, 248, 0.15)'}" stroke="${valResult.forecastSource === 'ANALYST_CONSENSUS' ? 'rgba(214, 168, 58, 0.35)' : 'rgba(56, 189, 248, 0.35)'}" stroke-width="1" />
+                    <text x="${curX + 10}" y="${padTop + 14.5}" fill="${valResult.forecastSource === 'ANALYST_CONSENSUS' ? '#D6A83A' : '#38BDF8'}" font-size="7.5" font-weight="bold" font-family="'JetBrains Mono', monospace">PROGNOSE · ${valResult.forecastLabel ? valResult.forecastLabel.toUpperCase() : 'PROGNOSE-MODELL'}</text>
                 ` : ''}
 
                 <!-- Corridors -->
@@ -8025,8 +8132,11 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                         mEl.textContent = 'LIVE';
                         mEl.className = 'text-[8px] px-1 py-0.2 rounded font-semibold uppercase bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shrink-0';
                     } else if (pt.type === 'forecast') {
-                        mEl.textContent = 'PROGNOSE';
-                        mEl.className = 'text-[8px] px-1 py-0.2 rounded font-semibold uppercase bg-amber-500/15 text-amber-400 border border-amber-500/30 shrink-0';
+                        const isCagr = pt.forecastSource === 'CAGR_GROWTH_MODEL' || valResult.forecastSource === 'CAGR_GROWTH_MODEL';
+                        mEl.textContent = isCagr ? 'PROGNOSE (CAGR)' : 'PROGNOSE (ANALYSTEN)';
+                        mEl.className = isCagr
+                            ? 'text-[8px] px-1 py-0.2 rounded font-semibold uppercase bg-sky-500/15 text-sky-400 border border-sky-500/30 shrink-0'
+                            : 'text-[8px] px-1 py-0.2 rounded font-semibold uppercase bg-amber-500/15 text-amber-400 border border-amber-500/30 shrink-0';
                     } else {
                         mEl.textContent = 'HIST.';
                         mEl.className = 'text-[8px] px-1 py-0.2 rounded font-semibold uppercase bg-blue-500/10 text-blue-400 border border-blue-500/25 shrink-0';
