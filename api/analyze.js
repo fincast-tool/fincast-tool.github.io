@@ -53,6 +53,19 @@ module.exports = async function handler(req, res) {
                 systemStatus += `FMP Key Found (${maskedKey}). `;
                 try {
                     const KNOWN_SYMBOL_MAP = {
+                        // US Tech & Standard Leaders
+                        'SALESFORCE': 'CRM', 'GOOGLE': 'GOOGL', 'ALPHABET': 'GOOGL', 'META': 'META', 'FACEBOOK': 'META',
+                        'MICROSOFT': 'MSFT', 'APPLE': 'AAPL', 'AMAZON': 'AMZN', 'TESLA': 'TSLA', 'NVIDIA': 'NVDA',
+                        'NETFLIX': 'NFLX', 'BERKSHIRE': 'BRK-B', 'BERKSHIREHATHAWAY': 'BRK-B', 'BROADCOM': 'AVGO',
+                        'ORACLE': 'ORCL', 'ADOBE': 'ADBE', 'CISCO': 'CSCO', 'QUALCOMM': 'QCOM', 'AMD': 'AMD', 'INTEL': 'INTC',
+                        'PALANTIR': 'PLTR', 'SERVICENOW': 'NOW', 'UBER': 'UBER', 'AIRBNB': 'ABNB', 'SNOWFLAKE': 'SNOW',
+                        'CROWDSTRIKE': 'CRWD', 'PALOALTO': 'PANW', 'WALMART': 'WMT', 'COSTCO': 'COST', 'PROCTER': 'PG',
+                        'PROCTERGAMBLE': 'PG', 'COCACOLA': 'KO', 'PEPSI': 'PEP', 'PEPSICO': 'PEP', 'MCDONALDS': 'MCD',
+                        'STARBUCKS': 'SBUX', 'NIKE': 'NKE', 'DISNEY': 'DIS', 'WALTDISNEY': 'DIS', 'JNJ': 'JNJ',
+                        'JOHNSONJOHNSON': 'JNJ', 'PFIZER': 'PFE', 'ELILILLY': 'LLY', 'LILLY': 'LLY', 'JPMORGAN': 'JPM',
+                        'JPM': 'JPM', 'GOLDMAN': 'GS', 'GOLDMANSACHS': 'GS', 'VISA': 'V', 'MASTERCARD': 'MA', 'PAYPAL': 'PYPL',
+
+                        // Luxury & Consumer
                         'LVMH': 'MC.PA', 'LVMUY': 'LVMUY', 'MC.PA': 'MC.PA', 'HERMES': 'RMS.PA', 'RMS.PA': 'RMS.PA',
                         'LOREAL': 'OR.PA', 'OR.PA': 'OR.PA', 'KERING': 'KER.PA', 'KER.PA': 'KER.PA', 'FERRARI': 'RACE',
                         'INDITEX': 'ITX.MC', 'ZARA': 'ITX.MC', 'ZALANDO': 'ZAL.DE', 'ADIDAS': 'ADS.DE', 'PUMA': 'PUM.DE',
