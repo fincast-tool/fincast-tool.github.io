@@ -3759,6 +3759,9 @@
                     console.log(`[Official Data API] Successfully loaded verified market/financial data for "${targetSymbol}"`);
                     return data;
                 }
+                if (data && data._fmpError) {
+                    console.warn(`[Official Data API] FMP API message for "${targetSymbol}":`, data._fmpError);
+                }
                 return null;
             } catch (e) {
                 console.warn('[Official Data API] Fetch skipped/failed:', e.message);
