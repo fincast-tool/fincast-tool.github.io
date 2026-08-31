@@ -3918,7 +3918,7 @@ Fiscal Year: FY${dataset.annual[dataset.annual.length - 1]?.year || new Date().g
                 );
                 
                 const datasetPrompt = getDatasetPrompt(query, lang);
-                const datasetResponseText = await fetchSingleBatch(query, user, datasetPrompt, 0, true, null, 'gemini-2.5-flash');
+                const datasetResponseText = await fetchSingleBatch(query, user, datasetPrompt, 0, false, null, 'gemini-2.5-flash');
                 const phase1Data = parseFrameworks(datasetResponseText);
 
                 identityText = phase1Data.company_identity || null;
@@ -4175,7 +4175,7 @@ LANGUAGE: Respond in ${lang}.
 TASK: Extract Official Company Profile and Empirical 5-Year + TTM Financial Statements for "${query}".
 
 STRICT DIRECTIVES:
-1. GOOGLE SEARCH GROUNDING: Use Google Search Grounding to find the official company profile, latest stock price with native currency, and historical annual financial reporting periods (past 5 years, e.g. FY2020-FY2024) plus current TTM figures from SEC filings (10-K), Morningstar, Yahoo Finance, or investor relations.
+1. PROFILE & TICKER IDENTIFICATION: Provide the official company profile, primary trading ticker symbol (e.g. CRM for Salesforce, MC.PA for LVMH, AAPL for Apple), ISIN, primary exchange, native trading currency, and general sector information.
 2. NATIVE CURRENCY: State the exact native trading currency code (USD, EUR, CHF, GBP, etc.) consistently for all monetary figures and current stock price.
 3. OUTPUT FORMAT: Output ONLY the two requested XML blocks below. Do NOT output any narrative text, analysis or extra sections.
 
