@@ -3594,7 +3594,13 @@
                 welcome.classList.remove(hideClass);
                 if (execBtn) execBtn.classList.remove('btn-loading');
             } else if (state === 'loading') {
-                         results.classList.remove(hideClass);
+                if (skeleton) {
+                    skeleton.classList.remove(hideClass);
+                    skeleton.style.display = 'flex';
+                }
+                if (execBtn) execBtn.classList.add('btn-loading');
+            } else if (state === 'results' && results) {
+                results.classList.remove(hideClass);
                 results.style.display = 'block';
                 if (execBtn) execBtn.classList.remove('btn-loading');
 
