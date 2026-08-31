@@ -76,6 +76,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
         rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/fincast-ads.css">
 
     <script>
         tailwind.config = {
@@ -416,6 +417,9 @@
             </p>
         </section>
 
+        <!-- Top Ad Leaderboard Slot -->
+        <div class="fc-ad-slot fc-ad-leaderboard mb-8" data-fc-ad-slot="hubLeaderboardTop" data-fc-title="Hier könnte Ihre Werbung stehen" data-fc-desc="Erreichen Sie tausende aktive Trader und Investoren auf fincast Hub."></div>
+
         <!-- Primary Tools 3-Column Grid -->
         <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-12">
 
@@ -588,6 +592,9 @@
             </div>
 
         </section>
+
+        <!-- Mid-Content Ad Banner Slot -->
+        <div class="fc-ad-slot fc-ad-leaderboard mb-10" data-fc-ad-slot="hubLeaderboardMid" data-fc-title="Werbepartner auf fincast Hub" data-fc-desc="Präsentieren Sie Ihr Fintech, Brokerage oder Investment-Angebot zielgerichtet."></div>
 
         <!-- Partner & Broker Section -->
         <section class="mt-4 mb-12 w-full text-left" id="partner-section">
@@ -1256,6 +1263,8 @@
             initHub();
         }
     </script>
+    <!-- fincast Central Ad & Monetization Engine -->
+    <script src="assets/js/fincast-ads.js"></script>
 </body>
 
 </html>
