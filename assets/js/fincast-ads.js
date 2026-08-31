@@ -27,6 +27,8 @@
             hubLeaderboardMid: '1000000003',
             terminalSidebar: '1000000004',
             terminalBottom: '1000000005',
+            terminalGuidedMid: '1000000008',
+            terminalResearchMid: '1000000009',
             calculatorTop: '1000000006',
             hypeTop: '1000000007'
         },
