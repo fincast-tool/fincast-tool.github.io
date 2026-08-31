@@ -26,7 +26,8 @@ module.exports = async function handler(req, res) {
     }
 
     const rawQuery = symbolParam.trim();
-    const fmpKey = process.env.FMP_API_KEY || process.env.API_FMP || process.env.fmp_api_key || process.env.FMP_KEY || process.env.fmp_key;
+    const rawFmpKey = process.env.FMP_API_KEY || process.env.API_FMP || process.env.fmp_api_key || process.env.FMP_KEY || process.env.fmp_key;
+    const fmpKey = rawFmpKey ? String(rawFmpKey).trim() : null;
 
     if (!fmpKey) {
         return res.status(500).json({ error: 'FMP API key is not configured on server.' });
@@ -289,8 +290,13 @@ module.exports = async function handler(req, res) {
             const cached = await redis.get(cacheKey);
             if (cached) {
                 const parsed = JSON.parse(cached);
-                if (redis) await redis.quit();
-                return res.status(200).json({ ...parsed, _cached: true, resolvedSymbol: symbol });
+                const hasValidData = parsed && ((Array.isArray(parsed.incomeStatements) && parsed.incomeStatements.length > 0) || (parsed.quote && typeof parsed.quote.price === 'number'));
+                if (hasValidData) {
+                    if (redis) await redis.quit();
+                    return res.status(200).json({ ...parsed, _cached: true, resolvedSymbol: symbol });
+                } else {
+                    console.log(`[Historical Data] Bypassing poisoned/empty cache for ${symbol}`);
+                }
             }
         }
     } catch (cacheErr) {
@@ -300,6 +306,8 @@ module.exports = async function handler(req, res) {
     try {
         console.log(`[Historical Data] Fetching deep data for ${symbol}...`);
 
+        let lastFmpError = null;
+
         // Helper: Fetches first successful non-error endpoint in fallback list with strict timeout
         async function fetchEndpointWithFallback(urls) {
             for (const url of urls) {
@@ -307,15 +315,26 @@ module.exports = async function handler(req, res) {
                     const res = await fetch(url, { signal: AbortSignal.timeout(3500) });
                     if (res && res.ok) {
                         const data = await res.json().catch(() => null);
-                        if (Array.isArray(data) && data.length > 0 && !data[0]?.['Error Message']) {
-                            return data;
+                        if (data && data['Error Message']) {
+                            lastFmpError = data['Error Message'];
+                            console.warn('[FMP API Error]:', data['Error Message']);
                         }
-                        if (data && typeof data === 'object' && !Array.isArray(data) && !data['Error Message']) {
+                        if (Array.isArray(data) && data.length > 0) {
+                            if (data[0]?.['Error Message']) {
+                                lastFmpError = data[0]['Error Message'];
+                                console.warn('[FMP API Error]:', data[0]['Error Message']);
+                            } else {
+                                return data;
+                            }
+                        } else if (data && typeof data === 'object' && !Array.isArray(data)) {
                             return [data];
                         }
+                    } else if (res) {
+                        const errText = await res.text().catch(() => '');
+                        lastFmpError = `HTTP ${res.status}: ${errText.slice(0, 150)}`;
                     }
                 } catch (e) {
-                    // Try next fallback immediately
+                    lastFmpError = e.message;
                 }
             }
             return [];
@@ -418,14 +437,21 @@ module.exports = async function handler(req, res) {
             fetchedAt: new Date().toISOString()
         };
 
-        // Cache in Redis for 1 hour (3600 seconds)
-        if (redis) {
+        const hasValidData = (payload.incomeStatements && payload.incomeStatements.length > 0) || (payload.quote && typeof payload.quote.price === 'number');
+        if (!hasValidData && lastFmpError) {
+            payload._fmpError = lastFmpError;
+        }
+
+        // Cache in Redis ONLY if real, valid data exists (prevents cache poisoning)
+        if (redis && hasValidData) {
             try {
                 await redis.set(cacheKey, JSON.stringify(payload), 'EX', 3600);
                 await redis.quit();
             } catch (saveErr) {
                 console.warn('[Historical Data] Redis cache save error:', saveErr.message);
             }
+        } else if (redis) {
+            try { await redis.quit(); } catch (e) {}
         }
 
         return res.status(200).json(payload);

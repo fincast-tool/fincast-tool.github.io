@@ -10,7 +10,8 @@ module.exports = async function handler(req, res) {
     console.log(`[Backend] Pre-fetched dataset provided:`, Boolean(historicalDataset));
 
     try {
-        const fmpKey = process.env.FMP_API_KEY || process.env.API_FMP || process.env.fmp_api_key || process.env.FMP_KEY || process.env.fmp_key;
+        const rawFmpKey = process.env.FMP_API_KEY || process.env.API_FMP || process.env.fmp_api_key || process.env.FMP_KEY || process.env.fmp_key;
+        const fmpKey = rawFmpKey ? String(rawFmpKey).trim() : null;
         
         // Initial system status for debugging
         let systemStatus = `DEBUG: Backend reached. Ticker: ${ticker}. `;
