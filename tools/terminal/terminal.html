@@ -1480,12 +1480,18 @@
                                                     <button type="button" onclick="switchValuationMethod('ev_ebitda')" id="guided_vMethodBtn_ev_ebitda" class="v-method-btn px-2 py-0.5 rounded border border-[#202630] text-slate-300 hover:text-white transition-all">EV/EBITDA</button>
                                                 </div>
 
-                                                <!-- Right: Granularity Switch (W/M) & Timeframe Range Buttons -->
+                                                <!-- Right: Granularity Switch (W/M), Scale Switch (LIN/LOG) & Timeframe Range Buttons -->
                                                 <div class="flex flex-wrap items-center gap-2">
                                                     <!-- Granularity Selector: W (Woche) vs M (Monat) -->
                                                     <div class="flex items-center gap-0.5 bg-[#11151B] p-0.5 rounded border border-[#202630]" id="guided_valCorridorGranularityButtons" title="Datenauflösung: Wöchentlich (W) oder Monatlich (M)">
                                                         <button type="button" onclick="selectValuationGranularity('W')" id="guided_valGranBtn_W" class="val-gran-btn px-1.5 py-0.5 rounded text-[10px] font-semibold text-white bg-[#171C23] border border-[#2D3748] transition-all">W</button>
                                                         <button type="button" onclick="selectValuationGranularity('M')" id="guided_valGranBtn_M" class="val-gran-btn px-1.5 py-0.5 rounded text-[10px] font-medium text-slate-400 hover:text-white transition-all">M</button>
+                                                    </div>
+
+                                                    <!-- Scale Selector: LIN (Linear) vs LOG (Logarithmisch) -->
+                                                    <div class="flex items-center gap-0.5 bg-[#11151B] p-0.5 rounded border border-[#202630]" id="guided_valCorridorScaleButtons" title="Preisskala: Linear (LIN) oder Logarithmisch (LOG)">
+                                                        <button type="button" onclick="selectValuationScale('LIN')" id="guided_valScaleBtn_LIN" class="val-scale-btn px-1.5 py-0.5 rounded text-[10px] font-semibold text-white bg-[#171C23] border border-[#2D3748] transition-all">LIN</button>
+                                                        <button type="button" onclick="selectValuationScale('LOG')" id="guided_valScaleBtn_LOG" class="val-scale-btn px-1.5 py-0.5 rounded text-[10px] font-medium text-slate-400 hover:text-white transition-all">LOG</button>
                                                     </div>
 
                                                     <!-- Timeframe Buttons -->
@@ -5163,6 +5169,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
         let ACTIVE_VALUATION_METHOD = 'pe_adj'; // 'pe_adj' | 'pe_rep' | 'pfcf' | 'pb' | 'ps' | 'ev_ebitda'
         let SELECTED_VALUATION_TIMEFRAME = 'MAX'; // '1J' | '3J' | '5J' | '10J' | 'MAX'
         let SELECTED_VALUATION_GRANULARITY = 'W'; // 'W' (Weekly) | 'M' (Monthly)
+        let SELECTED_VALUATION_SCALE = 'LIN'; // 'LIN' (Linear) | 'LOG' (Logarithmic)
         let SELECTED_MULTIPLES_TIMEFRAME = 'MAX'; // '3J' | '5J' | '10J' | 'MAX'
         let ACTIVE_MULTIPLES_METRICS = { pe_adj: true, pe_rep: false, pcf: false, ps: false, pb: false };
         let AVAILABLE_HISTORY_YEARS = 5;
@@ -8092,8 +8099,184 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
         }
 
         // --- VALUE CHART SVG RENDERER (3 VISUAL ZONES: HISTORICAL | CURRENT | FORECAST) ---
+                // =========================================================================
+        // --- INSTITUTIONAL FINANCIAL VALUE CHART ENGINE (MODULAR ARCHITECTURE) ---
+        // =========================================================================
+
+        class InstitutionalPriceScale {
+            constructor(values, [yBottom, yTop], isLog = false) {
+                this.isLog = isLog;
+                this.range = [yBottom, yTop];
+
+                const valid = values.filter(v => typeof v === 'number' && Number.isFinite(v) && v > 0);
+                const rawMin = valid.length > 0 ? Math.min(...valid) : 10;
+                const rawMax = valid.length > 0 ? Math.max(...valid) : 100;
+
+                if (this.isLog) {
+                    this.min = Math.max(0.01, rawMin * 0.90);
+                    this.max = Math.max(this.min * 1.15, rawMax * 1.10);
+                    this.logMin = Math.log(this.min);
+                    this.logMax = Math.log(this.max);
+                } else {
+                    this.min = Math.max(0, rawMin * 0.85);
+                    this.max = Math.max(this.min + 1, rawMax * 1.15);
+                }
+            }
+
+            getY(val) {
+                if (typeof val !== 'number' || !Number.isFinite(val) || isNaN(val)) return null;
+                const [yBottom, yTop] = this.range;
+                const h = yBottom - yTop;
+
+                if (this.isLog) {
+                    const v = Math.max(this.min * 0.5, val);
+                    const ratio = (Math.log(v) - this.logMin) / Math.max(0.0001, this.logMax - this.logMin);
+                    return yBottom - ratio * h;
+                } else {
+                    const ratio = (val - this.min) / Math.max(0.0001, this.max - this.min);
+                    return yBottom - ratio * h;
+                }
+            }
+
+            getTicks(targetCount = 5) {
+                const [yBottom, yTop] = this.range;
+                if (!this.isLog) {
+                    const span = this.max - this.min;
+                    const roughStep = span / targetCount;
+                    const power = Math.pow(10, Math.floor(Math.log10(roughStep)));
+                    const norm = roughStep / power;
+                    let step;
+                    if (norm <= 1.5) step = 1 * power;
+                    else if (norm <= 3) step = 2 * power;
+                    else if (norm <= 7) step = 5 * power;
+                    else step = 10 * power;
+
+                    const ticks = [];
+                    let start = Math.ceil(this.min / step) * step;
+                    for (let v = start; v <= this.max; v += step) {
+                        const y = this.getY(v);
+                        if (y >= yTop - 2 && y <= yBottom + 2) {
+                            ticks.push({ val: v, y });
+                        }
+                    }
+                    return ticks.length >= 3 ? ticks : [
+                        { val: this.min, y: yBottom },
+                        { val: (this.min + this.max) / 2, y: (yBottom + yTop) / 2 },
+                        { val: this.max, y: yTop }
+                    ];
+                } else {
+                    const minPow = Math.floor(Math.log10(this.min));
+                    const maxPow = Math.ceil(Math.log10(this.max));
+                    const candidateMultipliers = [1, 2, 5];
+                    const allCandidates = [];
+
+                    for (let p = minPow; p <= maxPow; p++) {
+                        const base = Math.pow(10, p);
+                        candidateMultipliers.forEach(m => {
+                            const v = m * base;
+                            if (v >= this.min * 0.95 && v <= this.max * 1.05) {
+                                allCandidates.push(v);
+                            }
+                        });
+                    }
+
+                    let filtered = allCandidates;
+                    if (allCandidates.length > 7) {
+                        filtered = allCandidates.filter(v => {
+                            const log10 = Math.log10(v);
+                            const frac = log10 - Math.floor(log10);
+                            return frac < 0.01 || Math.abs(frac - Math.log10(5)) < 0.01;
+                        });
+                    }
+
+                    return filtered.map(v => ({ val: v, y: this.getY(v) }));
+                }
+            }
+        }
+
+        class SplineGeometryEngine {
+            static generateMonotoneCubicPath(points) {
+                if (!Array.isArray(points) || points.length === 0) return '';
+                const valid = points.filter(p => p && typeof p.x === 'number' && typeof p.y === 'number' && Number.isFinite(p.x) && Number.isFinite(p.y));
+                if (valid.length === 0) return '';
+                if (valid.length === 1) return `M ${valid[0].x.toFixed(1)} ${valid[0].y.toFixed(1)}`;
+                if (valid.length === 2) {
+                    return `M ${valid[0].x.toFixed(1)} ${valid[0].y.toFixed(1)} L ${valid[1].x.toFixed(1)} ${valid[1].y.toFixed(1)}`;
+                }
+
+                const n = valid.length;
+                const dx = new Float64Array(n - 1);
+                const dy = new Float64Array(n - 1);
+                const slopes = new Float64Array(n - 1);
+
+                for (let i = 0; i < n - 1; i++) {
+                    dx[i] = valid[i + 1].x - valid[i].x;
+                    dy[i] = valid[i + 1].y - valid[i].y;
+                    slopes[i] = dx[i] !== 0 ? dy[i] / dx[i] : 0;
+                }
+
+                const tangents = new Float64Array(n);
+                tangents[0] = slopes[0];
+                tangents[n - 1] = slopes[n - 2];
+
+                for (let i = 1; i < n - 1; i++) {
+                    if (slopes[i - 1] * slopes[i] <= 0) {
+                        tangents[i] = 0;
+                    } else {
+                        tangents[i] = (slopes[i - 1] + slopes[i]) / 2;
+                    }
+                }
+
+                for (let i = 0; i < n - 1; i++) {
+                    if (slopes[i] === 0) {
+                        tangents[i] = 0;
+                        tangents[i + 1] = 0;
+                    } else {
+                        const alpha = tangents[i] / slopes[i];
+                        const beta = tangents[i + 1] / slopes[i];
+                        const s = alpha * alpha + beta * beta;
+                        if (s > 9) {
+                            const tau = 3 / Math.sqrt(s);
+                            tangents[i] = tau * alpha * slopes[i];
+                            tangents[i + 1] = tau * beta * slopes[i];
+                        }
+                    }
+                }
+
+                let path = `M ${valid[0].x.toFixed(1)} ${valid[0].y.toFixed(1)}`;
+                for (let i = 0; i < n - 1; i++) {
+                    const p0 = valid[i];
+                    const p1 = valid[i + 1];
+                    const h = dx[i];
+                    const cp1x = p0.x + h / 3;
+                    const cp1y = p0.y + (tangents[i] * h) / 3;
+                    const cp2x = p1.x - h / 3;
+                    const cp2y = p1.y - (tangents[i + 1] * h) / 3;
+
+                    path += ` C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${p1.x.toFixed(1)} ${p1.y.toFixed(1)}`;
+                }
+                return path;
+            }
+
+            static generateSmoothClosedCorridor(topPoints, botPoints) {
+                if (!topPoints || topPoints.length < 2 || !botPoints || botPoints.length < 2) return '';
+                const topPath = this.generateMonotoneCubicPath(topPoints);
+                const reversedBot = [...botPoints].reverse();
+                const botSegments = this.generateMonotoneCubicPath(reversedBot);
+                if (!topPath || !botSegments) return '';
+                const botPathWithoutM = botSegments.replace(/^M\s*[\d\.\-]+\s+[\d\.\-]+/, '');
+                return `${topPath} L ${reversedBot[0].x.toFixed(1)} ${reversedBot[0].y.toFixed(1)}${botPathWithoutM} Z`;
+            }
+        }
+
+        // Master Value Chart Dispatcher & Multi-Instance Renderer
         function renderValueChart(dataset, valResult) {
             if (!valResult) return;
+
+            // Sync Scale Button states
+            if (typeof updateScaleButtonStates === 'function') {
+                updateScaleButtonStates(SELECTED_VALUATION_SCALE);
+            }
 
             const methodBtnMap = {
                 pe_adj: 'KGV ber.',
@@ -8104,7 +8287,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 ev_ebitda: 'EV/EBITDA'
             };
 
-            // Update Method Buttons for both Full Research and Guided Analysis
+            // Update Method Buttons
             ['pe_adj', 'pe_rep', 'pfcf', 'pb', 'ps', 'ev_ebitda'].forEach(m => {
                 const btnList = [
                     document.getElementById(`vMethodBtn_${m}`),
@@ -8157,7 +8340,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 }
             });
 
-            // Shared internal renderer for any instance of the Value Chart
+            // Draw instance
             function drawSingleValuationChart(svgId, wrapperId, prefix = '') {
                 const svg = document.getElementById(svgId);
                 const wrapper = document.getElementById(wrapperId);
@@ -8172,14 +8355,13 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 const bRect = wrapper.getBoundingClientRect();
                 const width = Math.max(320, bRect.width || 800);
                 const height = Math.max(240, bRect.height || 280);
-                const padLeft = 45;
+                const padLeft = 48;
                 const padRight = 65;
-                const padTop = 20;
+                const padTop = 22;
                 const padBottom = 30;
                 const chartW = width - padLeft - padRight;
                 const chartH = height - padTop - padBottom;
 
-                // Separate points into Historical, Current, and Forecast
                 const histPts = fullSeries.filter(pt => pt.type === 'historical');
                 const curPt = fullSeries.find(pt => pt.type === 'current') || {
                     date: new Date().toISOString().split('T')[0],
@@ -8190,68 +8372,62 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     fairValue: valResult.currentFairValue
                 };
 
-                if (curPt.price === null || curPt.price === undefined) {
-                    curPt.price = valResult.currentPrice ?? dataset.currentPrice;
-                }
-                if (curPt.fairValue === null || curPt.fairValue === undefined) {
-                    curPt.fairValue = valResult.currentFairValue;
-                }
-                if (!curPt.timestamp && curPt.date) {
-                    curPt.timestamp = new Date(curPt.date).getTime();
-                }
+                if (curPt.price === null || curPt.price === undefined) curPt.price = valResult.currentPrice ?? dataset.currentPrice;
+                if (curPt.fairValue === null || curPt.fairValue === undefined) curPt.fairValue = valResult.currentFairValue;
+                if (!curPt.timestamp && curPt.date) curPt.timestamp = new Date(curPt.date).getTime();
 
                 const forePts = fullSeries.filter(pt => pt.type === 'forecast');
 
-                // Renderable sequence of timeline items with valid timestamps
                 const timelineSeries = [...histPts, curPt, ...forePts].map(pt => ({
                     ...pt,
                     timestamp: pt.timestamp || (pt.date ? new Date(pt.date).getTime() : 0)
                 })).sort((a, b) => a.timestamp - b.timestamp);
 
-                // Collect all Y values for scaling
+                // Collect all values for scale domain
                 const allY = [];
                 timelineSeries.forEach(pt => {
-                    if (pt.price !== null && typeof pt.price === 'number') allY.push(pt.price);
-                    if (pt.fairValue !== null && typeof pt.fairValue === 'number') allY.push(pt.fairValue);
-                    if (pt.lowerBand !== null && typeof pt.lowerBand === 'number') allY.push(pt.lowerBand);
-                    if (pt.upperBand !== null && typeof pt.upperBand === 'number') allY.push(pt.upperBand);
+                    if (typeof pt.price === 'number' && Number.isFinite(pt.price)) allY.push(pt.price);
+                    if (typeof pt.fairValue === 'number' && Number.isFinite(pt.fairValue)) allY.push(pt.fairValue);
+                    if (typeof pt.lowerBand === 'number' && Number.isFinite(pt.lowerBand)) allY.push(pt.lowerBand);
+                    if (typeof pt.upperBand === 'number' && Number.isFinite(pt.upperBand)) allY.push(pt.upperBand);
                 });
-
                 if (allY.length === 0) allY.push(10, 100);
-                const minY = Math.max(0, Math.min(...allY) * 0.85);
-                const maxY = Math.max(...allY) * 1.15;
-                const spanY = Math.max(1, maxY - minY);
 
-                // Time proportional X scale
+                const isLogScale = (SELECTED_VALUATION_SCALE === 'LOG');
+                const priceScale = new InstitutionalPriceScale(allY, [padTop + chartH, padTop], isLogScale);
+
+                // Time Scale
                 const tMin = timelineSeries[0].timestamp || 0;
                 const tMax = timelineSeries[timelineSeries.length - 1].timestamp || 1;
                 const timeSpan = Math.max(1, tMax - tMin);
-
                 const getX = (t) => padLeft + ((t - tMin) / timeSpan) * chartW;
-                const getY = (val) => padTop + chartH - ((val - minY) / spanY) * chartH;
 
                 const curX = getX(curPt.timestamp);
 
-                // Grid lines
+                // Grid Lines & Price Ticks
                 let gridHtml = '';
-                const yTicks = 5;
-                for (let i = 0; i <= yTicks; i++) {
-                    const val = minY + (i / yTicks) * spanY;
-                    const y = getY(val);
+                const priceTicks = priceScale.getTicks(5);
+                priceTicks.forEach(tick => {
+                    const y = tick.y;
+                    const valFormatted = tick.val >= 100 ? tick.val.toFixed(0) : (tick.val >= 10 ? tick.val.toFixed(1) : tick.val.toFixed(2));
                     gridHtml += `
-                        <line x1="${padLeft}" y1="${y}" x2="${width - padRight}" y2="${y}" stroke="rgba(255,255,255,0.06)" stroke-width="1" />
-                        <text x="${padLeft - 6}" y="${y + 3.5}" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="end">${val.toFixed(0)}</text>
+                        <line x1="${padLeft}" y1="${y.toFixed(1)}" x2="${(width - padRight).toFixed(1)}" y2="${y.toFixed(1)}" stroke="rgba(255,255,255,0.06)" stroke-width="1" />
+                        <text x="${(padLeft - 6).toFixed(1)}" y="${(y + 3.5).toFixed(1)}" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="end">${valFormatted}</text>
                     `;
-                }
+                });
 
-                // X Labels (Smart Time Ticks)
+                // Scale Indicator Badge (LIN vs LOG)
+                gridHtml += `
+                    <text x="${padLeft - 6}" y="${padTop - 6}" fill="${isLogScale ? '#38BDF8' : '#64748B'}" font-size="8" font-weight="bold" font-family="'JetBrains Mono', monospace" text-anchor="end">${isLogScale ? 'LOG' : 'LIN'}</text>
+                `;
+
+                // X Labels (Smart Calendar Time Ticks)
                 let xLabelsHtml = '';
                 const startYear = new Date(tMin).getFullYear();
                 const endYear = new Date(tMax).getFullYear();
                 const tickYears = [];
-                for (let y = startYear; y <= endYear; y++) {
-                    tickYears.push(y);
-                }
+                for (let y = startYear; y <= endYear; y++) tickYears.push(y);
+
                 let displayYears = tickYears;
                 if (tickYears.length > 7) {
                     const step = Math.ceil(tickYears.length / 6);
@@ -8264,52 +8440,73 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                         const x = getX(midYearTime);
                         const isFore = year > currentYear;
                         const label = isFore ? `FY${year}e` : String(year);
-                        if (Math.abs(x - curX) > 28) {
-                            xLabelsHtml += `<text x="${x}" y="${height - 8}" fill="${isFore ? '#D6A83A' : '#64748B'}" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">${label}</text>`;
+                        if (Math.abs(x - curX) > 30) {
+                            xLabelsHtml += `<text x="${x.toFixed(1)}" y="${height - 8}" fill="${isFore ? '#D6A83A' : '#64748B'}" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">${label}</text>`;
                         }
                     }
                 });
-                xLabelsHtml += `<text x="${curX}" y="${height - 8}" fill="#D6A83A" font-size="9" font-weight="bold" font-family="'JetBrains Mono', monospace" text-anchor="middle">Heute</text>`;
+                xLabelsHtml += `<text x="${curX.toFixed(1)}" y="${height - 8}" fill="#D6A83A" font-size="9" font-weight="bold" font-family="'JetBrains Mono', monospace" text-anchor="middle">Heute</text>`;
 
-                // 1. Corridor Polygon (P25 to P75)
-                let corridorHistPath = '';
-                let corridorForePath = '';
-                const validBandHist = [...histPts, curPt].filter(pt => pt.lowerBand !== null && pt.upperBand !== null).sort((a, b) => a.timestamp - b.timestamp);
+                // 1. Smooth Corridor Ribbons (Fritsch-Carlson Monotone Cubic Spline)
+                let corridorHistSvg = '';
+                let corridorForeSvg = '';
+
+                const validBandHist = [...histPts, curPt].filter(pt => typeof pt.lowerBand === 'number' && typeof pt.upperBand === 'number');
                 if (validBandHist.length >= 2) {
-                    const topP = validBandHist.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${getX(pt.timestamp)} ${getY(pt.upperBand)}`).join(' ');
-                    const botP = [...validBandHist].reverse().map(pt => `L ${getX(pt.timestamp)} ${getY(pt.lowerBand)}`).join(' ');
-                    corridorHistPath = `<path d="${topP} ${botP} Z" fill="rgba(16, 185, 129, 0.08)" stroke="rgba(16, 185, 129, 0.25)" stroke-width="1" />`;
+                    const topPts = validBandHist.map(pt => ({ x: getX(pt.timestamp), y: priceScale.getY(pt.upperBand) }));
+                    const botPts = validBandHist.map(pt => ({ x: getX(pt.timestamp), y: priceScale.getY(pt.lowerBand) }));
+                    const ribbonPath = SplineGeometryEngine.generateSmoothClosedCorridor(topPts, botPts);
+                    if (ribbonPath) {
+                        corridorHistSvg = `<path d="${ribbonPath}" fill="rgba(16, 185, 129, 0.08)" stroke="rgba(16, 185, 129, 0.25)" stroke-width="1" />`;
+                    }
                 }
 
-                const validBandFore = [curPt, ...forePts].filter(pt => pt.lowerBand !== null && pt.upperBand !== null).sort((a, b) => a.timestamp - b.timestamp);
+                const validBandFore = [curPt, ...forePts].filter(pt => typeof pt.lowerBand === 'number' && typeof pt.upperBand === 'number');
                 if (validBandFore.length >= 2) {
-                    const topP = validBandFore.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${getX(pt.timestamp)} ${getY(pt.upperBand)}`).join(' ');
-                    const botP = [...validBandFore].reverse().map(pt => `L ${getX(pt.timestamp)} ${getY(pt.lowerBand)}`).join(' ');
-                    corridorForePath = `<path d="${topP} ${botP} Z" fill="rgba(214, 168, 58, 0.05)" stroke="rgba(214, 168, 58, 0.20)" stroke-dasharray="3,3" stroke-width="1" />`;
+                    const topPts = validBandFore.map(pt => ({ x: getX(pt.timestamp), y: priceScale.getY(pt.upperBand) }));
+                    const botPts = validBandFore.map(pt => ({ x: getX(pt.timestamp), y: priceScale.getY(pt.lowerBand) }));
+                    const ribbonPath = SplineGeometryEngine.generateSmoothClosedCorridor(topPts, botPts);
+                    if (ribbonPath) {
+                        corridorForeSvg = `<path d="${ribbonPath}" fill="rgba(214, 168, 58, 0.05)" stroke="rgba(214, 168, 58, 0.20)" stroke-dasharray="3,3" stroke-width="1" />`;
+                    }
                 }
 
-                // 2. Historical Price Line (solid white, continuous weekly/monthly)
-                let priceHistPath = '';
-                const histPricePts = [...histPts, curPt].filter(pt => pt.price !== null && typeof pt.price === 'number').sort((a, b) => a.timestamp - b.timestamp);
+                // 2. Smooth Price Line
+                let priceHistSvg = '';
+                const histPricePts = [...histPts, curPt].filter(pt => typeof pt.price === 'number' && Number.isFinite(pt.price));
                 if (histPricePts.length >= 2) {
-                    priceHistPath = histPricePts.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${getX(pt.timestamp)} ${getY(pt.price)}`).join(' ');
+                    const screenPricePts = histPricePts.map(pt => ({ x: getX(pt.timestamp), y: priceScale.getY(pt.price) }));
+                    const priceD = SplineGeometryEngine.generateMonotoneCubicPath(screenPricePts);
+                    if (priceD) {
+                        priceHistSvg = `<path d="${priceD}" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linejoin="round" />`;
+                    }
                 }
 
-                // 3. Fair Value Lines
-                let fairHistPath = '';
-                let fairForePath = '';
-                const histFairPts = [...histPts, curPt].filter(pt => pt.fairValue !== null && typeof pt.fairValue === 'number').sort((a, b) => a.timestamp - b.timestamp);
+                // 3. Smooth Fair Value Curves
+                let fairHistSvg = '';
+                let fairForeSvg = '';
+
+                const histFairPts = [...histPts, curPt].filter(pt => typeof pt.fairValue === 'number' && Number.isFinite(pt.fairValue));
                 if (histFairPts.length >= 2) {
-                    fairHistPath = histFairPts.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${getX(pt.timestamp)} ${getY(pt.fairValue)}`).join(' ');
-                }
-                const foreFairPts = [curPt, ...forePts].filter(pt => pt.fairValue !== null && typeof pt.fairValue === 'number').sort((a, b) => a.timestamp - b.timestamp);
-                if (foreFairPts.length >= 2) {
-                    fairForePath = foreFairPts.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${getX(pt.timestamp)} ${getY(pt.fairValue)}`).join(' ');
+                    const screenFairPts = histFairPts.map(pt => ({ x: getX(pt.timestamp), y: priceScale.getY(pt.fairValue) }));
+                    const fairD = SplineGeometryEngine.generateMonotoneCubicPath(screenFairPts);
+                    if (fairD) {
+                        fairHistSvg = `<path d="${fairD}" fill="none" stroke="#D6A83A" stroke-width="2" stroke-linejoin="round" />`;
+                    }
                 }
 
-                // 4. Current Marker & Price Dot
-                const curPriceY = curPt.price !== null ? getY(curPt.price) : null;
-                const curFairY = curPt.fairValue !== null ? getY(curPt.fairValue) : null;
+                const foreFairPts = [curPt, ...forePts].filter(pt => typeof pt.fairValue === 'number' && Number.isFinite(pt.fairValue));
+                if (foreFairPts.length >= 2) {
+                    const screenFairPts = foreFairPts.map(pt => ({ x: getX(pt.timestamp), y: priceScale.getY(pt.fairValue) }));
+                    const fairD = SplineGeometryEngine.generateMonotoneCubicPath(screenFairPts);
+                    if (fairD) {
+                        fairForeSvg = `<path d="${fairD}" fill="none" stroke="#D6A83A" stroke-width="2" stroke-dasharray="4,4" stroke-linejoin="round" opacity="0.85" />`;
+                    }
+                }
+
+                // 4. Current Marker Points
+                const curPriceY = curPt.price !== null ? priceScale.getY(curPt.price) : null;
+                const curFairY = curPt.fairValue !== null ? priceScale.getY(curPt.fairValue) : null;
 
                 svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
                 svg.innerHTML = `
@@ -8324,36 +8521,36 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     
                     <!-- Zone 3: Forecast Shaded Background & Source Badge -->
                     ${forePts.length > 0 ? `
-                        <rect x="${curX}" y="${padTop}" width="${width - padRight - curX}" height="${chartH}" fill="url(#${prefix}valForeGrad)" />
-                        <rect x="${curX + 6}" y="${padTop + 4}" width="${valResult.forecastSource === 'ANALYST_CONSENSUS' ? 180 : 225}" height="15" rx="3" fill="${valResult.forecastSource === 'ANALYST_CONSENSUS' ? 'rgba(214, 168, 58, 0.15)' : 'rgba(56, 189, 248, 0.15)'}" stroke="${valResult.forecastSource === 'ANALYST_CONSENSUS' ? 'rgba(214, 168, 58, 0.35)' : 'rgba(56, 189, 248, 0.35)'}" stroke-width="1" />
-                        <text x="${curX + 10}" y="${padTop + 14.5}" fill="${valResult.forecastSource === 'ANALYST_CONSENSUS' ? '#D6A83A' : '#38BDF8'}" font-size="7.5" font-weight="bold" font-family="'JetBrains Mono', monospace">PROGNOSE · ${valResult.forecastLabel ? valResult.forecastLabel.toUpperCase() : 'PROGNOSE-MODELL'}</text>
+                        <rect x="${curX.toFixed(1)}" y="${padTop}" width="${(width - padRight - curX).toFixed(1)}" height="${chartH}" fill="url(#${prefix}valForeGrad)" />
+                        <rect x="${(curX + 6).toFixed(1)}" y="${(padTop + 4).toFixed(1)}" width="${valResult.forecastSource === 'ANALYST_CONSENSUS' ? 180 : 230}" height="15" rx="3" fill="${valResult.forecastSource === 'ANALYST_CONSENSUS' ? 'rgba(214, 168, 58, 0.15)' : 'rgba(56, 189, 248, 0.15)'}" stroke="${valResult.forecastSource === 'ANALYST_CONSENSUS' ? 'rgba(214, 168, 58, 0.35)' : 'rgba(56, 189, 248, 0.35)'}" stroke-width="1" />
+                        <text x="${(curX + 10).toFixed(1)}" y="${(padTop + 14.5).toFixed(1)}" fill="${valResult.forecastSource === 'ANALYST_CONSENSUS' ? '#D6A83A' : '#38BDF8'}" font-size="7.5" font-weight="bold" font-family="'JetBrains Mono', monospace">PROGNOSE · ${valResult.forecastLabel ? valResult.forecastLabel.toUpperCase() : 'PROGNOSE-MODELL'}</text>
                     ` : ''}
 
                     <!-- Corridors -->
-                    ${corridorHistPath}
-                    ${corridorForePath}
+                    ${corridorHistSvg}
+                    ${corridorForeSvg}
 
                     <!-- Zone 2: Current Vertical Marker Line -->
-                    <line x1="${curX}" y1="${padTop}" x2="${curX}" y2="${padTop + chartH}" stroke="rgba(214, 168, 58, 0.5)" stroke-dasharray="3,3" stroke-width="1.5" />
+                    <line x1="${curX.toFixed(1)}" y1="${padTop}" x2="${curX.toFixed(1)}" y2="${padTop + chartH}" stroke="rgba(214, 168, 58, 0.5)" stroke-dasharray="3,3" stroke-width="1.5" />
 
                     <!-- Fair Value Curves -->
-                    ${fairHistPath ? `<path d="${fairHistPath}" fill="none" stroke="#D6A83A" stroke-width="2" stroke-linejoin="round" />` : ''}
-                    ${fairForePath ? `<path d="${fairForePath}" fill="none" stroke="#D6A83A" stroke-width="2" stroke-dasharray="4,4" stroke-linejoin="round" opacity="0.85" />` : ''}
+                    ${fairHistSvg}
+                    ${fairForeSvg}
 
                     <!-- Price Curve -->
-                    ${priceHistPath ? `<path d="${priceHistPath}" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linejoin="round" />` : ''}
+                    ${priceHistSvg}
 
                     <!-- Current Marker Points -->
                     ${curPriceY !== null ? `
-                        <circle cx="${curX}" cy="${curPriceY}" r="5" fill="#FFFFFF" stroke="#0B0E12" stroke-width="2" />
-                        <text x="${curX + 7}" y="${curPriceY + 3.5}" fill="#FFFFFF" font-size="9" font-weight="bold" font-family="'JetBrains Mono', monospace">Kurs: ${fmtCurrency(curPt.price, dataset.currency)}</text>
+                        <circle cx="${curX.toFixed(1)}" cy="${curPriceY.toFixed(1)}" r="5" fill="#FFFFFF" stroke="#0B0E12" stroke-width="2" />
+                        <text x="${(curX + 7).toFixed(1)}" y="${(curPriceY + 3.5).toFixed(1)}" fill="#FFFFFF" font-size="9" font-weight="bold" font-family="'JetBrains Mono', monospace">Kurs: ${fmtCurrency(curPt.price, dataset.currency)}</text>
                     ` : ''}
                     ${curFairY !== null ? `
-                        <circle cx="${curX}" cy="${curFairY}" r="5" fill="#D6A83A" stroke="#0B0E12" stroke-width="2" />
-                        <text x="${curX + 7}" y="${curFairY + 3.5}" fill="#D6A83A" font-size="8.5" font-weight="bold" font-family="'JetBrains Mono', monospace">Fair: ${fmtCurrency(curPt.fairValue, dataset.currency)}</text>
+                        <circle cx="${curX.toFixed(1)}" cy="${curFairY.toFixed(1)}" r="5" fill="#D6A83A" stroke="#0B0E12" stroke-width="2" />
+                        <text x="${(curX + 7).toFixed(1)}" y="${(curFairY + 3.5).toFixed(1)}" fill="#D6A83A" font-size="8.5" font-weight="bold" font-family="'JetBrains Mono', monospace">Fair: ${fmtCurrency(curPt.fairValue, dataset.currency)}</text>
                     ` : ''}
 
-                    <!-- Hover Elements -->
+                    <!-- Hover Crosshair & Sticky Dots -->
                     <line id="${prefix}vHoverLine" x1="0" y1="${padTop}" x2="0" y2="${padTop + chartH}" stroke="rgba(255,255,255,0.4)" stroke-width="1" stroke-dasharray="2,2" style="display:none; pointer-events: none;" />
                     <circle id="${prefix}vHoverDotPrice" r="4.5" fill="#FFFFFF" stroke="#0B0E12" stroke-width="2" style="display:none; pointer-events: none;" />
                     <circle id="${prefix}vHoverDotFair" r="4.5" fill="#D6A83A" stroke="#0B0E12" stroke-width="2" style="display:none; pointer-events: none;" />
@@ -8365,157 +8562,164 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 const hoverDotFair = svg.querySelector(`#${prefix}vHoverDotFair`);
                 const hoverSurface = svg.querySelector(`#${prefix}vHoverSurface`);
 
-                function updateInstanceLiveHUD(pt) {
+                function updateLiveHUD(pt) {
                     if (!pt) return;
-                    const dEl = document.getElementById(`${prefix}liveValDate`) || document.getElementById('liveValDate');
-                    const mEl = document.getElementById(`${prefix}liveValMode`) || document.getElementById('liveValMode');
-                    const pEl = document.getElementById(`${prefix}liveValPrice`) || document.getElementById('liveValPrice');
-                    const fEl = document.getElementById(`${prefix}liveValFair`) || document.getElementById('liveValFair');
-                    const devEl = document.getElementById(`${prefix}liveValDev`) || document.getElementById('liveValDev');
-                    const bandEl = document.getElementById(`${prefix}liveValBand`) || document.getElementById('liveValBand');
-                    const pctEl = document.getElementById(`${prefix}liveValPercentile`) || document.getElementById('liveValPercentile');
+                    const dEl = document.getElementById(`${prefix}liveValDate`);
+                    const mEl = document.getElementById(`${prefix}liveValMode`);
+                    const pEl = document.getElementById(`${prefix}liveValPrice`);
+                    const fEl = document.getElementById(`${prefix}liveValFair`);
+                    const devEl = document.getElementById(`${prefix}liveValDev`);
+                    const bandEl = document.getElementById(`${prefix}liveValBand`);
+                    const pctEl = document.getElementById(`${prefix}liveValPercentile`);
 
-                    // Synchronize both HUDs if element with prefix exists
-                    const syncElements = (mainId, pfxId, cb) => {
-                        const el1 = document.getElementById(mainId);
-                        const el2 = document.getElementById(pfxId);
-                        if (el1) cb(el1);
-                        if (el2 && el2 !== el1) cb(el2);
-                    };
-
-                    syncElements('liveValDate', `${prefix}liveValDate`, (el) => {
+                    if (dEl) {
                         if (pt.type === 'current') {
-                            el.textContent = 'HEUTE / LIVE';
+                            dEl.textContent = 'HEUTE / LIVE';
                         } else if (pt.type === 'forecast') {
-                            el.textContent = `FY${pt.year}e (${pt.date || ''})`;
+                            dEl.textContent = `FY${pt.year}e (${pt.date || ''})`;
                         } else {
                             const dObj = new Date(pt.date);
                             const dateFormatted = !isNaN(dObj.getTime()) ? dObj.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) : pt.date;
-                            el.textContent = `${dateFormatted}`;
+                            dEl.textContent = `${dateFormatted}`;
                         }
-                    });
-
-                    syncElements('liveValMode', `${prefix}liveValMode`, (el) => {
+                    }
+                    if (mEl) {
                         if (pt.type === 'current') {
-                            el.textContent = 'LIVE';
-                            el.className = 'text-[8px] px-1 py-0.2 rounded font-semibold uppercase bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shrink-0';
+                            mEl.textContent = 'LIVE';
+                            mEl.className = 'text-[8px] px-1 py-0.2 rounded font-semibold uppercase bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shrink-0';
                         } else if (pt.type === 'forecast') {
                             const isCagr = pt.forecastSource === 'CAGR_GROWTH_MODEL' || valResult.forecastSource === 'CAGR_GROWTH_MODEL';
-                            el.textContent = isCagr ? 'PROGNOSE (CAGR)' : 'PROGNOSE (ANALYSTEN)';
-                            el.className = isCagr
+                            mEl.textContent = isCagr ? 'PROGNOSE (CAGR)' : 'PROGNOSE (ANALYSTEN)';
+                            mEl.className = isCagr
                                 ? 'text-[8px] px-1 py-0.2 rounded font-semibold uppercase bg-sky-500/15 text-sky-400 border border-sky-500/30 shrink-0'
                                 : 'text-[8px] px-1 py-0.2 rounded font-semibold uppercase bg-amber-500/15 text-amber-400 border border-amber-500/30 shrink-0';
                         } else {
-                            el.textContent = 'HIST.';
-                            el.className = 'text-[8px] px-1 py-0.2 rounded font-semibold uppercase bg-blue-500/10 text-blue-400 border border-blue-500/25 shrink-0';
+                            mEl.textContent = 'HIST.';
+                            mEl.className = 'text-[8px] px-1 py-0.2 rounded font-semibold uppercase bg-blue-500/10 text-blue-400 border border-blue-500/25 shrink-0';
                         }
-                    });
+                    }
+                    if (pEl) pEl.textContent = pt.price !== null ? fmtCurrency(pt.price, dataset.currency) : '—';
+                    if (fEl) fEl.textContent = pt.fairValue !== null ? fmtCurrency(pt.fairValue, dataset.currency) : '—';
 
-                    syncElements('liveValPrice', `${prefix}liveValPrice`, (el) => {
-                        el.textContent = pt.price !== null ? fmtCurrency(pt.price, dataset.currency) : '—';
-                    });
-
-                    syncElements('liveValFair', `${prefix}liveValFair`, (el) => {
-                        el.textContent = pt.fairValue !== null ? fmtCurrency(pt.fairValue, dataset.currency) : '—';
-                    });
-
-                    syncElements('liveValDev', `${prefix}liveValDev`, (el) => {
+                    if (devEl) {
                         if (typeof pt.price === 'number' && typeof pt.fairValue === 'number' && pt.fairValue > 0) {
                             const dev = ((pt.price - pt.fairValue) / pt.fairValue) * 100;
                             const sign = dev >= 0 ? '+' : '';
-                            el.textContent = `${sign}${dev.toFixed(1)}% (${dev < -10 ? 'Unterbewertet' : dev > 10 ? 'Überbewertet' : 'Fair'})`;
-                            el.className = dev < -5 ? 'font-bold text-emerald-400 mt-0.5 text-[11px] truncate' : (dev > 5 ? 'font-bold text-rose-400 mt-0.5 text-[11px] truncate' : 'font-bold text-blue-300 mt-0.5 text-[11px] truncate');
+                            devEl.textContent = `${sign}${dev.toFixed(1)}% (${dev < -10 ? 'Unterbewertet' : dev > 10 ? 'Überbewertet' : 'Fair'})`;
+                            devEl.className = dev < -5 ? 'font-bold text-emerald-400 mt-0.5 text-[11px] truncate' : (dev > 5 ? 'font-bold text-rose-400 mt-0.5 text-[11px] truncate' : 'font-bold text-blue-300 mt-0.5 text-[11px] truncate');
                         } else {
-                            el.textContent = '—';
+                            devEl.textContent = '—';
                         }
-                    });
+                    }
 
-                    syncElements('liveValBand', `${prefix}liveValBand`, (el) => {
+                    if (bandEl) {
                         if (typeof pt.lowerBand === 'number' && typeof pt.upperBand === 'number') {
-                            el.textContent = `${pt.lowerBand.toFixed(1)} – ${pt.upperBand.toFixed(1)} ${dataset.currency || '$'}`;
+                            bandEl.textContent = `${pt.lowerBand.toFixed(1)} – ${pt.upperBand.toFixed(1)} ${dataset.currency || '$'}`;
                         } else {
-                            el.textContent = '—';
+                            bandEl.textContent = '—';
                         }
-                    });
+                    }
 
-                    syncElements('liveValPercentile', `${prefix}liveValPercentile`, (el) => {
-                        el.textContent = (typeof activeStats?.currentPercentile === 'number') ? `${activeStats.currentPercentile}% (${status})` : '—';
-                    });
+                    if (pctEl) {
+                        if (pt.type === 'current' && activeStats?.currentPercentile !== null) {
+                            pctEl.textContent = `${activeStats.currentPercentile}%`;
+                        } else if (typeof pt.price === 'number' && typeof pt.lowerBand === 'number' && typeof pt.upperBand === 'number' && pt.upperBand > pt.lowerBand) {
+                            const estPct = Math.max(0, Math.min(100, Math.round(((pt.price - pt.lowerBand) / (pt.upperBand - pt.lowerBand)) * 100)));
+                            pctEl.textContent = `~${estPct}%`;
+                        } else {
+                            pctEl.textContent = '—';
+                        }
+                    }
                 }
 
-                // Initial HUD
-                updateInstanceLiveHUD(curPt);
+                // Initial HUD state
+                updateLiveHUD(curPt);
 
-                const handlePointer = (clientX) => {
-                    if (clientX === null || clientX === undefined) return;
-                    const rect = wrapper.getBoundingClientRect();
-                    const relX = clientX - rect.left;
-                    if (relX < padLeft - 10 || relX > width - padRight + 10) return;
-                    const clampedX = Math.max(padLeft, Math.min(width - padRight, relX));
-                    const targetTimestamp = tMin + ((clampedX - padLeft) / chartW) * timeSpan;
-
-                    let closestPt = timelineSeries[0];
-                    let minDiff = Infinity;
-                    for (const pt of timelineSeries) {
-                        const diff = Math.abs(pt.timestamp - targetTimestamp);
-                        if (diff < minDiff) {
-                            minDiff = diff;
-                            closestPt = pt;
+                // O(log N) Binary Search Bisector for Crosshair Hit-Testing
+                function bisectTimestamp(time) {
+                    let low = 0;
+                    let high = timelineSeries.length - 1;
+                    while (low <= high) {
+                        const mid = (low + high) >> 1;
+                        const midT = timelineSeries[mid].timestamp;
+                        if (midT < time) {
+                            low = mid + 1;
+                        } else if (midT > time) {
+                            high = mid - 1;
+                        } else {
+                            return timelineSeries[mid];
                         }
                     }
-                    if (!closestPt) return;
+                    if (low >= timelineSeries.length) return timelineSeries[timelineSeries.length - 1];
+                    if (high < 0) return timelineSeries[0];
+                    const d1 = Math.abs(timelineSeries[low].timestamp - time);
+                    const d2 = Math.abs(timelineSeries[high].timestamp - time);
+                    return d1 < d2 ? timelineSeries[low] : timelineSeries[high];
+                }
 
-                    const ptX = getX(closestPt.timestamp);
-                    if (hoverLine) {
-                        hoverLine.setAttribute('x1', ptX);
-                        hoverLine.setAttribute('x2', ptX);
-                        hoverLine.style.display = 'block';
+                function handlePointerMove(e) {
+                    const rect = svg.getBoundingClientRect();
+                    const clientX = e.clientX ?? (e.touches && e.touches[0] ? e.touches[0].clientX : null);
+                    if (clientX === null) return;
+                    const xRel = clientX - rect.left;
+                    if (xRel < padLeft || xRel > width - padRight) {
+                        resetHover();
+                        return;
                     }
-                    if (hoverDotPrice && closestPt.price !== null) {
-                        hoverDotPrice.setAttribute('cx', ptX);
-                        hoverDotPrice.setAttribute('cy', getY(closestPt.price));
-                        hoverDotPrice.style.display = 'block';
-                    } else if (hoverDotPrice) hoverDotPrice.style.display = 'none';
 
-                    if (hoverDotFair && closestPt.fairValue !== null) {
-                        hoverDotFair.setAttribute('cx', ptX);
-                        hoverDotFair.setAttribute('cy', getY(closestPt.fairValue));
-                        hoverDotFair.style.display = 'block';
-                    } else if (hoverDotFair) hoverDotFair.style.display = 'none';
+                    const tTarget = tMin + ((xRel - padLeft) / chartW) * timeSpan;
+                    const closest = bisectTimestamp(tTarget);
+                    if (!closest) return;
 
-                    updateInstanceLiveHUD(closestPt);
-                };
+                    const snapX = getX(closest.timestamp);
+
+                    if (hoverLine) {
+                        hoverLine.setAttribute('x1', snapX.toFixed(1));
+                        hoverLine.setAttribute('x2', snapX.toFixed(1));
+                        hoverLine.style.display = '';
+                    }
+
+                    if (hoverDotPrice) {
+                        if (closest.price !== null && typeof closest.price === 'number') {
+                            const pY = priceScale.getY(closest.price);
+                            hoverDotPrice.setAttribute('cx', snapX.toFixed(1));
+                            hoverDotPrice.setAttribute('cy', pY.toFixed(1));
+                            hoverDotPrice.style.display = '';
+                        } else {
+                            hoverDotPrice.style.display = 'none';
+                        }
+                    }
+
+                    if (hoverDotFair) {
+                        if (closest.fairValue !== null && typeof closest.fairValue === 'number') {
+                            const fY = priceScale.getY(closest.fairValue);
+                            hoverDotFair.setAttribute('cx', snapX.toFixed(1));
+                            hoverDotFair.setAttribute('cy', fY.toFixed(1));
+                            hoverDotFair.style.display = '';
+                        } else {
+                            hoverDotFair.style.display = 'none';
+                        }
+                    }
+
+                    updateLiveHUD(closest);
+                }
+
+                function resetHover() {
+                    if (hoverLine) hoverLine.style.display = 'none';
+                    if (hoverDotPrice) hoverDotPrice.style.display = 'none';
+                    if (hoverDotFair) hoverDotFair.style.display = 'none';
+                    updateLiveHUD(curPt);
+                }
 
                 if (hoverSurface) {
-                    hoverSurface.onpointermove = (e) => handlePointer(e.clientX);
-                    hoverSurface.ontouchmove = (e) => { if (e.touches && e.touches[0]) handlePointer(e.touches[0].clientX); };
-                    hoverSurface.onpointerleave = () => {
-                        if (hoverLine) hoverLine.style.display = 'none';
-                        if (hoverDotPrice) hoverDotPrice.style.display = 'none';
-                        if (hoverDotFair) hoverDotFair.style.display = 'none';
-                        updateInstanceLiveHUD(curPt);
-                    };
-                    hoverSurface.onclick = (e) => {
-                        const rect = wrapper.getBoundingClientRect();
-                        const relX = e.clientX - rect.left;
-                        if (relX >= padLeft && relX <= width - padRight) {
-                            const targetTimestamp = tMin + ((relX - padLeft) / chartW) * timeSpan;
-                            let closestPt = timelineSeries[0];
-                            let minDiff = Infinity;
-                            for (const pt of timelineSeries) {
-                                const diff = Math.abs(pt.timestamp - targetTimestamp);
-                                if (diff < minDiff) {
-                                    minDiff = diff;
-                                    closestPt = pt;
-                                }
-                            }
-                            if (closestPt && closestPt.year) showInstitutionalDetailInspector(closestPt.year);
-                        }
-                    };
+                    hoverSurface.onmousemove = handlePointerMove;
+                    hoverSurface.onmouseleave = resetHover;
+                    hoverSurface.ontouchmove = (e) => { handlePointerMove(e); e.preventDefault(); };
+                    hoverSurface.ontouchend = resetHover;
                 }
             }
 
-            // Draw both Full Research and Guided View charts
+            // Render both Guided View and Full Research View instances
             drawSingleValuationChart('valCorridorSvg', 'valCorridorChartWrapper', '');
             drawSingleValuationChart('guided_valCorridorSvg', 'guided_valCorridorChartWrapper', 'guided_');
         }
@@ -9298,6 +9502,32 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             if (CURRENT_NORMALIZED_HISTORICAL_DATA) {
                 renderValueInvestingLayer(CURRENT_NORMALIZED_HISTORICAL_DATA, ACTIVE_VALUATION_METHOD, tf, SELECTED_VALUATION_GRANULARITY);
             }
+        }
+
+        function selectValuationScale(scale) {
+            if (scale !== 'LIN' && scale !== 'LOG') return;
+            SELECTED_VALUATION_SCALE = scale;
+            updateScaleButtonStates(SELECTED_VALUATION_SCALE);
+            if (CURRENT_NORMALIZED_HISTORICAL_DATA && CURRENT_VALUATION_RESULT) {
+                renderValueChart(CURRENT_NORMALIZED_HISTORICAL_DATA, CURRENT_VALUATION_RESULT);
+            }
+        }
+
+        function updateScaleButtonStates(activeScale = SELECTED_VALUATION_SCALE) {
+            ['LIN', 'LOG'].forEach(s => {
+                const btnList = [
+                    document.getElementById(`valScaleBtn_${s}`),
+                    document.getElementById(`guided_valScaleBtn_${s}`)
+                ];
+                btnList.forEach(btn => {
+                    if (!btn) return;
+                    if (s === activeScale) {
+                        btn.className = 'val-scale-btn px-1.5 py-0.5 rounded text-[10px] font-semibold text-white bg-[#171C23] border border-[#2D3748] transition-all';
+                    } else {
+                        btn.className = 'val-scale-btn px-1.5 py-0.5 rounded text-[10px] font-medium text-slate-400 hover:text-white transition-all';
+                    }
+                });
+            });
         }
 
         function selectValuationGranularity(granularity) {
