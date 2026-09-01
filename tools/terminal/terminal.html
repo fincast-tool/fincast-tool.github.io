@@ -3747,6 +3747,9 @@
             'INTESA': 'ISP.MI', 'ING': 'INGA.AS'
         };
 
+        // Primary Live Data Engine (Solution A: High-Precision Google Grounding; Solution B: FMP Standby)
+        const DATA_PROVIDER = 'GOOGLE_GROUNDING'; // Options: 'GOOGLE_GROUNDING' (Primary) | 'FMP_HYBRID' (Standby)
+
         async function fetchOfficialHistoricalData(symbol) {
             if (!symbol) return null;
             try {
@@ -3812,10 +3815,13 @@
                     'Identifikation des Unternehmens, Heimatbörse und offizielle Kursfeststellung.'
                 );
 
-                // Step 0: Fetch official exchange quotes & SEC filings from /api/historical-data
-                const officialData = await fetchOfficialHistoricalData(query);
+                // Provider Dispatch (Solution A: High-Precision Google Grounding; Solution B Standby: FMP Hybrid)
+                let officialData = null;
+                if (DATA_PROVIDER === 'FMP_HYBRID') {
+                    officialData = await fetchOfficialHistoricalData(query);
+                }
 
-                // Step 1-3: Run 2-phase institutional AI research (grounded on official data if present)
+                // Step 1-3: Run institutional research (grounded on official data or live Google Search)
                 const finalResults = await runInstitutionalResearch(query, user, currentLangName, officialData);
 
                 updateLoadingStatus(
@@ -3917,43 +3923,37 @@ Fiscal Year: FY${dataset.annual[dataset.annual.length - 1]?.year || new Date().g
                 }
             }
 
-            // If no official data, run Phase 1: Google Grounding
+            // If no official data, run Phase 1: High-Precision Google Search Grounding
             if (!dataset) {
-                // ==================== PHASE 1: DATASET & IDENTITY RESEARCH (Google Grounding = TRUE, 2.5 Flash) ====================
+                // ==================== PHASE 1: HIGH-PRECISION GOOGLE GROUNDING (Gemini 2.5 Flash + Google Search) ====================
                 updateLoadingStatus(
-                    'Fundamentale Finanzhistorie & Bilanzen werden erfasst...', 
+                    'Live-Börsendaten & fundamentale 5-Jahres-Bilanzen werden erfasst...', 
                     35, 
-                    'Analyse der Jahresabschlüsse der letzten 5 Jahre sowie aktueller TTM-Perioden (Umsatz, EBIT, FCF, Margen, Verschuldung).'
+                    'Verifizierte Live-Marktdaten & Jahresabschlüsse (Yahoo Finance, Morningstar, SEC, Google Finance, Bloomberg).'
                 );
                 
                 const datasetPrompt = getDatasetPrompt(query, lang);
-                const datasetResponseText = await fetchSingleBatch(query, user, datasetPrompt, 0, false, null, 'gemini-2.5-flash');
+                const datasetResponseText = await fetchSingleBatch(query, user, datasetPrompt, 0, true, null, 'gemini-2.5-flash');
                 const phase1Data = parseFrameworks(datasetResponseText);
 
                 identityText = phase1Data.company_identity || null;
 
-                // Extract identified primary ticker or ISIN from Google Grounding identity
-                const identifiedTicker = (
-                    identityText?.match(/(?:Ticker|Symbol):\s*([A-Z0-9.\-_]+)/i)?.[1] ||
-                    identityText?.match(/ISIN:\s*([A-Z0-9]{12})/i)?.[1]
-                )?.trim();
+                // Solution B Standby: If FMP provider is active, query FMP with identified ticker
+                if (DATA_PROVIDER === 'FMP_HYBRID') {
+                    const identifiedTicker = (
+                        identityText?.match(/(?:Ticker|Symbol):\s*([A-Z0-9.\-_]+)/i)?.[1] ||
+                        identityText?.match(/ISIN:\s*([A-Z0-9]{12})/i)?.[1]
+                    )?.trim();
 
-                let officialFromPhase1 = null;
-                if (identifiedTicker && identifiedTicker !== 'N/A' && identifiedTicker.toUpperCase() !== 'N/A') {
-                    console.log(`[Research Protocol] Phase 1 identified official ticker: "${identifiedTicker}" for "${query}". Querying FMP...`);
-                    updateLoadingStatus(
-                        `Offizielle Bilanzen & Börsenkurse werden geladen (${identifiedTicker})...`, 
-                        45, 
-                        'Verbindung zu FMP mit dem verifizierten Börsenkürzel.'
-                    );
-                    officialFromPhase1 = await fetchOfficialHistoricalData(identifiedTicker);
-                }
-
-                if (officialFromPhase1) {
-                    const normOfficial = normalizeHistoricalFinancialData(officialFromPhase1);
-                    if (normOfficial && normOfficial.annual && normOfficial.annual.length > 0) {
-                        dataset = normOfficial;
-                        console.log(`[Research Protocol] Successfully upgraded to official FMP dataset via Phase 1 ticker resolution (${identifiedTicker})`);
+                    if (identifiedTicker && identifiedTicker !== 'N/A' && identifiedTicker.toUpperCase() !== 'N/A') {
+                        const officialFromPhase1 = await fetchOfficialHistoricalData(identifiedTicker);
+                        if (officialFromPhase1) {
+                            const normOfficial = normalizeHistoricalFinancialData(officialFromPhase1);
+                            if (normOfficial && normOfficial.annual && normOfficial.annual.length > 0) {
+                                dataset = normOfficial;
+                                console.log(`[Research Protocol] Upgraded to official FMP dataset for ${identifiedTicker}`);
+                            }
+                        }
                     }
                 }
 
@@ -4181,28 +4181,31 @@ Technical Signal: [EXACTLY ONE: [STRONG BULLISH] / [BULLISH] / [NEUTRAL] / [BEAR
             const todayIso = new Date().toISOString().split('T')[0];
             return `CURRENT DATE: ${todayIso}
 LANGUAGE: Respond in ${lang}.
-TASK: Extract Official Company Profile and Empirical 5-Year + TTM Financial Statements for "${query}".
+TASK: Extract Verified Live Market Price, Official Company Profile, and Empirical 5-Year + TTM Financial Statements for "${query}".
 
 STRICT DIRECTIVES:
-1. PROFILE & TICKER IDENTIFICATION: Provide the official company profile, primary trading ticker symbol (e.g. CRM for Salesforce, MC.PA for LVMH, AAPL for Apple), ISIN, primary exchange, native trading currency, and general sector information.
-2. NATIVE CURRENCY: State the exact native trading currency code (USD, EUR, CHF, GBP, etc.) consistently for all monetary figures and current stock price.
-3. OUTPUT FORMAT: Output ONLY the two requested XML blocks below. Do NOT output any narrative text, analysis or extra sections.
+1. GOOGLE SEARCH GROUNDING: Use Google Search Grounding to verify the exact current live stock price and historical financial data from authoritative sources (Yahoo Finance, Google Finance, Morningstar, SEC EDGAR 10-K, Bloomberg, MarketWatch, Finanzen.net).
+2. LIVE STOCK PRICE ACCURACY: Find the ACTUAL LIVE / CURRENT market trading price for "${query}" as of today (${todayIso}) in its native trading currency. (e.g. for Zoetis/ZTS check real live price, for Apple/AAPL, for PepsiCo/PEP, for LVMH/MC.PA). Do NOT use outdated historical prices as current price!
+3. NATIVE CURRENCY: State the exact native trading currency code (USD, EUR, CHF, GBP, etc.) consistently for all monetary figures and current stock price.
+4. HISTORICAL 5-YEAR FINANCIAL STATEMENTS: Retrieve the exact reported annual financial figures for the past 5 completed fiscal years (FY2020, FY2021, FY2022, FY2023, FY2024) plus TTM:
+   - Revenue, Operating Income (EBIT), Net Income, Free Cash Flow (FCF), EPS, ROIC, ROE, Debt/Equity, and actual historical period-close prices.
+5. OUTPUT FORMAT: Output ONLY the two requested XML blocks below (<company_identity> and <financial_dataset>). Do NOT output any conversational text, extra markdown commentary, or analysis.
 
 <company_identity>
 Name: [Official Company Name]
-Ticker: [Primary Ticker Symbol, e.g. MSFT, AAPL, SAP]
-ISIN: [ISIN or N/A]
-WKN: [WKN or N/A]
-Exchange: [Primary Exchange, e.g. NASDAQ, NYSE, XETRA]
+Ticker: [Primary Ticker Symbol, e.g. ZTS, PEP, MSFT, AAPL, MC.PA]
+ISIN: [Official ISIN or N/A]
+WKN: [Official WKN or N/A]
+Exchange: [Primary Exchange, e.g. NYSE, NASDAQ, XETRA, EURONEXT]
 Country: [HQ City, Country]
-Currency: [Native Currency Code, e.g. USD, EUR]
+Currency: [Native Currency Code, e.g. USD, EUR, CHF]
 Sector: [GICS Sector]
 Industry: [GICS Industry]
-Current Price: [Current stock price with currency, e.g. '513.53 USD']
-Market Cap: [Market cap with currency, e.g. '3.81 Trillion USD' or '3.81 Bio. USD']
-Enterprise Value: [Enterprise value or N/A]
+Current Price: [Exact current stock price with currency, e.g. '77.45 USD' or '175.20 EUR']
+Market Cap: [Market cap with currency, e.g. '35.40 Billion USD']
+Enterprise Value: [Enterprise value with currency or N/A]
 Fiscal Year: [Latest completed fiscal year, e.g. FY2024]
-Latest Reporting Date: [Latest earnings/annual report date]
+Latest Reporting Date: [Latest earnings report date]
 Data Timestamp: [${todayIso}]
 </company_identity>
 
@@ -4213,10 +4216,12 @@ Data Timestamp: [${todayIso}]
   "companyName": "[Official Company Name]",
   "currency": "[Native Currency Code, e.g. USD, EUR]",
   "availableYears": 5,
+  "currentPrice": [Current stock price as plain number],
+  "marketCap": [Market capitalization as plain number],
   "ttm": {
     "date": "TTM",
     "revenue": [TTM Revenue as plain number in native currency],
-    "operatingIncome": [TTM EBIT as plain number],
+    "operatingIncome": [TTM EBIT / Operating Income as plain number],
     "netIncome": [TTM Net Income as plain number],
     "freeCashFlow": [TTM Free Cash Flow as plain number],
     "eps": [TTM EPS as number],
@@ -4235,12 +4240,12 @@ Data Timestamp: [${todayIso}]
       "netIncome": [Annual Net Income as plain number],
       "freeCashFlow": [Annual Free Cash Flow as plain number],
       "eps": [EPS as number],
-      "peRatio": [Average historical P/E for this year as number],
+      "peRatio": [Historical P/E for this year as number],
       "roic": [ROIC in % as number],
       "roe": [ROE in % as number],
       "debtToEquity": [Debt/Equity ratio as number],
       "sharesOutstanding": [Shares outstanding as number],
-      "periodClosePrice": [ACTUAL historical year-end closing stock price for this specific year (e.g. 2021: 336.32, 2022: 239.82, 2023: 376.04). DO NOT repeat current live price!]
+      "periodClosePrice": [Historical year-end closing price for this year as number]
     }
   ]
 }
@@ -8138,7 +8143,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 }
             }
 
-            getTicks(targetCount = 5) {
+            getTicks(targetCount = 6) {
                 const [yBottom, yTop] = this.range;
                 if (!this.isLog) {
                     const span = this.max - this.min;
@@ -8167,29 +8172,45 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 } else {
                     const minPow = Math.floor(Math.log10(this.min));
                     const maxPow = Math.ceil(Math.log10(this.max));
-                    const candidateMultipliers = [1, 2, 5];
-                    const allCandidates = [];
+                    const ratio = this.max / Math.max(0.001, this.min);
 
+                    let candidateMultipliers;
+                    if (ratio <= 2.5) {
+                        candidateMultipliers = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.8, 2, 2.2, 2.5, 3, 3.5, 4, 4.5, 5, 6, 7, 8, 9];
+                    } else if (ratio <= 5) {
+                        candidateMultipliers = [1, 1.25, 1.5, 2, 2.5, 3, 4, 5, 6, 7.5, 8];
+                    } else if (ratio <= 12) {
+                        candidateMultipliers = [1, 1.5, 2, 3, 5, 7];
+                    } else {
+                        candidateMultipliers = [1, 2, 5];
+                    }
+
+                    const allCandidates = [];
                     for (let p = minPow; p <= maxPow; p++) {
                         const base = Math.pow(10, p);
                         candidateMultipliers.forEach(m => {
-                            const v = m * base;
-                            if (v >= this.min * 0.95 && v <= this.max * 1.05) {
+                            const v = Math.round(m * base * 100) / 100;
+                            if (v >= this.min && v <= this.max) {
                                 allCandidates.push(v);
                             }
                         });
                     }
 
-                    let filtered = allCandidates;
-                    if (allCandidates.length > 7) {
-                        filtered = allCandidates.filter(v => {
-                            const log10 = Math.log10(v);
-                            const frac = log10 - Math.floor(log10);
-                            return frac < 0.01 || Math.abs(frac - Math.log10(5)) < 0.01;
-                        });
+                    let selected = allCandidates;
+                    if (selected.length > 8) {
+                        const step = Math.ceil(selected.length / 6);
+                        selected = selected.filter((_, idx) => idx % step === 0 || idx === selected.length - 1);
                     }
 
-                    return filtered.map(v => ({ val: v, y: this.getY(v) }));
+                    if (selected.length < 3) {
+                        selected = [
+                            Math.round(this.min),
+                            Math.round(Math.exp((this.logMin + this.logMax) / 2)),
+                            Math.round(this.max)
+                        ];
+                    }
+
+                    return selected.map(v => ({ val: v, y: this.getY(v) }));
                 }
             }
         }
@@ -8355,7 +8376,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 const bRect = wrapper.getBoundingClientRect();
                 const width = Math.max(320, bRect.width || 800);
                 const height = Math.max(240, bRect.height || 280);
-                const padLeft = 48;
+                const padLeft = 56;
                 const padRight = 65;
                 const padTop = 22;
                 const padBottom = 30;
@@ -8471,15 +8492,16 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     }
                 }
 
-                // 2. Smooth Price Line
+                // 2. Crisp Stock Price Polyline (True High-Density Market Curve)
                 let priceHistSvg = '';
                 const histPricePts = [...histPts, curPt].filter(pt => typeof pt.price === 'number' && Number.isFinite(pt.price));
                 if (histPricePts.length >= 2) {
                     const screenPricePts = histPricePts.map(pt => ({ x: getX(pt.timestamp), y: priceScale.getY(pt.price) }));
-                    const priceD = SplineGeometryEngine.generateMonotoneCubicPath(screenPricePts);
-                    if (priceD) {
-                        priceHistSvg = `<path d="${priceD}" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linejoin="round" />`;
+                    let priceD = `M ${screenPricePts[0].x.toFixed(1)} ${screenPricePts[0].y.toFixed(1)}`;
+                    for (let i = 1; i < screenPricePts.length; i++) {
+                        priceD += ` L ${screenPricePts[i].x.toFixed(1)} ${screenPricePts[i].y.toFixed(1)}`;
                     }
+                    priceHistSvg = `<path d="${priceD}" fill="none" stroke="#FFFFFF" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" />`;
                 }
 
                 // 3. Smooth Fair Value Curves
@@ -8540,14 +8562,12 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     <!-- Price Curve -->
                     ${priceHistSvg}
 
-                    <!-- Current Marker Points -->
+                    <!-- Current Marker Points (Clean Dots, Zero Overlap) -->
                     ${curPriceY !== null ? `
-                        <circle cx="${curX.toFixed(1)}" cy="${curPriceY.toFixed(1)}" r="5" fill="#FFFFFF" stroke="#0B0E12" stroke-width="2" />
-                        <text x="${(curX + 7).toFixed(1)}" y="${(curPriceY + 3.5).toFixed(1)}" fill="#FFFFFF" font-size="9" font-weight="bold" font-family="'JetBrains Mono', monospace">Kurs: ${fmtCurrency(curPt.price, dataset.currency)}</text>
+                        <circle cx="${curX.toFixed(1)}" cy="${curPriceY.toFixed(1)}" r="4.5" fill="#FFFFFF" stroke="#0B0E12" stroke-width="2" />
                     ` : ''}
                     ${curFairY !== null ? `
-                        <circle cx="${curX.toFixed(1)}" cy="${curFairY.toFixed(1)}" r="5" fill="#D6A83A" stroke="#0B0E12" stroke-width="2" />
-                        <text x="${(curX + 7).toFixed(1)}" y="${(curFairY + 3.5).toFixed(1)}" fill="#D6A83A" font-size="8.5" font-weight="bold" font-family="'JetBrains Mono', monospace">Fair: ${fmtCurrency(curPt.fairValue, dataset.currency)}</text>
+                        <circle cx="${curX.toFixed(1)}" cy="${curFairY.toFixed(1)}" r="4.5" fill="#D6A83A" stroke="#0B0E12" stroke-width="2" />
                     ` : ''}
 
                     <!-- Hover Crosshair & Sticky Dots -->
@@ -9453,6 +9473,29 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
         // --- MASTER VALUE INVESTING DISPATCH FUNCTION ---
         function renderValueInvestingLayer(dataset, selectedMethod = ACTIVE_VALUATION_METHOD, timeframe = SELECTED_VALUATION_TIMEFRAME, granularity = SELECTED_VALUATION_GRANULARITY) {
             if (!dataset) return;
+
+            // Automatic High-Density Backfill: If historical dataset lacks daily/weekly price history (e.g. from an older archive),
+            // seamlessly load official historical prices in the background to ensure rich, granular chart resolution
+            if (dataset && dataset.symbol && (!dataset.priceHistory || dataset.priceHistory.length < 20)) {
+                if (!dataset._isBackfillingPrices) {
+                    dataset._isBackfillingPrices = true;
+                    fetch(`/api/historical-data?symbol=${encodeURIComponent(dataset.symbol)}`)
+                        .then(res => res.ok ? res.json() : null)
+                        .then(freshData => {
+                            if (freshData && Array.isArray(freshData.historicalPrices) && freshData.historicalPrices.length >= 20) {
+                                dataset.priceHistory = freshData.historicalPrices;
+                                dataset.prices = freshData.historicalPrices;
+                                if (Array.isArray(freshData.quarterlyFinancials) && freshData.quarterlyFinancials.length > 0) {
+                                    dataset.quarterly = freshData.quarterlyFinancials;
+                                }
+                                const upgradedDataset = normalizeHistoricalFinancialData(dataset);
+                                CURRENT_NORMALIZED_HISTORICAL_DATA = upgradedDataset;
+                                renderValueInvestingLayer(upgradedDataset, ACTIVE_VALUATION_METHOD, SELECTED_VALUATION_TIMEFRAME, SELECTED_VALUATION_GRANULARITY);
+                            }
+                        })
+                        .catch(err => console.warn('[Chart Backfill] Price history backfill skipped:', err));
+                }
+            }
             ACTIVE_VALUATION_METHOD = selectedMethod;
             SELECTED_VALUATION_TIMEFRAME = timeframe;
             SELECTED_VALUATION_GRANULARITY = granularity;
