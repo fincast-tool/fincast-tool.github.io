@@ -49,7 +49,7 @@ module.exports = async function handler(req, res) {
                 earnData = Array.isArray(historicalDataset.earningsSurprises) ? historicalDataset.earningsSurprises : [];
                 histDataRaw = { historical: Array.isArray(historicalDataset.historicalPrices) ? historicalDataset.historicalPrices : [] };
                 systemStatus += `Using Unified Pre-fetched Dataset for ${symbol}. `;
-            } else if (fmpKey) {
+            } else if (fmpKey && enableSearch === false) {
                 const maskedKey = fmpKey.length > 5 ? (fmpKey.substring(0, 3) + "..." + fmpKey.substring(fmpKey.length - 3)) : "***";
                 systemStatus += `FMP Key Found (${maskedKey}). `;
                 try {
