@@ -2040,7 +2040,7 @@
                                     </div>
 
                                     <!-- Chart Canvas / SVG Container -->
-                                    <div id="multiplesChartContainer" class="w-full relative bg-[#0B0E12] rounded-lg border border-[#202630] p-3 sm:p-4 overflow-hidden">
+                                    <div id="multiplesChartContainer" class="w-full relative bg-[#0B0E12] rounded-lg border border-[#202630] p-2 sm:p-4 overflow-hidden">
                                         
                                         <!-- Top Bar: Metric Toggles & Timeframe Range Selector -->
                                         <div class="flex flex-wrap items-center justify-between gap-2.5 text-xs text-slate-400 mb-2.5 pb-2.5 border-b border-[#202630]">
@@ -4286,17 +4286,23 @@ Data Timestamp: [${todayIso}]
   "availableYears": 10,
   "currentPrice": ${typeof marketQuote?.currentPrice === 'number' ? marketQuote.currentPrice : 0},
   "marketCap": [Market capitalization as plain number],
+  "nextEarnings": "[Expected next earnings date YYYY-MM-DD or Month/Year]",
   "ttm": {
     "date": "TTM",
     "revenue": [TTM Revenue as plain number in native currency],
     "operatingIncome": [TTM EBIT / Operating Income as plain number],
+    "operatingMargin": [TTM Operating EBIT margin in % as number, e.g. 18.5],
     "netIncome": [TTM Net Income as plain number],
     "freeCashFlow": [TTM Free Cash Flow as plain number],
     "eps": [TTM EPS as number],
     "peRatio": [Current P/E ratio as number],
     "roic": [TTM ROIC in % as number],
     "roe": [TTM ROE in % as number],
-    "debtToEquity": [TTM Debt/Equity as number],
+    "debtToEquity": [TTM Debt/Equity as number, e.g. 1.25],
+    "netDebtToEbitda": [TTM Net Debt / EBITDA ratio as number, e.g. 1.80],
+    "interestCoverage": [TTM EBIT / Interest expense ratio as number, e.g. 12.5],
+    "dividendYield": [Current dividend yield in % as number, e.g. 2.4],
+    "payoutRatio": [Dividend payout ratio in % as number, e.g. 45.0],
     "sharesOutstanding": [Current shares outstanding as plain number]
   },
   "annual": [
@@ -4305,6 +4311,7 @@ Data Timestamp: [${todayIso}]
       "date": "[YYYY-MM-DD or year]",
       "revenue": [Annual revenue as plain number in native currency],
       "operatingIncome": [Annual EBIT / Operating Income as plain number],
+      "operatingMargin": [Operating EBIT margin in % as number],
       "netIncome": [Annual Net Income as plain number],
       "freeCashFlow": [Annual Free Cash Flow as plain number],
       "eps": [EPS as number],
@@ -4312,6 +4319,10 @@ Data Timestamp: [${todayIso}]
       "roic": [ROIC in % as number],
       "roe": [ROE in % as number],
       "debtToEquity": [Debt/Equity ratio as number],
+      "netDebtToEbitda": [Net Debt / EBITDA ratio as number],
+      "interestCoverage": [Interest coverage ratio as number],
+      "dividendYield": [Dividend yield in % as number],
+      "payoutRatio": [Dividend payout ratio in % as number],
       "sharesOutstanding": [Shares outstanding as number],
       "periodClosePrice": [Historical year-end closing price for this year as number]
     }
@@ -4323,7 +4334,13 @@ Data Timestamp: [${todayIso}]
 
         function getSpecialistReviewPrompt(query, lang, dataset, identityText, agentIds = ['business_quality', 'financial_quality', 'earnings_expectations', 'valuation', 'market_structure']) {
             const todayIso = new Date().toISOString().split('T')[0];
-            const datasetJson = JSON.stringify(dataset || {}, null, 2);
+            // Decouple heavy chart coordinate arrays from the reasoning prompt (< 3KB payload for lightning-fast multi-agent completion)
+            let cleanDataset = dataset;
+            if (dataset && typeof dataset === 'object') {
+                const { historicalPrices, priceHistory, prices, rawPriceHistory, ...rest } = dataset;
+                cleanDataset = rest;
+            }
+            const datasetJson = JSON.stringify(cleanDataset || {}, null, 2);
 
             let prompt = `CURRENT DATE: ${todayIso}
 LANGUAGE: Respond EXCLUSIVELY in ${lang}.
@@ -5821,17 +5838,17 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 revenueCAGR: resRevCagr ?? raw.researchedMetrics?.revenueCAGR,
                 epsCAGR: resRevCagr ? resRevCagr * 1.1 : raw.researchedMetrics?.epsCAGR,
                 fcfCAGR: resRevCagr ? resRevCagr * 0.95 : raw.researchedMetrics?.fcfCAGR,
-                roic: resRoic ?? raw.researchedMetrics?.roic,
-                roe: resRoe ?? raw.researchedMetrics?.roe,
-                operatingMargin: resOpMgn ?? raw.researchedMetrics?.operatingMargin,
+                roic: safeNum(raw.ttm?.roic) ?? resRoic ?? raw.researchedMetrics?.roic,
+                roe: safeNum(raw.ttm?.roe) ?? resRoe ?? raw.researchedMetrics?.roe,
+                operatingMargin: safeNum(raw.ttm?.operatingMargin) ?? resOpMgn ?? raw.researchedMetrics?.operatingMargin,
                 fcfMargin: resFcfMgn ?? raw.researchedMetrics?.fcfMargin,
-                netDebtToEbitda: resNetDebtEbitda ?? raw.researchedMetrics?.netDebtToEbitda,
-                debtToEquity: resDebtEquity ?? raw.researchedMetrics?.debtToEquity,
-                interestCoverage: resIntCov ?? raw.researchedMetrics?.interestCoverage,
-                peRatio: resPe ?? raw.researchedMetrics?.peRatio,
-                dividendYield: resDivYield ?? (safeNum(quote.dividendYield) !== null ? safeNum(quote.dividendYield) * 100 : raw.researchedMetrics?.dividendYield),
-                payoutRatio: resPayout ?? raw.researchedMetrics?.payoutRatio,
-                nextEarnings: resNextEarnings ?? (quote.earningsAnnouncement ? quote.earningsAnnouncement.split('T')[0] : null) ?? raw.researchedMetrics?.nextEarnings
+                netDebtToEbitda: safeNum(raw.ttm?.netDebtToEbitda) ?? resNetDebtEbitda ?? raw.researchedMetrics?.netDebtToEbitda,
+                debtToEquity: safeNum(raw.ttm?.debtToEquity) ?? resDebtEquity ?? raw.researchedMetrics?.debtToEquity,
+                interestCoverage: safeNum(raw.ttm?.interestCoverage) ?? resIntCov ?? raw.researchedMetrics?.interestCoverage,
+                peRatio: safeNum(raw.ttm?.peRatio) ?? resPe ?? raw.researchedMetrics?.peRatio,
+                dividendYield: safeNum(raw.ttm?.dividendYield) ?? resDivYield ?? (safeNum(quote.dividendYield) !== null ? safeNum(quote.dividendYield) * 100 : raw.researchedMetrics?.dividendYield),
+                payoutRatio: safeNum(raw.ttm?.payoutRatio) ?? resPayout ?? raw.researchedMetrics?.payoutRatio,
+                nextEarnings: resNextEarnings ?? raw.nextEarnings ?? raw.ttm?.nextEarnings ?? (quote.earningsAnnouncement ? quote.earningsAnnouncement.split('T')[0] : null) ?? raw.researchedMetrics?.nextEarnings
             };
 
             function findClosestPrice(targetDate) {
@@ -6555,17 +6572,36 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 fairValueSeries.push(forePt);
             });
 
-            const multiplesSeries = periods.map(p => ({
-                date: p.date,
-                year: p.year,
-                isForecast: false,
-                pe_adj: p.peRatioAdj,
-                pe_rep: p.peRatio,
-                pb: p.pbRatio,
-                pfcf: p.pfcfRatio,
-                ps: p.psRatio,
-                ev_ebitda: p.evEbitdaRatio
-            }));
+            const fundamentalPeriodsList = (Array.isArray(dataset.fundamentalPeriods) && dataset.fundamentalPeriods.length >= 2)
+                ? dataset.fundamentalPeriods
+                : (Array.isArray(dataset.annual) ? dataset.annual : []);
+
+            const multiplesSeries = fundamentalPeriodsList.map(p => {
+                const dStr = p.date ? p.date.split('T')[0] : '';
+                const t = dStr ? new Date(dStr).getTime() : 0;
+                const histP = p.periodClosePrice || (t ? interpolatePriceAtTime(dataset.prices || dataset.priceHistory, t) : null) || dataset.currentPrice;
+
+                const pe_adj = (histP && p.epsAdj && p.epsAdj > 0) ? Math.round((histP / p.epsAdj) * 10) / 10 : p.peRatioAdj;
+                const pe_rep = (histP && p.eps && p.eps > 0) ? Math.round((histP / p.eps) * 10) / 10 : p.peRatio;
+                const pfcf = (histP && p.freeCashFlowPerShare && p.freeCashFlowPerShare > 0) ? Math.round((histP / p.freeCashFlowPerShare) * 10) / 10 : (p.pfcfRatio || null);
+                const ps = (histP && p.revenuePerShare && p.revenuePerShare > 0) ? Math.round((histP / p.revenuePerShare) * 10) / 10 : (p.psRatio || null);
+                const pb = (histP && p.bookValuePerShare && p.bookValuePerShare > 0) ? Math.round((histP / p.bookValuePerShare) * 10) / 10 : (p.pbRatio || null);
+                const ev_ebitda = p.evEbitdaRatio || null;
+
+                return {
+                    date: dStr,
+                    year: p.year || (dStr ? new Date(dStr).getFullYear() : 2024),
+                    period: p.period || 'Q',
+                    timestamp: t,
+                    price: histP,
+                    pe_adj: pe_adj && pe_adj > 0 && pe_adj < 1000 ? pe_adj : null,
+                    pe_rep: pe_rep && pe_rep > 0 && pe_rep < 1000 ? pe_rep : null,
+                    pfcf: pfcf && pfcf > 0 && pfcf < 1000 ? pfcf : null,
+                    ps: ps && ps > 0 && ps < 1000 ? ps : null,
+                    pb: pb && pb > 0 && pb < 1000 ? pb : null,
+                    ev_ebitda: ev_ebitda && ev_ebitda > 0 && ev_ebitda < 1000 ? ev_ebitda : null
+                };
+            }).sort((a, b) => a.timestamp - b.timestamp);
 
             // Multi-Factor Valuation Score Engine (0-100)
             const availablePercentiles = [];
@@ -6666,10 +6702,16 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             const scenarioBull = currentUpperBand ?? (scenarioBase ? Math.round(scenarioBase * 1.30 * 100) / 100 : null);
 
             let riskRewardRatio = null;
-            if (currentPrice && scenarioBase && scenarioBear && scenarioBull && currentPrice > scenarioBear) {
+            if (currentPrice && scenarioBase && scenarioBear && scenarioBull) {
                 const upside = Math.max(0, scenarioBull - currentPrice);
-                const downside = Math.max(0.01, currentPrice - scenarioBear);
-                riskRewardRatio = Math.round((upside / downside) * 10) / 10;
+                if (currentPrice <= scenarioBear) {
+                    // Stock trades at a discount even to the Bear case -> highly asymmetrical upside
+                    const syntheticDownside = Math.max(1, currentPrice * 0.05);
+                    riskRewardRatio = Math.round((upside / syntheticDownside) * 10) / 10;
+                } else {
+                    const downside = Math.max(0.01, currentPrice - scenarioBear);
+                    riskRewardRatio = Math.round((upside / downside) * 10) / 10;
+                }
             }
 
             return {
@@ -8930,66 +8972,90 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             drawSingleValuationChart('guided_valCorridorSvg', 'guided_valCorridorChartWrapper', 'guided_');
         }
 
-        // --- VALUATION HISTORY (MULTIPLES CHART) SVG RENDERER ---
+        // --- VALUATION HISTORY (MULTIPLES CHART) SVG RENDERER (INSTITUTIONAL PRECISION) ---
         function renderValuationHistoryChart(dataset, valResult) {
             const svg = document.getElementById('multiplesChartSvg');
             const wrapper = document.getElementById('multiplesChartWrapper');
             if (!svg || !wrapper || !valResult) return;
 
-            const series = valResult.multiplesSeries || [];
-            if (series.length === 0) {
+            const rawSeries = valResult.multiplesSeries || [];
+            if (rawSeries.length === 0) {
                 svg.innerHTML = `<text x="50%" y="50%" fill="#64748B" font-family="'JetBrains Mono', monospace" font-size="12" text-anchor="middle">Keine Multiples-Historie vorhanden</text>`;
                 return;
             }
 
+            // Filter series by active timeframe
+            const tf = SELECTED_MULTIPLES_TIMEFRAME || 'MAX';
+            let series = [...rawSeries];
+            if (tf === '3J' || tf === '3Y') series = series.slice(Math.max(0, series.length - 12));
+            else if (tf === '5J' || tf === '5Y') series = series.slice(Math.max(0, series.length - 20));
+            else if (tf === '10J' || tf === '10Y') series = series.slice(Math.max(0, series.length - 40));
+
+            if (series.length === 0) series = rawSeries;
+
             const bRect = wrapper.getBoundingClientRect();
             const width = Math.max(320, bRect.width || 800);
             const height = Math.max(240, bRect.height || 280);
-            const padLeft = 45;
-            const padRight = 75;
-            const padTop = 20;
-            const padBottom = 30;
-            const chartW = width - padLeft - padRight;
-            const chartH = height - padTop - padBottom;
+            const isMobile = width < 540;
+            const padLeft = isMobile ? 34 : 48;
+            const padRight = isMobile ? 50 : 75;
+            const padTop = isMobile ? 18 : 20;
+            const padBottom = isMobile ? 22 : 30;
+            const chartW = Math.max(10, width - padLeft - padRight);
+            const chartH = Math.max(10, height - padTop - padBottom);
 
             const allVals = [];
             series.forEach(pt => {
-                if (ACTIVE_MULTIPLES_METRICS.pe_adj && pt.pe_adj) allVals.push(pt.pe_adj);
-                if (ACTIVE_MULTIPLES_METRICS.pe_rep && pt.pe_rep) allVals.push(pt.pe_rep);
-                if (ACTIVE_MULTIPLES_METRICS.pcf && pt.pfcf) allVals.push(pt.pfcf);
-                if (ACTIVE_MULTIPLES_METRICS.ps && pt.ps) allVals.push(pt.ps);
-                if (ACTIVE_MULTIPLES_METRICS.pb && pt.pb) allVals.push(pt.pb);
+                if (ACTIVE_MULTIPLES_METRICS.pe_adj && typeof pt.pe_adj === 'number' && pt.pe_adj > 0 && pt.pe_adj < 500) allVals.push(pt.pe_adj);
+                if (ACTIVE_MULTIPLES_METRICS.pe_rep && typeof pt.pe_rep === 'number' && pt.pe_rep > 0 && pt.pe_rep < 500) allVals.push(pt.pe_rep);
+                if (ACTIVE_MULTIPLES_METRICS.pcf && typeof pt.pfcf === 'number' && pt.pfcf > 0 && pt.pfcf < 500) allVals.push(pt.pfcf);
+                if (ACTIVE_MULTIPLES_METRICS.ps && typeof pt.ps === 'number' && pt.ps > 0 && pt.ps < 500) allVals.push(pt.ps);
+                if (ACTIVE_MULTIPLES_METRICS.pb && typeof pt.pb === 'number' && pt.pb > 0 && pt.pb < 500) allVals.push(pt.pb);
             });
 
             if (allVals.length === 0) allVals.push(5, 30);
-            const minM = Math.max(0, Math.min(...allVals) * 0.8);
-            const maxM = Math.max(...allVals) * 1.2;
-            const spanM = Math.max(1, maxM - minM);
+            const multScale = new InstitutionalPriceScale(allVals, [padTop + chartH, padTop], false);
 
-            const getX = (idx) => padLeft + (idx / Math.max(1, series.length - 1)) * chartW;
-            const getY = (val) => padTop + chartH - ((val - minM) / spanM) * chartH;
+            const tMin = series[0].timestamp || (new Date(series[0].date).getTime() || 0);
+            const tMax = series[series.length - 1].timestamp || (new Date(series[series.length - 1].date).getTime() || 1);
+            const timeSpan = Math.max(1, tMax - tMin);
+            const getX = (t) => padLeft + ((t - tMin) / timeSpan) * chartW;
+            const getY = (val) => multScale.getY(val);
 
-            // Grid & Ticks
+            // 1. Grid & "Nice Numbers" Ticks
             let gridHtml = '';
-            for (let i = 0; i <= 5; i++) {
-                const val = minM + (i / 5) * spanM;
-                const y = getY(val);
+            const ticks = multScale.getTicks(isMobile ? 4 : 5);
+            ticks.forEach(tick => {
+                const y = tick.y;
+                const valFormatted = tick.val >= 10 ? tick.val.toFixed(0) : tick.val.toFixed(1);
                 gridHtml += `
-                    <line x1="${padLeft}" y1="${y}" x2="${width - padRight}" y2="${y}" stroke="rgba(255,255,255,0.06)" stroke-width="1" />
-                    <text x="${padLeft - 6}" y="${y + 3.5}" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="end">${val.toFixed(1)}</text>
+                    <line x1="${padLeft}" y1="${y.toFixed(1)}" x2="${(width - padRight).toFixed(1)}" y2="${y.toFixed(1)}" stroke="rgba(255,255,255,0.06)" stroke-width="1" />
+                    <text x="${(padLeft - 4).toFixed(1)}" y="${(y + 3).toFixed(1)}" fill="#64748B" font-size="${isMobile ? 8 : 9}" font-family="'JetBrains Mono', monospace" text-anchor="end">${valFormatted}x</text>
                 `;
-            }
+            });
 
-            // X Labels
+            // 2. Smart X Calendar Labels
             let xLabelsHtml = '';
-            const step = Math.max(1, Math.floor(series.length / 6));
-            for (let i = 0; i < series.length; i += step) {
-                const pt = series[i];
-                const x = getX(i);
-                xLabelsHtml += `<text x="${x}" y="${height - 8}" fill="#64748B" font-size="9.5" font-family="'JetBrains Mono', monospace" text-anchor="middle">${pt.year}</text>`;
-            }
+            const startYear = new Date(tMin).getFullYear();
+            const endYear = new Date(tMax).getFullYear();
+            const tickYears = [];
+            for (let y = startYear; y <= endYear; y++) tickYears.push(y);
 
-            // Metric curves & medians
+            let lastLabelX = -100;
+            tickYears.forEach(year => {
+                const midYearTime = new Date(`${year}-07-01`).getTime();
+                if (midYearTime >= tMin && midYearTime <= tMax) {
+                    const x = getX(midYearTime);
+                    if (x >= padLeft + 10 && x <= (width - padRight - 10)) {
+                        if (x - lastLabelX >= (isMobile ? 38 : 48)) {
+                            xLabelsHtml += `<text x="${x.toFixed(1)}" y="${(height - (isMobile ? 6 : 8)).toFixed(1)}" fill="#64748B" font-size="${isMobile ? 8 : 9}" font-family="'JetBrains Mono', monospace" text-anchor="middle">${year}</text>`;
+                            lastLabelX = x;
+                        }
+                    }
+                }
+            });
+
+            // 3. Metric Curves & Reference Medians
             const metricConfigs = [
                 { key: 'pe_adj', seriesKey: 'pe_adj', color: '#F59E0B', name: 'KGV ber.' },
                 { key: 'pe_rep', seriesKey: 'pe_rep', color: '#94A3B8', name: 'KGV bil.' },
@@ -9003,21 +9069,26 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
 
             metricConfigs.forEach(cfg => {
                 if (!ACTIVE_MULTIPLES_METRICS[cfg.key]) return;
-                const validPts = series.filter(pt => pt[cfg.seriesKey] !== null && pt[cfg.seriesKey] > 0);
+                const validPts = series.filter(pt => typeof pt[cfg.seriesKey] === 'number' && Number.isFinite(pt[cfg.seriesKey]) && pt[cfg.seriesKey] > 0);
                 if (validPts.length >= 2) {
-                    const pathD = validPts.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${getX(series.indexOf(pt))} ${getY(pt[cfg.seriesKey])}`).join(' ');
-                    curvesHtml += `<path d="${pathD}" fill="none" stroke="${cfg.color}" stroke-width="2.2" stroke-linejoin="round" />`;
+                    const pathD = validPts.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${getX(pt.timestamp).toFixed(1)} ${getY(pt[cfg.seriesKey]).toFixed(1)}`).join(' ');
+                    curvesHtml += `<path d="${pathD}" fill="none" stroke="${cfg.color}" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" />`;
                 }
 
                 // Reference Median Line
-                const stats = valResult.statistics[cfg.statKey || cfg.seriesKey || cfg.key];
-                if (stats && stats.median !== null) {
+                const stats = valResult.statistics ? (valResult.statistics[cfg.statKey || cfg.seriesKey || cfg.key] || valResult.statistics[cfg.key]) : null;
+                if (stats && typeof stats.median === 'number' && Number.isFinite(stats.median)) {
                     const medY = getY(stats.median);
+                    const badgeW = isMobile ? 44 : 60;
+                    const badgeH = isMobile ? 12 : 14;
+                    const badgeFontSize = isMobile ? 7 : 8;
+                    const badgeX = width - padRight + 2;
+
                     medianLinesHtml += `
-                        <line x1="${padLeft}" y1="${medY}" x2="${width - padRight}" y2="${medY}" stroke="${cfg.color}" stroke-dasharray="3,3" stroke-width="1.2" opacity="0.6" />
-                        <g transform="translate(${width - padRight + 4}, ${medY - 7})">
-                            <rect x="0" y="0" width="65" height="14" rx="3" fill="rgba(15, 20, 32, 0.9)" stroke="${cfg.color}" stroke-width="0.8" opacity="0.9" />
-                            <text x="4" y="10" fill="${cfg.color}" font-size="8" font-weight="bold" font-family="'JetBrains Mono', monospace">Ø ${stats.median.toFixed(1)}</text>
+                        <line x1="${padLeft}" y1="${medY.toFixed(1)}" x2="${(width - padRight).toFixed(1)}" y2="${medY.toFixed(1)}" stroke="${cfg.color}" stroke-dasharray="3,3" stroke-width="1.2" opacity="0.65" />
+                        <g transform="translate(${badgeX.toFixed(1)}, ${(medY - (badgeH / 2)).toFixed(1)})">
+                            <rect x="0" y="0" width="${badgeW}" height="${badgeH}" rx="3" fill="rgba(15, 20, 32, 0.95)" stroke="${cfg.color}" stroke-width="0.8" />
+                            <text x="3" y="${(badgeH - 3.5).toFixed(1)}" fill="${cfg.color}" font-size="${badgeFontSize}" font-weight="bold" font-family="'JetBrains Mono', monospace">Ø ${stats.median.toFixed(1)}</text>
                         </g>
                     `;
                 }
@@ -9042,7 +9113,9 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 const psEl = document.getElementById('liveMultPs');
                 const devEl = document.getElementById('liveMultDeviation');
 
-                if (dEl) dEl.textContent = `${pt.year || pt.date || '--'}`;
+                const dateDisplay = pt.date ? (pt.period ? `${pt.period} ${pt.year || ''}` : pt.date) : (pt.year || '--');
+                if (dEl) dEl.textContent = dateDisplay;
+
                 if (peEl) {
                     const med = valResult?.statistics?.pe_adj?.median;
                     const medStr = (typeof med === 'number') ? med.toFixed(1) : '—';
@@ -9082,13 +9155,28 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     const relX = e.clientX - rect.left;
                     if (relX < padLeft - 10 || relX > width - padRight + 10) return;
                     const clampedX = Math.max(padLeft, Math.min(width - padRight, relX));
-                    const idx = Math.round(((clampedX - padLeft) / chartW) * (series.length - 1));
-                    const pt = series[idx];
+                    const targetTime = tMin + ((clampedX - padLeft) / chartW) * (tMax - tMin);
+
+                    // Binary search (Bisection) for exact nearest quarterly data point
+                    let low = 0, high = series.length - 1;
+                    while (low < high) {
+                        const mid = (low + high) >> 1;
+                        if (series[mid].timestamp < targetTime) low = mid + 1;
+                        else high = mid;
+                    }
+                    let closestIdx = low;
+                    if (low > 0) {
+                        const prevDiff = Math.abs(series[low - 1].timestamp - targetTime);
+                        const curDiff = Math.abs(series[low].timestamp - targetTime);
+                        if (prevDiff < curDiff) closestIdx = low - 1;
+                    }
+
+                    const pt = series[closestIdx];
                     if (!pt) return;
-                    const ptX = getX(idx);
+                    const ptX = getX(pt.timestamp);
                     if (hoverLine) {
-                        hoverLine.setAttribute('x1', ptX);
-                        hoverLine.setAttribute('x2', ptX);
+                        hoverLine.setAttribute('x1', ptX.toFixed(1));
+                        hoverLine.setAttribute('x2', ptX.toFixed(1));
                         hoverLine.style.display = 'block';
                     }
                     updateMultiplesHUD(pt);
@@ -9101,8 +9189,14 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     const rect = wrapper.getBoundingClientRect();
                     const relX = e.clientX - rect.left;
                     if (relX >= padLeft && relX <= width - padRight) {
-                        const idx = Math.round(((relX - padLeft) / chartW) * (series.length - 1));
-                        const pt = series[idx];
+                        const targetTime = tMin + ((relX - padLeft) / chartW) * (tMax - tMin);
+                        let low = 0, high = series.length - 1;
+                        while (low < high) {
+                            const mid = (low + high) >> 1;
+                            if (series[mid].timestamp < targetTime) low = mid + 1;
+                            else high = mid;
+                        }
+                        const pt = series[low];
                         if (pt && pt.year) showInstitutionalDetailInspector(pt.year);
                     }
                 };
@@ -9777,6 +9871,9 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
 
         function selectMultiplesTimeframe(tf) {
             SELECTED_MULTIPLES_TIMEFRAME = tf;
+            if (CURRENT_NORMALIZED_HISTORICAL_DATA) {
+                updateTimeframeButtonStates(CURRENT_NORMALIZED_HISTORICAL_DATA, SELECTED_VALUATION_TIMEFRAME, tf, SELECTED_VALUATION_GRANULARITY);
+            }
             if (CURRENT_NORMALIZED_HISTORICAL_DATA && CURRENT_VALUATION_RESULT) {
                 renderValuationHistoryChart(CURRENT_NORMALIZED_HISTORICAL_DATA, CURRENT_VALUATION_RESULT);
             }
