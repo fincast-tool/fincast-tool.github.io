@@ -1451,7 +1451,7 @@
                                     </div>
 
                                     <!-- 3. VALUE CHART (REALKURS VS. FAIR VALUE & P25-P75 KORRIDOR) - 1:1 GUIDED EXPANSION -->
-                                    <div id="guided_valuationCorridorSection" class="p-4 sm:p-6 rounded-xl bg-[#0B0E12] border border-[#202630]">
+                                    <div id="guided_valuationCorridorSection" class="p-2.5 sm:p-6 rounded-xl bg-[#0B0E12] border border-[#202630]">
                                         <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
                                             <div class="flex items-center gap-2">
                                                 <h3 class="text-xs font-semibold text-white tracking-tight flex items-center gap-2">
@@ -1479,7 +1479,7 @@
                                             <!-- Top Bar: Model Selector, Horizon Selector, Legend & Timeframe Selector -->
                                             <div class="flex flex-wrap items-center justify-between gap-2.5 text-xs text-slate-400 mb-2.5 pb-2.5 border-b border-[#202630]">
                                                 <!-- Left: Valuation Method Buttons -->
-                                                <div class="flex flex-wrap items-center gap-1.5 text-[10px]" id="guided_valMethodSelectorButtons">
+                                                <div class="flex flex-wrap items-center gap-1.5 text-[10px] max-w-full overflow-x-auto no-scrollbar py-0.5" id="guided_valMethodSelectorButtons">
                                                     <span class="text-slate-400 text-[9px] uppercase font-semibold mr-1">Modell:</span>
                                                     <button type="button" onclick="switchValuationMethod('pe_adj')" id="guided_vMethodBtn_pe_adj" class="v-method-btn px-2 py-0.5 rounded border border-[#D6A83A]/40 bg-[#D6A83A]/10 text-[#D6A83A] font-semibold transition-all">KGV ber.</button>
                                                     <button type="button" onclick="switchValuationMethod('pe_rep')" id="guided_vMethodBtn_pe_rep" class="v-method-btn px-2 py-0.5 rounded border border-[#202630] text-slate-300 hover:text-white transition-all">KGV bil.</button>
@@ -1549,7 +1549,7 @@
                                             </div>
 
                                             <!-- Chart Wrapper & SVG Element -->
-                                            <div id="guided_valCorridorChartWrapper" class="w-full h-[260px] sm:h-[290px] relative select-none touch-pan-y">
+                                            <div id="guided_valCorridorChartWrapper" class="w-full h-[275px] sm:h-[290px] relative select-none touch-pan-y">
                                                 <svg id="guided_valCorridorSvg" class="w-full h-full overflow-visible"></svg>
                                             </div>
                                         </div>
@@ -1943,7 +1943,7 @@
                                         <!-- Top Bar: Model Selector, Horizon Selector, Legend & Timeframe Selector -->
                                         <div class="flex flex-wrap items-center justify-between gap-2.5 text-xs text-slate-400 mb-2.5 pb-2.5 border-b border-[#202630]">
                                             <!-- Left: Valuation Method Buttons -->
-                                            <div class="flex flex-wrap items-center gap-1.5 text-[10px]" id="valMethodSelectorButtons">
+                                            <div class="flex flex-wrap items-center gap-1.5 text-[10px] max-w-full overflow-x-auto no-scrollbar py-0.5" id="valMethodSelectorButtons">
                                                 <span class="text-slate-400 text-[9px] uppercase font-semibold mr-1">Modell:</span>
                                                 <button type="button" onclick="switchValuationMethod('pe_adj')" id="vMethodBtn_pe_adj" class="v-method-btn px-2 py-0.5 rounded border border-[#D6A83A]/40 bg-[#D6A83A]/10 text-[#D6A83A] font-semibold transition-all">KGV ber.</button>
                                                 <button type="button" onclick="switchValuationMethod('pe_rep')" id="vMethodBtn_pe_rep" class="v-method-btn px-2 py-0.5 rounded border border-[#202630] text-slate-300 hover:text-white transition-all">KGV bil.</button>
@@ -1959,6 +1959,12 @@
                                                 <div class="flex items-center gap-0.5 bg-[#11151B] p-0.5 rounded border border-[#202630]" id="valCorridorGranularityButtons" title="Datenauflösung: Wöchentlich (W) oder Monatlich (M)">
                                                     <button type="button" onclick="selectValuationGranularity('W')" id="valGranBtn_W" class="val-gran-btn px-1.5 py-0.5 rounded text-[10px] font-semibold text-white bg-[#171C23] border border-[#2D3748] transition-all">W</button>
                                                     <button type="button" onclick="selectValuationGranularity('M')" id="valGranBtn_M" class="val-gran-btn px-1.5 py-0.5 rounded text-[10px] font-medium text-slate-400 hover:text-white transition-all">M</button>
+                                                </div>
+
+                                                <!-- Scale Selector: LIN (Linear) vs LOG (Logarithmisch) -->
+                                                <div class="flex items-center gap-0.5 bg-[#11151B] p-0.5 rounded border border-[#202630]" id="valCorridorScaleButtons" title="Preisskala: Linear (LIN) oder Logarithmisch (LOG)">
+                                                    <button type="button" onclick="selectValuationScale('LIN')" id="valScaleBtn_LIN" class="val-scale-btn px-1.5 py-0.5 rounded text-[10px] font-semibold text-white bg-[#171C23] border border-[#2D3748] transition-all">LIN</button>
+                                                    <button type="button" onclick="selectValuationScale('LOG')" id="valScaleBtn_LOG" class="val-scale-btn px-1.5 py-0.5 rounded text-[10px] font-medium text-slate-400 hover:text-white transition-all">LOG</button>
                                                 </div>
 
                                                 <!-- Timeframe Buttons -->
@@ -2007,7 +2013,7 @@
                                         </div>
 
                                         <!-- Chart Wrapper & SVG Element -->
-                                        <div id="valCorridorChartWrapper" class="w-full h-[260px] sm:h-[290px] relative select-none touch-pan-y">
+                                        <div id="valCorridorChartWrapper" class="w-full h-[275px] sm:h-[290px] relative select-none touch-pan-y">
                                             <svg id="valCorridorSvg" class="w-full h-full overflow-visible"></svg>
                                         </div>
                                     </div>
@@ -3931,9 +3937,9 @@ Fiscal Year: FY${dataset.annual[dataset.annual.length - 1]?.year || new Date().g
             if (!dataset) {
                 // ==================== PHASE 1: HIGH-PRECISION GOOGLE GROUNDING (Gemini 2.5 Flash + Google Search) ====================
                 updateLoadingStatus(
-                    'Live-Börsendaten & fundamentale 10-Jahres-Bilanzen werden erfasst...', 
+                    'Live-Börsendaten & fundamentale 5-Jahres-Bilanzen werden erfasst...', 
                     35, 
-                    'Verifizierte Live-Marktdaten & 10-Jahres-Abschlüsse (Yahoo Finance, Morningstar, SEC, Google Finance, Bloomberg, Macrotrends).'
+                    'Verifizierte Live-Marktdaten & 5-Jahres-Abschlüsse (Yahoo Finance, Morningstar, SEC, Google Finance, Bloomberg).'
                 );
                 
                 const datasetPrompt = getDatasetPrompt(query, lang);
@@ -4090,7 +4096,7 @@ STIL: Präzise Bullet-Points und kurze Begründungen (max. 1–2 Sätze pro Punk
 
 OUTPUT FORMAT:
 <financial_quality>
-Revenue CAGR: [5Y/10Y CAGR in %]
+Revenue CAGR: [5Y CAGR in %]
 EBIT Margin: [Aktuelle EBIT-Marge in %]
 Margin Trend: [EXPANDING / STABLE / CONTRACTING + 1 Satz]
 ROIC: [ROIC Wert in %]
@@ -4146,7 +4152,7 @@ EV/EBITDA: [EV/EBITDA Multiple]
 P/FCF: [Kurs-FCF-Verhältnis]
 FCF Yield: [Free Cash Flow Rendite in %]
 Dividend Yield: [Dividendenrendite in %]
-Historical Valuation: [UNDERVALUED / FAIR / OVERVALUED vs 5Y/10Y Avg]
+Historical Valuation: [UNDERVALUED / FAIR / OVERVALUED vs 5Y Avg]
 Peer Valuation: [PREMIUM / IN-LINE / DISCOUNT vs Sector]
 DCF Bear: [Konservativer Fair Value mit Währungscode (MODEL)]
 DCF Base: [Basis Fair Value mit Währungscode (MODEL)]
@@ -4185,13 +4191,13 @@ Technical Signal: [EXACTLY ONE: [STRONG BULLISH] / [BULLISH] / [NEUTRAL] / [BEAR
             const todayIso = new Date().toISOString().split('T')[0];
             return `CURRENT DATE: ${todayIso}
 LANGUAGE: Respond in ${lang}.
-TASK: Extract Verified Live Market Price, Official Company Profile, and Empirical 10-Year + TTM Financial Statements for "${query}".
+TASK: Extract Verified Live Market Price, Official Company Profile, and Empirical 5-Year + TTM Financial Statements for "${query}".
 
 STRICT DIRECTIVES:
-1. GOOGLE SEARCH GROUNDING: Use Google Search Grounding to verify the exact current live stock price and 10-year historical financial reporting data from authoritative sources (Yahoo Finance, Google Finance, Morningstar, SEC EDGAR 10-K, Bloomberg, Macrotrends, MarketWatch, Finanzen.net).
+1. GOOGLE SEARCH GROUNDING: Use Google Search Grounding to verify the exact current live stock price and historical financial reporting data from authoritative sources (Yahoo Finance, Google Finance, Morningstar, SEC EDGAR 10-K, Bloomberg, MarketWatch, Finanzen.net).
 2. LIVE STOCK PRICE ACCURACY: Find the ACTUAL LIVE / CURRENT market trading price for "${query}" as of today (${todayIso}) in its native trading currency. (e.g. for Zoetis/ZTS check real live price, for Apple/AAPL, for PepsiCo/PEP, for LVMH/MC.PA). Do NOT use outdated historical prices as current price!
 3. NATIVE CURRENCY: State the exact native trading currency code (USD, EUR, CHF, GBP, etc.) consistently for all monetary figures and current stock price.
-4. HISTORICAL 10-YEAR FINANCIAL STATEMENTS: Retrieve the exact reported annual financial figures for the past 10 completed fiscal years (FY2015, FY2016, FY2017, FY2018, FY2019, FY2020, FY2021, FY2022, FY2023, FY2024) plus current TTM:
+4. HISTORICAL 5-YEAR FINANCIAL STATEMENTS: Retrieve the exact reported annual financial figures for the past 5 completed fiscal years (FY2020, FY2021, FY2022, FY2023, FY2024) plus current TTM:
    - Revenue, Operating Income (EBIT), Net Income, Free Cash Flow (FCF), EPS, ROIC, ROE, Debt/Equity, and actual historical period-close stock prices for each year.
 5. OUTPUT FORMAT: Output ONLY the two requested XML blocks below (<company_identity> and <financial_dataset>). Do NOT output any conversational text, extra markdown commentary, or analysis.
 
@@ -4219,7 +4225,7 @@ Data Timestamp: [${todayIso}]
   "symbol": "[Ticker]",
   "companyName": "[Official Company Name]",
   "currency": "[Native Currency Code, e.g. USD, EUR]",
-  "availableYears": 10,
+  "availableYears": 5,
   "currentPrice": [Current stock price as plain number],
   "marketCap": [Market capitalization as plain number],
   "ttm": {
@@ -4237,7 +4243,7 @@ Data Timestamp: [${todayIso}]
   },
   "annual": [
     {
-      "year": [Reporting year, e.g. 2015 ... 2024 (10 full reporting years)],
+      "year": [Reporting year, e.g. 2020 ... 2024 (5 completed reporting years)],
       "date": "[YYYY-MM-DD or year]",
       "revenue": [Annual revenue as plain number in native currency],
       "operatingIncome": [Annual EBIT / Operating Income as plain number],
@@ -7515,6 +7521,8 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 if (CURRENT_NORMALIZED_HISTORICAL_DATA && CURRENT_VALUATION_RESULT && CURRENT_INSIGHTS) {
                     renderGuidedCharts(CURRENT_NORMALIZED_HISTORICAL_DATA, CURRENT_VALUATION_RESULT, CURRENT_INSIGHTS);
                     requestAnimationFrame(() => {
+                        updateScaleButtonStates(SELECTED_VALUATION_SCALE);
+                        updateGranularityButtonStates(SELECTED_VALUATION_GRANULARITY);
                         renderValueChart(CURRENT_NORMALIZED_HISTORICAL_DATA, CURRENT_VALUATION_RESULT);
                     });
                 }
@@ -7535,9 +7543,11 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 window.FincastAds.refresh();
             }
 
-                // Redraw Research charts with accurate geometry
+                // Redraw Research charts with accurate geometry & sync state
                 if (CURRENT_NORMALIZED_HISTORICAL_DATA && CURRENT_VALUATION_RESULT) {
                     requestAnimationFrame(() => {
+                        updateScaleButtonStates(SELECTED_VALUATION_SCALE);
+                        updateGranularityButtonStates(SELECTED_VALUATION_GRANULARITY);
                         renderValueChart(CURRENT_NORMALIZED_HISTORICAL_DATA, CURRENT_VALUATION_RESULT);
                         renderValuationHistoryChart(CURRENT_NORMALIZED_HISTORICAL_DATA, CURRENT_VALUATION_RESULT);
                         renderFinancialPerformanceCharts(CURRENT_NORMALIZED_HISTORICAL_DATA);
@@ -8466,12 +8476,13 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 const bRect = wrapper.getBoundingClientRect();
                 const width = Math.max(320, bRect.width || 800);
                 const height = Math.max(240, bRect.height || 280);
-                const padLeft = 56;
-                const padRight = 65;
-                const padTop = 22;
-                const padBottom = 30;
-                const chartW = width - padLeft - padRight;
-                const chartH = height - padTop - padBottom;
+                const isMobile = width < 540;
+                const padLeft = isMobile ? 36 : 56;
+                const padRight = isMobile ? 18 : 65;
+                const padTop = isMobile ? 22 : 22;
+                const padBottom = isMobile ? 24 : 30;
+                const chartW = Math.max(10, width - padLeft - padRight);
+                const chartH = Math.max(10, height - padTop - padBottom);
 
                 const histPts = fullSeries.filter(pt => pt.type === 'historical');
                 const curPt = fullSeries.find(pt => pt.type === 'current') || {
@@ -8517,46 +8528,45 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
 
                 // Grid Lines & Price Ticks
                 let gridHtml = '';
-                const priceTicks = priceScale.getTicks(5);
+                const priceTicks = priceScale.getTicks(isMobile ? 4 : 5);
                 priceTicks.forEach(tick => {
                     const y = tick.y;
                     const valFormatted = tick.val >= 100 ? tick.val.toFixed(0) : (tick.val >= 10 ? tick.val.toFixed(1) : tick.val.toFixed(2));
                     gridHtml += `
                         <line x1="${padLeft}" y1="${y.toFixed(1)}" x2="${(width - padRight).toFixed(1)}" y2="${y.toFixed(1)}" stroke="rgba(255,255,255,0.06)" stroke-width="1" />
-                        <text x="${(padLeft - 6).toFixed(1)}" y="${(y + 3.5).toFixed(1)}" fill="#64748B" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="end">${valFormatted}</text>
+                        <text x="${(padLeft - 4).toFixed(1)}" y="${(y + 3).toFixed(1)}" fill="#64748B" font-size="${isMobile ? 8 : 9}" font-family="'JetBrains Mono', monospace" text-anchor="end">${valFormatted}</text>
                     `;
                 });
 
                 // Scale Indicator Badge (LIN vs LOG)
                 gridHtml += `
-                    <text x="${padLeft - 6}" y="${padTop - 6}" fill="${isLogScale ? '#38BDF8' : '#64748B'}" font-size="8" font-weight="bold" font-family="'JetBrains Mono', monospace" text-anchor="end">${isLogScale ? 'LOG' : 'LIN'}</text>
+                    <text x="${padLeft - 4}" y="${padTop - 5}" fill="${isLogScale ? '#38BDF8' : '#64748B'}" font-size="${isMobile ? 7.5 : 8}" font-weight="bold" font-family="'JetBrains Mono', monospace" text-anchor="end">${isLogScale ? 'LOG' : 'LIN'}</text>
                 `;
 
-                // X Labels (Smart Calendar Time Ticks)
+                // X Labels (Smart Calendar Time Ticks with Responsive Spacing)
                 let xLabelsHtml = '';
                 const startYear = new Date(tMin).getFullYear();
                 const endYear = new Date(tMax).getFullYear();
                 const tickYears = [];
                 for (let y = startYear; y <= endYear; y++) tickYears.push(y);
 
-                let displayYears = tickYears;
-                if (tickYears.length > 7) {
-                    const step = Math.ceil(tickYears.length / 6);
-                    displayYears = tickYears.filter((y, idx) => idx % step === 0 || y === tickYears[tickYears.length - 1]);
-                }
+                let lastLabelX = -100;
                 const currentYear = new Date().getFullYear();
-                displayYears.forEach(year => {
+                tickYears.forEach(year => {
                     const midYearTime = new Date(`${year}-07-01`).getTime();
                     if (midYearTime >= tMin && midYearTime <= tMax) {
                         const x = getX(midYearTime);
                         const isFore = year > currentYear;
                         const label = isFore ? `FY${year}e` : String(year);
-                        if (Math.abs(x - curX) > 30) {
-                            xLabelsHtml += `<text x="${x.toFixed(1)}" y="${height - 8}" fill="${isFore ? '#D6A83A' : '#64748B'}" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">${label}</text>`;
+                        if (x >= padLeft + 10 && x <= (width - padRight - 10) && Math.abs(x - curX) > (isMobile ? 22 : 30)) {
+                            if (x - lastLabelX >= (isMobile ? 36 : 48)) {
+                                xLabelsHtml += `<text x="${x.toFixed(1)}" y="${height - (isMobile ? 6 : 8)}" fill="${isFore ? '#D6A83A' : '#64748B'}" font-size="${isMobile ? 8 : 9}" font-family="'JetBrains Mono', monospace" text-anchor="middle">${label}</text>`;
+                                lastLabelX = x;
+                            }
                         }
                     }
                 });
-                xLabelsHtml += `<text x="${curX.toFixed(1)}" y="${height - 8}" fill="#D6A83A" font-size="9" font-weight="bold" font-family="'JetBrains Mono', monospace" text-anchor="middle">Heute</text>`;
+                xLabelsHtml += `<text x="${curX.toFixed(1)}" y="${height - (isMobile ? 6 : 8)}" fill="#D6A83A" font-size="${isMobile ? 8.5 : 9.5}" font-weight="bold" font-family="'JetBrains Mono', monospace" text-anchor="middle">Heute</text>`;
 
                 // 1. Smooth Corridor Ribbons (Fritsch-Carlson Monotone Cubic Spline)
                 let corridorHistSvg = '';
@@ -8631,12 +8641,40 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     ${gridHtml}
                     ${xLabelsHtml}
                     
-                    <!-- Zone 3: Forecast Shaded Background & Source Badge -->
-                    ${forePts.length > 0 ? `
-                        <rect x="${curX.toFixed(1)}" y="${padTop}" width="${(width - padRight - curX).toFixed(1)}" height="${chartH}" fill="url(#${prefix}valForeGrad)" />
-                        <rect x="${(curX + 6).toFixed(1)}" y="${(padTop + 4).toFixed(1)}" width="${valResult.forecastSource === 'ANALYST_CONSENSUS' ? 180 : 230}" height="15" rx="3" fill="${valResult.forecastSource === 'ANALYST_CONSENSUS' ? 'rgba(214, 168, 58, 0.15)' : 'rgba(56, 189, 248, 0.15)'}" stroke="${valResult.forecastSource === 'ANALYST_CONSENSUS' ? 'rgba(214, 168, 58, 0.35)' : 'rgba(56, 189, 248, 0.35)'}" stroke-width="1" />
-                        <text x="${(curX + 10).toFixed(1)}" y="${(padTop + 14.5).toFixed(1)}" fill="${valResult.forecastSource === 'ANALYST_CONSENSUS' ? '#D6A83A' : '#38BDF8'}" font-size="7.5" font-weight="bold" font-family="'JetBrains Mono', monospace">PROGNOSE · ${valResult.forecastLabel ? valResult.forecastLabel.toUpperCase() : 'PROGNOSE-MODELL'}</text>
-                    ` : ''}
+                    <!-- Zone 3: Forecast Shaded Background & Smart Clamped Source Badge -->
+                    ${forePts.length > 0 ? (() => {
+                        const availForeW = Math.max(10, width - padRight - curX);
+                        let badgeText = '';
+                        if (valResult.forecastSource === 'ANALYST_CONSENSUS') {
+                            badgeText = isMobile ? 'PROGNOSE (KONSENS)' : `PROGNOSE · ${valResult.forecastLabel ? valResult.forecastLabel.toUpperCase() : 'ANALYSTEN-KONSENS'}`;
+                        } else {
+                            const rateStr = (valResult.forecastGrowthRate !== null && valResult.forecastGrowthRate !== undefined)
+                                ? ((valResult.forecastGrowthRate >= 0 ? '+' : '') + (valResult.forecastGrowthRate * 100).toFixed(1) + '%')
+                                : '+CAGR';
+                            badgeText = isMobile ? `PROGNOSE (${rateStr})` : `PROGNOSE · ${valResult.forecastLabel ? valResult.forecastLabel.toUpperCase() : 'CAGR-MODELL'}`;
+                        }
+
+                        const badgeFontSize = isMobile ? 6.5 : 7.5;
+                        const charW = isMobile ? 4.5 : 5.4;
+                        const approxTextW = badgeText.length * charW + 10;
+                        const badgeW = Math.min(approxTextW, Math.max(40, availForeW - 4));
+
+                        let badgeX = curX + 4;
+                        if (badgeX + badgeW > width - padRight) {
+                            badgeX = Math.max(padLeft, width - padRight - badgeW);
+                        }
+
+                        const badgeColor = valResult.forecastSource === 'ANALYST_CONSENSUS' ? '#D6A83A' : '#38BDF8';
+                        const badgeBg = valResult.forecastSource === 'ANALYST_CONSENSUS' ? 'rgba(214, 168, 58, 0.15)' : 'rgba(56, 189, 248, 0.15)';
+                        const badgeBorder = valResult.forecastSource === 'ANALYST_CONSENSUS' ? 'rgba(214, 168, 58, 0.35)' : 'rgba(56, 189, 248, 0.35)';
+                        const foreRectW = Math.max(0, width - padRight - curX);
+
+                        return `
+                            <rect x="${curX.toFixed(1)}" y="${padTop}" width="${foreRectW.toFixed(1)}" height="${chartH}" fill="url(#${prefix}valForeGrad)" />
+                            <rect x="${badgeX.toFixed(1)}" y="${(padTop + 4).toFixed(1)}" width="${badgeW.toFixed(1)}" height="14" rx="3" fill="${badgeBg}" stroke="${badgeBorder}" stroke-width="1" />
+                            <text x="${(badgeX + 5).toFixed(1)}" y="${(padTop + 13.5).toFixed(1)}" fill="${badgeColor}" font-size="${badgeFontSize}" font-weight="bold" font-family="'JetBrains Mono', monospace">${badgeText}</text>
+                        `;
+                    })() : ''}
 
                     <!-- Corridors -->
                     ${corridorHistSvg}
