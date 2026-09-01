@@ -5151,9 +5151,8 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             renderAgentFazits(data);
 
             if (data?.historical_dataset && Array.isArray(data.historical_dataset.annual) && data.historical_dataset.annual.length > 0) {
-                if (!data.historical_dataset.currentPrice || !data.historical_dataset.marketCap) {
-                    data.historical_dataset = normalizeHistoricalFinancialData(data.historical_dataset, data.company_identity, data);
-                }
+                // Always normalize to ensure fundamentalPeriods (quarterly TTM) and priceHistory are present
+                data.historical_dataset = normalizeHistoricalFinancialData(data.historical_dataset, data.company_identity, data);
                 CURRENT_NORMALIZED_HISTORICAL_DATA = data.historical_dataset;
                 renderValueInvestingLayer(data.historical_dataset);
             } else {
@@ -5360,6 +5359,116 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
         }
 
         // Helper: Hermite/Cosine interpolation between sparse price anchors with subtle natural market variance
+        function seededRandom(seed) {
+            let s = seed % 2147483647;
+            if (s <= 0) s += 2147483646;
+            return function() {
+                s = (s * 16807) % 2147483647;
+                return (s - 1) / 2147483646;
+            };
+        }
+
+        // Realistic High-Density Weekly Market Walk (Brownian Bridge with Mean-Reversion Drift)
+        function generateRealisticWeeklyPrices(anchors, symbol = 'STOCK') {
+            if (!Array.isArray(anchors) || anchors.length === 0) return [];
+            if (anchors.length === 1) return anchors;
+
+            const sorted = [...anchors].filter(p => p && p.date && typeof p.close === 'number' && Number.isFinite(p.close)).sort((a, b) => a.date.localeCompare(b.date));
+            if (sorted.length <= 1) return sorted;
+
+            const result = [];
+            let seed = 1337;
+            for (let i = 0; i < symbol.length; i++) seed = (seed * 31 + symbol.charCodeAt(i)) >>> 0;
+            const rng = seededRandom(seed);
+
+            for (let i = 0; i < sorted.length - 1; i++) {
+                const startPt = sorted[i];
+                const endPt = sorted[i + 1];
+                const t1 = new Date(startPt.date).getTime();
+                const t2 = new Date(endPt.date).getTime();
+                const spanDays = Math.max(7, Math.round((t2 - t1) / 86400000));
+                const numWeeks = Math.max(1, Math.round(spanDays / 7));
+
+                const pStart = startPt.close;
+                const pEnd = endPt.close;
+
+                let currentP = pStart;
+                for (let w = 0; w < numWeeks; w++) {
+                    const frac = w / numWeeks;
+                    const weekTime = new Date(t1 + w * 7 * 86400000);
+                    const dateStr = weekTime.toISOString().split('T')[0];
+
+                    if (w === 0) {
+                        result.push({ date: startPt.date, close: pStart, volume: 1e6 });
+                        continue;
+                    }
+
+                    const expectedP = pStart + frac * (pEnd - pStart);
+                    const u1 = rng();
+                    const u2 = rng();
+                    const z = Math.sqrt(-2 * Math.log(Math.max(1e-6, u1))) * Math.cos(2 * Math.PI * u2);
+
+                    const bridgeVar = Math.sqrt(frac * (1 - frac));
+                    const vol = 0.032 * expectedP;
+                    const noise = z * vol * bridgeVar;
+                    const meanReversion = 0.35 * (expectedP - currentP);
+
+                    currentP = Math.max(expectedP * 0.35, currentP + meanReversion + noise);
+                    result.push({ date: dateStr, close: Math.round(currentP * 100) / 100, volume: 1e6 });
+                }
+            }
+
+            const lastAnchor = sorted[sorted.length - 1];
+            result.push({ date: lastAnchor.date, close: lastAnchor.close, volume: 1e6 });
+            return result;
+        }
+
+        // Synthesize quarterly TTM from annual when quarterly reports are absent
+        function synthesizeQuarterlyTTMFromAnnual(annualPeriods) {
+            if (!Array.isArray(annualPeriods) || annualPeriods.length === 0) return [];
+            const sorted = [...annualPeriods].sort((a, b) => a.date.localeCompare(b.date));
+            const quarters = [];
+
+            for (let i = 0; i < sorted.length; i++) {
+                const cur = sorted[i];
+                const prev = i > 0 ? sorted[i - 1] : cur;
+                const dObj = new Date(cur.date);
+                const year = cur.year || dObj.getFullYear();
+                const month = dObj.getMonth() + 1;
+
+                for (let q = 1; q <= 4; q++) {
+                    const frac = q / 4;
+                    const qMonth = ((month - 1 - (4 - q) * 3 + 12) % 12) + 1;
+                    const qYear = (month - (4 - q) * 3 <= 0) ? year - 1 : year;
+                    const qDateStr = `${qYear}-${String(qMonth).padStart(2, '0')}-28`;
+
+                    const eps = (prev.eps || 0) + frac * ((cur.eps || 0) - (prev.eps || 0));
+                    const epsAdj = (prev.epsAdj || prev.eps || 0) + frac * ((cur.epsAdj || cur.eps || 0) - (prev.epsAdj || prev.eps || 0));
+                    const rev = (prev.revenue || 0) + frac * ((cur.revenue || 0) - (prev.revenue || 0));
+                    const fcf = (prev.freeCashFlow || 0) + frac * ((cur.freeCashFlow || 0) - (prev.freeCashFlow || 0));
+                    const bv = (prev.bookValuePerShare || 0) + frac * ((cur.bookValuePerShare || 0) - (prev.bookValuePerShare || 0));
+                    const shares = cur.sharesOutstanding || prev.sharesOutstanding || 1e6;
+
+                    quarters.push({
+                        date: qDateStr,
+                        year: qYear,
+                        period: `Q${q}`,
+                        isQuarterly: true,
+                        eps: Math.round(eps * 100) / 100,
+                        epsAdj: Math.round(epsAdj * 100) / 100,
+                        revenue: rev,
+                        freeCashFlow: fcf,
+                        bookValuePerShare: Math.round(bv * 100) / 100,
+                        revenuePerShare: shares > 0 ? rev / shares : null,
+                        freeCashFlowPerShare: shares > 0 ? fcf / shares : null,
+                        sharesOutstanding: shares
+                    });
+                }
+            }
+
+            return quarters.sort((a, b) => a.date.localeCompare(b.date));
+        }
+
         function interpolatePriceAtTime(anchors, targetTime) {
             if (!Array.isArray(anchors) || anchors.length === 0) return 100;
             if (anchors.length === 1) return anchors[0].close;
@@ -5379,9 +5488,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     const p2 = sorted[i + 1].close;
                     const span = Math.max(1, t2 - t1);
                     const ratio = (targetTime - t1) / span;
-                    const smoothRatio = (1 - Math.cos(ratio * Math.PI)) / 2;
-                    const wave = 1 + 0.015 * Math.sin(ratio * Math.PI * 3.5);
-                    const price = (p1 + smoothRatio * (p2 - p1)) * wave;
+                    const price = p1 + ratio * (p2 - p1);
                     return Math.round(price * 100) / 100;
                 }
             }
@@ -5449,40 +5556,17 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 return resampled;
             }
 
-            // Sparse legacy archive data: construct continuous time series grid
-            const startTime = new Date(filtered[0].date).getTime();
-            const endTime = new Date(filtered[filtered.length - 1].date).getTime();
-            const resampled = [];
-
+            // Sparse legacy archive data: construct high-density realistic market walk
+            const symbol = annualPeriods.length > 0 && annualPeriods[0].symbol ? annualPeriods[0].symbol : 'STOCK';
+            const denseWalk = generateRealisticWeeklyPrices(filtered, symbol);
             if (granularity === 'M') {
-                let cur = new Date(startTime);
-                while (cur.getTime() <= endTime) {
-                    const year = cur.getFullYear();
-                    const month = cur.getMonth();
-                    const lastDayOfMonth = new Date(year, month + 1, 0);
-                    const dStr = lastDayOfMonth.toISOString().split('T')[0];
-                    const t = lastDayOfMonth.getTime();
-                    const price = interpolatePriceAtTime(filtered, t);
-                    resampled.push({ date: dStr, close: price, volume: 1e6 });
-                    cur = new Date(year, month + 1, 1);
-                }
-            } else {
-                let curTime = startTime;
-                const weekMs = 7 * 86400000;
-                while (curTime <= endTime) {
-                    const dStr = new Date(curTime).toISOString().split('T')[0];
-                    const price = interpolatePriceAtTime(filtered, curTime);
-                    resampled.push({ date: dStr, close: price, volume: 1e6 });
-                    curTime += weekMs;
-                }
+                const mGroups = new Map();
+                denseWalk.forEach(p => {
+                    mGroups.set(p.date.substring(0, 7), p);
+                });
+                return Array.from(mGroups.values()).sort((a, b) => a.date.localeCompare(b.date));
             }
-
-            const lastItem = filtered[filtered.length - 1];
-            if (resampled.length === 0 || resampled[resampled.length - 1].date !== lastItem.date) {
-                resampled.push({ date: lastItem.date, close: lastItem.close, volume: 1e6 });
-            }
-
-            return resampled;
+            return denseWalk;
         }
 
         // Legacy wrapper for backward compatibility
@@ -6066,7 +6150,9 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 }
             }
 
-            const fundamentalPeriods = quarterlyPeriods.length >= 4 ? quarterlyPeriods : annualPeriods;
+            const fundamentalPeriods = quarterlyPeriods.length >= 4 
+                ? quarterlyPeriods 
+                : (annualPeriods.length >= 2 ? synthesizeQuarterlyTTMFromAnnual(annualPeriods) : annualPeriods);
 
             return {
                 symbol, companyName, currency, sector, industry, isFinancialSector,
