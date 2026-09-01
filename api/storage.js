@@ -57,7 +57,7 @@ module.exports = async function handler(req, res) {
             if (adminEmail && !usersArray.find(u => u && u.email && u.email.trim().toLowerCase() === adminEmail)) {
                 usersArray.push({
                     email: adminEmail, passwordHash: adminHash, firstName: 'Admin', lastName: 'System',
-                    tier: 'premium', isAdmin: true, emailVerified: true, model: 'gemini-3.5-flash', createdAt: new Date().toISOString()
+                    tier: 'premium', isAdmin: true, emailVerified: true, model: 'gemini-2.5-flash', createdAt: new Date().toISOString()
                 });
                 await redis.set('terminal_users', JSON.stringify(usersArray));
             }
