@@ -2539,18 +2539,11 @@
                     <!-- Left: Engine, Usage & Status -->
                     <div class="flex gap-2 sm:gap-4 items-center min-w-0">
                         <div class="flex items-center gap-1 sm:gap-1.5 shrink-0">
-                            <span class="hidden md:inline text-slate-500 text-[10px]">Engine:</span>
-                            <div class="relative flex items-center">
-                                <select id="footerModelSelect" onchange="quickChangeModel(this.value)"
-                                    class="bg-transparent border-none text-slate-300 font-mono text-[10.5px] outline-none cursor-pointer appearance-none hover:text-white transition-colors">
-                                    <option value="gemini-3.5-flash" style="background:#11151B;">3.5 FLASH</option>
-                                    <option value="gemini-3.6-flash" style="background:#11151B;">3.6 FLASH</option>
-                                    <option value="gemini-3.7-flash" style="background:#11151B;">3.7 FLASH</option>
-                                    <option value="gemini-2.5-flash" style="background:#11151B;">2.5 FLASH</option>
-                                    <option value="gemini-2.5-pro" style="background:#11151B;">2.5 PRO</option>
-                                    <option value="gemini-flash-latest" style="background:#11151B;">FLASH (LATEST)</option>
-                                </select>
-                            </div>
+                            <span class="text-slate-500 text-[10px]">Engine:</span>
+                            <span class="text-slate-300 font-mono text-[10.5px] font-semibold flex items-center gap-1.5 px-2 py-0.5 rounded bg-white/5 border border-white/10">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                Gemini
+                            </span>
                         </div>
 
                         <div class="h-3 w-[1px] bg-white/10 hidden sm:block"></div>
@@ -3326,8 +3319,6 @@
             if (!user) return;
             const limit = user.tier === 'premium' ? 20 : 3;
             const used = await getQueryCount(user.email);
-            const modelSelect = document.getElementById('footerModelSelect');
-            if (modelSelect && user.model) modelSelect.value = user.model;
             const countLabel = document.getElementById('queryCountLabel');
             if (countLabel) countLabel.textContent = `${used}/${limit}`;
             const tl = document.getElementById('tierLabel');
@@ -3480,7 +3471,6 @@
                 } else {
                     // Guest viewing a shared report
                     document.getElementById('guestNotice').classList.remove('hidden');
-                    document.getElementById('footerModelSelect').disabled = true;
                     document.getElementById('queryCountLabel').innerHTML = '<button onclick="location.reload()" class="text-gold-500 font-bold hover:underline">JETZT REGISTRIEREN</button>';
                 }
                 return;
@@ -3506,7 +3496,7 @@
                 if (adminScreenerBtn) { adminScreenerBtn.classList.add('hidden'); adminScreenerBtn.classList.remove('inline-flex'); }
                 if (adminDrawerScreenerBtn) { adminDrawerScreenerBtn.classList.add('hidden'); adminDrawerScreenerBtn.classList.remove('inline-flex'); }
             }
-            MODEL_ID = user.model || 'gemini-3.5-flash';
+            MODEL_ID = user.model || 'gemini-2.5-flash';
             await updateFooter(user);
             updateLanguageUI();
             updateResetTimeDisplay();
@@ -3531,7 +3521,7 @@
         }
 
         // ==================== CONFIGURATION ====================
-        let MODEL_ID = 'gemini-3.5-flash';
+        let MODEL_ID = 'gemini-2.5-flash';
         let USER_LANG = localStorage.getItem('gemini_user_lang') || 'de-DE';
         let CURRENT_ANALYSIS_DATA = null;
 
@@ -3817,7 +3807,7 @@
             }
 
             try {
-                MODEL_ID = document.getElementById('footerModelSelect')?.value || user.model || 'gemini-3.5-flash';
+                MODEL_ID = user.model || 'gemini-2.5-flash';
                 const langNames = { 'de-DE': 'DEUTSCH', 'en-US': 'ENGLISH', 'fr-FR': 'FRANÇAIS', 'es-ES': 'ESPAÑOL' };
                 const currentLangName = langNames[USER_LANG] || 'DEUTSCH';
 
@@ -11099,11 +11089,15 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                             </td>
                             <td class="px-4">
                                 <select onchange="updateUserField('${u.email}', 'model', this.value)" class="bg-black/40 border border-white/10 rounded text-[10px] font-mono p-1 text-white/70">
-                                    <option value="gemini-3.5-flash" ${u.model === 'gemini-3.5-flash' || !u.model ? 'selected' : ''}>3.5 FLASH</option>
-                                    <option value="gemini-3.6-flash" ${u.model === 'gemini-3.6-flash' ? 'selected' : ''}>3.6 FLASH</option>
-                                    <option value="gemini-3.7-flash" ${u.model === 'gemini-3.7-flash' ? 'selected' : ''}>3.7 FLASH</option>
-                                    <option value="gemini-2.5-flash" ${u.model === 'gemini-2.5-flash' ? 'selected' : ''}>2.5 FLASH</option>
-                                    <option value="gemini-flash-latest" ${u.model === 'gemini-flash-latest' ? 'selected' : ''}>FLASH (LATEST)</option>
+                                    <optgroup label="Flash Models" style="background:#11151B; color:#94a3b8;">
+                                        <option value="gemini-3.7-flash" ${u.model === 'gemini-3.7-flash' ? 'selected' : ''}>3.7 FLASH</option>
+                                        <option value="gemini-3.6-flash" ${u.model === 'gemini-3.6-flash' ? 'selected' : ''}>3.6 FLASH</option>
+                                        <option value="gemini-3.5-flash" ${u.model === 'gemini-3.5-flash' ? 'selected' : ''}>3.5 FLASH</option>
+                                        <option value="gemini-2.5-flash" ${u.model === 'gemini-2.5-flash' || !u.model ? 'selected' : ''}>2.5 FLASH (Standard)</option>
+                                    </optgroup>
+                                    <optgroup label="Pro Models" style="background:#11151B; color:#D6A83A;">
+                                        <option value="gemini-2.5-pro" ${u.model === 'gemini-2.5-pro' ? 'selected' : ''}>2.5 PRO (Deep Reasoning)</option>
+                                    </optgroup>
                                 </select>
                             </td>
                             <td class="px-4">
