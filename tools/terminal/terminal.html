@@ -1196,26 +1196,35 @@
                             </div>
                         </div>
 
-                        <!-- Skeleton State -->
+                        <!-- Skeleton / Loading State -->
                         <div id="skeletonState"
-                            class="state-hidden flex flex-col items-center justify-center min-h-[50vh] w-full">
-                            <div class="flex flex-col items-center justify-center p-8 bg-[#11151B] rounded-xl border border-[#202630] w-full max-w-lg shadow-2xl">
-                                <div class="w-10 h-10 border-2 border-slate-700 border-t-[#D6A83A] rounded-full animate-spin mb-4"></div>
-                                <div id="loadingStatus"
-                                    class="text-white text-sm font-semibold mb-2 text-center">
-                                    Stammdaten &amp; Börsenkurs werden initialisiert...</div>
-                                <div id="loadingProgress"
-                                    class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden my-3">
+                            class="state-hidden flex flex-col items-center justify-center min-h-[45vh] w-full py-6">
+                            <!-- Compact Status Card (Einzeiler + Progress Bar) -->
+                            <div class="flex flex-col items-center justify-center px-6 py-4 bg-[#11151B] rounded-xl border border-[#202630] w-full max-w-lg shadow-xl">
+                                <div class="flex items-center gap-3 w-full justify-between mb-2">
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <div class="w-4 h-4 border-2 border-slate-700 border-t-[#D6A83A] rounded-full animate-spin shrink-0"></div>
+                                        <div id="loadingStatus" class="text-white text-xs font-semibold truncate">
+                                            Stammdaten &amp; Börsenkurs werden initialisiert...
+                                        </div>
+                                    </div>
+                                    <span id="loadingPercent" class="text-[11px] font-mono text-gold-400 font-bold shrink-0">15%</span>
+                                </div>
+                                <div id="loadingProgress" class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
                                     <div id="loadingProgressBar" class="h-full bg-gradient-to-r from-[#D6A83A] to-[#E5C07B] transition-all duration-300"
                                         style="width: 15%"></div>
                                 </div>
-                                <div id="loadingSubtext" class="text-slate-400 text-[11px] text-center leading-relaxed max-w-md">
-                                    Identifikation des Unternehmens, Heimatbörse und aktuelle Kursfeststellung.</div>
+                                <!-- Hidden Subtext element retained for JS compatibility -->
+                                <div id="loadingSubtext" class="hidden"></div>
                             </div>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full mt-8 opacity-20">
-                                <div class="widget-card h-48 shimmer rounded-lg"></div>
-                                <div class="widget-card h-48 shimmer rounded-lg"></div>
-                                <div class="widget-card h-48 shimmer rounded-lg"></div>
+
+                            <!-- 45s Loading Ad Spot (Directly Below Slim Loading Bar) -->
+                            <div class="w-full max-w-lg mt-5">
+                                <div class="fc-ad-slot fc-ad-rectangle" 
+                                     data-fc-ad-slot="terminalLoadingSpot" 
+                                     data-fc-title="Hier könnte Ihre Werbung stehen" 
+                                     data-fc-desc="Werbeplatzierung • 300x250 während der 45s Analyse">
+                                </div>
                             </div>
                         </div>
 
@@ -3605,6 +3614,9 @@
                     skeleton.style.display = 'flex';
                 }
                 if (execBtn) execBtn.classList.add('btn-loading');
+                if (window.FincastAds && typeof window.FincastAds.refresh === 'function') {
+                    window.FincastAds.refresh();
+                }
             } else if (state === 'results' && results) {
                 results.classList.remove(hideClass);
                 results.style.display = 'block';
@@ -3633,8 +3645,10 @@
             const status = document.getElementById('loadingStatus');
             const bar = document.getElementById('loadingProgressBar');
             const sub = document.getElementById('loadingSubtext');
+            const percent = document.getElementById('loadingPercent');
             if (status && msg) status.textContent = msg;
             if (bar && progress !== undefined) bar.style.width = progress + '%';
+            if (percent && progress !== undefined) percent.textContent = Math.round(progress) + '%';
             if (sub && subtext) sub.textContent = subtext;
         }
 
@@ -3927,9 +3941,9 @@ Fiscal Year: FY${dataset.annual[dataset.annual.length - 1]?.year || new Date().g
             if (!dataset) {
                 // ==================== PHASE 1: HIGH-PRECISION GOOGLE GROUNDING (Gemini 2.5 Flash + Google Search) ====================
                 updateLoadingStatus(
-                    'Live-Börsendaten & fundamentale 5-Jahres-Bilanzen werden erfasst...', 
+                    'Live-Börsendaten & fundamentale 10-Jahres-Bilanzen werden erfasst...', 
                     35, 
-                    'Verifizierte Live-Marktdaten & Jahresabschlüsse (Yahoo Finance, Morningstar, SEC, Google Finance, Bloomberg).'
+                    'Verifizierte Live-Marktdaten & 10-Jahres-Abschlüsse (Yahoo Finance, Morningstar, SEC, Google Finance, Bloomberg, Macrotrends).'
                 );
                 
                 const datasetPrompt = getDatasetPrompt(query, lang);
@@ -4086,7 +4100,7 @@ STIL: Präzise Bullet-Points und kurze Begründungen (max. 1–2 Sätze pro Punk
 
 OUTPUT FORMAT:
 <financial_quality>
-Revenue CAGR: [5Y CAGR in %]
+Revenue CAGR: [5Y/10Y CAGR in %]
 EBIT Margin: [Aktuelle EBIT-Marge in %]
 Margin Trend: [EXPANDING / STABLE / CONTRACTING + 1 Satz]
 ROIC: [ROIC Wert in %]
@@ -4142,7 +4156,7 @@ EV/EBITDA: [EV/EBITDA Multiple]
 P/FCF: [Kurs-FCF-Verhältnis]
 FCF Yield: [Free Cash Flow Rendite in %]
 Dividend Yield: [Dividendenrendite in %]
-Historical Valuation: [UNDERVALUED / FAIR / OVERVALUED vs 5Y Avg]
+Historical Valuation: [UNDERVALUED / FAIR / OVERVALUED vs 5Y/10Y Avg]
 Peer Valuation: [PREMIUM / IN-LINE / DISCOUNT vs Sector]
 DCF Bear: [Konservativer Fair Value mit Währungscode (MODEL)]
 DCF Base: [Basis Fair Value mit Währungscode (MODEL)]
@@ -4181,14 +4195,14 @@ Technical Signal: [EXACTLY ONE: [STRONG BULLISH] / [BULLISH] / [NEUTRAL] / [BEAR
             const todayIso = new Date().toISOString().split('T')[0];
             return `CURRENT DATE: ${todayIso}
 LANGUAGE: Respond in ${lang}.
-TASK: Extract Verified Live Market Price, Official Company Profile, and Empirical 5-Year + TTM Financial Statements for "${query}".
+TASK: Extract Verified Live Market Price, Official Company Profile, and Empirical 10-Year + TTM Financial Statements for "${query}".
 
 STRICT DIRECTIVES:
-1. GOOGLE SEARCH GROUNDING: Use Google Search Grounding to verify the exact current live stock price and historical financial data from authoritative sources (Yahoo Finance, Google Finance, Morningstar, SEC EDGAR 10-K, Bloomberg, MarketWatch, Finanzen.net).
+1. GOOGLE SEARCH GROUNDING: Use Google Search Grounding to verify the exact current live stock price and 10-year historical financial reporting data from authoritative sources (Yahoo Finance, Google Finance, Morningstar, SEC EDGAR 10-K, Bloomberg, Macrotrends, MarketWatch, Finanzen.net).
 2. LIVE STOCK PRICE ACCURACY: Find the ACTUAL LIVE / CURRENT market trading price for "${query}" as of today (${todayIso}) in its native trading currency. (e.g. for Zoetis/ZTS check real live price, for Apple/AAPL, for PepsiCo/PEP, for LVMH/MC.PA). Do NOT use outdated historical prices as current price!
 3. NATIVE CURRENCY: State the exact native trading currency code (USD, EUR, CHF, GBP, etc.) consistently for all monetary figures and current stock price.
-4. HISTORICAL 5-YEAR FINANCIAL STATEMENTS: Retrieve the exact reported annual financial figures for the past 5 completed fiscal years (FY2020, FY2021, FY2022, FY2023, FY2024) plus TTM:
-   - Revenue, Operating Income (EBIT), Net Income, Free Cash Flow (FCF), EPS, ROIC, ROE, Debt/Equity, and actual historical period-close prices.
+4. HISTORICAL 10-YEAR FINANCIAL STATEMENTS: Retrieve the exact reported annual financial figures for the past 10 completed fiscal years (FY2015, FY2016, FY2017, FY2018, FY2019, FY2020, FY2021, FY2022, FY2023, FY2024) plus current TTM:
+   - Revenue, Operating Income (EBIT), Net Income, Free Cash Flow (FCF), EPS, ROIC, ROE, Debt/Equity, and actual historical period-close stock prices for each year.
 5. OUTPUT FORMAT: Output ONLY the two requested XML blocks below (<company_identity> and <financial_dataset>). Do NOT output any conversational text, extra markdown commentary, or analysis.
 
 <company_identity>
@@ -4215,7 +4229,7 @@ Data Timestamp: [${todayIso}]
   "symbol": "[Ticker]",
   "companyName": "[Official Company Name]",
   "currency": "[Native Currency Code, e.g. USD, EUR]",
-  "availableYears": 5,
+  "availableYears": 10,
   "currentPrice": [Current stock price as plain number],
   "marketCap": [Market capitalization as plain number],
   "ttm": {
@@ -4233,7 +4247,7 @@ Data Timestamp: [${todayIso}]
   },
   "annual": [
     {
-      "year": [Reporting year, e.g. 2020 ... 2024],
+      "year": [Reporting year, e.g. 2015 ... 2024 (10 full reporting years)],
       "date": "[YYYY-MM-DD or year]",
       "revenue": [Annual revenue as plain number in native currency],
       "operatingIncome": [Annual EBIT / Operating Income as plain number],
