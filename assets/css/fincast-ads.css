@@ -343,3 +343,19 @@
         min-height: 200px;
     }
 }
+
+/* ==================== 100% Collapse for Premium Users ==================== */
+body.fc-premium-user .fc-ad-slot,
+body.fc-premium-user .fc-interstitial-overlay,
+body.fc-premium-user .fc-ad-sticky-bottom {
+    display: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+

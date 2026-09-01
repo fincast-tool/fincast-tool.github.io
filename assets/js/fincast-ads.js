@@ -33,6 +33,7 @@
             terminalBottom: '1000000005',
             terminalGuidedMid: '1000000008',
             terminalResearchMid: '1000000009',
+            terminalLoadingSpot: '1000000010',
             calculatorTop: '1000000006',
             hypeTop: '1000000007'
         },
@@ -58,7 +59,7 @@
     };
 
     // =========================================================================
-    // AUTHENTICATION & PREMIUM USER BYPASS
+    // AUTHENTICATION & PREMIUM USER BYPASS (FREE VS PREMIUM)
     // =========================================================================
     function isUserPremium() {
         try {
@@ -67,8 +68,8 @@
             if (sessionRaw) {
                 const session = JSON.parse(sessionRaw);
                 const tier = (session.tier || session.user?.tier || '').toLowerCase();
-                const role = (session.role || session.user?.role || '').toLowerCase();
-                if (tier === 'premium' || tier === 'pro' || role === 'admin' || session.isAdmin) {
+                // Admin continues to see ads! Only tier === 'premium' or 'pro' bypasses ads
+                if (tier === 'premium' || tier === 'pro') {
                     return true;
                 }
             }
@@ -77,7 +78,8 @@
             const fcUserRaw = localStorage.getItem('fincast_user') || sessionStorage.getItem('fincast_user');
             if (fcUserRaw) {
                 const fcUser = JSON.parse(fcUserRaw);
-                if (fcUser.isPremium || fcUser.tier === 'premium' || fcUser.tier === 'pro' || fcUser.role === 'admin') {
+                const tier = (fcUser.tier || '').toLowerCase();
+                if (tier === 'premium' || tier === 'pro' || fcUser.isPremium === true) {
                     return true;
                 }
             }
@@ -279,13 +281,18 @@
     }
 
     function renderInPageAds() {
-        if (isUserPremium()) {
+        const isPremium = isUserPremium();
+
+        if (isPremium) {
+            document.body.classList.add('fc-premium-user');
             // Hide all ad containers for premium users
-            document.querySelectorAll('.fc-ad-slot').forEach(el => {
+            document.querySelectorAll('.fc-ad-slot, .fc-ad-sticky-bottom').forEach(el => {
                 el.style.display = 'none';
             });
             return;
         }
+
+        document.body.classList.remove('fc-premium-user');
 
         const adSlots = document.querySelectorAll('[data-fc-ad-slot]');
 
