@@ -129,6 +129,9 @@
     "api/analyze.js": {
       "maxDuration": 60
     },
+    "api/market-quote.js": {
+      "maxDuration": 60
+    },
     "api/historical-data.js": {
       "maxDuration": 60
     },
