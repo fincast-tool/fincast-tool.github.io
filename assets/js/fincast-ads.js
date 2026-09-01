@@ -126,17 +126,17 @@
         return `
         <div id="fcInterstitialOverlay" class="fc-interstitial-overlay" role="dialog" aria-modal="true" aria-label="Werbung">
             <div class="fc-interstitial-card">
-                <!-- Header with Badge and 3-Second Countdown / Subtle Close Action -->
-                <div class="fc-interstitial-header">
-                    <span class="fc-interstitial-badge">
-                        ${SVG_ICONS.sponsored}
-                        <span>Anzeige &bull; fincast Media</span>
-                    </span>
-                    <div id="fcCountdownContainer" class="fc-countdown-box">
-                        <div class="fc-countdown-pill" id="fcCountdownPill">
-                            ${SVG_ICONS.timer}
-                            <span><strong id="fcCountdownNum" style="color:var(--fc-ad-gold);">${FINCAST_ADS_CONFIG.interstitialCountdownSeconds}</strong>s</span>
-                        </div>
+                <!-- Subtle In-Ad Badge -->
+                <span class="fc-interstitial-badge">
+                    ${SVG_ICONS.sponsored}
+                    <span>Anzeige</span>
+                </span>
+
+                <!-- In-Ad Floating Countdown / Subtle Close Action -->
+                <div id="fcCountdownContainer" class="fc-countdown-box">
+                    <div class="fc-countdown-pill" id="fcCountdownPill">
+                        ${SVG_ICONS.timer}
+                        <span><strong id="fcCountdownNum" style="color:var(--fc-ad-gold);">${FINCAST_ADS_CONFIG.interstitialCountdownSeconds}</strong>s</span>
                     </div>
                 </div>
 
