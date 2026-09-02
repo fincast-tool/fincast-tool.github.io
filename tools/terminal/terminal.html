@@ -4084,6 +4084,188 @@
             }
         }
 
+        // ==================== FINANCIAL DATASET GAP AUDIT & 0-TOKEN BACKFILL ====================
+        function auditFinancialDatasetGap(dataset) {
+            if (!dataset || typeof dataset !== 'object') {
+                return { isComplete: false, missingPillars: ['market', 'history', 'growth', 'capital_efficiency', 'leverage', 'shareholder'], missingFields: ['annual', 'marketCap', 'roic', 'debtToEquity'] };
+            }
+            const ann = Array.isArray(dataset.annual) ? dataset.annual : [];
+            const latest = ann.length > 0 ? ann[ann.length - 1] : {};
+            const res = dataset.researchedMetrics || {};
+            const missingFields = [];
+            const missingPillars = [];
+
+            // Pillar 1: Market & Valuation
+            if (dataset.currentPrice == null || dataset.marketCap == null) {
+                missingPillars.push('market');
+                if (dataset.currentPrice == null) missingFields.push('currentPrice');
+                if (dataset.marketCap == null) missingFields.push('marketCap');
+            }
+
+            // Pillar 2: 5-Year History & Growth CAGRs
+            if (ann.length < 3) {
+                missingPillars.push('history');
+                missingFields.push('annual_history');
+            }
+            if (res.revenueCAGR == null && dataset.growthTrajectories?.revenue?.cagr5Y == null) {
+                missingFields.push('revenueCAGR');
+            }
+
+            // Pillar 3: Capital Efficiency & Margins
+            if (latest.roic == null && res.roic == null) {
+                missingFields.push('roic');
+            }
+            if (latest.roe == null && res.roe == null) {
+                missingFields.push('roe');
+            }
+            if (latest.operatingMargin == null && res.operatingMargin == null) {
+                missingFields.push('operatingMargin');
+            }
+
+            // Pillar 4: Balance & Leverage
+            if (!dataset.isFinancialSector) {
+                if (latest.netDebtToEbitda == null && res.netDebtToEbitda == null) {
+                    missingFields.push('netDebtToEbitda');
+                }
+            }
+            if (latest.debtToEquity == null && res.debtToEquity == null) {
+                missingFields.push('debtToEquity');
+            }
+            if (latest.interestCoverage == null && res.interestCoverage == null) {
+                missingFields.push('interestCoverage');
+            }
+
+            // Pillar 5: Shareholder Return & Earnings Date
+            if (latest.dividendPerShare == null && res.dividendPerShare == null && res.dividendYield == null) {
+                missingFields.push('dividendPerShare');
+            }
+            if (res.nextEarnings == null && dataset.quote?.earningsAnnouncement == null) {
+                missingFields.push('nextEarnings');
+            }
+
+            return {
+                isComplete: missingFields.length === 0,
+                missingFields,
+                missingPillars
+            };
+        }
+
+        function enrichAndBackfillFinancialDataset(dataset, rawOfficialData = null) {
+            if (!dataset || typeof dataset !== 'object') return dataset;
+            const ann = Array.isArray(dataset.annual) ? dataset.annual : [];
+            const cur = dataset.currency || '$';
+            const isFin = Boolean(dataset.isFinancialSector);
+
+            if (!dataset.researchedMetrics) dataset.researchedMetrics = {};
+            const res = dataset.researchedMetrics;
+
+            // 1. Ingest Official Data if provided
+            if (rawOfficialData && typeof rawOfficialData === 'object') {
+                const quote = rawOfficialData.quote || {};
+                const profile = rawOfficialData.profile || {};
+                const metricsList = Array.isArray(rawOfficialData.keyMetrics) ? rawOfficialData.keyMetrics : [];
+                const ratiosList = Array.isArray(rawOfficialData.financialRatios) ? rawOfficialData.financialRatios : [];
+                const latestMetric = metricsList.length > 0 ? metricsList[0] : {};
+                const latestRatio = ratiosList.length > 0 ? ratiosList[0] : {};
+
+                if (quote.price && (!dataset.currentPrice || dataset.currentPrice <= 0)) dataset.currentPrice = quote.price;
+                if (quote.marketCap && !dataset.marketCap) dataset.marketCap = quote.marketCap;
+                if (quote.yearHigh && !dataset.yearHigh) dataset.yearHigh = quote.yearHigh;
+                if (quote.yearLow && !dataset.yearLow) dataset.yearLow = quote.yearLow;
+                if (dataset.yearLow && dataset.yearHigh && !dataset.range52Str) {
+                    dataset.range52Str = `${dataset.yearLow.toFixed(2)} – ${dataset.yearHigh.toFixed(2)} ${dataset.currency || cur}`;
+                }
+                if (quote.earningsAnnouncement && !res.nextEarnings) {
+                    res.nextEarnings = quote.earningsAnnouncement.split('T')[0];
+                }
+                if (profile.sector && !dataset.sector) dataset.sector = profile.sector;
+                if (profile.industry && !dataset.industry) dataset.industry = profile.industry;
+
+                // Enrich Key Metrics from Official Data
+                if (latestMetric.roic != null && res.roic == null) res.roic = latestMetric.roic * 100;
+                if (latestMetric.roe != null && res.roe == null) res.roe = latestMetric.roe * 100;
+                if (latestMetric.dividendYield != null && res.dividendYield == null) res.dividendYield = latestMetric.dividendYield * 100;
+                if (latestMetric.dividendPerShare != null && res.dividendPerShare == null) res.dividendPerShare = latestMetric.dividendPerShare;
+                if (latestMetric.netDebtToEBITDA != null && res.netDebtToEbitda == null && !isFin) res.netDebtToEbitda = latestMetric.netDebtToEBITDA;
+                if (latestRatio.interestCoverage != null && res.interestCoverage == null) res.interestCoverage = latestRatio.interestCoverage;
+                if (latestRatio.debtEquityRatio != null && res.debtToEquity == null) res.debtToEquity = latestRatio.debtEquityRatio;
+                if (latestRatio.payoutRatio != null && res.payoutRatio == null) res.payoutRatio = latestRatio.payoutRatio * 100;
+            }
+
+            // 2. Mathematical 0-Token Backfill from Annual Balance Sheets & Income Statements
+            ann.forEach((period, idx) => {
+                const rev = period.revenue;
+                const opInc = period.operatingIncome;
+                const netInc = period.netIncome;
+                const ebitda = period.ebitda ?? opInc;
+                const totalDebt = period.totalDebt;
+                const netDebt = period.netDebt ?? totalDebt;
+                const totalEquity = period.totalEquity;
+                const intExp = period.interestExpense;
+                const eps = period.eps || period.epsAdj;
+                const dps = period.dividendPerShare;
+
+                // Margins
+                if (period.operatingMargin == null && rev && opInc && rev > 0) {
+                    period.operatingMargin = (opInc / rev) * 100;
+                }
+                if (period.netMargin == null && rev && netInc && rev > 0) {
+                    period.netMargin = (netInc / rev) * 100;
+                }
+
+                // Balance & Leverage Math
+                if (period.debtToEquity == null && totalDebt != null && totalEquity && totalEquity > 0) {
+                    period.debtToEquity = totalDebt / totalEquity;
+                }
+                if (period.netDebtToEbitda == null && !isFin && netDebt != null && ebitda && ebitda > 0) {
+                    period.netDebtToEbitda = netDebt / ebitda;
+                }
+                if (period.interestCoverage == null && opInc != null && intExp && intExp > 0) {
+                    period.interestCoverage = opInc / intExp;
+                }
+
+                // Shareholder Return Math
+                if (period.payoutRatio == null && dps != null && eps && eps > 0) {
+                    period.payoutRatio = (dps / eps) * 100;
+                }
+            });
+
+            // 3. Populate Researched Metrics from Latest Annual Period if still missing
+            if (ann.length > 0) {
+                const latest = ann[ann.length - 1];
+                if (res.roic == null && latest.roic != null) res.roic = latest.roic;
+                if (res.roe == null && latest.roe != null) res.roe = latest.roe;
+                if (res.operatingMargin == null && latest.operatingMargin != null) res.operatingMargin = latest.operatingMargin;
+                if (res.debtToEquity == null && latest.debtToEquity != null) res.debtToEquity = latest.debtToEquity;
+                if (res.netDebtToEbitda == null && latest.netDebtToEbitda != null && !isFin) res.netDebtToEbitda = latest.netDebtToEbitda;
+                if (res.interestCoverage == null && latest.interestCoverage != null) res.interestCoverage = latest.interestCoverage;
+                if (res.dividendPerShare == null && latest.dividendPerShare != null) res.dividendPerShare = latest.dividendPerShare;
+                if (res.payoutRatio == null && latest.payoutRatio != null) res.payoutRatio = latest.payoutRatio;
+
+                // Compute 5Y CAGRs mathematically
+                if (ann.length >= 3) {
+                    const first = ann[0];
+                    const numYears = ann.length - 1;
+                    if (numYears >= 2) {
+                        if (res.revenueCAGR == null && first.revenue && latest.revenue && first.revenue > 0 && latest.revenue > 0) {
+                            res.revenueCAGR = (Math.pow(latest.revenue / first.revenue, 1 / numYears) - 1) * 100;
+                        }
+                        if (res.epsCAGR == null && first.eps && latest.eps && first.eps > 0 && latest.eps > 0) {
+                            res.epsCAGR = (Math.pow(latest.eps / first.eps, 1 / numYears) - 1) * 100;
+                        }
+                        if (res.fcfCAGR == null && first.freeCashFlow && latest.freeCashFlow && first.freeCashFlow > 0 && latest.freeCashFlow > 0) {
+                            res.fcfCAGR = (Math.pow(latest.freeCashFlow / first.freeCashFlow, 1 / numYears) - 1) * 100;
+                        }
+                        if (res.dividendCAGR == null && first.dividendPerShare && latest.dividendPerShare && first.dividendPerShare > 0 && latest.dividendPerShare > 0) {
+                            res.dividendCAGR = (Math.pow(latest.dividendPerShare / first.dividendPerShare, 1 / numYears) - 1) * 100;
+                        }
+                    }
+                }
+            }
+
+            return dataset;
+        }
+
         // ==================== SINGLE-AGENT REFRESH & SYNTHESIS FALLBACK ====================
         function synthesizeMissingAgentFallback(agentId, dataset, identityText) {
             const ann = dataset?.annual || [];
@@ -4259,10 +4441,20 @@ ${cName} operiert mit einem etablierten Geschäftsmodell und solider Marktpositi
                 // Step 1: Fetch fresh live quote in 150ms
                 const liveQuote = await fetchMarketQuote(query);
                 
-                // Step 2: Update Dataset with fresh live price & 52w high/low
+                // Step 2: Audit existing dataset for gaps & enrich with official data / mathematical backfill
                 let dataset = existingAnalysis.financial_dataset || existingAnalysis.historical_dataset || existingAnalysis;
                 dataset = normalizeHistoricalFinancialData(dataset, existingAnalysis.company_identity, existingAnalysis);
                 
+                let gapAudit = auditFinancialDatasetGap(dataset);
+                if (!gapAudit.isComplete || !dataset.annual || dataset.annual.length < 3) {
+                    console.log(`[Gap-Audit] Dataset for ${query} has missing fields (${gapAudit.missingFields.join(', ')}). Enriching via official API & math...`);
+                    const officialData = await fetchOfficialHistoricalData(query);
+                    dataset = enrichAndBackfillFinancialDataset(dataset, officialData);
+                    dataset = normalizeHistoricalFinancialData(dataset, existingAnalysis.company_identity, existingAnalysis);
+                } else {
+                    dataset = enrichAndBackfillFinancialDataset(dataset, null);
+                }
+
                 if (liveQuote && typeof liveQuote.currentPrice === 'number' && liveQuote.currentPrice > 0) {
                     dataset.currentPrice = liveQuote.currentPrice;
                     if (liveQuote.currency) dataset.currency = liveQuote.currency;
@@ -4343,14 +4535,21 @@ ${cName} operiert mit einem etablierten Geschäftsmodell und solider Marktpositi
                     existingAnalysis.executive_summary = execData.executive_summary;
                 }
 
-                // Step 6: Guaranteed Minimum Loading Duration (10s) for Full Ad Monetization
+                // Step 6: Post-Synthesis Re-Normalization & Snapshot-Audit
+                dataset = normalizeHistoricalFinancialData(dataset, existingAnalysis.company_identity, existingAnalysis);
+                dataset = enrichAndBackfillFinancialDataset(dataset, null);
+                CURRENT_NORMALIZED_HISTORICAL_DATA = dataset;
+                existingAnalysis.financial_dataset = dataset;
+                existingAnalysis.historical_dataset = dataset;
+
+                // Step 7: Guaranteed Minimum Loading Duration (10s) for Full Ad Monetization
                 const elapsedMs = Date.now() - refreshStartTime;
                 const minDurationMs = 10000;
                 if (elapsedMs < minDurationMs) {
                     await new Promise(r => setTimeout(r, minDurationMs - elapsedMs));
                 }
 
-                // Step 7: Update Timestamps & Render Everything into DOM
+                // Step 8: Update Timestamps & Render Everything into DOM
                 const todayIso = new Date().toISOString().split('T')[0];
                 const nowIso = new Date().toISOString();
                 existingAnalysis.date = todayIso;
@@ -4563,7 +4762,8 @@ ${cName} operiert mit einem etablierten Geschäftsmodell und solider Marktpositi
 
                 let histDataset = finalResults.financial_dataset || finalResults.historical_dataset;
                 if (histDataset) {
-                    const normalized = normalizeHistoricalFinancialData(histDataset, finalResults.company_identity, finalResults);
+                    let normalized = normalizeHistoricalFinancialData(histDataset, finalResults.company_identity, finalResults);
+                    normalized = enrichAndBackfillFinancialDataset(normalized, officialData);
                     if (normalized && normalized.annual && normalized.annual.length > 0) {
                         histDataset = normalized;
                     }
@@ -4674,6 +4874,12 @@ ${cName} operiert mit einem etablierten Geschäftsmodell und solider Marktpositi
                 }
             }
 
+            // Universal Gatekeeper: Mathematical 0-Token Backfill & Official Data Ingestion
+            if (dataset) {
+                dataset = enrichAndBackfillFinancialDataset(dataset, historicalDataset);
+                dataset = normalizeHistoricalFinancialData(dataset, identityText);
+            }
+
             updateLoadingStatus(
                 'Institutionelle Multi-Agenten-Prüfung läuft...', 
                 65, 
@@ -4739,6 +4945,11 @@ ${cName} operiert mit einem etablierten Geschäftsmodell und solider Marktpositi
             const executivePrompt = getExecutivePrompt(query, lang, researchData, validation);
             const executiveText = await fetchSingleBatch(query, user, executivePrompt, 1, false, dataset, MODEL_ID);
             const executiveData = parseFrameworks(executiveText);
+
+            if (dataset) {
+                dataset = normalizeHistoricalFinancialData(dataset, researchData.company_identity || executiveData.company_identity || identityText, { ...researchData, ...executiveData });
+                dataset = enrichAndBackfillFinancialDataset(dataset, historicalDataset);
+            }
 
             return {
                 company_identity: researchData.company_identity || executiveData.company_identity || null,
