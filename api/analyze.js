@@ -345,7 +345,23 @@ module.exports = async function handler(req, res) {
                             }
                         }
 
-                        // Calculate Analyst Consensus Growth (EPS or Revenue Growth estimate)
+                        // Calculate Rule of 40 (FCF-based and EBIT-based)
+                        let ruleOf40String = 'N/A';
+                        if (incomeData && incomeData.length >= 2 && cfData && cfData.length >= 1) {
+                            const latestRev = incomeData[0].revenue;
+                            const prevRev = incomeData[1].revenue;
+                            const latestFcf = cfData[0].freeCashFlow;
+                            const latestOpInc = incomeData[0].operatingIncome;
+                            if (latestRev > 0 && prevRev > 0) {
+                                const revYoY = ((latestRev - prevRev) / prevRev) * 100;
+                                const fcfMargin = latestFcf != null ? (latestFcf / latestRev) * 100 : null;
+                                const opMargin = (latestOpInc / latestRev) * 100;
+                                const r40Fcf = fcfMargin !== null ? (revYoY + fcfMargin) : null;
+                                const tier = r40Fcf !== null ? (r40Fcf >= 55 ? 'ELITE (>55%)' : (r40Fcf >= 40 ? 'RULE OF 40 MET (≥40%)' : (r40Fcf >= 20 ? 'MODERATE (20-40%)' : 'FRAGILE (<20%)'))) : 'N/A';
+                                ruleOf40String = `${r40Fcf !== null ? r40Fcf.toFixed(1) + '%' : 'N/A'} [${tier} | Rev YoY: ${revYoY >= 0 ? '+' : ''}${revYoY.toFixed(1)}%, FCF Margin: ${fcfMargin !== null ? fcfMargin.toFixed(1) + '%' : 'N/A'}, EBIT Margin: ${opMargin.toFixed(1)}%]`;
+                            }
+                        }
+
                         let analystConsensusGrowth = 'N/A';
                         if (Array.isArray(estData) && estData.length >= 2) {
                             const curEst = estData[0];
@@ -405,6 +421,7 @@ EPS CAGR: ${epsCAGR}
 Operating Margins: ${incomeData.slice(0, 10).map(y => (y.revenue > 0 ? ((y.operatingIncome / y.revenue) * 100).toFixed(1) + '%' : 'N/A')).reverse().join(' -> ')}
 FCF Trend (${cfData.length}Y): ${cfData.slice(0, 10).map(y => (y.freeCashFlow != null ? (y.freeCashFlow / 1e9).toFixed(2) + 'B' : 'N/A')).reverse().join(' -> ')}
 FCF CAGR: ${fcfCAGR}
+Rule of 40 (FCF-based): ${ruleOf40String}
 Analyst Consensus Growth: ${analystConsensusGrowth}
 EPS Surprise History:
 ${earnString}
