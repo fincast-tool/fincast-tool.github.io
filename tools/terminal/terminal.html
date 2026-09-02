@@ -4474,6 +4474,25 @@
                 ? `- Margin of Safety zum DCF-Base-Wert: +${dcfResult.marginOfSafetyPct.toFixed(2)}% (Sicherheitsrabatt von ${dcfResult.marginOfSafetyPct.toFixed(2)}% bei einem Einstiegskurs von ${curPrice} ${cur} gegenüber dem fairen Wert von ${dcfResult.dcfBase.toFixed(2)} ${cur})`
                 : `- Margin of Safety zum DCF-Base-Wert: Keine Sicherheitsmarge vorhanden (Bewertungsaufschlag von +${dcfResult.premiumPct.toFixed(2)}% beim aktuellen Kurs ${curPrice} ${cur} gegenüber dem fairen DCF-Wert von ${dcfResult.dcfBase.toFixed(2)} ${cur}; ein Einstiegskurs mit 15% Sicherheitsmarge läge bei ${dcfResult.entryWith15PctMoS.toFixed(2)} ${cur})`;
 
+            let r40FactLine = '';
+            const r40 = valResult?.ruleOf40;
+            if (r40 && r40.primaryScore !== null) {
+                let r40Directive = '';
+                if (r40.tier === 'ELITE') {
+                    r40Directive = 'ELITE (>55%): Herausragende Reinvestitionseffizienz. Rechtfertigt strukturelle Qualitätsprämie trotz KGV/DCF-Aufschlag (Amazon-/Plattform-Effekt).';
+                } else if (r40.tier === 'HEALTHY') {
+                    r40Directive = 'HEALTHY (≥40%): Solider institutioneller Effizienzkorridor. Wachstum ist weitgehend aus operativen Cashflows eigenfinanziert.';
+                } else if (r40.tier === 'MODERATE') {
+                    r40Directive = 'MODERATE (20-40%): Verfehlt 40%-Effizienzschwelle. Bewertungsaufschläge verlangen künftige Cashflow- und Margenbeschleunigung.';
+                } else {
+                    r40Directive = 'FRAGILE (<20% / Negativ): Akutes Hype- & Value-Trap-Risiko. Unökonomisches Wachstum mit hohem Cash-Burn. Hohe Multiples sind fundamental ungerechtfertigt.';
+                }
+                const fcfMgnStr = r40.fcfMargin !== null ? `FCF-Marge: ${r40.fcfMargin}%` : `EBIT-Marge: ${r40.operatingMargin}%`;
+                r40FactLine = `\n- Rule of 40 Reinvestitionseffizienz: [${r40.tier} | Score: ${r40.primaryScore}% (Rev YoY: ${r40.revenueGrowthYoY >= 0 ? '+' : ''}${r40.revenueGrowthYoY}%, ${fcfMgnStr})]\n  * CIO-Synthese-Direktive: ${r40Directive}`;
+            } else if (dataset?.isFinancialSector) {
+                r40FactLine = `\n- Rule of 40: Nicht anwendbar (Finanzinstitut / Bank / Versicherung - Fokus auf RoE, NIM und P/B).`;
+            }
+
             return `EMPIRICAL VALUATION MULTIPLES & VALUE-CHART BENCHMARKS (Single Source of Truth from Engine):
 - KGV Bereinigt / Adj. P/E: Aktuell ${peAdjCurr}x (Historischer Median: ${peAdjMed}x)
 - KGV Bilanziert / GAAP P/E: Aktuell ${peRepCurr}x (Historischer Median: ${peRepMed}x)
@@ -4485,7 +4504,7 @@
 - Empirischer DCF Bear: ${dcfResult.dcfBear.toFixed(2)} ${cur} (WACC 9.5%, g 1.5%)
 - Empirischer DCF Base: ${dcfResult.dcfBase.toFixed(2)} ${cur} (WACC 8.5%, g 2.5%)
 - Empirischer DCF Bull: ${dcfResult.dcfBull.toFixed(2)} ${cur} (WACC 7.5%, g 3.0%)
-${mosLine}`;
+${mosLine}${r40FactLine}`;
         }
 
         // ==================== SINGLE-AGENT REFRESH & SYNTHESIS FALLBACK ====================
@@ -5270,7 +5289,10 @@ STRICT DIRECTIVES:
 2. DYNAMIC 5-YEAR ROLLING FINANCIAL STATEMENTS + CURRENT YEAR ESTIMATE (${yEnd}e): 
    - Provide the empirical reported annual financial figures for the last 5 completed fiscal years (FY${yStart} to FY${yEnd-1}) PLUS the current in-progress fiscal year (${yEnd}e / Konsens-Prognose & Guidance basierend auf den bereits gemeldeten YTD-Quartalen und dem aktuellen Analysten-Konsens).
    - Metrics per year: Revenue, Operating Income (EBIT), Operating Margin, Net Income, Free Cash Flow (FCF), GAAP EPS (bilanziert), Non-GAAP Adjusted EPS (bereinigt), GAAP P/E, Adjusted P/E, Dividend per Share (DPS), Dividend Yield, Payout Ratio, ROIC, ROE, Debt/Equity, Net Debt / EBITDA, Interest Coverage, and periodClosePrice (for ${yEnd}e use Live Price ${price}).
-3. ACCURACY & COMPLETENESS: Ensure all numerical values are plain numbers in native currency (${cur}). Provide realistic distinction between GAAP EPS (unbereinigt) and Adjusted EPS (bereinigt um Einmaleffekte/SBC).
+3. ACCURACY, REAL SHARES & ZERO PHANTOM DIVIDENDS:
+   - Dividends: If the company does not pay a dividend (e.g. non-dividend growth stock like MercadoLibre, Amazon, Tesla), set "dividendPerShare", "dividendYield", and "payoutRatio" strictly to 0. Do NOT invent or estimate fake dividends.
+   - Shares Outstanding: Provide the real annual weighted average diluted shares outstanding ("sharesOutstanding") for each individual fiscal year from official 10-K filings, reflecting historical share issuances, SBC dilution, or share buybacks.
+   - Values: Ensure all numerical values are plain numbers in native currency (${cur}). Provide realistic distinction between GAAP EPS (unbereinigt) and Adjusted EPS (bereinigt um Einmaleffekte/SBC).
 4. OUTPUT FORMAT: Output ONLY the two requested XML blocks below (<company_identity> and <financial_dataset>). Do NOT output conversational text, markdown commentary, or explanations.
 
 <company_identity>
@@ -5317,9 +5339,9 @@ Data Timestamp: [${todayIso}]
     "debtToEquity": [TTM Debt/Equity as number, e.g. 1.25],
     "netDebtToEbitda": [TTM Net Debt / EBITDA ratio as number, e.g. 1.80],
     "interestCoverage": [TTM EBIT / Interest expense ratio as number, e.g. 12.5],
-    "dividendPerShare": [TTM Dividend per Share in native currency as number, e.g. 2.50],
-    "dividendYield": [Current dividend yield in % as number, e.g. 2.4],
-    "payoutRatio": [Dividend payout ratio in % as number, e.g. 45.0],
+    "dividendPerShare": [TTM Dividend per Share in native currency or 0 if non-dividend payer],
+    "dividendYield": [Current dividend yield in % or 0 if non-dividend payer],
+    "payoutRatio": [Dividend payout ratio in % or 0 if non-dividend payer],
     "sharesOutstanding": [Current shares outstanding as plain number]
   },
   "annual": [
@@ -5338,9 +5360,9 @@ Data Timestamp: [${todayIso}]
       "roic": [ROIC in % as number],
       "roe": [ROE in % as number],
       "debtToEquity": [Debt/Equity as number],
-      "dividendPerShare": [Dividend per share as number],
-      "dividendYield": [Dividend yield % as number],
-      "sharesOutstanding": [Shares outstanding as number],
+      "dividendPerShare": [Dividend per share as number or 0 if non-dividend payer],
+      "dividendYield": [Dividend yield % as number or 0 if non-dividend payer],
+      "sharesOutstanding": [Actual weighted average diluted shares outstanding in this fiscal year],
       "periodClosePrice": [Fiscal year end stock price as number]
     },
     {
@@ -5359,8 +5381,8 @@ Data Timestamp: [${todayIso}]
       "roic": [Current year ${yEnd}e expected ROIC in % as number],
       "roe": [Current year ${yEnd}e expected ROE in % as number],
       "debtToEquity": [Expected Debt/Equity ratio as number],
-      "dividendPerShare": [Expected annualized dividend per share as number],
-      "dividendYield": [Expected dividend yield % as number],
+      "dividendPerShare": [Expected annualized dividend per share or 0 if non-dividend payer],
+      "dividendYield": [Expected dividend yield % or 0 if non-dividend payer],
       "sharesOutstanding": [Expected shares outstanding as number],
       "periodClosePrice": ${typeof marketQuote?.currentPrice === 'number' ? marketQuote.currentPrice : 0}
     }
@@ -5465,19 +5487,24 @@ STRICT SYNTHESIS DIRECTIVES:
        "Margin of Safety: Die Margin of Safety zum DCF-Basiswert beträgt [X.X]%, dies entspricht einem Einstiegskurs von [Einstiegskurs mit Währung] im Vergleich zum fairen Wert von [DCF Base Kurs mit Währung]."
      * If the stock trades ABOVE the DCF Base value (no Margin of Safety / Premium):
        "Margin of Safety: Aktuell liegt keine Sicherheitsmarge vor (Bewertungsaufschlag von [X.X]% beim aktuellen Kurs von [Aktueller Kurs mit Währung] gegenüber dem fairen DCF-Wert von [DCF Base Kurs mit Währung]; ein Einstiegskurs mit 15% Sicherheitsmarge läge bei [Einstiegskurs mit 15% MoS mit Währung])."
-   - Under 'Final Terminal Sentiment', state the overall rating and exactly 1 concise sentence synthesizing the historic P/E perspective with the DCF fair value perspective.
-4. OUTPUT FORMAT: Output ONLY the <executive_summary> XML block.
+4. RULE OF 40 & REINVESTMENT SYNTHESIS (Comprehensive 4-Tier Directive):
+   - Falls Rule of 40 Daten im Fact-Block vorliegen (Tech/Software/Growth/Platform), synthetisiere den Rule of 40 Status zwingend in 'Market Expectations Embedded', 'Investment Thesis' oder 'Final Terminal Sentiment':
+     * TIER 1 (ELITE >= 55%): Wenn die Aktie laut KGV/DCF überbewertet erscheint oder keine Sicherheitsmarge vorliegt, ergänze: 'Trotz des optischen Bewertungsaufschlags signalisiert die herausragende Rule of 40 von [X.X]% (Elite), dass das Wachstum hochgradig durch operative Cashflows gedeckt ist und eine strukturelle Qualitätsprämie rechtfertigt (Amazon-/Plattform-Effekt).'
+     * TIER 2 (HEALTHY 40-55%): Ergänze: 'Die Rule of 40 von [X.X]% erfüllt den institutionellen Effizienzkorridor (≥40%), wodurch das Wachstum solide eigenfinanziert wird, der aktuelle Bewertungsaufschlag jedoch wenig Puffer für Enttäuschungen lässt.'
+     * TIER 3 (MODERATE 20-40%): Ergänze: 'Mit einer Rule of 40 von [X.X]% verfehlt das Unternehmen die institutionelle Effizienzmarke (≥40%). Der aktuelle Bewertungsaufschlag erfordert eine spürbare Beschleunigung des Cashflow-Hebels.'
+     * TIER 4 (FRAGILE < 20% / Negativ): Wenn der Titel hoch bewertet oder gehyped ist: 'Akute Hype- & Value-Trap-Gefahr: Mit einer Rule of 40 von nur [X.X]% (<20%) wird das Wachstum durch hohen Cash-Burn erkauft, ohne skalierbare Ertragskraft nachzuweisen. Die hohe Bewertung ist fundamental nicht haltbar.'
+5. OUTPUT FORMAT: Output ONLY the <executive_summary> XML block.
 
 OUTPUT FORMAT:
 <executive_summary>
-Market Expectations Embedded: [1-2 Sätze: Konkreter Vergleich des aktuellen KGV mit dem historischen Median-KGV (inkl. prozentualer Abweichung) und Übernahme des deterministischen Bewertungsurteils (z. B. 'FAIR BEWERTET' bei -7.9%)]
+Market Expectations Embedded: [1-2 Sätze: Konkreter Vergleich des aktuellen KGV mit dem historischen Median-KGV (inkl. prozentualer Abweichung) und Übernahme des deterministischen Bewertungsurteils (z. B. 'FAIR BEWERTET' bei -7.9%). Bei Tech/Growth-Werten kurze Einordnung anhand der Rule of 40.]
 Margin of Safety: [MANDATORY SYNTAX: Wenn Kurs < DCF Base: 'Die Margin of Safety zum DCF-Basiswert beträgt [X.X]%, dies entspricht einem Einstiegskurs von [Einstiegskurs] im Vergleich zum fairen Wert von [DCF Base Wert].' | Wenn Kurs >= DCF Base: 'Aktuell liegt keine Sicherheitsmarge vor (Bewertungsaufschlag von [X.X]% beim aktuellen Kurs von [Aktueller Kurs] gegenüber dem fairen DCF-Wert von [DCF Base Wert]; ein Einstiegskurs mit 15% Sicherheitsmarge läge bei [Einstiegskurs mit 15% MoS]).']
 Investment Thesis: [1-2 prägnante Sätze zur Kernthese]
 Counter Thesis: [1-2 prägnante Sätze zum Bärenfall / Hauptrisiko]
 Key Catalyst: [Genau 1 Hauptkatalysator]
 Key Risk: [Genau 1 Hauptrisiko]
 Thesis Breaker: [Konkretes Ereignis/Schwelle, das die These ungültig macht]
-Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRLY VALUED] / [OVERVALUED] / [NEGATIVE] / [STRONG NEGATIVE]] - [1 kurzer Satz zur Synthese aus historischem KGV-Vergleich und DCF-Bewertung]
+Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRLY VALUED] / [OVERVALUED] / [HIGH RISK / VALUE TRAP] / [AVOID / UNJUSTIFIED PREMIUM] / [NEGATIVE] / [STRONG NEGATIVE]] - [1 kurzer Satz zur Synthese aus historischem KGV-Vergleich, DCF-Bewertung und Rule of 40]
 </executive_summary>`;
 
             return prompt;
@@ -5734,6 +5761,7 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
 
             if (!verdict) {
                 const keywords = [
+                    'HIGH RISK / VALUE TRAP', 'VALUE TRAP', 'AVOID / UNJUSTIFIED PREMIUM', 'AVOID',
                     'STRONG POSITIVE', 'STARK POSITIV', 'STRONG BUY', 'STARK KAUFEN', 'BUY', 'KAUFEN',
                     'POSITIVE', 'POSITIV', 'BULLISH', 'STRONG BULLISH', 'STARK BULLISH',
                     'UNDERVALUED', 'DEEPLY UNDERVALUED', 'UNTERBEWERTET', 'TIEF UNTERBEWERTET',
@@ -5794,12 +5822,12 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
                 else if (verdict === 'LOW') verdict = 'GERING';
             }
 
-            if (verdict.length > 22) verdict = verdict.substring(0, 20) + '...';
+            if (verdict.length > 24) verdict = verdict.substring(0, 22) + '...';
 
             let type = 'wait';
             if (/^(STRONG POSITIVE|STARK POSITIV|STRONG BUY|BUY|POSITIVE|POSITIV|BULLISH|STRONG BULLISH|STARK BULLISH|UNDERVALUED|DEEPLY UNDERVALUED|UNTERBEWERTET|TIEF UNTERBEWERTET|BEAT|VORTEIL|EXCEPTIONAL|EXZELLENT|EXCELLENT|HERVORRAGEND|STRONG|STARK|GOOD|GUT|VALUE CREATING|WERTSTEIGERND|ACCUMULATION|AKKUMULATION|TRENDING)$/i.test(verdict) || /bullish|positive|positiv|undervalued|unterbewertet|wertsteigernd/i.test(verdict)) {
                 type = 'buy';
-            } else if (/^(STRONG NEGATIVE|STARK NEGATIV|STRONG SELL|SELL|VERKAUFEN|NEGATIVE|NEGATIV|BEARISH|STRONG BEARISH|STARK BEARISH|OVERVALUED|DEEPLY OVERVALUED|ÜBERBEWERTET|STARK ÜBERBEWERTET|MISS|POOR|DÜRFTIG|WEAK|SCHWACH|VALUE DESTROYING|WERTVERNICHTEND|DISTRIBUTION|TOO HARD)$/i.test(verdict) || /bearish|negative|negativ|overvalued|überbewertet|sell|schwach|wertvernichtend/i.test(verdict)) {
+            } else if (/^(STRONG NEGATIVE|STARK NEGATIV|STRONG SELL|SELL|VERKAUFEN|NEGATIVE|NEGATIV|BEARISH|STRONG BEARISH|STARK BEARISH|OVERVALUED|DEEPLY OVERVALUED|ÜBERBEWERTET|STARK ÜBERBEWERTET|MISS|POOR|DÜRFTIG|WEAK|SCHWACH|VALUE DESTROYING|WERTVERNICHTEND|DISTRIBUTION|TOO HARD|HIGH RISK|VALUE TRAP|AVOID)$/i.test(verdict) || /bearish|negative|negativ|overvalued|überbewertet|sell|schwach|wertvernichtend|trap|avoid|risk/i.test(verdict)) {
                 type = 'sell';
             } else if (/^(HOLD|HALTEN|NEUTRAL|FAIRLY VALUED|FAIR VALUED|FAIR BEWERTET|WATCHLIST|WAIT|ABWARTEN|WARTEN|CONSOLIDATION|CONSOLIDATING|KONSOLIDIERUNG|SIDEWAYS|SEITWÄRTS|MODERATE|MODERAT|MIXED|GEMISCHT|VALUE NEUTRAL|WERTNEUTRAL|OBSERVE|BEOBACHTEN)$/i.test(verdict) || /hold|halten|neutral|fair|wait|abwarten|konsolid|moderat|gemischt|wertneutral/i.test(verdict)) {
                 type = 'hold';
@@ -8415,8 +8443,22 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
                 });
             }
 
-            // Executive Thesis synthesis
-            const thesis = `Das Unternehmen zeichnet sich durch ${qStatus === 'Herausragend' || qStatus === 'Stark' ? 'eine hohe operative Qualität und solide Kapitalrenditen' : 'eine stabile Marktstellung'} aus. ${upsidePct > 5 ? `Die Aktie notiert aktuell rund ${upsidePct.toFixed(1)}% unter dem geschätzten empirischen Basis-Fair-Value.` : (upsidePct >= -5 ? 'Der aktuelle Börsenkurs spiegelt die fundamentale Ertragskraft weitgehend fair wider.' : `Der Kurs weist aktuell einen Bewertungsaufschlag von ${Math.abs(upsidePct).toFixed(1)}% gegenüber dem Basiswert auf.`)} Die finanzielle Stabilität wird als ${sStatus.toLowerCase()} eingestuft.`;
+            // Executive Thesis synthesis (with deterministic 4-Tier Rule of 40 Reinvestment contextualization)
+            let r40ThesisAddon = '';
+            const r40 = valResult?.ruleOf40;
+            if (r40 && r40.primaryScore !== null) {
+                if (r40.tier === 'ELITE' && upsidePct < -5) {
+                    r40ThesisAddon = ` Trotz des optischen Bewertungsaufschlags von ${Math.abs(upsidePct).toFixed(1)}% relativiert die herausragende Rule of 40 von ${r40.primaryScore.toFixed(1)}% (Elite / FCF-Marge: ${r40.fcfMargin !== null ? r40.fcfMargin + '%' : 'hoch'}) das Bewertungsrisiko durch massive Cashflow-Reinvestitionskraft (Amazon-/Plattform-Effekt).`;
+                } else if (r40.tier === 'HEALTHY' && upsidePct < -5) {
+                    r40ThesisAddon = ` Die solide Rule of 40 von ${r40.primaryScore.toFixed(1)}% (≥40%) untermauert das eigenfinanzierte Wachstum, lässt bei der aktuellen Bewertung jedoch wenig Spielraum für Enttäuschungen.`;
+                } else if (r40.tier === 'MODERATE' && upsidePct < -5) {
+                    r40ThesisAddon = ` Mit einer Rule of 40 von ${r40.primaryScore.toFixed(1)}% verfehlt das Unternehmen die institutionelle 40%-Schwelle, was den Bewertungsaufschlag anfällig für Korrekturen macht.`;
+                } else if (r40.tier === 'FRAGILE') {
+                    r40ThesisAddon = ` Akutes Warnsignal: Die schwache Rule of 40 von ${r40.primaryScore.toFixed(1)}% (<20%) signalisiert unrentablen Cash-Burn und ein erhöhtes Hype- bzw. Value-Trap-Risiko.`;
+                }
+            }
+
+            const thesis = `Das Unternehmen zeichnet sich durch ${qStatus === 'Herausragend' || qStatus === 'Stark' ? 'eine hohe operative Qualität und solide Kapitalrenditen' : 'eine stabile Marktstellung'} aus. ${upsidePct > 5 ? `Die Aktie notiert aktuell rund ${upsidePct.toFixed(1)}% unter dem geschätzten empirischen Basis-Fair-Value.` : (upsidePct >= -5 ? 'Der aktuelle Börsenkurs spiegelt die fundamentale Ertragskraft weitgehend fair wider.' : `Der Kurs weist aktuell einen Bewertungsaufschlag von ${Math.abs(upsidePct).toFixed(1)}% gegenüber dem Basiswert auf.`)} Die finanzielle Stabilität wird als ${sStatus.toLowerCase()} eingestuft.${r40ThesisAddon}`;
 
             const keyCatalyst = opportunities[0]?.title ? `${opportunities[0].title} (${opportunities[0].evidence})` : 'Operative Margenexpansion';
             const keyRisk = risks[0]?.title ? `${risks[0].title} (${risks[0].evidence})` : 'Konjunkturelle Zyklen';
@@ -8892,8 +8934,9 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
             const netDebtToEbitda = parseNum(extractVal(finText, /(?:^|\n)\s*(?:Net Debt\/EBITDA|Net Debt \/ EBITDA)[^:]*:\s*([^\n]+)/i)) || 0.3;
             const debtToEquity = parseNum(extractVal(finText, /(?:^|\n)\s*(?:Debt to Equity|Debt\/Equity|Verschuldungsgrad)[^:]*:\s*([^\n]+)/i)) || 0.35;
             const interestCoverage = parseNum(extractVal(finText, /(?:^|\n)\s*(?:Interest Coverage|Zinsdeckung)[^:]*:\s*([^\n]+)/i)) || 20;
-            const dividendYield = parseNum(extractVal(valText, /(?:^|\n)\s*(?:Dividend Yield|Dividendenrendite)[^:]*:\s*([^\n]+)/i)) || 0.8;
-            const payoutRatio = parseNum(extractVal(finText, /(?:^|\n)\s*(?:Payout Ratio|Aussch[üu]ttungsquote)[^:]*:\s*([^\n]+)/i)) || 25;
+            const dividendYield = parseNum(extractVal(valText, /(?:^|\n)\s*(?:Dividend Yield|Dividendenrendite)[^:]*:\s*([^\n]+)/i)) || 0;
+            const payoutRatio = parseNum(extractVal(finText, /(?:^|\n)\s*(?:Payout Ratio|Aussch[üu]ttungsquote)[^:]*:\s*([^\n]+)/i)) || 0;
+            const dividendPerShare = (dividendYield > 0 && curP > 0) ? Math.round((curP * (dividendYield / 100)) * 100) / 100 : 0;
 
             const currentYear = new Date().getFullYear();
             const annual = [];
@@ -8972,6 +9015,7 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
                     debtToEquity,
                     netDebtToEbitda,
                     interestCoverage,
+                    dividendPerShare: (dividendYield > 0 && yrPrice > 0) ? Math.round((yrPrice * (dividendYield / 100)) * 100) / 100 : 0,
                     dividendYield,
                     payoutRatio,
                     peRatio: yrPE,
@@ -9157,10 +9201,12 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
             // Pillar 5: Shareholder Return
             const dpsEl = document.getElementById('snap_dps');
             const dpsVal = (typeof latest?.dividendPerShare === 'number') ? latest.dividendPerShare : (typeof dataset?.ttm?.dividendPerShare === 'number' ? dataset.ttm.dividendPerShare : res.dividendPerShare);
+            const isNonDivPayer = (dpsVal === 0 || res.dividendYield === 0 || latest?.dividendYield === 0 || dataset?.ttm?.dividendYield === 0);
+
             if (dpsEl) {
                 if (typeof dpsVal === 'number' && dpsVal > 0) {
                     dpsEl.textContent = `${dpsVal.toFixed(2)} ${cur}`;
-                } else if (dpsVal === 0 || res.dividendYield === 0) {
+                } else if (isNonDivPayer || dpsVal === 0) {
                     dpsEl.textContent = 'Keine (0.00)';
                 } else {
                     dpsEl.textContent = '—';
@@ -9169,11 +9215,27 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
 
             const divYldEl = document.getElementById('snap_div_yield');
             const divYldVal = (typeof latest?.dividendYield === 'number') ? latest.dividendYield : ((typeof dataset?.quote?.dividendYield === 'number') ? dataset.quote.dividendYield * 100 : res.dividendYield);
-            if (divYldEl) divYldEl.textContent = (typeof divYldVal === 'number') ? fmtPct(divYldVal) : '—';
+            if (divYldEl) {
+                if (typeof divYldVal === 'number' && divYldVal > 0) {
+                    divYldEl.textContent = fmtPct(divYldVal);
+                } else if (isNonDivPayer || divYldVal === 0) {
+                    divYldEl.textContent = '0.00%';
+                } else {
+                    divYldEl.textContent = '—';
+                }
+            }
 
             const payoutEl = document.getElementById('snap_payout');
             const payoutVal = (typeof latest?.payoutRatio === 'number') ? latest.payoutRatio : res.payoutRatio;
-            if (payoutEl) payoutEl.textContent = (typeof payoutVal === 'number') ? fmtPct(payoutVal) : '—';
+            if (payoutEl) {
+                if (typeof payoutVal === 'number' && payoutVal > 0 && !isNonDivPayer) {
+                    payoutEl.textContent = fmtPct(payoutVal);
+                } else if (isNonDivPayer || payoutVal === 0) {
+                    payoutEl.textContent = '0.00%';
+                } else {
+                    payoutEl.textContent = '—';
+                }
+            }
 
             const divCagrEl = document.getElementById('snap_div_cagr');
             const divCagrVal = dataset.growthTrajectories?.dividend?.cagr5Y ?? res.dividendCAGR;
