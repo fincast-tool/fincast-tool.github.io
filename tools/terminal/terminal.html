@@ -1901,9 +1901,12 @@
                                             <div id="invDecisionQuality" class="text-xs font-bold text-white mt-1 truncate">--</div>
                                             <span id="invDecisionMoat" class="text-[9px] font-mono text-slate-400 mt-0.5">Moat: --</span>
                                         </div>
-                                        <!-- 3. Growth Momentum -->
+                                        <!-- 3. Growth & Reinvestment Efficiency -->
                                         <div class="p-2.5 rounded-lg bg-[#0B0E12]/90 border border-[#202630] flex flex-col justify-between">
-                                            <span class="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">Wachstumstrend</span>
+                                            <div class="flex items-center justify-between">
+                                                <span class="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">Wachstum &amp; Effizienz</span>
+                                                <span id="invDecisionRuleOf40Badge" class="hidden text-[8px] font-mono px-1 py-0.2 rounded border" title="Rule of 40: Umsatzwachstum + FCF-Marge">R40: --</span>
+                                            </div>
                                             <div id="invDecisionGrowth" class="text-xs font-bold text-white mt-1 truncate">--</div>
                                             <span id="invDecisionGrowthTrend" class="text-[9px] font-mono text-slate-400 mt-0.5">Trend: --</span>
                                         </div>
@@ -4468,8 +4471,8 @@
             }
 
             const mosLine = dcfResult.hasMarginOfSafety
-                ? `- Margin of Safety zum DCF-Base-Wert: +${dcfResult.marginOfSafetyPct.toFixed(2)}% (Sicherheitsrabatt von ${dcfResult.marginOfSafetyPct.toFixed(2)}% bei aktuellem Kurs ${curPrice} ${cur} gegenüber dem fairen Wert von ${dcfResult.dcfBase.toFixed(2)} ${cur})`
-                : `- Margin of Safety zum DCF-Base-Wert: Keine Sicherheitsmarge vorhanden (Bewertungsaufschlag von +${dcfResult.premiumPct.toFixed(2)}% beim aktuellen Kurs ${curPrice} ${cur} gegenüber dem fairen DCF-Wert von ${dcfResult.dcfBase.toFixed(2)} ${cur}; ein Kaufkurs mit 15% Sicherheitsmarge läge bei ${dcfResult.entryWith15PctMoS.toFixed(2)} ${cur})`;
+                ? `- Margin of Safety zum DCF-Base-Wert: +${dcfResult.marginOfSafetyPct.toFixed(2)}% (Sicherheitsrabatt von ${dcfResult.marginOfSafetyPct.toFixed(2)}% bei einem Einstiegskurs von ${curPrice} ${cur} gegenüber dem fairen Wert von ${dcfResult.dcfBase.toFixed(2)} ${cur})`
+                : `- Margin of Safety zum DCF-Base-Wert: Keine Sicherheitsmarge vorhanden (Bewertungsaufschlag von +${dcfResult.premiumPct.toFixed(2)}% beim aktuellen Kurs ${curPrice} ${cur} gegenüber dem fairen DCF-Wert von ${dcfResult.dcfBase.toFixed(2)} ${cur}; ein Einstiegskurs mit 15% Sicherheitsmarge läge bei ${dcfResult.entryWith15PctMoS.toFixed(2)} ${cur})`;
 
             return `EMPIRICAL VALUATION MULTIPLES & VALUE-CHART BENCHMARKS (Single Source of Truth from Engine):
 - KGV Bereinigt / Adj. P/E: Aktuell ${peAdjCurr}x (Historischer Median: ${peAdjMed}x)
@@ -5202,12 +5205,12 @@ Business Quality Verdict: [WEAK / MODERATE / STRONG / EXCEPTIONAL]
 
             financial_quality: `SECTION 2: CAPITAL EFFICIENCY & INTRINSIC DCF VALUATION
 ROLE: Senior Fundamental & Valuation Analyst — Capital Efficiency & DCF Modeling
-OBJECTIVE: Fasse in 1–2 Sätzen zusammen, was bei Kapitaleffizienz (ROIC), Margen und Bilanz hervorsticht, und ermittle die 3 DCF-Bewertungsszenarien sowie das fundamentale Bewertungsurteil.
+OBJECTIVE: Fasse in 1–2 Sätzen zusammen, was bei Kapitaleffizienz (ROIC), Margen, Rule of 40 (bei Tech/Growth) und Bilanz hervorsticht, und ermittle die 3 DCF-Bewertungsszenarien sowie das fundamentale Bewertungsurteil.
 STIL: Prägnante Fakten und exakte Kennzahlen mit Währung.
 
 OUTPUT FORMAT:
 <financial_quality>
-Highlights: [1-2 Sätze: Was sticht bei Kapitaleffizienz (ROIC), operativen Margen, Cashflow-Generierung und Bilanzverschuldung positiv oder negativ hervor?]
+Highlights: [1-2 Sätze: Was sticht bei Kapitaleffizienz (ROIC), operativen Margen, Free-Cashflow-Generierung, Rule of 40 (bei Tech/Software) und Bilanzverschuldung positiv oder negativ hervor?]
 ROIC vs WACC: [VALUE CREATING / VALUE NEUTRAL / VALUE DESTROYING]
 DCF Methodology: Die DCF-Szenarien basieren auf den nachhaltigen Free-Cash-Flow-Projektionen, Diskontierungssätzen (WACC) und Terminal-Wachstumsannahmen.
 DCF Bear: [Konservativer Fair Value mit Währung, z. B. '100.00 USD']
@@ -5459,16 +5462,16 @@ STRICT SYNTHESIS DIRECTIVES:
    - Under 'Market Expectations Embedded', compare the current empirical P/E with the historical median P/E, cite the Value-Chart gap in % and strictly adopt the deterministic valuation verdict from the EMPIRICAL VALUATION MULTIPLES & VALUE-CHART BENCHMARKS block above (e.g. 'FAIR BEWERTET' when the gap is within +/-10%, e.g. -7.9%). Do NOT mention percentiles or percentile categories in prose. Do NOT classify a minor discount as 'deep discount' or 'undervalued' when the engine classifies it as fair.
    - Under 'Margin of Safety', use the MANDATORY syntax:
      * If the stock trades BELOW the DCF Base value (positive Margin of Safety exists):
-       "Margin of Safety: Die Margin of Safety zum DCF-Basiswert beträgt [X.X]%, dies entspricht einem aktuellen Kurs von [Aktueller Kurs mit Währung] im Vergleich zum fairen Wert von [DCF Base Kurs mit Währung]."
+       "Margin of Safety: Die Margin of Safety zum DCF-Basiswert beträgt [X.X]%, dies entspricht einem Einstiegskurs von [Einstiegskurs mit Währung] im Vergleich zum fairen Wert von [DCF Base Kurs mit Währung]."
      * If the stock trades ABOVE the DCF Base value (no Margin of Safety / Premium):
-       "Margin of Safety: Aktuell liegt keine Sicherheitsmarge vor (Bewertungsaufschlag von [X.X]% beim aktuellen Kurs von [Aktueller Kurs mit Währung] gegenüber dem fairen DCF-Wert von [DCF Base Kurs mit Währung]; ein Einstieg mit 15% Sicherheitsmarge läge bei [Einstiegskurs mit 15% MoS mit Währung])."
+       "Margin of Safety: Aktuell liegt keine Sicherheitsmarge vor (Bewertungsaufschlag von [X.X]% beim aktuellen Kurs von [Aktueller Kurs mit Währung] gegenüber dem fairen DCF-Wert von [DCF Base Kurs mit Währung]; ein Einstiegskurs mit 15% Sicherheitsmarge läge bei [Einstiegskurs mit 15% MoS mit Währung])."
    - Under 'Final Terminal Sentiment', state the overall rating and exactly 1 concise sentence synthesizing the historic P/E perspective with the DCF fair value perspective.
 4. OUTPUT FORMAT: Output ONLY the <executive_summary> XML block.
 
 OUTPUT FORMAT:
 <executive_summary>
 Market Expectations Embedded: [1-2 Sätze: Konkreter Vergleich des aktuellen KGV mit dem historischen Median-KGV (inkl. prozentualer Abweichung) und Übernahme des deterministischen Bewertungsurteils (z. B. 'FAIR BEWERTET' bei -7.9%)]
-Margin of Safety: [MANDATORY SYNTAX: Wenn Kurs < DCF Base: 'Die Margin of Safety zum DCF-Basiswert beträgt [X.X]%, dies entspricht einem aktuellen Kurs von [Aktueller Kurs] im Vergleich zum fairen Wert von [DCF Base Wert].' | Wenn Kurs >= DCF Base: 'Aktuell liegt keine Sicherheitsmarge vor (Bewertungsaufschlag von [X.X]% beim aktuellen Kurs von [Aktueller Kurs] gegenüber dem fairen DCF-Wert von [DCF Base Wert]; ein Einstieg mit 15% Sicherheitsmarge läge bei [Einstiegskurs mit 15% MoS]).']
+Margin of Safety: [MANDATORY SYNTAX: Wenn Kurs < DCF Base: 'Die Margin of Safety zum DCF-Basiswert beträgt [X.X]%, dies entspricht einem Einstiegskurs von [Einstiegskurs] im Vergleich zum fairen Wert von [DCF Base Wert].' | Wenn Kurs >= DCF Base: 'Aktuell liegt keine Sicherheitsmarge vor (Bewertungsaufschlag von [X.X]% beim aktuellen Kurs von [Aktueller Kurs] gegenüber dem fairen DCF-Wert von [DCF Base Wert]; ein Einstiegskurs mit 15% Sicherheitsmarge läge bei [Einstiegskurs mit 15% MoS]).']
 Investment Thesis: [1-2 prägnante Sätze zur Kernthese]
 Counter Thesis: [1-2 prägnante Sätze zum Bärenfall / Hauptrisiko]
 Key Catalyst: [Genau 1 Hauptkatalysator]
@@ -6463,6 +6466,81 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
             }
 
             return { cagr10Y, cagr5Y, cagr3Y, cagr1Y, trend, trendLabel };
+        }
+
+        // ==================== INSTITUTIONAL RULE OF 40 ENGINE ====================
+        function computeRuleOf40Js(annualList, ttm, isFinancialSector = false, sector = '') {
+            if (isFinancialSector) return null;
+            const valid = (annualList || []).filter(p => p && typeof p.revenue === 'number' && Number.isFinite(p.revenue) && p.revenue > 0);
+            if (valid.length < 2) return null;
+
+            const latest = valid[valid.length - 1];
+            const prev = valid[valid.length - 2];
+
+            const revGrowthYoY = ((latest.revenue - prev.revenue) / prev.revenue) * 100;
+            const fcfMargin = (typeof latest.freeCashFlow === 'number' && latest.revenue > 0) ? (latest.freeCashFlow / latest.revenue) * 100 : null;
+            const opMargin = (typeof latest.operatingIncome === 'number' && latest.revenue > 0) ? (latest.operatingIncome / latest.revenue) * 100 : (latest.operatingMargin || null);
+
+            if (fcfMargin === null && opMargin === null) return null;
+
+            const scoreFcf = fcfMargin !== null ? Math.round((revGrowthYoY + fcfMargin) * 10) / 10 : null;
+            const scoreEbit = opMargin !== null ? Math.round((revGrowthYoY + opMargin) * 10) / 10 : null;
+            const primaryScore = scoreFcf !== null ? scoreFcf : scoreEbit;
+
+            let tier = 'MODERATE';
+            let label = 'Moderat (20-40%)';
+            let badgeClass = 'text-slate-300 bg-slate-500/10 border-slate-500/20';
+
+            if (primaryScore >= 55) {
+                tier = 'ELITE';
+                label = 'Elite Compounder (>55%)';
+                badgeClass = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20';
+            } else if (primaryScore >= 40) {
+                tier = 'HEALTHY';
+                label = 'Rule of 40 erfüllt (≥40%)';
+                badgeClass = 'text-gold-400 bg-gold-500/10 border-gold-500/20';
+            } else if (primaryScore >= 20) {
+                tier = 'MODERATE';
+                label = 'Übergangsphase (20-40%)';
+                badgeClass = 'text-blue-400 bg-blue-500/10 border-blue-500/20';
+            } else {
+                tier = 'FRAGILE';
+                label = 'Unterhalb Schwelle (<20%)';
+                badgeClass = 'text-rose-400 bg-rose-500/10 border-rose-500/20';
+            }
+
+            // Historical Rule of 40 series
+            const history = [];
+            for (let i = 1; i < valid.length; i++) {
+                const curP = valid[i];
+                const prvP = valid[i - 1];
+                if (prvP.revenue > 0 && curP.revenue > 0) {
+                    const g = ((curP.revenue - prvP.revenue) / prvP.revenue) * 100;
+                    const fcfM = curP.freeCashFlow != null ? (curP.freeCashFlow / curP.revenue) * 100 : null;
+                    const ebitM = curP.operatingIncome != null ? (curP.operatingIncome / curP.revenue) * 100 : (curP.operatingMargin || null);
+                    history.push({
+                        year: curP.year || curP.date?.substring(0, 4),
+                        growth: Math.round(g * 10) / 10,
+                        fcfMargin: fcfM != null ? Math.round(fcfM * 10) / 10 : null,
+                        ebitMargin: ebitM != null ? Math.round(ebitM * 10) / 10 : null,
+                        scoreFcf: fcfM != null ? Math.round((g + fcfM) * 10) / 10 : null,
+                        scoreEbit: ebitM != null ? Math.round((g + ebitM) * 10) / 10 : null
+                    });
+                }
+            }
+
+            return {
+                revenueGrowthYoY: Math.round(revGrowthYoY * 10) / 10,
+                fcfMargin: fcfMargin !== null ? Math.round(fcfMargin * 10) / 10 : null,
+                operatingMargin: opMargin !== null ? Math.round(opMargin * 10) / 10 : null,
+                scoreFcf,
+                scoreEbit,
+                primaryScore,
+                tier,
+                label,
+                badgeClass,
+                history
+            };
         }
 
         // Helper: Calculate ISO Week String (YYYY-Www)
@@ -7723,6 +7801,9 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
                 marginOfSafetyScore * 0.10
             );
 
+            // Compute Rule of 40 for Growth & Reinvestment Efficiency
+            const ruleOf40 = computeRuleOf40Js(annual, dataset.ttm, dataset.isFinancialSector, dataset.sector);
+
             // Value Trap Risk Adjustment Matrix
             const valueTrapFlags = [];
             const growthData = dataset.growthTrajectories || {};
@@ -7756,6 +7837,10 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
                 if (shareGrowth > 5) {
                     valueTrapFlags.push('Verwässerung durch steigende Aktienanzahl');
                 }
+            }
+            // Rule of 40 Guard for expensive Tech/Growth Stocks
+            if (ruleOf40 && ruleOf40.tier === 'FRAGILE' && ((currentPs && currentPs > 5.0) || (currentPeAdj && currentPeAdj > 35.0))) {
+                valueTrapFlags.push('Ineffizientes Wachstum: Rule of 40 verfehlt (<20%) bei erhöhter Bewertung');
             }
 
             const valueTrapRisk = valueTrapFlags.length >= 3 ? 'HIGH' : (valueTrapFlags.length >= 1 ? 'MODERATE' : 'LOW');
@@ -7807,6 +7892,7 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
                     marginOfSafetyScore
                 },
                 valuationConfidence: dataset.dataConfidence,
+                ruleOf40,
                 valueTrap: {
                     risk: valueTrapRisk,
                     riskLabel: valueTrapRisk === 'HIGH' ? 'Erhöht' : (valueTrapRisk === 'MODERATE' ? 'Moderat' : 'Gering'),
@@ -7828,6 +7914,19 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
 
         // ==================== METRIC DEFINITION REGISTRY (FINANCIAL LITERACY LAYER) ====================
         const METRIC_DEFINITIONS = {
+            rule_of_40: {
+                name: 'Rule of 40',
+                technicalName: 'Rule of 40 (Umsatzwachstum + FCF-Marge)',
+                category: 'Wachstum & Reinvestitionseffizienz',
+                shortExplanation: 'Summe aus dem jährlichen Umsatzwachstum in % und der Free-Cash-Flow-Marge in %.',
+                whyItMatters: 'Institutioneller Effizienzmaßstab für moderne Tech-, Software- und Plattformunternehmen. Zeigt, ob Wachstum nachhaltig durch operative Cashflows gedeckt ist oder teuer erkauft wird.',
+                interpretation: {
+                    low: { max: 20, label: 'Fragil / Unökonomisches Wachstum (<20%)', class: 'text-rose-400' },
+                    neutral: { min: 20, max: 40, label: 'Moderat / Übergangsphase (20-40%)', class: 'text-blue-400' },
+                    high: { min: 40, label: 'Rule of 40 erfüllt (≥40%) / Elite (>55%)', class: 'text-emerald-400' }
+                },
+                ruleOfThumb: 'Werte ≥ 40% gelten als institutionell exzellent. Bei Werten < 20% sind hohe Bewertungsmultiplikatoren (KUV/KGV) fundamental nicht gerechtfertigt (Value-Trap-Gefahr).'
+            },
             pe: {
                 name: 'KGV',
                 technicalName: 'Kurs-Gewinn-Verhältnis (Price-to-Earnings)',
@@ -9152,18 +9251,37 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
                 moatEl.textContent = (roic !== null && roic >= 15) ? 'Moat: Stark' : ((roic !== null && roic >= 10) ? 'Moat: Moderat' : 'Moat: Gering');
             }
 
-            // 3. Growth Momentum
+            // 3. Growth Momentum & Reinvestment Efficiency
             const grwEl = document.getElementById('invDecisionGrowth');
             const grwTrEl = document.getElementById('invDecisionGrowthTrend');
+            const r40Badge = document.getElementById('invDecisionRuleOf40Badge');
             const revGrowth = dataset.growthTrajectories?.revenue;
+            const r40 = valResult.ruleOf40;
 
             if (grwEl) {
                 const cagr = revGrowth?.cagr5Y ?? valResult.growth?.revenueCAGR;
                 grwEl.textContent = cagr !== null && cagr !== undefined ? `${fmtPct(cagr, true)} (5J CAGR)` : '—';
             }
             if (grwTrEl) {
-                grwTrEl.textContent = `Trend: ${revGrowth?.trendLabel || 'Stabil'}`;
-                grwTrEl.className = revGrowth?.trend === 'Acceleration' ? 'text-[9px] font-mono text-emerald-400 mt-0.5' : (revGrowth?.trend === 'Deceleration' ? 'text-[9px] font-mono text-rose-400 mt-0.5' : 'text-[9px] font-mono text-slate-400 mt-0.5');
+                if (r40 && r40.primaryScore !== null) {
+                    const fcfSign = (r40.fcfMargin !== null && r40.fcfMargin >= 0) ? '+' : '';
+                    const fcfStr = r40.fcfMargin !== null ? `${fcfSign}${r40.fcfMargin.toFixed(0)}% FCF` : `${r40.operatingMargin !== null ? r40.operatingMargin.toFixed(0) + '% EBIT' : ''}`;
+                    grwTrEl.textContent = `R40: ${r40.primaryScore.toFixed(0)}% (${fcfStr})`;
+                    grwTrEl.className = r40.tier === 'ELITE' ? 'text-[9px] font-mono text-emerald-400 mt-0.5' : (r40.tier === 'HEALTHY' ? 'text-[9px] font-mono text-gold-400 mt-0.5' : (r40.tier === 'FRAGILE' ? 'text-[9px] font-mono text-rose-400 mt-0.5' : 'text-[9px] font-mono text-blue-400 mt-0.5'));
+                } else {
+                    grwTrEl.textContent = `Trend: ${revGrowth?.trendLabel || 'Stabil'}`;
+                    grwTrEl.className = revGrowth?.trend === 'Acceleration' ? 'text-[9px] font-mono text-emerald-400 mt-0.5' : (revGrowth?.trend === 'Deceleration' ? 'text-[9px] font-mono text-rose-400 mt-0.5' : 'text-[9px] font-mono text-slate-400 mt-0.5');
+                }
+            }
+            if (r40Badge) {
+                if (r40 && r40.primaryScore !== null) {
+                    r40Badge.classList.remove('hidden');
+                    r40Badge.textContent = `R40: ${r40.primaryScore.toFixed(0)}%`;
+                    r40Badge.className = `text-[8px] font-mono px-1 py-0.2 rounded border ${r40.badgeClass}`;
+                    r40Badge.title = `Rule of 40: ${r40.label} | Rev YoY: ${r40.revenueGrowthYoY}% + FCF-Marge: ${r40.fcfMargin !== null ? r40.fcfMargin + '%' : 'N/A'}`;
+                } else {
+                    r40Badge.classList.add('hidden');
+                }
             }
 
             // 4. Financial Risk
