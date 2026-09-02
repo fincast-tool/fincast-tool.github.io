@@ -4211,11 +4211,43 @@ ${cName} operiert mit einem etablierten Geschäftsmodell und solider Marktpositi
 
         async function refreshAnalysisWithLiveDelta(existingAnalysis, options = {}) {
             const user = await getCurrentUser();
-            if (!user) return;
-            const forceUpdate = Boolean(options.forceUpdate);
+            
+            // 1. Guest Check: Guests cannot refresh analyses
+            if (!user) {
+                if (confirm('Möchtest du Analysen mit tagesaktuellen Marktdaten aktualisieren? Registriere dich jetzt kostenlos bei Fincast Hub, um eigene Analysen und automatische Updates freizuschalten!')) {
+                    location.href = window.location.pathname; // Back to login / register
+                }
+                return;
+            }
+
+            const isAdmin = isCurrentAdmin();
+            const forceUpdate = Boolean(options.forceUpdate) || isAdmin;
             const query = existingAnalysis?.financial_dataset?.symbol || existingAnalysis?.symbol || existingAnalysis?.ticker;
             if (!query) return;
 
+            // 2. Free / Premium User Stale Check: Only allow refresh if > 7 days or new earnings > 1 day ago
+            const analysisDateStr = existingAnalysis.date || existingAnalysis.timestamp;
+            const analysisDate = analysisDateStr ? new Date(analysisDateStr) : new Date(0);
+            const ageInDays = (Date.now() - analysisDate.getTime()) / (1000 * 60 * 60 * 24);
+
+            const nextEarn = existingAnalysis.nextEarnings || existingAnalysis.financial_dataset?.nextEarnings;
+            let earningsPassedAndMoreThan1DayAgo = false;
+            if (nextEarn) {
+                const earnDate = new Date(nextEarn);
+                if (!isNaN(earnDate.getTime())) {
+                    const daysSinceEarnings = (Date.now() - earnDate.getTime()) / (1000 * 60 * 60 * 24);
+                    if (daysSinceEarnings >= 1.0) {
+                        earningsPassedAndMoreThan1DayAgo = true;
+                    }
+                }
+            }
+
+            if (!isAdmin && !forceUpdate && ageInDays <= 7.0 && !earningsPassedAndMoreThan1DayAgo) {
+                alert(`Diese Analyse ist bereits tagesaktuell (Stand: ${analysisDate.toLocaleDateString('de-DE')}, vor ${ageInDays < 1 ? 'wenigen Stunden' : Math.floor(ageInDays) + ' Tag(en)'} aktualisiert).\n\nEine erneute Aktualisierung ist bei neuen Quartalszahlen oder nach Ablauf von 7 Tagen möglich.`);
+                return;
+            }
+
+            const refreshStartTime = Date.now();
             setUIState('loading');
             updateLoadingStatus(
                 'Live-Börsenkurs & Marktdaten werden synchronisiert...',
@@ -4224,10 +4256,10 @@ ${cName} operiert mit einem etablierten Geschäftsmodell und solider Marktpositi
             );
 
             try {
-                // 1. Fetch fresh live quote in 150ms
+                // Step 1: Fetch fresh live quote in 150ms
                 const liveQuote = await fetchMarketQuote(query);
                 
-                // 2. Update Dataset with fresh live price & 52w high/low
+                // Step 2: Update Dataset with fresh live price & 52w high/low
                 let dataset = existingAnalysis.financial_dataset || existingAnalysis.historical_dataset || existingAnalysis;
                 dataset = normalizeHistoricalFinancialData(dataset, existingAnalysis.company_identity, existingAnalysis);
                 
@@ -4240,12 +4272,12 @@ ${cName} operiert mit einem etablierten Geschäftsmodell und solider Marktpositi
                 }
 
                 updateLoadingStatus(
-                    'Fair Value & Bewertungs-Multiples werden neu berechnet...',
-                    50,
-                    'Sofortige mathematische Neuberechnung der Sicherheitsmarge (Margin of Safety) und Renditeerwartung.'
+                    'Auditiere Datenbestand & 2026e Konsens-Guidance...',
+                    45,
+                    'Abgleich der aktuellen Quartalsergebnisse (Q1–Q3) und 2026e Konsens-Guidance.'
                 );
 
-                // 3. Recalculate Valuation Layer in JS (< 5ms, 0 Tokens)
+                // Step 3: Recalculate Valuation Layer in JS (< 5ms, 0 Tokens)
                 CURRENT_NORMALIZED_HISTORICAL_DATA = dataset;
                 existingAnalysis.financial_dataset = dataset;
                 existingAnalysis.historical_dataset = dataset;
@@ -4258,15 +4290,51 @@ ${cName} operiert mit einem etablierten Geschäftsmodell und solider Marktpositi
                 CURRENT_VALUATION_RESULT = valResult;
 
                 updateLoadingStatus(
-                    'Gesamturteil & Multi-Agenten-Fazit werden aktualisiert...',
-                    80,
-                    'Kompakte KI-Neusynthese des Investment Committees auf Basis des neuen Bewertungsniveaus.'
+                    '5 spezialisierte Multi-Agenten bewerten das aktuelle Marktumfeld...',
+                    70,
+                    'Neubewertung von Burggraben-Stabilität, Finanzgesundheit, EPS-Katalysatoren, Bewertungs-Multiples & Momentum.'
                 );
 
-                // 4. Lightweight AI Synthesis (~1.000 Tokens)
+                // Step 4: Full Multi-Agent Specialist Review Batch (~1.500 Tokens)
+                const researchAgentIds = [
+                    'business_quality',
+                    'financial_quality',
+                    'earnings_expectations',
+                    'valuation',
+                    'market_structure'
+                ];
                 const langNames = { 'de-DE': 'DEUTSCH', 'en-US': 'ENGLISH', 'fr-FR': 'FRANÇAIS', 'es-ES': 'ESPAÑOL' };
                 const currentLangName = langNames[USER_LANG] || 'DEUTSCH';
-                const validation = validateResearchData(existingAnalysis);
+                const identityText = existingAnalysis.company_identity || `Name: ${dataset.companyName || query}\nTicker: ${dataset.symbol || query}\nCurrent Price: ${dataset.currentPrice} ${dataset.currency || '$'}`;
+
+                const specialistPrompt = getSpecialistReviewPrompt(query, currentLangName, dataset, identityText, researchAgentIds);
+                const specialistResponseText = await fetchSingleBatch(query, user, specialistPrompt, 1, false, dataset, MODEL_ID);
+                const newResearchData = parseFrameworks(specialistResponseText);
+
+                let validation = validateResearchData(newResearchData, researchAgentIds);
+                if (validation.missingAgents.length > 0) {
+                    validation.missingAgents.forEach(id => {
+                        if (!newResearchData[id] || newResearchData[id].trim().length < 20) {
+                            newResearchData[id] = synthesizeMissingAgentFallback(id, dataset, identityText);
+                        }
+                    });
+                    validation = validateResearchData(newResearchData, researchAgentIds);
+                }
+
+                // Update 5 specialist agent fields in existing analysis
+                researchAgentIds.forEach(id => {
+                    if (newResearchData[id]) {
+                        existingAnalysis[id] = newResearchData[id];
+                    }
+                });
+
+                updateLoadingStatus(
+                    'CIO Master Fazit & Bewertungsmodelle werden konsolidiert...',
+                    90,
+                    'Zusammenfassung der Teilergebnisse und Neuberechnung des DCF-Fair-Value-Korridors.'
+                );
+
+                // Step 5: Executive Committee Master Fazit Synthesis (~800 Tokens)
                 const executivePrompt = getExecutivePrompt(query, currentLangName, existingAnalysis, validation);
                 const executiveText = await fetchSingleBatch(query, user, executivePrompt, 1, false, dataset, MODEL_ID);
                 const execData = parseFrameworks(executiveText);
@@ -4275,24 +4343,49 @@ ${cName} operiert mit einem etablierten Geschäftsmodell und solider Marktpositi
                     existingAnalysis.executive_summary = execData.executive_summary;
                 }
 
-                // 5. Render Everything
+                // Step 6: Guaranteed Minimum Loading Duration (10s) for Full Ad Monetization
+                const elapsedMs = Date.now() - refreshStartTime;
+                const minDurationMs = 10000;
+                if (elapsedMs < minDurationMs) {
+                    await new Promise(r => setTimeout(r, minDurationMs - elapsedMs));
+                }
+
+                // Step 7: Update Timestamps & Render Everything into DOM
+                const todayIso = new Date().toISOString().split('T')[0];
+                const nowIso = new Date().toISOString();
+                existingAnalysis.date = todayIso;
+                existingAnalysis.timestamp = nowIso;
+                if (existingAnalysis.meta) {
+                    existingAnalysis.meta.analysisDate = todayIso;
+                    existingAnalysis.meta.dataFreshness = nowIso;
+                }
+
                 CURRENT_ANALYSIS_DATA = existingAnalysis;
                 if (existingAnalysis.company_identity) renderIdentity(existingAnalysis.company_identity, existingAnalysis);
                 renderWidgets(existingAnalysis);
                 renderValueInvestingLayer(dataset);
 
-                setUIState('results');
-                updateLoadingStatus('Analyse erfolgreich auf den neuesten Stand gebracht.', 100, 'Alle Daten und Bewertungen sind tagesaktuell.');
+                if (CURRENT_VALUATION_RESULT) {
+                    renderCompanySnapshot(dataset, CURRENT_VALUATION_RESULT);
+                    CURRENT_INSIGHTS = generateInvestmentInsights(dataset, CURRENT_VALUATION_RESULT, existingAnalysis);
+                    if (CURRENT_INSIGHTS) {
+                        renderGuidedView(CURRENT_INSIGHTS, dataset, CURRENT_VALUATION_RESULT);
+                    }
+                    renderInvestmentDecisionSnapshot(dataset, CURRENT_VALUATION_RESULT);
+                }
 
-                // 6. Save back to Cloud Archive & Global Screener
+                setUIState('results');
+                updateLoadingStatus('Analyse erfolgreich mit tagesaktuellen Daten aktualisiert.', 100, 'Alle Daten und Bewertungen sind tagesaktuell.');
+
+                // Step 8: Save back to Cloud Archive & Global Screener
                 if (user.email) {
                     const tickerKey = (dataset.symbol || query).toUpperCase();
                     const record = {
                         ticker: tickerKey,
                         symbol: tickerKey,
                         name: dataset.companyName || tickerKey,
-                        date: new Date().toISOString().split('T')[0],
-                        timestamp: new Date().toISOString(),
+                        date: todayIso,
+                        timestamp: nowIso,
                         userEmail: user.email,
                         data: existingAnalysis
                     };
@@ -4301,18 +4394,22 @@ ${cName} operiert mit einem etablierten Geschäftsmodell und solider Marktpositi
                         key: tickerKey,
                         data: record
                     }).then(res => {
-                        console.log('[Delta Save Success]: Saved updated analysis to pool:', res);
-                    }).catch(e => console.warn('[Delta Save Error]:', e));
+                        console.log('[Institutional Delta Refresh] Saved updated analysis to pool & archive:', res);
+                        if (isAdmin && GLOBAL_SCREENER_RAW_DATA) {
+                            GLOBAL_SCREENER_RAW_DATA[tickerKey] = record;
+                        }
+                    }).catch(e => console.warn('[Institutional Delta Refresh Save Error]:', e));
                 }
             } catch (err) {
-                console.error('[Live Delta Refresh Fatal Error]:', err);
+                console.error('[Institutional Delta Refresh Fatal Error]:', err);
                 alert('Aktualisierungsfehler: ' + err.message);
                 setUIState('welcome');
             }
         }
 
         async function adminHardRefreshAnalysis() {
-            if (!isCurrentAdmin()) {
+            const user = await getCurrentUser();
+            if (!user || !isCurrentAdmin()) {
                 alert('Zugriff verweigert: Nur Administratoren dürfen einen Hard-Refresh ausführen.');
                 return;
             }
