@@ -5243,9 +5243,6 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
             return prompt;
         }
 
-            return prompt;
-        }
-
         async function fetchSingleBatch(query, user, prompt, retries = 0, enableSearch = true, historicalDataset = null, modelOverride = null) {
             const geminiBody = {
                 contents: [{ parts: [{ text: prompt }] }],
