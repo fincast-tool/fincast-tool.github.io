@@ -747,6 +747,74 @@
             color: #34D399;
             font-family: 'JetBrains Mono', monospace;
         }
+
+        /* Universal Card Info Toolbar & Tooltips (Calculator Pattern) */
+        .card-info-tooltip {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card-info-btn {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748B;
+            background: transparent;
+            border: 1px solid transparent;
+            cursor: help;
+            transition: all 0.15s ease;
+        }
+        .card-info-btn:hover,
+        .card-info-tooltip:hover .card-info-btn {
+            color: #D6A83A;
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(214, 168, 58, 0.3);
+        }
+        .card-info-tooltip .tooltip-box {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            bottom: calc(100% + 7px);
+            right: -4px;
+            transform: translateY(4px);
+            width: 275px;
+            max-width: 88vw;
+            padding: 9px 11px;
+            background: #141A22;
+            border: 1px solid #2D3748;
+            border-top: 2px solid #D6A83A;
+            border-radius: 6px;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.8), 0 0 1px 1px rgba(255, 255, 255, 0.08);
+            color: #E2E8F0;
+            font-size: 11px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            line-height: 1.42;
+            text-align: left;
+            z-index: 120;
+            pointer-events: none;
+            transition: opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1), transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.18s;
+            white-space: normal;
+        }
+        .card-info-tooltip .tooltip-box::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            right: 8px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #141A22 transparent transparent transparent;
+        }
+        .card-info-tooltip:hover .tooltip-box,
+        .card-info-tooltip:focus-within .tooltip-box {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
+        }
     </style>
 </head>
 
@@ -1319,7 +1387,19 @@
                                                 <h2 class="text-sm sm:text-base font-bold text-white tracking-tight break-words">Investment Snapshot &amp; Profil</h2>
                                                 <span class="text-[9.5px] sm:text-[10px] font-mono px-2 py-0.5 rounded bg-gold-400/10 border border-gold-400/30 text-gold-400 font-semibold shrink-0">Level 1 Summary</span>
                                             </div>
-                                            <span class="text-[10.5px] sm:text-[11px] text-slate-400 font-mono">Verständliche Gesamteinschätzung</span>
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-[10.5px] sm:text-[11px] text-slate-400 font-mono hidden sm:inline">Verständliche Gesamteinschätzung</span>
+                                                <div class="card-info-tooltip">
+                                                    <button type="button" class="card-info-btn" aria-label="Info">
+                                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                                                    </button>
+                                                    <div class="tooltip-box">
+                                                        <div class="tooltip-title">Investment Snapshot &amp; Profil<span class="tooltip-category">Level 1</span></div>
+                                                        <div class="tooltip-desc">Ganzheitliche Verdichtung der 5 fundamentalen Dimensionen: Geschäftsqualität, Bewertung, Wachstum, Dividende und Finanzstabilität.</div>
+                                                        <div class="tooltip-rule">Faustregel: Ideal für den schnellen Ersteindruck vor dem Einstieg in detaillierte Bilanzen.</div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
 
                                         <!-- 5-Factor Profile Bar -->
@@ -1467,8 +1547,18 @@
                                                     <span class="tooltip-box">
                                                         <span class="tooltip-title">Valuation Status<span class="tooltip-category">Historischer Rang</span></span>
                                                         <span class="tooltip-desc">Perzentil-Rang des aktuellen Multiples im Vergleich zur historischen 5-10 Jahres-Spanne.</span>
-                                                        <span class="tooltip-rule">Faustregel: Deep Discount (<20%) | Discount (20-40%) | Fair (40-60%) | Premium (>60%).</span>
+                                                        <span class="tooltip-rule">Faustregel: Deep Discount (&lt;20%) | Discount (20-40%) | Fair (40-60%) | Premium (&gt;60%).</span>
                                                     </span>
+                                                </div>
+                                                <div class="card-info-tooltip">
+                                                    <button type="button" class="card-info-btn" aria-label="Info">
+                                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                                                    </button>
+                                                    <div class="tooltip-box">
+                                                        <div class="tooltip-title">Fair Value Korridor<span class="tooltip-category">Bewertungsmodell</span></div>
+                                                        <div class="tooltip-desc">Visualisiert den realen Aktienkursverlauf im Vergleich zum empirischen Fair Value (Median) und dem P25–P75 Bewertungskorridor der letzten Jahre.</div>
+                                                        <div class="tooltip-rule">Faustregel: Notiert der Kurs nahe der unteren P25-Bandbreite, liegt historisch eine günstige Bewertungszone vor.</div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -1565,7 +1655,19 @@
                                                         <span class="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
                                                         <h4 class="text-xs sm:text-sm font-bold text-white truncate">Chancen &amp; Kurstreiber</h4>
                                                     </div>
-                                                    <span class="text-[9.5px] sm:text-[10px] font-mono text-emerald-400 font-semibold uppercase shrink-0">Positives Profil</span>
+                                                    <div class="flex items-center gap-1.5">
+                                                        <span class="text-[9.5px] sm:text-[10px] font-mono text-emerald-400 font-semibold uppercase shrink-0">Positives Profil</span>
+                                                        <div class="card-info-tooltip">
+                                                            <button type="button" class="card-info-btn" aria-label="Info">
+                                                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                                                            </button>
+                                                            <div class="tooltip-box">
+                                                                <div class="tooltip-title">Chancen &amp; Kurstreiber<span class="tooltip-category">Wachstum</span></div>
+                                                                <div class="tooltip-desc">Wesentliche organische Wachstumsmotoren, Megatrends, Margenhebel und positive fundamentale Katalysatoren.</div>
+                                                                <div class="tooltip-rule">Faustregel: Strukturelle Trends sichern langfristiges Umsatz- und Gewinnwachstum.</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                                 <div id="g_opportunities_list" class="space-y-3">
                                                     <!-- Populated via renderGuidedView -->
@@ -1581,7 +1683,19 @@
                                                         <span class="w-2 h-2 rounded-full bg-rose-400 shrink-0"></span>
                                                         <h4 class="text-xs sm:text-sm font-bold text-white truncate">Risiken &amp; Belastungsfaktoren</h4>
                                                     </div>
-                                                    <span class="text-[9.5px] sm:text-[10px] font-mono text-rose-400 font-semibold uppercase shrink-0">Kritische Punkte</span>
+                                                    <div class="flex items-center gap-1.5">
+                                                        <span class="text-[9.5px] sm:text-[10px] font-mono text-rose-400 font-semibold uppercase shrink-0">Kritische Punkte</span>
+                                                        <div class="card-info-tooltip">
+                                                            <button type="button" class="card-info-btn" aria-label="Info">
+                                                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                                                            </button>
+                                                            <div class="tooltip-box">
+                                                                <div class="tooltip-title">Risiken &amp; Belastungsfaktoren<span class="tooltip-category">Risikoanalyse</span></div>
+                                                                <div class="tooltip-desc">Operative Gegenwinde, Margendruck, Konkurrenzdruck oder bilanzielle Herausforderungen.</div>
+                                                                <div class="tooltip-rule">Faustregel: Starke Bilanzen und Preissetzungsmacht federn Krisenphasen erfolgreich ab.</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                                 <div id="g_risks_list" class="space-y-3">
                                                     <!-- Populated via renderGuidedView -->
@@ -1608,6 +1722,32 @@
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
                                         </button>
                                     </div>
+
+                                    <!-- 7. Legal Disclaimer & Risk Notice for Guided View -->
+                                    <div id="guidedLegalDisclaimer" class="mt-8 p-4 rounded-lg border border-[#202630] bg-[#11151B]">
+                                        <div class="flex gap-3 items-start">
+                                            <div class="p-1.5 rounded bg-white/5 border border-white/10 text-slate-400 shrink-0">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <h4 class="text-xs font-semibold text-slate-300 mb-1"
+                                                    data-de="Rechtlicher Disclaimer &amp; Risikohinweis"
+                                                    data-en="Legal Disclaimer &amp; Risk Notice"
+                                                    data-fr="Avertissement Légal &amp; Risque" data-es="Aviso Legal y de Riesgo">
+                                                    Rechtlicher Disclaimer &amp; Risikohinweis</h4>
+                                                <p id="guidedDisclaimerText"
+                                                    class="text-[11px] text-slate-400 leading-relaxed font-sans"
+                                                    data-de="Diese Analyse wurde automatisiert von künstlicher Intelligenz auf Basis fundamentaler Finanzdaten erstellt. Sämtliche Inhalte dienen ausschließlich der Information und stellen keine Anlageberatung, Kaufempfehlung oder Aufforderung zum Wertpapierhandel dar. Vergangene Wertentwicklungen sind kein Indikator für zukünftige Ergebnisse. Investitionen in Wertpapiere bergen Risiken bis hin zum Totalverlust."
+                                                    data-en="This analysis was generated by artificial intelligence based on fundamental market data. All content is for informational purposes only and does not constitute investment advice, a recommendation to buy, or a solicitation to trade securities. Past performance is not an indicator of future results. Investments in securities involve risks including total loss."
+                                                    data-fr="Cette analyse a été générée par une intelligence artificielle à des fins d'information uniquement."
+                                                    data-es="Este análisis fue generado por inteligencia artificial solo con fines informativos.">
+                                                    Diese Analyse wurde automatisiert von künstlicher Intelligenz auf Basis fundamentaler Finanzdaten erstellt. Sämtliche Inhalte dienen ausschließlich der Information und stellen keine Anlageberatung, Kaufempfehlung oder Aufforderung zum Wertpapierhandel dar. Vergangene Wertentwicklungen sind kein Indikator für zukünftige Ergebnisse. Investitionen in Wertpapiere bergen Risiken bis hin zum Totalverlust.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <!-- ==================== LEVEL 4: FULL RESEARCH VIEW (INSTITUTIONAL SUITE) ==================== -->
@@ -1632,6 +1772,16 @@
                                             <div id="invRiskRewardBadge" class="px-2.5 py-0.5 rounded text-[10px] font-mono font-medium flex items-center gap-1.5 bg-white/5 border border-white/10 text-slate-300">
                                                 <span>Chance/Risiko:</span>
                                                 <span id="invRiskRewardRatio" class="font-bold text-white">--</span>
+                                            </div>
+                                            <div class="card-info-tooltip">
+                                                <button type="button" class="card-info-btn" aria-label="Info">
+                                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                                                </button>
+                                                <div class="tooltip-box">
+                                                    <div class="tooltip-title">Investment Decision Snapshot<span class="tooltip-category">Executive Matrix</span></div>
+                                                    <div class="tooltip-desc">Verdichtete 6-Säulen-Entscheidungsmatrix mit quantitativer Scorecard, Chance/Risiko-Verhältnis und DCF-Zielkorridor.</div>
+                                                    <div class="tooltip-rule">Faustregel: Ein Chance/Risiko-Profil &ge; 2.0x bietet eine attraktive Sicherheitsmarge.</div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -1716,6 +1866,16 @@
                                             <div id="snapshotConfidenceBadge" class="px-2.5 py-0.5 rounded text-[10px] font-mono font-medium flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
                                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
                                                 <span id="snapshotConfidenceText">Datenqualität: Hoch</span>
+                                            </div>
+                                            <div class="card-info-tooltip">
+                                                <button type="button" class="card-info-btn" aria-label="Info">
+                                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                                                </button>
+                                                <div class="tooltip-box">
+                                                    <div class="tooltip-title">Company Snapshot<span class="tooltip-category">5-Säulen-Profil</span></div>
+                                                    <div class="tooltip-desc">Kompakte Übersicht der 5 fundamentalen Kernbereiche: Bewertung, Wachstum (CAGRs), Rentabilität &amp; Kapitalrendite, Bilanzstärke sowie Aktionärsausschüttung.</div>
+                                                    <div class="tooltip-rule">Faustregel: Starke Werte über alle 5 Säulen kennzeichnen erstklassige Compounder.</div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -1951,8 +2111,18 @@
                                                 <span class="tooltip-box">
                                                     <span class="tooltip-title">Valuation Status<span class="tooltip-category">Historischer Rang</span></span>
                                                     <span class="tooltip-desc">Perzentil-Rang des aktuellen Multiples im Vergleich zur historischen 5-10 Jahres-Spanne.</span>
-                                                    <span class="tooltip-rule">Faustregel: Deep Discount (<20%) | Discount (20-40%) | Fair (40-60%) | Premium (>60%).</span>
+                                                    <span class="tooltip-rule">Faustregel: Deep Discount (&lt;20%) | Discount (20-40%) | Fair (40-60%) | Premium (&gt;60%).</span>
                                                 </span>
+                                            </div>
+                                            <div class="card-info-tooltip">
+                                                <button type="button" class="card-info-btn" aria-label="Info">
+                                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                                                </button>
+                                                <div class="tooltip-box">
+                                                    <div class="tooltip-title">Value Chart &amp; Korridor<span class="tooltip-category">Modellierung</span></div>
+                                                    <div class="tooltip-desc">Empirische Bewertungslinien auf Basis von 6 Bewertungsmethoden (KGV ber., KGV bil., P/FCF, KBV, KUV, EV/EBITDA) und historischem Median.</div>
+                                                    <div class="tooltip-rule">Faustregel: Notiert der Kurs unter dem Median-Fair-Value, besteht fundamentaler Bewertungsspielraum.</div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -2056,6 +2226,16 @@
                                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
                                                 <span id="multiplesAssessmentBadgeText">Historischer Bewertungsvergleich</span>
                                             </div>
+                                            <div class="card-info-tooltip">
+                                                <button type="button" class="card-info-btn" aria-label="Info">
+                                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                                                </button>
+                                                <div class="tooltip-box">
+                                                    <div class="tooltip-title">Historische Multiples<span class="tooltip-category">Multiple-Historie</span></div>
+                                                    <div class="tooltip-desc">Zeitreihen der Bewertungsmultiplikatoren im Vergleich zum 5-Jahres-Median und Einordnung in das historische Perzentil-Band.</div>
+                                                    <div class="tooltip-rule">Faustregel: Perzentil &lt; 30% signalisiert eine historisch unterdurchschnittliche Bewertung.</div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -2150,6 +2330,16 @@
                                                 <span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
                                                 <span id="peerValuationStatusText">Sektor-Referenzvergleich</span>
                                             </div>
+                                            <div class="card-info-tooltip">
+                                                <button type="button" class="card-info-btn" aria-label="Info">
+                                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                                                </button>
+                                                <div class="tooltip-box">
+                                                    <div class="tooltip-title">Peer- &amp; Sektorvergleich<span class="tooltip-category">Relative Bewertung</span></div>
+                                                    <div class="tooltip-desc">Vergleich der Multiples mit direkten Wettbewerbern und dem Sektormedian zur Identifikation von Branchen-Prämien oder -Abschlägen.</div>
+                                                    <div class="tooltip-rule">Faustregel: Qualitätsführer rechtfertigen ein moderates Multiple-Premium gegenüber schwächeren Peers.</div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -2192,10 +2382,22 @@
                                                     <span class="w-2 h-2 rounded-full bg-gold-400"></span>
                                                     <h4 class="text-xs font-bold text-white">Financial Performance</h4>
                                                 </div>
-                                                <div class="flex items-center gap-2 text-[9.5px] font-mono flex-wrap">
-                                                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#D6A83A]"></span><span class="text-slate-300">Umsatz</span></span>
-                                                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#10B981]"></span><span class="text-slate-300">EBIT</span></span>
-                                                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#06B6D4]"></span><span class="text-slate-300">FCF</span></span>
+                                                <div class="flex items-center gap-2">
+                                                    <div class="flex items-center gap-2 text-[9.5px] font-mono flex-wrap">
+                                                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#D6A83A]"></span><span class="text-slate-300">Umsatz</span></span>
+                                                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#10B981]"></span><span class="text-slate-300">EBIT</span></span>
+                                                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#06B6D4]"></span><span class="text-slate-300">FCF</span></span>
+                                                    </div>
+                                                    <div class="card-info-tooltip">
+                                                        <button type="button" class="card-info-btn" aria-label="Info">
+                                                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                                                        </button>
+                                                        <div class="tooltip-box">
+                                                            <div class="tooltip-title">Financial Performance<span class="tooltip-category">Ertragsdynamik</span></div>
+                                                            <div class="tooltip-desc">Historische Entwicklung von Gesamtumsatz (Top-Line), operativem EBIT-Gewinn und freiem Cashflow (FCF) über 5 Jahre.</div>
+                                                            <div class="tooltip-rule">Faustregel: Wenn FCF und EBIT schneller wachsen als der Umsatz, greifen operative Skaleneffekte.</div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div id="financialPerformanceChartWrapper" class="w-full h-[180px] sm:h-[210px] relative">
@@ -2210,11 +2412,23 @@
                                                     <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
                                                     <h4 class="text-xs font-bold text-white">Profitabilität &amp; Margen</h4>
                                                 </div>
-                                                <div class="flex items-center gap-2 text-[9.5px] font-mono flex-wrap">
-                                                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#D6A83A]"></span><span class="text-slate-300">Brutto</span></span>
-                                                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#10B981]"></span><span class="text-slate-300">EBIT</span></span>
-                                                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#3B82F6]"></span><span class="text-slate-300">Netto</span></span>
-                                                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#06B6D4]"></span><span class="text-slate-300">FCF</span></span>
+                                                <div class="flex items-center gap-2">
+                                                    <div class="flex items-center gap-2 text-[9.5px] font-mono flex-wrap">
+                                                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#D6A83A]"></span><span class="text-slate-300">Brutto</span></span>
+                                                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#10B981]"></span><span class="text-slate-300">EBIT</span></span>
+                                                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#3B82F6]"></span><span class="text-slate-300">Netto</span></span>
+                                                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#06B6D4]"></span><span class="text-slate-300">FCF</span></span>
+                                                    </div>
+                                                    <div class="card-info-tooltip">
+                                                        <button type="button" class="card-info-btn" aria-label="Info">
+                                                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                                                        </button>
+                                                        <div class="tooltip-box">
+                                                            <div class="tooltip-title">Profitabilität &amp; Margen<span class="tooltip-category">Margenprofil</span></div>
+                                                            <div class="tooltip-desc">Verlauf von Brutto-, EBIT-, Netto- und FCF-Marge zur Messung der Preissetzungsmacht und Effizienz der Kostenstruktur.</div>
+                                                            <div class="tooltip-rule">Faustregel: Stabile oder expandierende Margen beweisen einen intakten wirtschaftlichen Burggraben (Moat).</div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div id="profitabilityChartWrapper" class="w-full h-[180px] sm:h-[210px] relative">
@@ -2229,10 +2443,22 @@
                                                     <span class="w-2 h-2 rounded-full bg-blue-400"></span>
                                                     <h4 class="text-xs font-bold text-white">Kapitaleffizienz &amp; Bilanz</h4>
                                                 </div>
-                                                <div class="flex items-center gap-2 text-[9.5px] font-mono flex-wrap">
-                                                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#3B82F6]"></span><span class="text-slate-300">ROIC</span></span>
-                                                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#8B5CF6]"></span><span class="text-slate-300">ROE</span></span>
-                                                    <span class="flex items-center gap-1"><span class="w-2 h-0.5 bg-[#D6A83A]"></span><span class="text-gold-400 font-semibold">10% WACC</span></span>
+                                                <div class="flex items-center gap-2">
+                                                    <div class="flex items-center gap-2 text-[9.5px] font-mono flex-wrap">
+                                                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#3B82F6]"></span><span class="text-slate-300">ROIC</span></span>
+                                                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#8B5CF6]"></span><span class="text-slate-300">ROE</span></span>
+                                                        <span class="flex items-center gap-1"><span class="w-2 h-0.5 bg-[#D6A83A]"></span><span class="text-gold-400 font-semibold">10% WACC</span></span>
+                                                    </div>
+                                                    <div class="card-info-tooltip">
+                                                        <button type="button" class="card-info-btn" aria-label="Info">
+                                                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                                                        </button>
+                                                        <div class="tooltip-box">
+                                                            <div class="tooltip-title">Kapitaleffizienz &amp; Bilanz<span class="tooltip-category">Kapitalrendite</span></div>
+                                                            <div class="tooltip-desc">Vergleich von Gesamtkapitalrendite (ROIC) und Eigenkapitalrendite (ROE) mit der 10% Kapitalkosten-Hürde (WACC Hurdle Rate).</div>
+                                                            <div class="tooltip-rule">Faustregel: ROIC dauerhaft &gt; 15% schafft echten ökonomischen Mehrwert über den Refinanzierungskosten.</div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div id="capitalEfficiencyChartWrapper" class="w-full h-[180px] sm:h-[210px] relative">
@@ -2247,10 +2473,22 @@
                                                     <span class="w-2 h-2 rounded-full bg-purple-400"></span>
                                                     <h4 class="text-xs font-bold text-white">Aktionärsrendite (Shareholder Yield)</h4>
                                                 </div>
-                                                <div class="flex items-center gap-2 text-[9.5px] font-mono flex-wrap">
-                                                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#10B981]"></span><span class="text-slate-300">Dividende</span></span>
-                                                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#A855F7]"></span><span class="text-slate-300">Aktienrückkauf (Yield)</span></span>
-                                                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#D6A83A]"></span><span class="text-gold-400 font-semibold">Gesamt</span></span>
+                                                <div class="flex items-center gap-2">
+                                                    <div class="flex items-center gap-2 text-[9.5px] font-mono flex-wrap">
+                                                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#10B981]"></span><span class="text-slate-300">Dividende</span></span>
+                                                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#A855F7]"></span><span class="text-slate-300">Aktienrückkauf (Yield)</span></span>
+                                                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#D6A83A]"></span><span class="text-gold-400 font-semibold">Gesamt</span></span>
+                                                    </div>
+                                                    <div class="card-info-tooltip">
+                                                        <button type="button" class="card-info-btn" aria-label="Info">
+                                                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                                                        </button>
+                                                        <div class="tooltip-box">
+                                                            <div class="tooltip-title">Aktionärsrendite (Shareholder Yield)<span class="tooltip-category">Gesamtausschüttung</span></div>
+                                                            <div class="tooltip-desc">Kombinierte jährliche Gesamtrendite aus Bardividenden (%) plus Buyback Yield (prozentuale Reduktion der Aktienanzahl p.a.).</div>
+                                                            <div class="tooltip-rule">Faustregel: Dividende + Aktienrückkäufe zeigen die reale Cash-Rückführung an die Anteilseigner.</div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div id="shareholderChartWrapper" class="w-full h-[180px] sm:h-[210px] relative">
@@ -2574,9 +2812,9 @@
                             </span>
                         </div>
 
-                        <div class="h-3 w-[1px] bg-white/10 hidden sm:block"></div>
+                        <div id="footerDivider1" class="h-3 w-[1px] bg-white/10 hidden sm:block"></div>
 
-                        <span class="query-counter flex items-center gap-1 shrink-0"
+                        <span id="footerQueryCounter" class="query-counter flex items-center gap-1 shrink-0"
                             title="Reset täglich um 10:00 Uhr deutscher Zeit (Midnight PT)">
                             <span class="text-slate-500">Queries:</span>
                             <span id="queryCountLabel" class="count text-slate-200 font-semibold">0/3</span>
@@ -2584,11 +2822,12 @@
                         </span>
 
                         <span id="tierLabel" class="tier-free shrink-0">FREE</span>
+                        <span id="guestBadge" class="hidden px-2 py-0.5 rounded bg-white/5 border border-white/10 text-slate-400 font-mono text-[9.5px] font-semibold uppercase tracking-wider shrink-0">Gast</span>
                     </div>
 
                     <!-- Right: Quick Links & Legal -->
                     <div class="flex items-center gap-3 sm:gap-5 shrink-0">
-                        <div class="flex items-center gap-3 sm:gap-4 md:mr-3 md:border-r border-[#202630] md:pr-4">
+                        <div class="flex items-center gap-2.5 sm:gap-4 md:mr-3 md:border-r border-[#202630] md:pr-4">
                             <a href="../../index.html" class="hidden md:inline hover:text-white transition-colors">Hub</a>
                             <a href="../../pages/FAQ.html#terminal" class="hover:text-white transition-colors">FAQ</a>
                             <a href="../../pages/Impressum.html" class="hover:text-white transition-colors" title="Impressum &amp; Datenschutz">
@@ -3344,13 +3583,26 @@
         }
 
         async function updateFooter(user) {
-            if (!user) return;
+            const queryCounter = document.getElementById('footerQueryCounter');
+            const tl = document.getElementById('tierLabel');
+            const gb = document.getElementById('guestBadge');
+
+            if (!user) {
+                if (queryCounter) queryCounter.classList.add('hidden');
+                if (tl) tl.classList.add('hidden');
+                if (gb) gb.classList.remove('hidden');
+                return;
+            }
+
+            if (queryCounter) queryCounter.classList.remove('hidden');
+            if (gb) gb.classList.add('hidden');
+
             const limit = user.tier === 'premium' ? 20 : 3;
             const used = await getQueryCount(user.email);
             const countLabel = document.getElementById('queryCountLabel');
             if (countLabel) countLabel.textContent = `${used}/${limit}`;
-            const tl = document.getElementById('tierLabel');
             if (tl) {
+                tl.classList.remove('hidden');
                 tl.textContent = user.tier === 'premium' ? 'PREMIUM' : 'FREE';
                 tl.className = user.tier === 'premium' ? 'tier-premium' : 'tier-free';
             }
@@ -3497,16 +3749,29 @@
                     authScreen.style.display = 'flex';
                     mainApp.classList.add('hidden');
                 } else {
-                    // Guest viewing a shared report
-                    document.getElementById('guestNotice').classList.remove('hidden');
-                    document.getElementById('queryCountLabel').innerHTML = '<button onclick="location.reload()" class="text-gold-500 font-bold hover:underline">JETZT REGISTRIEREN</button>';
+                    // Guest viewing a shared report: Clean footer without duplicate CTA
+                    const guestNotice = document.getElementById('guestNotice');
+                    if (guestNotice) guestNotice.classList.remove('hidden');
+                    const queryCounter = document.getElementById('footerQueryCounter');
+                    if (queryCounter) queryCounter.classList.add('hidden');
+                    const tierLabel = document.getElementById('tierLabel');
+                    if (tierLabel) tierLabel.classList.add('hidden');
+                    const guestBadge = document.getElementById('guestBadge');
+                    if (guestBadge) guestBadge.classList.remove('hidden');
                 }
                 return;
             }
 
             authScreen.style.display = 'none';
             mainApp.classList.remove('hidden');
-            document.getElementById('guestNotice').classList.add('hidden');
+            const guestNotice = document.getElementById('guestNotice');
+            if (guestNotice) guestNotice.classList.add('hidden');
+            const queryCounter = document.getElementById('footerQueryCounter');
+            if (queryCounter) queryCounter.classList.remove('hidden');
+            const tierLabel = document.getElementById('tierLabel');
+            if (tierLabel) tierLabel.classList.remove('hidden');
+            const guestBadge = document.getElementById('guestBadge');
+            if (guestBadge) guestBadge.classList.add('hidden');
 
             const adminBtn = document.getElementById('adminBtn');
             const abm = document.getElementById('adminBtnMobile');
@@ -10282,12 +10547,52 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             const escapedKeys = sortedKeys.map(k => k.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'));
             const badgeRegex = new RegExp(`\\[(${escapedKeys.join('|')})\\]|(?<=[\\s:;,(]|^)(${escapedKeys.join('|')})(?=[\\s:;,.)<]|$)`, 'gi');
 
+            const AGENT_CARD_DEFINITIONS = {
+                business_quality: {
+                    title: 'Business & Moat Analysis',
+                    category: 'Wettbewerbsvorteil',
+                    desc: 'Untersucht Geschäftsmodell, Preissetzungsmacht, Markteintrittsbarrieren, Kundenbindung und den strukturellen Burggraben.',
+                    rule: 'Faustregel: Ein breiter Moat (Wide Moat) schützt hohe Kapitalrenditen vor Erosion durch Wettbewerber.'
+                },
+                financial_quality: {
+                    title: 'Financial Quality & Statements',
+                    category: 'Bilanzprüfung',
+                    desc: 'Tiefenprüfung von Gewinn- und Verlustrechnung, Bilanzsubstanz, Working Capital und Cashflow-Generierung.',
+                    rule: 'Faustregel: Operativer Cashflow &gt; Nettogewinn signalisiert hohe Ertragsqualität ohne aggressive Bilanzpolitik.'
+                },
+                earnings_expectations: {
+                    title: 'Earnings & Catalysts',
+                    category: 'Konsens & Revisionen',
+                    desc: 'Analysiert Wall-Street-Gewinnschätzungen, EPS-Revisionsdynamik, Margenprognosen und bevorstehende Katalysatoren.',
+                    rule: 'Faustregel: Positive EPS-Revisionen treiben mittelfristig die institutionelle Neubewertung.'
+                },
+                valuation: {
+                    title: 'Valuation & DCF Modeling',
+                    category: 'Fair Value Modell',
+                    desc: 'Multi-Szenarien-DCF-Modell, historische Multiples und Ermittlung der fundamentalen Sicherheitsmarge.',
+                    rule: 'Faustregel: Eine Sicherheitsmarge (Margin of Safety) von &ge; 20% minimiert das fundamentale Abwärtsrisiko.'
+                },
+                market_structure: {
+                    title: 'Market Structure & Flow',
+                    category: 'Marktdynamik',
+                    desc: 'Institutionelle Orderflow-Dynamik, Relative Stärke (RS), Trendstruktur und markttechnische Schlüsselzonen.',
+                    rule: 'Faustregel: Fundamentale Unterbewertung kombiniert mit steigender Relativer Stärke bietet das beste Timing.'
+                },
+                executive_summary: {
+                    title: 'Institutional Synthesis',
+                    category: 'CIO Master Fazit',
+                    desc: 'Finale Synthese des Investment Committees: Verdichtung aller Teilgutachten in eine klare Gesamtempfehlung.',
+                    rule: 'Faustregel: Klare Abstimmung aller 5 Dimensionen liefert das höchste Conviction-Level.'
+                }
+            };
+
             CARDS.forEach(card => {
                 const content = data[card.id];
                 const widget = document.createElement('div');
                 widget.id = `widget_${card.id}`;
                 const isBq = card.id === 'business_quality';
                 widget.className = `widget-card rounded-lg flex flex-col fade-up ${isBq ? 'w-full border-[#202630]' : (card.id === 'executive_summary' ? 'md:col-span-2 border-[#D6A83A]/20' : '')}`;
+                const cardDef = AGENT_CARD_DEFINITIONS[card.id] || { title: card.title, category: 'AI Specialist', desc: card.firm, rule: '' };
 
                 if (!content) {
                     // Shimmer Placeholder
@@ -10302,7 +10607,19 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                                     <span class="text-xs font-semibold text-slate-300">${card.title}</span>
                                 </div>
                             </div>
-                            <div class="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
+                                <div class="card-info-tooltip">
+                                    <button type="button" class="card-info-btn" aria-label="Info">
+                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                                    </button>
+                                    <div class="tooltip-box">
+                                        <div class="tooltip-title">${cardDef.title}<span class="tooltip-category">${cardDef.category}</span></div>
+                                        <div class="tooltip-desc">${cardDef.desc}</div>
+                                        ${cardDef.rule ? `<div class="tooltip-rule">${cardDef.rule}</div>` : ''}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="p-6 flex-1 flex flex-col gap-2.5 justify-center items-center">
                             <div class="w-6 h-6 border-2 border-slate-700 border-t-[#D6A83A] rounded-full animate-spin"></div>
@@ -10339,7 +10656,16 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                             </div>
                             <div class="flex items-center gap-2 shrink-0">
                                 <span class="px-2 py-0.5 rounded border ${widgetBadgeStyles} font-mono font-semibold text-[9.5px] uppercase tracking-wide">${verdictLabel}</span>
-                                <span class="text-[9.5px] font-mono text-slate-500 hidden sm:inline">${card.id.toUpperCase()}</span>
+                                <div class="card-info-tooltip">
+                                    <button type="button" class="card-info-btn" aria-label="Info">
+                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                                    </button>
+                                    <div class="tooltip-box">
+                                        <div class="tooltip-title">${cardDef.title}<span class="tooltip-category">${cardDef.category}</span></div>
+                                        <div class="tooltip-desc">${cardDef.desc}</div>
+                                        ${cardDef.rule ? `<div class="tooltip-rule">${cardDef.rule}</div>` : ''}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="p-4 flex-1 overflow-y-auto max-h-[420px]">
