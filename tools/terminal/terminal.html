@@ -815,6 +815,95 @@
             opacity: 1;
             transform: translateY(0);
         }
+
+        /* Calculator-style Deep Chart Interactive Hover Tooltip */
+        .deep-chart-tooltip {
+            position: absolute;
+            z-index: 50;
+            pointer-events: none;
+            opacity: 0;
+            visibility: hidden;
+            transform: translate(-50%, -100%) translateY(-10px);
+            transition: opacity 0.12s cubic-bezier(0.16, 1, 0.3, 1), transform 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+            background: #0F1420;
+            border: 1px solid rgba(214, 168, 58, 0.35);
+            border-radius: 8px;
+            padding: 8px 12px;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.75), 0 0 1px 1px rgba(255, 255, 255, 0.06);
+            color: #CBD5E1;
+            font-family: 'Inter', -apple-system, sans-serif;
+            font-size: 11px;
+            line-height: 1.4;
+            white-space: nowrap;
+            min-width: 140px;
+        }
+        .deep-chart-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 5px;
+            border-style: solid;
+            border-color: #0F1420 transparent transparent transparent;
+        }
+        .deep-chart-tooltip.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -100%) translateY(-6px);
+        }
+        .deep-chart-tooltip .tt-header {
+            color: #F8FAFC;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            padding-bottom: 4px;
+            margin-bottom: 4px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        .deep-chart-tooltip .tt-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 10.5px;
+            margin-top: 2.5px;
+        }
+        .deep-chart-tooltip .tt-label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #94A3B8;
+        }
+        .deep-chart-tooltip .tt-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 2px;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+        .deep-chart-tooltip .tt-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            color: #F1F5F9;
+        }
+        .deep-chart-tooltip .tt-footer {
+            margin-top: 5px;
+            padding-top: 4px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 10.5px;
+            font-weight: 700;
+            color: #D6A83A;
+            font-family: 'JetBrains Mono', monospace;
+        }
     </style>
 </head>
 
@@ -2988,151 +3077,7 @@
         </div>
     </div>
 
-    <!-- ========== INSTITUTIONAL DATA INSPECTOR MODAL ========== -->
-    <div id="financialDataInspectorModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden opacity-0 transition-opacity duration-200" onclick="if(event.target === this) closeFinancialDataInspector()">
-        <div class="bg-[#0D1117] border border-[#202630] rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden transform scale-95 transition-transform duration-200" id="financialDataInspectorCard">
-            <!-- Header -->
-            <div class="px-5 py-4 bg-[#11151B] border-b border-[#202630] flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-[#D6A83A]/10 border border-[#D6A83A]/30 flex items-center justify-center text-[#D6A83A] shrink-0">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" /></svg>
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <h3 class="text-sm font-bold text-white tracking-tight" id="inspectorYearTitle">Geschäftsjahr 2024 (FY2024)</h3>
-                            <span id="inspectorTypeBadge" class="text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-semibold">Geprüfter Jahresabschluss</span>
-                        </div>
-                        <p class="text-[11px] text-slate-400" id="inspectorCompanySubtitle">Fundamentale Bilanz- &amp; Marktdaten</p>
-                    </div>
-                </div>
-                <button onclick="closeFinancialDataInspector()" class="p-1.5 rounded-lg bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-colors">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
 
-            <!-- Metric Grid -->
-            <div class="p-5 space-y-4">
-                <!-- Row 1: Core Financial Performance -->
-                <div>
-                    <span class="text-[9.5px] uppercase font-mono font-bold text-slate-400 block mb-2">Ertragslage &amp; Cashflow</span>
-                    <div class="grid grid-cols-3 gap-2.5">
-                        <div class="p-3 rounded-xl bg-[#11151B] border border-[#202630]">
-                            <span class="term-tooltip text-[10px] text-slate-400 block">Umsatzerlöse
-                                <span class="tooltip-box">
-                                    <span class="tooltip-title">Umsatzerlöse (Revenue)<span class="tooltip-category">Top-Line</span></span>
-                                    <span class="tooltip-desc">Gesamtumsatz des Geschäftsjahres vor allen Abzügen.</span>
-                                </span>
-                            </span>
-                            <span id="insp_rev" class="text-sm font-bold text-white font-mono mt-0.5 block">--</span>
-                            <span id="insp_rev_growth" class="text-[9.5px] text-emerald-400 font-mono block mt-0.5">--</span>
-                        </div>
-                        <div class="p-3 rounded-xl bg-[#11151B] border border-[#202630]">
-                            <span class="term-tooltip text-[10px] text-slate-400 block">Operativer Gewinn (EBIT)
-                                <span class="tooltip-box">
-                                    <span class="tooltip-title">EBIT (Operating Income)<span class="tooltip-category">Rentabilität</span></span>
-                                    <span class="tooltip-desc">Operatives Betriebsergebnis vor Zinsen und Steuern.</span>
-                                </span>
-                            </span>
-                            <span id="insp_ebit" class="text-sm font-bold text-white font-mono mt-0.5 block">--</span>
-                            <span id="insp_op_margin" class="text-[9.5px] text-slate-300 font-mono block mt-0.5">--</span>
-                        </div>
-                        <div class="p-3 rounded-xl bg-[#11151B] border border-[#202630]">
-                            <span class="term-tooltip text-[10px] text-slate-400 block">Free Cash Flow
-                                <span class="tooltip-box">
-                                    <span class="tooltip-title">Free Cash Flow (FCF)<span class="tooltip-category">Liquidität</span></span>
-                                    <span class="tooltip-desc">Operativer Cashflow abzüglich CapEx (Investitionen).</span>
-                                </span>
-                            </span>
-                            <span id="insp_fcf" class="text-sm font-bold text-emerald-400 font-mono mt-0.5 block">--</span>
-                            <span id="insp_fcf_margin" class="text-[9.5px] text-slate-300 font-mono block mt-0.5">--</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Row 2: Per-Share & Valuation Metrics -->
-                <div>
-                    <span class="text-[9.5px] uppercase font-mono font-bold text-slate-400 block mb-2">Bewertung &amp; Aktienkurs</span>
-                    <div class="grid grid-cols-3 gap-2.5">
-                        <div class="p-3 rounded-xl bg-[#11151B] border border-[#202630]">
-                            <span class="term-tooltip text-[10px] text-slate-400 block">Gewinn je Aktie (EPS)
-                                <span class="tooltip-box">
-                                    <span class="tooltip-title">Earnings Per Share (EPS)<span class="tooltip-category">Ertragskraft</span></span>
-                                    <span class="tooltip-desc">Nettogewinn geteilt durch die Anzahl ausstehender Aktien.</span>
-                                </span>
-                            </span>
-                            <span id="insp_eps" class="text-sm font-bold text-white font-mono mt-0.5 block">--</span>
-                            <span id="insp_net_inc" class="text-[9.5px] text-slate-400 font-mono block mt-0.5">--</span>
-                        </div>
-                        <div class="p-3 rounded-xl bg-[#11151B] border border-[#202630]">
-                            <span class="term-tooltip text-[10px] text-slate-400 block">Aktienkurs (Stichtag)
-                                <span class="tooltip-box">
-                                    <span class="tooltip-title">Schlusskurs (Period End)<span class="tooltip-category">Marktpreis</span></span>
-                                    <span class="tooltip-desc">Offizieller Börsenkurs zum Geschäftsjahresende.</span>
-                                </span>
-                            </span>
-                            <span id="insp_price" class="text-sm font-bold text-white font-mono mt-0.5 block">--</span>
-                            <span id="insp_pe" class="text-[9.5px] text-amber-400 font-mono block mt-0.5">--</span>
-                        </div>
-                        <div class="p-3 rounded-xl bg-[#11151B] border border-[#202630]">
-                            <span class="term-tooltip text-[10px] text-slate-400 block">Empirischer Fair Value
-                                <span class="tooltip-box">
-                                    <span class="tooltip-title">Historischer Fair Value<span class="tooltip-category">Modellwert</span></span>
-                                    <span class="tooltip-desc">EPS multipliziert mit dem historischen Median-KGV.</span>
-                                </span>
-                            </span>
-                            <span id="insp_fair_val" class="text-sm font-bold text-[#D6A83A] font-mono mt-0.5 block">--</span>
-                            <span id="insp_dev" class="text-[9.5px] text-emerald-400 font-mono block mt-0.5">--</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Row 3: Capital Efficiency & Balance Sheet -->
-                <div>
-                    <span class="text-[9.5px] uppercase font-mono font-bold text-slate-400 block mb-2">Rentabilität &amp; Bilanzstruktur</span>
-                    <div class="grid grid-cols-3 gap-2.5">
-                        <div class="p-3 rounded-xl bg-[#11151B] border border-[#202630]">
-                            <span class="term-tooltip text-[10px] text-slate-400 block">Kapitalrendite (ROIC)
-                                <span class="tooltip-box">
-                                    <span class="tooltip-title">ROIC<span class="tooltip-category">Kapitalrendite</span></span>
-                                    <span class="tooltip-desc">Rendite auf das im Kerngeschäft investierte Gesamtkapital.</span>
-                                </span>
-                            </span>
-                            <span id="insp_roic" class="text-sm font-bold text-blue-400 font-mono mt-0.5 block">--</span>
-                            <span id="insp_roe" class="text-[9.5px] text-slate-300 font-mono block mt-0.5">--</span>
-                        </div>
-                        <div class="p-3 rounded-xl bg-[#11151B] border border-[#202630]">
-                            <span class="term-tooltip text-[10px] text-slate-400 block">Verschuldungsgrad (D/E)
-                                <span class="tooltip-box">
-                                    <span class="tooltip-title">Debt to Equity<span class="tooltip-category">Bilanzhebel</span></span>
-                                    <span class="tooltip-desc">Verhältnis von verzinslichem Fremdkapital zu Eigenkapital.</span>
-                                </span>
-                            </span>
-                            <span id="insp_debt_eq" class="text-sm font-bold text-white font-mono mt-0.5 block">--</span>
-                            <span id="insp_net_debt" class="text-[9.5px] text-slate-400 font-mono block mt-0.5">--</span>
-                        </div>
-                        <div class="p-3 rounded-xl bg-[#11151B] border border-[#202630]">
-                            <span class="term-tooltip text-[10px] text-slate-400 block">Dividendenrendite
-                                <span class="tooltip-box">
-                                    <span class="tooltip-title">Dividendenrendite<span class="tooltip-category">Ausschüttung</span></span>
-                                    <span class="tooltip-desc">Ausgeschüttete Dividende je Aktie geteilt durch den Periodenkurs.</span>
-                                </span>
-                            </span>
-                            <span id="insp_div_yield" class="text-sm font-bold text-purple-400 font-mono mt-0.5 block">--</span>
-                            <span id="insp_shares" class="text-[9.5px] text-slate-400 font-mono block mt-0.5">--</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Footer -->
-            <div class="px-5 py-3 bg-[#11151B] border-t border-[#202630] flex items-center justify-between">
-                <span class="text-[10.5px] text-slate-500 font-mono">Tipp: Klicke auf beliebige Balken oder Linien im Chart für Stichtag-Analysen.</span>
-                <button onclick="closeFinancialDataInspector()" class="px-4 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-white text-xs font-semibold transition-colors">
-                    Schließen
-                </button>
-            </div>
-        </div>
-    </div>
 
     <script>
 
@@ -9709,141 +9654,69 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             });
         }
 
-        // ==================== INSTITUTIONAL DATA INSPECTOR CONTROLLER ====================
-        function showInstitutionalDetailInspector(year) {
-            const modal = document.getElementById('financialDataInspectorModal');
-            const card = document.getElementById('financialDataInspectorCard');
-            if (!modal || !CURRENT_NORMALIZED_HISTORICAL_DATA) return;
-
-            const ann = CURRENT_NORMALIZED_HISTORICAL_DATA.annual || [];
-            let p = null;
-            const isTTM = String(year).toUpperCase() === 'TTM';
-            
-            if (isTTM) {
-                p = CURRENT_NORMALIZED_HISTORICAL_DATA.ttm || ann[ann.length - 1];
-            } else {
-                p = ann.find(a => a.year == year || a.date == year) || ann[ann.length - 1];
-            }
-            if (!p) return;
-
-            const cur = CURRENT_NORMALIZED_HISTORICAL_DATA.currency || 'USD';
-            const compName = CURRENT_NORMALIZED_HISTORICAL_DATA.companyName || CURRENT_NORMALIZED_HISTORICAL_DATA.symbol || 'Unternehmen';
-
-            // Find YoY growth
-            const pIdx = ann.indexOf(p);
-            const prevP = pIdx > 0 ? ann[pIdx - 1] : (isTTM && ann.length > 0 ? ann[ann.length - 1] : null);
-            let revGrowthStr = '';
-            if (prevP && prevP.revenue && p.revenue) {
-                const g = ((p.revenue - prevP.revenue) / prevP.revenue) * 100;
-                revGrowthStr = `YoY: ${g >= 0 ? '+' : ''}${g.toFixed(1)}%`;
-            } else {
-                revGrowthStr = isTTM ? 'Laufende 12 Monate' : 'Historischer Stichtag';
+        // ==================== DEEP FINANCIALS HOVER TOOLBARS (CALCULATOR PATTERN) ====================
+        function showDeepChartTooltip(e, wrapperId, title, rows, footer = null) {
+            const wrapper = document.getElementById(wrapperId);
+            if (!wrapper) return;
+            let tooltip = wrapper.querySelector('.deep-chart-tooltip');
+            if (!tooltip) {
+                tooltip = document.createElement('div');
+                tooltip.className = 'deep-chart-tooltip';
+                wrapper.appendChild(tooltip);
             }
 
-            // Valuation & Fair Value
-            const valRes = CURRENT_VALUATION_RESULT;
-            const refMed = valRes?.statistics?.pe_adj?.median || p.peRatio || 25;
-            const fairVal = p.eps ? (p.eps * refMed) : (p.periodClosePrice || CURRENT_NORMALIZED_HISTORICAL_DATA.currentPrice || 100);
-            const closeP = p.periodClosePrice || CURRENT_NORMALIZED_HISTORICAL_DATA.currentPrice;
-            let devStr = '';
-            if (closeP && fairVal) {
-                const dev = ((closeP - fairVal) / fairVal) * 100;
-                devStr = `${dev >= 0 ? '+' : ''}${dev.toFixed(1)}% (${dev < -10 ? 'Unterbewertet' : dev > 10 ? 'Überbewertet' : 'Fair'})`;
+            let rowsHtml = (rows || []).map(r => `
+                <div class="tt-row">
+                    <span class="tt-label"><span class="tt-dot" style="background-color: ${r.color || '#D6A83A'};"></span>${r.label}</span>
+                    <span class="tt-val" style="${r.valColor ? `color: ${r.valColor};` : ''}">${r.val}</span>
+                </div>
+            `).join('');
+
+            let footerHtml = footer ? `
+                <div class="tt-footer">
+                    <span>${footer.label}</span>
+                    <span style="${footer.valColor ? `color: ${footer.valColor};` : ''}">${footer.val}</span>
+                </div>
+            ` : '';
+
+            tooltip.innerHTML = `
+                <div class="tt-header">
+                    <span>${title}</span>
+                    <span class="text-[9px] text-slate-500 font-mono">Deep Financials</span>
+                </div>
+                ${rowsHtml}
+                ${footerHtml}
+            `;
+
+            const rect = wrapper.getBoundingClientRect();
+            let clientX = e.clientX;
+            let clientY = e.clientY;
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
             }
 
-            // Populate Modal Fields
-            const titleEl = document.getElementById('inspectorYearTitle');
-            const subEl = document.getElementById('inspectorCompanySubtitle');
-            const typeBadge = document.getElementById('inspectorTypeBadge');
-            
-            if (titleEl) titleEl.textContent = isTTM ? 'Trailing Twelve Months (TTM)' : `Geschäftsjahr ${p.year} (FY${p.year})`;
-            if (subEl) subEl.textContent = `${compName} • Stichtag: ${p.date || (isTTM ? 'Live / Letzte 4 Quartale' : p.year)}`;
-            if (typeBadge) {
-                if (isTTM) {
-                    typeBadge.textContent = 'Laufende 12 Monate (TTM)';
-                    typeBadge.className = 'text-[9px] font-mono px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-400 font-semibold';
-                } else if (p.year >= new Date().getFullYear()) {
-                    typeBadge.textContent = 'Konsens-Prognose (Schätzung)';
-                    typeBadge.className = 'text-[9px] font-mono px-2 py-0.5 rounded bg-blue-500/10 border border-blue-500/30 text-blue-400 font-semibold';
-                } else {
-                    typeBadge.textContent = 'Geprüfter Jahresabschluss';
-                    typeBadge.className = 'text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-semibold';
-                }
-            }
+            let posX = clientX - rect.left;
+            let posY = clientY - rect.top;
 
-            // Row 1: Ertragslage & Cashflow
-            const rEl = document.getElementById('insp_rev');
-            const rgEl = document.getElementById('insp_rev_growth');
-            const ebEl = document.getElementById('insp_ebit');
-            const opmEl = document.getElementById('insp_op_margin');
-            const fcfEl = document.getElementById('insp_fcf');
-            const fcfmEl = document.getElementById('insp_fcf_margin');
+            // Boundary checks so tooltip stays within the chart box
+            const padX = 75;
+            posX = Math.max(padX, Math.min(rect.width - padX, posX));
+            posY = Math.max(45, Math.min(rect.height - 10, posY));
 
-            if (rEl) rEl.textContent = p.revenue ? fmtNumber(p.revenue, cur) : '—';
-            if (rgEl) rgEl.textContent = revGrowthStr;
-            if (ebEl) ebEl.textContent = p.operatingIncome ? fmtNumber(p.operatingIncome, cur) : '—';
-            if (opmEl) opmEl.textContent = p.operatingMargin ? `Marge: ${p.operatingMargin.toFixed(1)}%` : (p.operatingIncome && p.revenue ? `Marge: ${((p.operatingIncome/p.revenue)*100).toFixed(1)}%` : '—');
-            if (fcfEl) fcfEl.textContent = p.freeCashFlow ? fmtNumber(p.freeCashFlow, cur) : '—';
-            if (fcfmEl) fcfmEl.textContent = p.fcfMargin ? `FCF-Marge: ${p.fcfMargin.toFixed(1)}%` : (p.freeCashFlow && p.revenue ? `FCF-Marge: ${((p.freeCashFlow/p.revenue)*100).toFixed(1)}%` : '—');
-
-            // Row 2: Bewertung & Aktienkurs
-            const epsEl = document.getElementById('insp_eps');
-            const netEl = document.getElementById('insp_net_inc');
-            const prEl = document.getElementById('insp_price');
-            const peEl = document.getElementById('insp_pe');
-            const fvEl = document.getElementById('insp_fair_val');
-            const devEl = document.getElementById('insp_dev');
-
-            if (epsEl) epsEl.textContent = p.eps ? `${cur} ${p.eps.toFixed(2)}` : '—';
-            if (netEl) netEl.textContent = p.netIncome ? `Netto: ${fmtNumber(p.netIncome, cur)}` : '—';
-            if (prEl) prEl.textContent = closeP ? `${cur} ${closeP.toFixed(2)}` : '—';
-            if (peEl) peEl.textContent = p.peRatio ? `KGV: ${p.peRatio.toFixed(1)}x` : (closeP && p.eps && p.eps > 0 ? `KGV: ${(closeP / p.eps).toFixed(1)}x` : '—');
-            if (fvEl) fvEl.textContent = fairVal ? `${cur} ${fairVal.toFixed(2)}` : '—';
-            if (devEl) devEl.textContent = devStr;
-
-            // Row 3: Rentabilität & Bilanzstruktur
-            const roicEl = document.getElementById('insp_roic');
-            const roeEl = document.getElementById('insp_roe');
-            const debtEl = document.getElementById('insp_debt_eq');
-            const netDebtEl = document.getElementById('insp_net_debt');
-            const divEl = document.getElementById('insp_div_yield');
-            const shEl = document.getElementById('insp_shares');
-
-            if (roicEl) roicEl.textContent = p.roic ? `${p.roic.toFixed(1)}%` : '—';
-            if (roeEl) roeEl.textContent = p.roe ? `ROE: ${p.roe.toFixed(1)}%` : '—';
-            if (debtEl) debtEl.textContent = p.debtToEquity ? `${p.debtToEquity.toFixed(2)}x` : '—';
-            if (netDebtEl) netDebtEl.textContent = p.netDebt ? `Net Debt: ${fmtNumber(p.netDebt, cur)}` : '—';
-            if (divEl) divEl.textContent = p.dividendYield ? `${p.dividendYield.toFixed(2)}%` : '—';
-            if (shEl) shEl.textContent = p.sharesOutstanding ? `Aktien: ${(p.sharesOutstanding / 1e6).toFixed(0)}M` : '—';
-
-            // Show Modal
-            modal.classList.remove('hidden');
-            requestAnimationFrame(() => {
-                modal.classList.remove('opacity-0');
-                if (card) {
-                    card.classList.remove('scale-95');
-                    card.classList.add('scale-100');
-                }
-            });
+            tooltip.style.left = `${posX}px`;
+            tooltip.style.top = `${posY}px`;
+            tooltip.classList.add('active');
         }
 
-        function closeFinancialDataInspector() {
-            const modal = document.getElementById('financialDataInspectorModal');
-            const card = document.getElementById('financialDataInspectorCard');
-            if (!modal) return;
-            modal.classList.add('opacity-0');
-            if (card) {
-                card.classList.remove('scale-100');
-                card.classList.add('scale-95');
+        function hideDeepChartTooltip(wrapperId) {
+            const wrapper = document.getElementById(wrapperId);
+            if (!wrapper) return;
+            const tooltip = wrapper.querySelector('.deep-chart-tooltip');
+            if (tooltip) {
+                tooltip.classList.remove('active');
             }
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 200);
         }
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeFinancialDataInspector();
-        });
 
         // --- FINANCIAL PERFORMANCE SVG RENDERER (ZERO-LINE AWARE DUAL BARS: REVENUE & EBIT + FCF DOTS) ---
         function renderFinancialPerformanceCharts(dataset) {
@@ -9857,6 +9730,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 return;
             }
 
+            const cur = dataset.currency || 'USD';
             const bRect = wrapper.getBoundingClientRect();
             const width = Math.max(280, bRect.width || 380);
             const height = Math.max(160, bRect.height || 190);
@@ -9917,24 +9791,35 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
 
                 // FCF dot
                 const fcfY = p.freeCashFlow !== null ? getY(p.freeCashFlow) : null;
+                const yearLabel = p.year || (p.date ? p.date.substring(0, 4) : `FY${i + 1}`);
+
+                const rowsData = JSON.stringify([
+                    { label: 'Umsatz', color: '#D6A83A', val: fmtNumber(p.revenue, cur) },
+                    { label: 'EBIT', color: '#10B981', val: fmtNumber(p.operatingIncome, cur), valColor: ebitVal >= 0 ? '#10B981' : '#F43F5E' },
+                    { label: 'Freier Cashflow', color: '#06B6D4', val: p.freeCashFlow !== null ? fmtNumber(p.freeCashFlow, cur) : '—' }
+                ]).replace(/"/g, '&quot;');
 
                 barsHtml += `
-                    <!-- Interactive Group for FY${p.year} -->
-                    <g class="cursor-pointer group" onclick="showInstitutionalDetailInspector(${p.year})" style="cursor: pointer;">
-                        <title>FY${p.year}: Umsatz ${fmtNumber(p.revenue, dataset.currency)} | EBIT ${fmtNumber(p.operatingIncome, dataset.currency)} | FCF ${fmtNumber(p.freeCashFlow, dataset.currency)} (Klicken für Details)</title>
-                        <rect x="${xGroupCenter - groupW * 0.45}" y="${padTop}" width="${groupW * 0.9}" height="${chartH}" fill="transparent" class="hover:fill-white/5 transition-colors" />
+                    <!-- Interactive Group for FY${yearLabel} -->
+                    <g class="cursor-pointer group" 
+                       onmouseenter="showDeepChartTooltip(event, 'financialPerformanceChartWrapper', 'Geschäftsjahr ${yearLabel}', ${rowsData})"
+                       onmousemove="showDeepChartTooltip(event, 'financialPerformanceChartWrapper', 'Geschäftsjahr ${yearLabel}', ${rowsData})"
+                       onmouseleave="hideDeepChartTooltip('financialPerformanceChartWrapper')"
+                       ontouchstart="showDeepChartTooltip(event, 'financialPerformanceChartWrapper', 'Geschäftsjahr ${yearLabel}', ${rowsData})"
+                       style="cursor: crosshair;">
+                        <rect x="${xGroupCenter - groupW * 0.45}" y="${padTop}" width="${groupW * 0.9}" height="${chartH}" fill="transparent" class="hover:fill-white/[0.04] transition-colors" />
                         <rect x="${xGroupCenter - singleBarW - 1}" y="${revTopY}" width="${singleBarW}" height="${Math.max(2, revH)}" rx="2" fill="#D6A83A" opacity="0.9" class="group-hover:opacity-100 transition-opacity" />
                         <rect x="${xGroupCenter + 1}" y="${ebitTopY}" width="${singleBarW}" height="${ebitH}" rx="2" fill="${ebitVal >= 0 ? '#10B981' : '#F43F5E'}" opacity="0.9" class="group-hover:opacity-100 transition-opacity" />
-                        ${fcfY !== null ? `<circle cx="${xGroupCenter}" cy="${fcfY}" r="3" fill="#06B6D4" stroke="#0B0E12" stroke-width="1.2" />` : ''}
+                        ${fcfY !== null ? `<circle cx="${xGroupCenter}" cy="${fcfY}" r="3.5" fill="#06B6D4" stroke="#0B0E12" stroke-width="1.2" />` : ''}
                     </g>
                 `;
 
-                labelsHtml += `<text x="${xGroupCenter}" y="${height - 8}" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle" class="cursor-pointer" onclick="showInstitutionalDetailInspector(${p.year})">${p.year}</text>`;
+                labelsHtml += `<text x="${xGroupCenter}" y="${height - 8}" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">${yearLabel}</text>`;
             });
 
             svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
             svg.innerHTML = `
-                <text x="${padLeft}" y="${padTop - 6}" fill="#64748B" font-size="8.5" font-family="'JetBrains Mono', monospace">Umsatz, EBIT &amp; FCF [${dataset.currency}]</text>
+                <text x="${padLeft}" y="${padTop - 6}" fill="#64748B" font-size="8.5" font-family="'JetBrains Mono', monospace">Umsatz, EBIT &amp; FCF [${cur}]</text>
                 ${gridHtml}
                 ${zeroLineHtml}
                 ${barsHtml}
@@ -9942,7 +9827,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             `;
         }
 
-        // --- PROFITABILITY & MARGINS SVG RENDERER (4 MARGIN LINES + 3Y TREND EVALUATION) ---
+        // --- PROFITABILITY & MARGINS SVG RENDERER (4 MARGIN LINES + HOVER TOOLTIP) ---
         function renderProfitabilityCharts(dataset) {
             const svg = document.getElementById('profitabilitySvg');
             const wrapper = document.getElementById('profitabilityChartWrapper');
@@ -10003,21 +9888,39 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
 
             let dotsHtml = '';
             let labelsHtml = '';
+            const colWidth = chartW / Math.max(1, ann.length);
+
             ann.forEach((p, i) => {
                 const x = getX(i);
                 const grossY = getY(p.grossMargin || 0);
                 const opY = getY(p.operatingMargin || 0);
                 const netY = getY(p.netMargin || 0);
+                const fcfY = p.fcfMargin !== null ? getY(p.fcfMargin) : null;
+                const yearLabel = p.year || (p.date ? p.date.substring(0, 4) : `FY${i + 1}`);
+
+                const rowsData = JSON.stringify([
+                    { label: 'Bruttomarge', color: '#D6A83A', val: p.grossMargin !== null ? p.grossMargin.toFixed(1) + '%' : '—' },
+                    { label: 'EBIT-Marge', color: '#10B981', val: p.operatingMargin !== null ? p.operatingMargin.toFixed(1) + '%' : '—' },
+                    { label: 'Nettomarge', color: '#3B82F6', val: p.netMargin !== null ? p.netMargin.toFixed(1) + '%' : '—' },
+                    { label: 'FCF-Marge', color: '#06B6D4', val: p.fcfMargin !== null ? p.fcfMargin.toFixed(1) + '%' : '—' }
+                ]).replace(/"/g, '&quot;');
 
                 dotsHtml += `
-                    <g class="cursor-pointer group" onclick="showInstitutionalDetailInspector(${p.year})" style="cursor: pointer;">
-                        <title>FY${p.year}: Brutto ${p.grossMargin ? p.grossMargin.toFixed(1) : '--'}% | EBIT ${p.operatingMargin ? p.operatingMargin.toFixed(1) : '--'}% | Netto ${p.netMargin ? p.netMargin.toFixed(1) : '--'}% | FCF ${p.fcfMargin ? p.fcfMargin.toFixed(1) : '--'}%</title>
-                        <circle cx="${x}" cy="${grossY}" r="3.5" fill="#D6A83A" stroke="#0B0E12" stroke-width="1.5" />
-                        <circle cx="${x}" cy="${opY}" r="3.5" fill="#10B981" stroke="#0B0E12" stroke-width="1.5" />
-                        <circle cx="${x}" cy="${netY}" r="3.5" fill="#3B82F6" stroke="#0B0E12" stroke-width="1.5" />
+                    <g class="cursor-pointer group" 
+                       onmouseenter="showDeepChartTooltip(event, 'profitabilityChartWrapper', 'Geschäftsjahr ${yearLabel}', ${rowsData})"
+                       onmousemove="showDeepChartTooltip(event, 'profitabilityChartWrapper', 'Geschäftsjahr ${yearLabel}', ${rowsData})"
+                       onmouseleave="hideDeepChartTooltip('profitabilityChartWrapper')"
+                       ontouchstart="showDeepChartTooltip(event, 'profitabilityChartWrapper', 'Geschäftsjahr ${yearLabel}', ${rowsData})"
+                       style="cursor: crosshair;">
+                        <rect x="${x - colWidth / 2}" y="${padTop}" width="${colWidth}" height="${chartH}" fill="transparent" class="hover:fill-white/[0.04] transition-colors" />
+                        <line x1="${x}" y1="${padTop}" x2="${x}" y2="${padTop + chartH}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="2,2" class="opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <circle cx="${x}" cy="${grossY}" r="3.5" fill="#D6A83A" stroke="#0B0E12" stroke-width="1.5" class="group-hover:r-[5px] transition-all" />
+                        <circle cx="${x}" cy="${opY}" r="3.5" fill="#10B981" stroke="#0B0E12" stroke-width="1.5" class="group-hover:r-[5px] transition-all" />
+                        <circle cx="${x}" cy="${netY}" r="3.5" fill="#3B82F6" stroke="#0B0E12" stroke-width="1.5" class="group-hover:r-[5px] transition-all" />
+                        ${fcfY !== null ? `<circle cx="${x}" cy="${fcfY}" r="3" fill="#06B6D4" stroke="#0B0E12" stroke-width="1.2" class="group-hover:r-[4.5px] transition-all" />` : ''}
                     </g>
                 `;
-                labelsHtml += `<text x="${x}" y="${height - 8}" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle" class="cursor-pointer" onclick="showInstitutionalDetailInspector(${p.year})">${p.year}</text>`;
+                labelsHtml += `<text x="${x}" y="${height - 8}" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">${yearLabel}</text>`;
             });
 
             svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
@@ -10033,7 +9936,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             `;
         }
 
-        // --- CAPITAL EFFICIENCY & HURDLE-RATE ENGINE (ROIC & ROE + 10% / 15% / 20% BENCHMARKS) ---
+        // --- CAPITAL EFFICIENCY & HURDLE-RATE ENGINE (ROIC & ROE + 10% WACC BENCHMARK) ---
         function renderCapitalEfficiencyCharts(dataset) {
             const svg = document.getElementById('capitalEfficiencySvg');
             const wrapper = document.getElementById('capitalEfficiencyChartWrapper');
@@ -10098,19 +10001,35 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
 
             let dotsHtml = '';
             let labelsHtml = '';
+            const colWidth = chartW / Math.max(1, ann.length);
+
             ann.forEach((p, i) => {
                 const x = getX(i);
                 const roicY = getY(p.roic || 0);
                 const roeY = getY(p.roe || 0);
+                const yearLabel = p.year || (p.date ? p.date.substring(0, 4) : `FY${i + 1}`);
+
+                const rowsData = JSON.stringify([
+                    { label: 'ROIC', color: '#3B82F6', val: p.roic !== null ? p.roic.toFixed(1) + '%' : '—' },
+                    { label: 'ROE', color: '#8B5CF6', val: p.roe !== null ? p.roe.toFixed(1) + '%' : '—' },
+                    { label: 'WACC Hürde', color: '#D6A83A', val: '10.0%' },
+                    { label: 'Debt/Equity', color: '#94A3B8', val: p.debtToEquity !== null ? p.debtToEquity.toFixed(2) + 'x' : '—' }
+                ]).replace(/"/g, '&quot;');
 
                 dotsHtml += `
-                    <g class="cursor-pointer group" onclick="showInstitutionalDetailInspector(${p.year})" style="cursor: pointer;">
-                        <title>FY${p.year}: ROIC ${p.roic ? p.roic.toFixed(1) : '--'}% | ROE ${p.roe ? p.roe.toFixed(1) : '--'}% | Debt/Equity ${p.debtToEquity ? p.debtToEquity.toFixed(2) : '--'}</title>
-                        <circle cx="${x}" cy="${roicY}" r="3.5" fill="#3B82F6" stroke="#0B0E12" stroke-width="1.5" />
-                        <circle cx="${x}" cy="${roeY}" r="3.5" fill="#8B5CF6" stroke="#0B0E12" stroke-width="1.5" />
+                    <g class="cursor-pointer group" 
+                       onmouseenter="showDeepChartTooltip(event, 'capitalEfficiencyChartWrapper', 'Geschäftsjahr ${yearLabel}', ${rowsData})"
+                       onmousemove="showDeepChartTooltip(event, 'capitalEfficiencyChartWrapper', 'Geschäftsjahr ${yearLabel}', ${rowsData})"
+                       onmouseleave="hideDeepChartTooltip('capitalEfficiencyChartWrapper')"
+                       ontouchstart="showDeepChartTooltip(event, 'capitalEfficiencyChartWrapper', 'Geschäftsjahr ${yearLabel}', ${rowsData})"
+                       style="cursor: crosshair;">
+                        <rect x="${x - colWidth / 2}" y="${padTop}" width="${colWidth}" height="${chartH}" fill="transparent" class="hover:fill-white/[0.04] transition-colors" />
+                        <line x1="${x}" y1="${padTop}" x2="${x}" y2="${padTop + chartH}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="2,2" class="opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <circle cx="${x}" cy="${roicY}" r="3.5" fill="#3B82F6" stroke="#0B0E12" stroke-width="1.5" class="group-hover:r-[5px] transition-all" />
+                        <circle cx="${x}" cy="${roeY}" r="3.5" fill="#8B5CF6" stroke="#0B0E12" stroke-width="1.5" class="group-hover:r-[5px] transition-all" />
                     </g>
                 `;
-                labelsHtml += `<text x="${x}" y="${height - 8}" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle" class="cursor-pointer" onclick="showInstitutionalDetailInspector(${p.year})">${p.year}</text>`;
+                labelsHtml += `<text x="${x}" y="${height - 8}" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">${yearLabel}</text>`;
             });
 
             svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
@@ -10213,7 +10132,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 `;
             }
 
-            // 4. Render Bars per Year (Stacked: Dividend at base, Buyback stacked on top, Dilution below zero)
+            // 4. Render Bars per Year
             const slotW = chartW / yieldData.length;
             const barW = Math.min(32, Math.max(16, slotW * 0.52));
 
@@ -10254,24 +10173,36 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 const totalText = `${d.totalYield > 0 ? '+' : ''}${d.totalYield.toFixed(1)}%`;
 
                 const shareActionStr = d.buybackYield >= 0 
-                    ? `+${d.buybackYield.toFixed(1)}% Buyback Yield (-${Math.abs(d.rawShareChangePct).toFixed(1)}% Aktien)` 
-                    : `${d.buybackYield.toFixed(1)}% Verwässerung (+${Math.abs(d.rawShareChangePct).toFixed(1)}% Aktien)`;
+                    ? `+${d.buybackYield.toFixed(1)}% (-${Math.abs(d.rawShareChangePct).toFixed(1)}% Aktien)` 
+                    : `${d.buybackYield.toFixed(1)}% (+${Math.abs(d.rawShareChangePct).toFixed(1)}% Aktien)`;
 
-                const tooltip = `FY${d.year} Gesamte Aktionärsrendite: ${d.totalYield >= 0 ? '+' : ''}${d.totalYield.toFixed(1)}%\n` +
-                                `• Dividendenrendite: +${d.divYield.toFixed(1)}%\n` +
-                                `• Aktienrückkauf / Yield: ${shareActionStr}\n` +
-                                `• Ausstehende Aktien: ${d.sharesMio} Mio.`;
+                const rowsData = JSON.stringify([
+                    { label: 'Dividendenrendite', color: '#10B981', val: d.divYield.toFixed(1) + '%' },
+                    { label: 'Aktienrückkauf (Yield)', color: '#A855F7', val: shareActionStr },
+                    { label: 'Ausstehende Aktien', color: '#94A3B8', val: d.sharesMio + ' Mio.' }
+                ]).replace(/"/g, '&quot;');
+
+                const footerData = JSON.stringify({
+                    label: 'Gesamt-Rendite',
+                    val: (d.totalYield >= 0 ? '+' : '') + d.totalYield.toFixed(1) + '%',
+                    valColor: d.totalYield >= 0 ? '#10B981' : '#F43F5E'
+                }).replace(/"/g, '&quot;');
 
                 barsHtml += `
-                    <g class="cursor-pointer group" onclick="showInstitutionalDetailInspector(${d.year})" style="cursor: pointer;">
-                        <title>${tooltip}</title>
+                    <g class="cursor-pointer group" 
+                       onmouseenter="showDeepChartTooltip(event, 'shareholderChartWrapper', 'Geschäftsjahr ${d.year}', ${rowsData}, ${footerData})"
+                       onmousemove="showDeepChartTooltip(event, 'shareholderChartWrapper', 'Geschäftsjahr ${d.year}', ${rowsData}, ${footerData})"
+                       onmouseleave="hideDeepChartTooltip('shareholderChartWrapper')"
+                       ontouchstart="showDeepChartTooltip(event, 'shareholderChartWrapper', 'Geschäftsjahr ${d.year}', ${rowsData}, ${footerData})"
+                       style="cursor: crosshair;">
+                        <rect x="${centerX - slotW * 0.48}" y="${padTop}" width="${slotW * 0.96}" height="${chartH}" fill="transparent" class="hover:fill-white/[0.04] transition-colors" />
                         ${divBarHtml}
                         ${buybackBarHtml}
                         <text x="${centerX}" y="${labelY}" fill="${totalColor}" font-size="8.5" font-weight="700" font-family="'JetBrains Mono', monospace" text-anchor="middle">${totalText}</text>
                     </g>
                 `;
 
-                labelsHtml += `<text x="${centerX}" y="${height - 8}" fill="#94A3B8" font-size="9" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="middle" class="cursor-pointer" onclick="showInstitutionalDetailInspector(${d.year})">${d.year}</text>`;
+                labelsHtml += `<text x="${centerX}" y="${height - 8}" fill="#94A3B8" font-size="9" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="middle">${d.year}</text>`;
             });
 
             svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
