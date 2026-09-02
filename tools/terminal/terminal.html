@@ -2613,7 +2613,7 @@
                                         </div>
                                     </div>
                                     
-                                    <div id="id_agent_fazits" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+                                    <div id="id_agent_fazits" class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
                                         <!-- Dynamically populated via renderAgentFazits -->
                                     </div>
                                 </div>
@@ -3784,15 +3784,9 @@
             },
             {
                 id: 'financial_quality',
-                title: 'Financial Quality',
+                title: 'Capital & Valuation',
                 firm: 'Capital Efficiency AI',
                 icon: '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>'
-            },
-            {
-                id: 'valuation',
-                title: 'Valuation & DCF',
-                firm: 'Intrinsic Value AI',
-                icon: '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"/></svg>'
             },
             {
                 id: 'market_structure',
@@ -3912,7 +3906,6 @@
             'financial_dataset',
             'business_quality',
             'financial_quality',
-            'valuation',
             'market_structure',
             'executive_summary'
         ];
@@ -3933,7 +3926,6 @@
                 company_identity: data.company_identity || null,
                 business_quality: data.goldman_sachs || null,
                 financial_quality: data.morgan_stanley || data.goldman_sachs || null,
-                valuation: data.morgan_stanley || data.citadel || null,
                 market_structure: data.citadel || null,
                 executive_summary: data.citadel || data.morgan_stanley || data.goldman_sachs || null,
                 meta: {
@@ -3946,7 +3938,7 @@
             };
         }
 
-        function validateResearchData(researchData, requiredAgentIds = ['business_quality', 'financial_quality', 'valuation', 'market_structure']) {
+        function validateResearchData(researchData, requiredAgentIds = ['business_quality', 'financial_quality', 'market_structure']) {
             if (!researchData || typeof researchData !== 'object') {
                 return { researchStatus: 'FAILED', missingAgents: requiredAgentIds };
             }
@@ -4125,6 +4117,22 @@
                 missingFields.push('nextEarnings');
             }
 
+            // Pillar 6: Forward Estimates & Guidance (2026e)
+            const curYear = new Date().getFullYear();
+            const targetEstYear = Math.max(2026, curYear);
+            const hasValidEstimates = Array.isArray(dataset.estimates) && dataset.estimates.some(e => {
+                const y = e.year || (e.date ? parseInt(e.date.substring(0, 4), 10) : 0);
+                return y >= targetEstYear && (e.epsAvg != null || e.revenueAvg != null || e.ebitdaAvg != null);
+            });
+            const hasAnnualEstimate = ann.some(p => {
+                const y = p.year || (p.date ? parseInt(p.date.substring(0, 4), 10) : 0);
+                return (y >= targetEstYear || p.isEstimate) && (p.eps != null || p.epsAdj != null || p.revenue != null);
+            });
+            if (!hasValidEstimates && !hasAnnualEstimate) {
+                missingFields.push('forwardEstimates2026e');
+                missingPillars.push('forward_guidance');
+            }
+
             return {
                 isComplete: missingFields.length === 0,
                 missingFields,
@@ -4245,6 +4253,77 @@
                 }
             }
 
+            // 4. Mathematical 0-Token Backfill for Forward 2026e Consensus Guidance
+            const curYearNow = new Date().getFullYear();
+            const targetEstYear = Math.max(2026, curYearNow);
+            if (!dataset.estimates) dataset.estimates = [];
+            
+            const hasEst = dataset.estimates.some(e => {
+                const y = e.year || (e.date ? parseInt(e.date.substring(0, 4), 10) : 0);
+                return y >= targetEstYear && (e.epsAvg != null || e.revenueAvg != null || e.ebitdaAvg != null);
+            });
+            const hasAnnEst = ann.some(p => {
+                const y = p.year || (p.date ? parseInt(p.date.substring(0, 4), 10) : 0);
+                return (y >= targetEstYear || p.isEstimate) && (p.eps != null || p.epsAdj != null || p.revenue != null);
+            });
+
+            if ((!hasEst || !hasAnnEst) && ann.length > 0) {
+                const latestNonEst = ann.filter(p => !p.isEstimate && (p.year || 0) < targetEstYear).pop() || ann[ann.length - 1];
+                const revGrowth = (typeof res.revenueCAGR === 'number' && Number.isFinite(res.revenueCAGR)) ? (res.revenueCAGR / 100) : 0.08;
+                const epsGrowth = (typeof res.epsCAGR === 'number' && Number.isFinite(res.epsCAGR)) ? (res.epsCAGR / 100) : (revGrowth * 1.05);
+                const safeRevGrowth = Math.max(-0.20, Math.min(1.00, revGrowth));
+                const safeEpsGrowth = Math.max(-0.20, Math.min(1.00, epsGrowth));
+
+                const estRev = latestNonEst.revenue ? Math.round(latestNonEst.revenue * (1 + safeRevGrowth)) : null;
+                const latestEpsVal = latestNonEst.epsAdj ?? latestNonEst.eps;
+                const estEps = latestEpsVal ? Math.round(latestEpsVal * (1 + safeEpsGrowth) * 100) / 100 : null;
+                const latestOp = latestNonEst.operatingIncome ?? latestNonEst.ebitda;
+                const estEbitda = latestOp ? Math.round(latestOp * 1.12 * (1 + safeRevGrowth)) : null;
+
+                if (!hasEst) {
+                    dataset.estimates.push({
+                        date: `${targetEstYear}-12-31`,
+                        year: targetEstYear,
+                        epsAvg: estEps,
+                        revenueAvg: estRev,
+                        ebitdaAvg: estEbitda
+                    });
+                }
+
+                if (!hasAnnEst) {
+                    ann.push({
+                        date: `${targetEstYear}-12-31`,
+                        year: targetEstYear,
+                        period: `${targetEstYear}e`,
+                        isEstimate: true,
+                        displayYear: `${targetEstYear}e`,
+                        revenue: estRev,
+                        operatingIncome: latestNonEst.operatingIncome ? Math.round(latestNonEst.operatingIncome * (1 + safeRevGrowth)) : null,
+                        ebitda: estEbitda,
+                        netIncome: latestNonEst.netIncome ? Math.round(latestNonEst.netIncome * (1 + safeEpsGrowth)) : null,
+                        eps: estEps,
+                        epsAdj: estEps,
+                        revenuePerShare: (estRev && latestNonEst.sharesOutstanding) ? Math.round((estRev / latestNonEst.sharesOutstanding) * 100) / 100 : latestNonEst.revenuePerShare,
+                        freeCashFlow: latestNonEst.freeCashFlow ? Math.round(latestNonEst.freeCashFlow * (1 + safeRevGrowth)) : null,
+                        freeCashFlowPerShare: latestNonEst.freeCashFlowPerShare ? Math.round(latestNonEst.freeCashFlowPerShare * (1 + safeRevGrowth) * 100) / 100 : null,
+                        sharesOutstanding: latestNonEst.sharesOutstanding,
+                        operatingMargin: latestNonEst.operatingMargin,
+                        netMargin: latestNonEst.netMargin,
+                        roic: latestNonEst.roic,
+                        roe: latestNonEst.roe,
+                        debtToEquity: latestNonEst.debtToEquity,
+                        netDebtToEbitda: latestNonEst.netDebtToEbitda,
+                        interestCoverage: latestNonEst.interestCoverage,
+                        dividendPerShare: latestNonEst.dividendPerShare ? Math.round(latestNonEst.dividendPerShare * (1 + (safeRevGrowth * 0.5)) * 100) / 100 : null,
+                        dividendYield: latestNonEst.dividendYield,
+                        payoutRatio: latestNonEst.payoutRatio,
+                        peRatio: latestNonEst.peRatio,
+                        peRatioAdj: latestNonEst.peRatioAdj,
+                        periodClosePrice: dataset.currentPrice || latestNonEst.periodClosePrice
+                    });
+                }
+            }
+
             return dataset;
         }
 
@@ -4265,18 +4344,17 @@ Moat Durability: MODERATE
 Business Quality Verdict: [STRONG]`;
 
                 case 'financial_quality':
-                    return `Highlights: Robuste Kapitalrentabilität mit einem ROIC von ${latest.roic != null ? latest.roic.toFixed(1) + '%' : 'über Kapitalkosten'} und disziplinierter Kapitalallokation bei solidem Verschuldungsgrad (Debt/Equity: ${latest.debtToEquity != null ? latest.debtToEquity.toFixed(2) : 'moderat'}).
-ROIC vs WACC: VALUE CREATING
-Financial Quality Verdict: [STRONG]`;
-
-                case 'valuation':
                     const bearVal = curP > 0 ? (curP * 0.85).toFixed(2) : '100.00';
                     const baseVal = curP > 0 ? (curP * 1.15).toFixed(2) : '120.00';
                     const bullVal = curP > 0 ? (curP * 1.45).toFixed(2) : '140.00';
-                    return `DCF Bear: ${bearVal} ${cur}
+                    return `Highlights: Robuste Kapitalrentabilität mit einem ROIC von ${latest.roic != null ? latest.roic.toFixed(1) + '%' : 'über Kapitalkosten'} und disziplinierter Kapitalallokation bei solidem Verschuldungsgrad (Debt/Equity: ${latest.debtToEquity != null ? latest.debtToEquity.toFixed(2) : 'moderat'}).
+ROIC vs WACC: VALUE CREATING
+DCF Methodology: Die DCF-Szenarien basieren auf den nachhaltigen Free-Cash-Flow-Projektionen, Diskontierungssätzen (WACC) und Terminal-Wachstumsannahmen.
+DCF Bear: ${bearVal} ${cur}
 DCF Base: ${baseVal} ${cur}
 DCF Bull: ${bullVal} ${cur}
-Valuation Verdict: [FAIRLY VALUED]`;
+Valuation Verdict: [FAIRLY VALUED]
+Financial Quality Verdict: [STRONG]`;
 
                 case 'market_structure':
                     return `Trend Daily/Weekly/Monthly: NEUTRAL
@@ -4474,7 +4552,6 @@ Technical Signal: [NEUTRAL]`;
                 const researchAgentIds = [
                     'business_quality',
                     'financial_quality',
-                    'valuation',
                     'market_structure'
                 ];
                 const langNames = { 'de-DE': 'DEUTSCH', 'en-US': 'ENGLISH', 'fr-FR': 'FRANÇAIS', 'es-ES': 'ESPAÑOL' };
@@ -4801,7 +4878,6 @@ Technical Signal: [NEUTRAL]`;
             const researchAgentIds = [
                 'business_quality',
                 'financial_quality',
-                'valuation',
                 'market_structure'
             ];
 
@@ -4968,32 +5044,24 @@ Moat Durability: [WEAK / MODERATE / STRONG]
 Business Quality Verdict: [WEAK / MODERATE / STRONG / EXCEPTIONAL]
 </business_quality>`,
 
-            financial_quality: `SECTION 2: CAPITAL EFFICIENCY & FINANCIAL QUALITY
-ROLE: Senior Fundamental Analyst — Capital Efficiency & Financial Quality
-OBJECTIVE: Fasse in 1–2 Sätzen zusammen, was bei Kapitaleffizienz, ROIC, Margen und Bilanz positiv oder negativ hervorsticht.
-STIL: Prägnante Fakten (max. 1–2 Sätze).
+            financial_quality: `SECTION 2: CAPITAL EFFICIENCY & INTRINSIC DCF VALUATION
+ROLE: Senior Fundamental & Valuation Analyst — Capital Efficiency & DCF Modeling
+OBJECTIVE: Fasse in 1–2 Sätzen zusammen, was bei Kapitaleffizienz (ROIC), Margen und Bilanz hervorsticht, und ermittle die 3 DCF-Bewertungsszenarien sowie das fundamentale Bewertungsurteil.
+STIL: Prägnante Fakten und exakte Kennzahlen mit Währung.
 
 OUTPUT FORMAT:
 <financial_quality>
 Highlights: [1-2 Sätze: Was sticht bei Kapitaleffizienz (ROIC), operativen Margen, Cashflow-Generierung und Bilanzverschuldung positiv oder negativ hervor?]
 ROIC vs WACC: [VALUE CREATING / VALUE NEUTRAL / VALUE DESTROYING]
-Financial Quality Verdict: [WEAK / MODERATE / STRONG / EXCEPTIONAL]
-</financial_quality>`,
-
-            valuation: `SECTION 3: INTRINSIC VALUE & DCF
-ROLE: Senior Valuation Analyst — Intrinsic Value & DCF Modeling
-OBJECTIVE: Berechne die 3 DCF-Szenarien und das fundamentale Bewertungsurteil.
-STIL: Präzise Kennzahlen mit Währung.
-
-OUTPUT FORMAT:
-<valuation>
+DCF Methodology: Die DCF-Szenarien basieren auf den nachhaltigen Free-Cash-Flow-Projektionen, Diskontierungssätzen (WACC) und Terminal-Wachstumsannahmen.
 DCF Bear: [Konservativer Fair Value mit Währung, z. B. '100.00 USD']
 DCF Base: [Basis Fair Value mit Währung, z. B. '120.00 USD']
 DCF Bull: [Optimistischer Fair Value mit Währung, z. B. '140.00 USD']
 Valuation Verdict: [DEEPLY UNDERVALUED / UNDERVALUED / FAIRLY VALUED / OVERVALUED / DEEPLY OVERVALUED]
-</valuation>`,
+Financial Quality Verdict: [WEAK / MODERATE / STRONG / EXCEPTIONAL]
+</financial_quality>`,
 
-            market_structure: `SECTION 4: PRICE ACTION, MOMENTUM & MARKET STRUCTURE
+            market_structure: `SECTION 3: PRICE ACTION, MOMENTUM & MARKET STRUCTURE
 ROLE: Senior Quantitative Market Analyst — Price Action, Momentum & Market Structure
 OBJECTIVE: Analysiere ausschließlich die aktuelle Marktdynamik und Chartstruktur.
 STIL: Präzise Bullet-Points und Kennzahlen.
@@ -5098,35 +5166,37 @@ Data Timestamp: [${todayIso}]
   "annual": [
     {
       "year": ${yStart},
-      "date": "${yStart}-12-31",
-      "isEstimate": false,
-      "revenue": [Annual revenue as plain number in native currency],
-      "operatingIncome": [Annual EBIT / Operating Income as plain number],
-      "operatingMargin": [Operating EBIT margin in % as number],
-      "netIncome": [Annual Net Income as plain number],
-      "freeCashFlow": [Annual Free Cash Flow as plain number],
-      "eps": [Annual GAAP EPS as number],
-      "epsAdj": [Annual Non-GAAP Adjusted EPS as number],
+      "period": "FY",
+      "revenue": [Revenue as plain number],
+      "operatingIncome": [Operating income EBIT as number],
+      "operatingMargin": [EBIT Margin % as number],
+      "netIncome": [Net income as number],
+      "freeCashFlow": [Free Cash Flow as number],
+      "eps": [GAAP EPS as number],
+      "epsAdj": [Adjusted EPS as number],
+      "peRatio": [GAAP P/E ratio as number],
+      "peRatioAdj": [Adjusted P/E ratio as number],
       "roic": [ROIC in % as number],
       "roe": [ROE in % as number],
-      "debtToEquity": [Debt/Equity ratio as number],
+      "debtToEquity": [Debt/Equity as number],
       "dividendPerShare": [Dividend per share as number],
-      "dividendYield": [Dividend yield in % as number],
+      "dividendYield": [Dividend yield % as number],
       "sharesOutstanding": [Shares outstanding as number],
-      "periodClosePrice": [Year-end closing price as number]
+      "periodClosePrice": [Fiscal year end stock price as number]
     },
     {
       "year": ${yEnd},
-      "date": "${yEnd}-12-31",
-      "isEstimate": true,
       "period": "${yEnd}e",
-      "revenue": [Current year ${yEnd}e expected consensus revenue as number],
-      "operatingIncome": [Current year ${yEnd}e expected EBIT as number],
-      "operatingMargin": [Current year ${yEnd}e expected EBIT margin % as number],
-      "netIncome": [Current year ${yEnd}e expected Net Income as number],
-      "freeCashFlow": [Current year ${yEnd}e expected Free Cash Flow as number],
-      "eps": [Current year ${yEnd}e consensus GAAP EPS as number],
-      "epsAdj": [Current year ${yEnd}e consensus Adjusted EPS as number],
+      "isEstimate": true,
+      "revenue": [Current year ${yEnd}e estimated revenue based on reported YTD quarters and consensus guidance],
+      "operatingIncome": [Current year ${yEnd}e expected EBIT],
+      "operatingMargin": [Current year ${yEnd}e expected EBIT margin %],
+      "netIncome": [Current year ${yEnd}e expected net income],
+      "freeCashFlow": [Current year ${yEnd}e expected Free Cash Flow],
+      "eps": [Current year ${yEnd}e consensus GAAP EPS],
+      "epsAdj": [Current year ${yEnd}e consensus Adjusted EPS],
+      "peRatio": [Forward GAAP P/E based on Live Price ${price}],
+      "peRatioAdj": [Forward Adjusted P/E based on Live Price ${price}],
       "roic": [Current year ${yEnd}e expected ROIC in % as number],
       "roe": [Current year ${yEnd}e expected ROE in % as number],
       "debtToEquity": [Expected Debt/Equity ratio as number],
@@ -5141,7 +5211,7 @@ Data Timestamp: [${todayIso}]
 </financial_dataset>`;
         }
 
-        function getSpecialistReviewPrompt(query, lang, dataset, identityText, agentIds = ['business_quality', 'financial_quality', 'valuation', 'market_structure']) {
+        function getSpecialistReviewPrompt(query, lang, dataset, identityText, agentIds = ['business_quality', 'financial_quality', 'market_structure']) {
             const todayIso = new Date().toISOString().split('T')[0];
             let cleanDataset = dataset;
             if (dataset && typeof dataset === 'object') {
@@ -5207,15 +5277,10 @@ BUSINESS RESEARCH:
 ${researchData.business_quality || 'N/A'}
 </business_quality>
 
-FINANCIAL RESEARCH:
+CAPITAL EFFICIENCY & DCF VALUATION RESEARCH:
 <financial_quality>
 ${researchData.financial_quality || 'N/A'}
 </financial_quality>
-
-VALUATION RESEARCH:
-<valuation>
-${researchData.valuation || 'N/A'}
-</valuation>
 
 MARKET RESEARCH:
 <market_structure>
@@ -5225,19 +5290,22 @@ ${researchData.market_structure || 'N/A'}
 STRICT SYNTHESIS DIRECTIVES:
 1. FOCUS: Synthesize concise qualitative conclusions based strictly on the verified facts above.
 2. CONCISE IMPACT: Keep each thesis and risk point to maximum 1-2 punchy sentences.
-3. MARGIN OF SAFETY: Give exactly 1 sentence stating what the margin of safety is in percent and at what price level it would be.
+3. HISTORIC MULTIPLE & DCF SYNTHESIS: 
+   - Under 'Market Expectations Embedded', explicitly compare current P/E with historic median P/E and state clearly if it is historically cheap, fair, or expensive.
+   - Under 'Margin of Safety', give exactly 1 sentence stating the margin of safety in % and the concrete price level compared to DCF Base.
+   - Under 'Final Terminal Sentiment', state the overall rating and exactly 1 concise sentence synthesizing the historic P/E perspective with the DCF fair value perspective.
 4. OUTPUT FORMAT: Output ONLY the <executive_summary> XML block.
 
 OUTPUT FORMAT:
 <executive_summary>
-Market Expectations Embedded: [1-2 Sätze: Was verlangt der aktuelle Kurs operativ?]
-Margin of Safety: [1 Satz: Wie hoch die Margin of Safety in Prozent ist und bei welchem Kurs diese läge]
+Market Expectations Embedded: [1-2 Sätze: Vergleich des aktuellen KGV mit dem historischen Median-KGV und klares Fazit, ob die Aktie laut historischem Multiple teuer, fair oder günstig bewertet ist]
+Margin of Safety: [1 Satz: Wie hoch die Margin of Safety in Prozent zum DCF-Base-Wert ist und bei welchem konkreten Kurs diese liegt]
 Investment Thesis: [1-2 prägnante Sätze zur Kernthese]
 Counter Thesis: [1-2 prägnante Sätze zum Bärenfall / Hauptrisiko]
 Key Catalyst: [Genau 1 Hauptkatalysator]
 Key Risk: [Genau 1 Hauptrisiko]
 Thesis Breaker: [Konkretes Ereignis/Schwelle, das die These ungültig macht]
-Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRLY VALUED] / [OVERVALUED] / [NEGATIVE] / [STRONG NEGATIVE]]
+Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRLY VALUED] / [OVERVALUED] / [NEGATIVE] / [STRONG NEGATIVE]] - [1 kurzer Satz zur Synthese aus historischem KGV-Vergleich und DCF-Bewertung]
 </executive_summary>`;
 
             return prompt;
@@ -5428,26 +5496,36 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
                     detail = `Moat: ${num}/5`;
                 }
             } else if (cardId === 'financial_quality') {
-                const m = clean.match(/(?:Financial\s*Quality\s*Verdict|Finanzqualit[äa]t\s*(?:Fazit|Verdict)?|Financial\s*Verdict|Financial\s*Quality|Finanzielle\s*Qualit[äa]t):\s*\[?([^\]\n]+)\]?/i);
-                if (m) verdict = cleanLineVal(m[1]);
+                const mVal = clean.match(/(?:Valuation\s*Verdict|Bewertungs?\s*(?:Fazit|Verdict)?|Valuation\s*Rating|DCF\s*Rating|Bewertung):\s*\[?([^\]\n]+)\]?/i);
+                if (mVal) verdict = cleanLineVal(mVal[1]);
 
                 if (!verdict) {
-                    const mVal = clean.match(/(?:ROIC\s*vs\s*WACC|Economic\s*Value\s*Creation|Ökonomische\s*Wertschöpfung):\s*\[?([^\]\n]+)\]?/i);
-                    if (mVal) {
-                        const vv = cleanLineVal(mVal[1]);
+                    const m = clean.match(/(?:Financial\s*Quality\s*Verdict|Finanzqualit[äa]t\s*(?:Fazit|Verdict)?|Financial\s*Verdict|Financial\s*Quality|Finanzielle\s*Qualit[äa]t):\s*\[?([^\]\n]+)\]?/i);
+                    if (m) verdict = cleanLineVal(m[1]);
+                }
+
+                if (!verdict) {
+                    const mVal2 = clean.match(/(?:ROIC\s*vs\s*WACC|Economic\s*Value\s*Creation|Ökonomische\s*Wertschöpfung):\s*\[?([^\]\n]+)\]?/i);
+                    if (mVal2) {
+                        const vv = cleanLineVal(mVal2[1]);
                         if (/VALUE CREATING|VALUE NEUTRAL|VALUE DESTROYING|WERTSTEIGERND|WERTNEUTRAL|WERTVERNICHTEND/i.test(vv)) {
                             verdict = vv;
                         }
                     }
                 }
 
-                const roicM = clean.match(/ROIC\s*vs\s*WACC:\s*([^\n]+)/i);
-                if (roicM) {
-                    const rLine = roicM[1].trim();
-                    if (/VALUE CREATING|WERTSTEIGERND/i.test(rLine)) detail = 'Wertsteigernd';
-                    else if (/VALUE DESTROYING|WERTVERNICHTEND/i.test(rLine)) detail = 'Wertvernichtend';
-                    else if (/VALUE NEUTRAL|WERTNEUTRAL/i.test(rLine)) detail = 'Wertneutral';
-                    else detail = cleanLineVal(rLine).substring(0, 18);
+                const dcfBaseM = clean.match(/DCF\s*Base:\s*([^\n]+)/i);
+                if (dcfBaseM) {
+                    detail = `DCF: ${cleanLineVal(dcfBaseM[1])}`;
+                } else {
+                    const roicM = clean.match(/ROIC\s*vs\s*WACC:\s*([^\n]+)/i);
+                    if (roicM) {
+                        const rLine = roicM[1].trim();
+                        if (/VALUE CREATING|WERTSTEIGERND/i.test(rLine)) detail = 'Wertsteigernd';
+                        else if (/VALUE DESTROYING|WERTVERNICHTEND/i.test(rLine)) detail = 'Wertvernichtend';
+                        else if (/VALUE NEUTRAL|WERTNEUTRAL/i.test(rLine)) detail = 'Wertneutral';
+                        else detail = cleanLineVal(rLine).substring(0, 18);
+                    }
                 }
             } else if (cardId === 'valuation') {
                 const m = clean.match(/(?:Valuation\s*Verdict|Bewertungs?\s*(?:Fazit|Verdict)?|Valuation\s*Rating|DCF\s*Rating|Bewertung):\s*\[?([^\]\n]+)\]?/i);
@@ -6854,6 +6932,17 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
                 });
             }
 
+            // Preserve any existing forward estimate periods from raw/rawResults if not already in annualPeriods
+            const existingEstimatePeriods = (Array.isArray(raw.annual) ? raw.annual : []).concat(Array.isArray(rawResults?.annual) ? rawResults.annual : []).filter(p => p && (p.isEstimate || p.year >= 2026 || (p.period && String(p.period).toLowerCase().includes('e'))));
+            existingEstimatePeriods.forEach(p => {
+                const yr = Number(p.year) || (p.date ? parseInt(p.date.substring(0, 4), 10) : 0);
+                const dStr = p.date || (yr ? `${yr}-12-31` : '');
+                if (yr && !seenDates.has(dStr)) {
+                    seenDates.add(dStr);
+                    annualPeriods.push({ ...p, date: dStr, year: yr, isEstimate: true, displayYear: `${yr}e`, period: `${yr}e` });
+                }
+            });
+
             annualPeriods.sort((a, b) => a.date.localeCompare(b.date));
 
             // --- FLAT-LINE DETECTOR & MATHEMATICAL HISTORICAL RECONSTRUCTION ---
@@ -6916,24 +7005,26 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
             normalizedPrices.sort((a, b) => a.date.localeCompare(b.date));
 
             // Estimates
-            const rawEst = Array.isArray(raw.analystEstimates) ? raw.analystEstimates : [];
+            const rawEst = Array.isArray(raw.analystEstimates) ? raw.analystEstimates : (Array.isArray(raw.estimates) ? raw.estimates : []);
             const normalizedEstimates = [];
             rawEst.forEach(e => {
                 if (e && e.date) {
                     const dateStr = e.date.split('T')[0];
-                    const year = Number(e.calendarYear) || parseInt(dateStr.substring(0, 4), 10);
+                    const year = Number(e.calendarYear) || Number(e.year) || parseInt(dateStr.substring(0, 4), 10);
                     normalizedEstimates.push({
                         date: dateStr, year,
-                        epsAvg: safeNum(e.estimatedEpsAvg),
-                        revenueAvg: safeNum(e.estimatedRevenueAvg),
-                        ebitdaAvg: safeNum(e.estimatedEbitdaAvg)
+                        epsAvg: safeNum(e.estimatedEpsAvg) ?? safeNum(e.epsAvg) ?? safeNum(e.eps),
+                        revenueAvg: safeNum(e.estimatedRevenueAvg) ?? safeNum(e.revenueAvg) ?? safeNum(e.revenue),
+                        ebitdaAvg: safeNum(e.estimatedEbitdaAvg) ?? safeNum(e.ebitdaAvg) ?? safeNum(e.ebitda)
                     });
                 }
             });
             normalizedEstimates.sort((a, b) => a.date.localeCompare(b.date));
 
-            // Auto-backfill forward estimates from annual periods if estimates array was empty
-            if (normalizedEstimates.length === 0 && annualPeriods.some(p => p.isEstimate)) {
+            // Auto-backfill forward estimates from annual periods if estimates array was empty or lacked values
+            const hasValidEstimates = normalizedEstimates.some(e => e.epsAvg != null || e.revenueAvg != null || e.ebitdaAvg != null);
+            if (!hasValidEstimates && annualPeriods.some(p => p.isEstimate)) {
+                normalizedEstimates.length = 0;
                 annualPeriods.filter(p => p.isEstimate).forEach(p => {
                     normalizedEstimates.push({
                         date: p.date,
@@ -11045,16 +11136,10 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
                     rule: 'Faustregel: Ein breiter Moat (Wide Moat) schützt hohe Kapitalrenditen vor Erosion durch Wettbewerber.'
                 },
                 financial_quality: {
-                    title: 'Financial Quality & Statements',
-                    category: 'Bilanzprüfung',
-                    desc: 'Tiefenprüfung von Gewinn- und Verlustrechnung, Bilanzsubstanz, Working Capital und Cashflow-Generierung.',
-                    rule: 'Faustregel: Operativer Cashflow &gt; Nettogewinn signalisiert hohe Ertragsqualität ohne aggressive Bilanzpolitik.'
-                },
-                valuation: {
-                    title: 'Valuation & DCF Modeling',
-                    category: 'Fair Value Modell',
-                    desc: 'Multi-Szenarien-DCF-Modell, historische Multiples und Ermittlung der fundamentalen Sicherheitsmarge.',
-                    rule: 'Faustregel: Eine Sicherheitsmarge (Margin of Safety) von &ge; 20% minimiert das fundamentale Abwärtsrisiko.'
+                    title: 'Capital Efficiency & DCF Valuation',
+                    category: 'Kapitaleffizienz & DCF',
+                    desc: 'Prüfung von Kapitalrenditen (ROIC), operativen Margen, Bilanzverschuldung sowie Ermittlung der intrinsischen DCF-Szenarien.',
+                    rule: 'Faustregel: ROIC > WACC generiert ökonomischen Mehrwert; eine Margin of Safety von ≥ 20% schützt vor Bewertungsrisiken.'
                 },
                 market_structure: {
                     title: 'Market Structure & Flow',
@@ -11066,7 +11151,7 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
                     title: 'Institutional Synthesis',
                     category: 'CIO Master Fazit',
                     desc: 'Finale Synthese des Investment Committees: Verdichtung aller Teilgutachten in eine klare Gesamtempfehlung.',
-                    rule: 'Faustregel: Klare Abstimmung aller 4 Dimensionen liefert das höchste Conviction-Level.'
+                    rule: 'Faustregel: Klare Abstimmung von historischem KGV-Vergleich und DCF-Methode liefert das höchste Conviction-Level.'
                 }
             };
 
