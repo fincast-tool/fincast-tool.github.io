@@ -4256,6 +4256,29 @@
                 }
             }
 
+            // 3b. Compute and Persist Institutional Rule of 40 (Reinvestment & Cashflow Efficiency)
+            if (typeof computeRuleOf40Js === 'function') {
+                const r40Result = computeRuleOf40Js(ann, dataset.ttm, isFin, dataset.sector);
+                if (r40Result) {
+                    dataset.ruleOf40 = r40Result;
+                    res.ruleOf40 = r40Result;
+                    if (!dataset.growthTrajectories) dataset.growthTrajectories = {};
+                    dataset.growthTrajectories.ruleOf40 = r40Result;
+                }
+            }
+
+            // 3c. Cleanse Legacy Phantom 0.8% Dividends on Non-Payers
+            if (res.dividendYield === 0.8 && (res.dividendPerShare === null || res.dividendPerShare === 0)) {
+                res.dividendYield = 0;
+                res.payoutRatio = 0;
+                ann.forEach(p => {
+                    if (p.dividendYield === 0.8 && (!p.dividendPerShare || p.dividendPerShare === 0)) {
+                        p.dividendYield = 0;
+                        p.payoutRatio = 0;
+                    }
+                });
+            }
+
             // 4. Mathematical 0-Token Backfill for Forward 2026e Consensus Guidance
             const curYearNow = new Date().getFullYear();
             const targetEstYear = Math.max(2026, curYearNow);
@@ -5478,33 +5501,28 @@ ${researchData.market_structure || 'N/A'}
 </market_structure>
 
 STRICT SYNTHESIS DIRECTIVES:
-1. FOCUS: Synthesize concise qualitative conclusions based strictly on the verified empirical facts above.
-2. CONCISE IMPACT: Keep each thesis and risk point to maximum 1-2 punchy sentences.
-3. HISTORIC MULTIPLE & DCF SYNTHESIS: 
-   - Under 'Market Expectations Embedded', compare the current empirical P/E with the historical median P/E, cite the Value-Chart gap in % and strictly adopt the deterministic valuation verdict from the EMPIRICAL VALUATION MULTIPLES & VALUE-CHART BENCHMARKS block above (e.g. 'FAIR BEWERTET' when the gap is within +/-10%, e.g. -7.9%). Do NOT mention percentiles or percentile categories in prose. Do NOT classify a minor discount as 'deep discount' or 'undervalued' when the engine classifies it as fair.
-   - Under 'Margin of Safety', use the MANDATORY syntax:
-     * If the stock trades BELOW the DCF Base value (positive Margin of Safety exists):
-       "Margin of Safety: Die Margin of Safety zum DCF-Basiswert beträgt [X.X]%, dies entspricht einem Einstiegskurs von [Einstiegskurs mit Währung] im Vergleich zum fairen Wert von [DCF Base Kurs mit Währung]."
-     * If the stock trades ABOVE the DCF Base value (no Margin of Safety / Premium):
-       "Margin of Safety: Aktuell liegt keine Sicherheitsmarge vor (Bewertungsaufschlag von [X.X]% beim aktuellen Kurs von [Aktueller Kurs mit Währung] gegenüber dem fairen DCF-Wert von [DCF Base Kurs mit Währung]; ein Einstiegskurs mit 15% Sicherheitsmarge läge bei [Einstiegskurs mit 15% MoS mit Währung])."
-4. RULE OF 40 & REINVESTMENT SYNTHESIS (Comprehensive 4-Tier Directive):
-   - Falls Rule of 40 Daten im Fact-Block vorliegen (Tech/Software/Growth/Platform), synthetisiere den Rule of 40 Status zwingend in 'Market Expectations Embedded', 'Investment Thesis' oder 'Final Terminal Sentiment':
-     * TIER 1 (ELITE >= 55%): Wenn die Aktie laut KGV/DCF überbewertet erscheint oder keine Sicherheitsmarge vorliegt, ergänze: 'Trotz des optischen Bewertungsaufschlags signalisiert die herausragende Rule of 40 von [X.X]% (Elite), dass das Wachstum hochgradig durch operative Cashflows gedeckt ist und eine strukturelle Qualitätsprämie rechtfertigt (Amazon-/Plattform-Effekt).'
-     * TIER 2 (HEALTHY 40-55%): Ergänze: 'Die Rule of 40 von [X.X]% erfüllt den institutionellen Effizienzkorridor (≥40%), wodurch das Wachstum solide eigenfinanziert wird, der aktuelle Bewertungsaufschlag jedoch wenig Puffer für Enttäuschungen lässt.'
-     * TIER 3 (MODERATE 20-40%): Ergänze: 'Mit einer Rule of 40 von [X.X]% verfehlt das Unternehmen die institutionelle Effizienzmarke (≥40%). Der aktuelle Bewertungsaufschlag erfordert eine spürbare Beschleunigung des Cashflow-Hebels.'
-     * TIER 4 (FRAGILE < 20% / Negativ): Wenn der Titel hoch bewertet oder gehyped ist: 'Akute Hype- & Value-Trap-Gefahr: Mit einer Rule of 40 von nur [X.X]% (<20%) wird das Wachstum durch hohen Cash-Burn erkauft, ohne skalierbare Ertragskraft nachzuweisen. Die hohe Bewertung ist fundamental nicht haltbar.'
-5. OUTPUT FORMAT: Output ONLY the <executive_summary> XML block.
+1. FOCUS & ELOQUENT STYLE: Formuliere deine Analysen und Urteile frei, sprachlich abwechslungsreich und auf den Punkt. Vermeide starre Textbausteine oder monotone Satzschablonen. Jedes Fazit soll sich individuell, lebendig und institutionell hochprofessionell lesen.
+2. CONCISE IMPACT: Halte Thesen und Risikopunkte prägnant (1-2 kraftvolle Sätze).
+3. HISTORIC MULTIPLE & VALUE-CHART BENCHMARK: 
+   - Gehe unter 'Market Expectations Embedded' konkret auf das aktuelle KGV im Vergleich zum historischen 5J-Median und den prozentualen Value-Chart-Abstand ein (z. B. -7.9% oder +14.2%) und übernimm das institutionelle Bewertungsurteil (z. B. 'FAIR BEWERTET' bei geringer Abweichung von +/-10%).
+   - Verwende keine statistischen Perzentil-Begriffe im Fließtext.
+4. DCF-SICHERHEITSMARGE & EINSTIEGSKURS:
+   - Erkläre unter 'Margin of Safety' in eigenen, flüssigen Worten die Sicherheitsmarge (bei Unterbewertung Kurs < DCF Base) bzw. den Bewertungsaufschlag (bei Kurs >= DCF Base).
+   - Nenne dabei stets den aktuellen Einstiegskurs im Verhältnis zum fairen DCF-Basiswert (sowie bei Aufschlägen das Kursniveau, bei dem eine 15%ige Sicherheitsmarge erreicht wäre).
+5. RULE OF 40 & REINVESTITIONSKRAFT (bei Tech / Growth / Platform):
+   - Falls Rule-of-40-Daten im Faktenblock vorliegen, beziehe die Reinvestitions- und Cashflow-Effizienz (Elite >=55%, Gesund >=40%, Moderat oder Fragil) in deine Markteinschätzung oder Kernthese ein.
+6. OUTPUT FORMAT: Gib AUSSCHLIESSLICH den <executive_summary> XML-Block aus.
 
 OUTPUT FORMAT:
 <executive_summary>
-Market Expectations Embedded: [1-2 Sätze: Konkreter Vergleich des aktuellen KGV mit dem historischen Median-KGV (inkl. prozentualer Abweichung) und Übernahme des deterministischen Bewertungsurteils (z. B. 'FAIR BEWERTET' bei -7.9%). Bei Tech/Growth-Werten kurze Einordnung anhand der Rule of 40.]
-Margin of Safety: [MANDATORY SYNTAX: Wenn Kurs < DCF Base: 'Die Margin of Safety zum DCF-Basiswert beträgt [X.X]%, dies entspricht einem Einstiegskurs von [Einstiegskurs] im Vergleich zum fairen Wert von [DCF Base Wert].' | Wenn Kurs >= DCF Base: 'Aktuell liegt keine Sicherheitsmarge vor (Bewertungsaufschlag von [X.X]% beim aktuellen Kurs von [Aktueller Kurs] gegenüber dem fairen DCF-Wert von [DCF Base Wert]; ein Einstiegskurs mit 15% Sicherheitsmarge läge bei [Einstiegskurs mit 15% MoS]).']
-Investment Thesis: [1-2 prägnante Sätze zur Kernthese]
+Market Expectations Embedded: [1-2 freie, abwechslungsreiche Sätze: KGV-Vergleich zum historischen Median, prozentuale Abweichung und Übernahme des Bewertungsurteils, ggf. Reinvestitionseffizienz / Rule of 40]
+Margin of Safety: [1-2 freie, flüssige Sätze: Sicherheitsmarge bzw. Bewertungsaufschlag zum fairen DCF-Basiswert mit Nennung des Einstiegskurses und fairen Wertes]
+Investment Thesis: [1-2 prägnante, eigenständige Sätze zur Kernthese]
 Counter Thesis: [1-2 prägnante Sätze zum Bärenfall / Hauptrisiko]
 Key Catalyst: [Genau 1 Hauptkatalysator]
 Key Risk: [Genau 1 Hauptrisiko]
 Thesis Breaker: [Konkretes Ereignis/Schwelle, das die These ungültig macht]
-Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRLY VALUED] / [OVERVALUED] / [HIGH RISK / VALUE TRAP] / [AVOID / UNJUSTIFIED PREMIUM] / [NEGATIVE] / [STRONG NEGATIVE]] - [1 kurzer Satz zur Synthese aus historischem KGV-Vergleich, DCF-Bewertung und Rule of 40]
+Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRLY VALUED] / [OVERVALUED] / [HIGH RISK / VALUE TRAP] / [AVOID / UNJUSTIFIED PREMIUM] / [NEGATIVE] / [STRONG NEGATIVE]] - [1 prägnanter Satz: Individuelle Synthese aus KGV, DCF-Bewertung und Geschäftsqualität]
 </executive_summary>`;
 
             return prompt;
@@ -6110,11 +6128,20 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
                 if (pctMatch) growth = pctMatch[1].trim();
             }
 
-            // 3. Dividend from Financial Quality
-            const divMatch = finText.match(/(?:Capital\s*Allocation|Dividende|Dividend):\s*([^\n]+)/i);
-            if (divMatch && !/keine|none|n\/a|0(?:.0+)?\s*%/i.test(divMatch[1])) {
-                const yieldMatch = divMatch[1].match(/(\d+(?:[.,]\d+)?\s*%)/);
-                if (yieldMatch) dividend = yieldMatch[1].trim();
+            // 3. Dividend from Financial Dataset or Financial Quality
+            const dsDiv = allData?.financial_dataset?.researchedMetrics?.dividendYield ?? allData?.historical_dataset?.researchedMetrics?.dividendYield;
+            if (typeof dsDiv === 'number') {
+                if (dsDiv > 0.01) {
+                    dividend = `${dsDiv.toFixed(1)}%`;
+                } else {
+                    dividend = null;
+                }
+            } else {
+                const divMatch = finText.match(/(?:Capital\s*Allocation|Dividende|Dividend):\s*([^\n]+)/i);
+                if (divMatch && !/keine|none|n\/a|0(?:.0+)?\s*%/i.test(divMatch[1])) {
+                    const yieldMatch = divMatch[1].match(/(\d+(?:[.,]\d+)?\s*%)/);
+                    if (yieldMatch && parseFloat(yieldMatch[1]) > 0.01) dividend = yieldMatch[1].trim();
+                }
             }
 
             // 4. DCF Bull/Bear Targets from Valuation
