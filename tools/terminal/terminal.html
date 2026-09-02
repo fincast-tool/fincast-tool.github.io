@@ -2245,10 +2245,12 @@
                                             <div class="flex flex-wrap items-center justify-between pb-2.5 border-b border-[#202630] mb-3 gap-2">
                                                 <div class="flex items-center gap-2">
                                                     <span class="w-2 h-2 rounded-full bg-purple-400"></span>
-                                                    <h4 class="text-xs font-bold text-white">Aktionärsrendite</h4>
+                                                    <h4 class="text-xs font-bold text-white">Aktionärsrendite (Shareholder Yield)</h4>
                                                 </div>
                                                 <div class="flex items-center gap-2 text-[9.5px] font-mono flex-wrap">
-                                                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#A855F7]"></span><span class="text-slate-300">Aktien (Mio.)</span></span>
+                                                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#10B981]"></span><span class="text-slate-300">Dividende</span></span>
+                                                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#A855F7]"></span><span class="text-slate-300">Aktienrückkauf (Yield)</span></span>
+                                                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#D6A83A]"></span><span class="text-gold-400 font-semibold">Gesamt</span></span>
                                                 </div>
                                             </div>
                                             <div id="shareholderChartWrapper" class="w-full h-[180px] sm:h-[210px] relative">
@@ -3734,7 +3736,36 @@
             if (!researchData || typeof researchData !== 'object') {
                 return { researchStatus: 'FAILED', missingAgents: requiredAgentIds };
             }
-            const missingAgents = requiredAgentIds.filter(id => !researchData[id] || String(researchData[id]).trim().length < 20);
+            const isAgentComplete = (id, text) => {
+                if (!text || typeof text !== 'string') return false;
+                const clean = text.trim();
+                if (clean.length < 35) return false;
+                if (id === 'business_quality') {
+                    if (clean.length < 100) return false;
+                    const hasModel = /Business\s*Model|Ertragsmechanik|Revenue\s*Engine|Moat|Burggraben|Wettbewerbsvorteil/i.test(clean);
+                    const hasVerdict = /Verdict|Fazit|Moat\s*Score|Moat\s*Durability/i.test(clean);
+                    return hasModel && hasVerdict;
+                }
+                if (id === 'financial_quality') {
+                    if (clean.length < 60) return false;
+                    return /ROIC|EBIT|Margin|Marge|FCF|Net\s*Debt|Financial|Qualit/i.test(clean);
+                }
+                if (id === 'earnings_expectations') {
+                    if (clean.length < 50) return false;
+                    return /Earnings|Surprise|Guidance|Consensus|Katalysator|Erwartung/i.test(clean);
+                }
+                if (id === 'valuation') {
+                    if (clean.length < 60) return false;
+                    return /DCF|Fair\s*Value|P\/E|KGV|Valuation|Sicherheitsmarge|Under|Over/i.test(clean);
+                }
+                if (id === 'market_structure') {
+                    if (clean.length < 40) return false;
+                    return /Trend|MA|RSI|Momentum|Signal|Regime|Bullish|Bearish|Neutral/i.test(clean);
+                }
+                return clean.length >= 40;
+            };
+
+            const missingAgents = requiredAgentIds.filter(id => !isAgentComplete(id, researchData[id]));
             const researchStatus = missingAgents.length === 0 ? 'COMPLETE' : (missingAgents.length === requiredAgentIds.length ? 'FAILED' : 'PARTIAL');
             return { researchStatus, missingAgents };
         }
@@ -4146,7 +4177,8 @@ Volume: ${marketQuote.volume ? marketQuote.volume.toLocaleString() : 'N/A'}`;
             business_quality: `SECTION 1: BUSINESS MODEL, COMPETITIVE ADVANTAGE & MOAT
 ROLE: Senior Equity Research Analyst — Business Quality & Economic Moats
 OBJECTIVE: Analysiere prägnant die wirtschaftliche Qualität des Unternehmens und seinen Burggraben.
-STIL: Präzise Bullet-Points und kurze Begründungen (max. 1–2 Sätze pro Punkt). Keine ausufernden Fließtexte.
+STIL: Präzise Bullet-Points und kurze Begründungen (max. 1–2 Sätze pro Punkt).
+MANDATORY DIRECTIVE: Fülle alle 14 nachfolgenden Zeilen zwingend mit konkreten Unternehmensdaten und Fakten aus. Kein Punkt darf ausgelassen oder zusammengefasst werden.
 
 OUTPUT FORMAT:
 <business_quality>
@@ -4293,8 +4325,8 @@ VERIFIED LIVE MARKET DATA:
 STRICT DIRECTIVES:
 1. USE VERIFIED FACTS: Use the exact Live Price (${price} ${cur}), Currency (${cur}), Ticker (${sym}), and Company Name (${cName}) as provided above.
 2. DYNAMIC 5-YEAR ROLLING FINANCIAL STATEMENTS: Provide the empirical reported annual financial figures for the last 5 completed fiscal years (e.g. FY${yStart}, FY${yStart+1}, FY${yStart+2}, FY${yStart+3}, FY${yEnd-1} / FY${yEnd} as reported) plus the rolling TTM including all latest reported quarters:
-   - Revenue, Operating Income (EBIT), Operating Margin, Net Income, Free Cash Flow (FCF), EPS, Dividend per Share (DPS), Dividend Yield, Payout Ratio, ROIC, ROE, Debt/Equity, Net Debt / EBITDA, Interest Coverage, and historical period-close stock prices.
-3. ACCURACY & COMPLETENESS: Ensure all numerical values are plain numbers in native currency (${cur}). Do not invent data; use realistic corporate financials.
+   - Revenue, Operating Income (EBIT), Operating Margin, Net Income, Free Cash Flow (FCF), GAAP EPS (bilanziert), Non-GAAP Adjusted EPS (bereinigt), GAAP P/E, Adjusted P/E, Dividend per Share (DPS), Dividend Yield, Payout Ratio, ROIC, ROE, Debt/Equity, Net Debt / EBITDA, Interest Coverage, and historical period-close stock prices.
+3. ACCURACY & COMPLETENESS: Ensure all numerical values are plain numbers in native currency (${cur}). Provide realistic distinction between GAAP EPS (unbereinigt) and Adjusted EPS (bereinigt um Einmaleffekte/SBC).
 4. OUTPUT FORMAT: Output ONLY the two requested XML blocks below (<company_identity> and <financial_dataset>). Do NOT output conversational text, markdown commentary, or explanations.
 
 <company_identity>
@@ -4332,8 +4364,10 @@ Data Timestamp: [${todayIso}]
     "operatingMargin": [TTM Operating EBIT margin in % as number, e.g. 18.5],
     "netIncome": [TTM Net Income as plain number],
     "freeCashFlow": [TTM Free Cash Flow as plain number],
-    "eps": [TTM EPS as number],
-    "peRatio": [Current P/E ratio as number],
+    "eps": [TTM GAAP EPS (Reported / Bilanziert) as number],
+    "epsAdj": [TTM Non-GAAP Adjusted EPS (Bereinigt) as number],
+    "peRatio": [Current GAAP P/E ratio as number],
+    "peRatioAdj": [Current Non-GAAP Adjusted P/E ratio as number],
     "roic": [TTM ROIC in % as number],
     "roe": [TTM ROE in % as number],
     "debtToEquity": [TTM Debt/Equity as number, e.g. 1.25],
@@ -4353,8 +4387,10 @@ Data Timestamp: [${todayIso}]
       "operatingMargin": [Operating EBIT margin in % as number],
       "netIncome": [Annual Net Income as plain number],
       "freeCashFlow": [Annual Free Cash Flow as plain number],
-      "eps": [EPS as number],
-      "peRatio": [Historical P/E for this year as number],
+      "eps": [Annual GAAP EPS (Reported / Bilanziert) as number],
+      "epsAdj": [Annual Non-GAAP Adjusted EPS (Bereinigt) as number],
+      "peRatio": [Historical GAAP P/E for this year as number],
+      "peRatioAdj": [Historical Non-GAAP Adjusted P/E for this year as number],
       "roic": [ROIC in % as number],
       "roe": [ROE in % as number],
       "debtToEquity": [Debt/Equity ratio as number],
@@ -5721,8 +5757,8 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             if (isNaN(targetTime)) return getFundamentalMetricFromPeriod(valid[valid.length - 1], method);
 
             const firstTime = new Date(valid[0].date).getTime();
-            if (targetTime <= firstTime) {
-                return getFundamentalMetricFromPeriod(valid[0], method);
+            if (targetTime < firstTime) {
+                return null;
             }
 
             const lastPeriod = valid[valid.length - 1];
@@ -9824,13 +9860,13 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             `;
         }
 
-        // --- SHAREHOLDER RETURNS & SHARES OUTSTANDING SVG RENDERER ---
+        // --- SHAREHOLDER RETURNS (TOTAL SHAREHOLDER YIELD: DIVIDEND + BUYBACK YIELD) SVG RENDERER ---
         function renderShareholderCharts(dataset) {
             const svg = document.getElementById('shareholderSvg');
             const wrapper = document.getElementById('shareholderChartWrapper');
             if (!svg || !wrapper || !dataset) return;
 
-            const ann = dataset.annual || [];
+            const ann = (dataset.annual || []).filter(p => p && (p.year || p.date));
             if (ann.length === 0) {
                 svg.innerHTML = `<text x="50%" y="50%" fill="#64748B" font-family="'JetBrains Mono', monospace" font-size="11" text-anchor="middle">Keine Aktionärsdaten vorhanden</text>`;
                 return;
@@ -9841,57 +9877,143 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             const height = Math.max(160, bRect.height || 190);
             const padLeft = 45;
             const padRight = 15;
-            const padTop = 20;
+            const padTop = 26;
             const padBottom = 28;
             const chartW = width - padLeft - padRight;
             const chartH = height - padTop - padBottom;
 
-            const shares = ann.map(p => p.sharesOutstanding ? p.sharesOutstanding / 1e6 : 0).filter(s => s > 0);
-            if (shares.length === 0) shares.push(10, 100);
+            // 1. Calculate Dividend Yield, Buyback Yield (Share Reduction p.a.), and Total Shareholder Yield per year
+            const yieldData = ann.map((p, i) => {
+                let divYield = safeNum(p.dividendYield);
+                if (divYield === null && safeNum(p.dividendPerShare) && safeNum(p.periodClosePrice) && p.periodClosePrice > 0) {
+                    divYield = (p.dividendPerShare / p.periodClosePrice) * 100;
+                } else if (divYield === null && safeNum(p.dividendsPaid) && safeNum(p.sharesOutstanding) && safeNum(p.periodClosePrice) && p.sharesOutstanding > 0 && p.periodClosePrice > 0) {
+                    const dps = Math.abs(p.dividendsPaid) / p.sharesOutstanding;
+                    divYield = (dps / p.periodClosePrice) * 100;
+                }
+                divYield = divYield !== null ? Math.max(0, divYield) : 0;
 
-            const minS = Math.min(...shares) * 0.95;
-            const maxS = Math.max(...shares) * 1.05;
-            const spanS = Math.max(1, maxS - minS);
+                let buybackYield = 0;
+                let rawShareChangePct = 0;
+                if (i > 0 && safeNum(ann[i - 1].sharesOutstanding) && safeNum(p.sharesOutstanding) && ann[i - 1].sharesOutstanding > 0 && p.sharesOutstanding > 0) {
+                    rawShareChangePct = ((p.sharesOutstanding - ann[i - 1].sharesOutstanding) / ann[i - 1].sharesOutstanding) * 100;
+                    buybackYield = -rawShareChangePct;
+                } else if (safeNum(p.stockRepurchased) && safeNum(p.sharesOutstanding) && safeNum(p.periodClosePrice) && p.sharesOutstanding > 0 && p.periodClosePrice > 0) {
+                    const mCap = p.sharesOutstanding * p.periodClosePrice;
+                    buybackYield = (Math.abs(p.stockRepurchased) / mCap) * 100;
+                    rawShareChangePct = -buybackYield;
+                } else if (i === 0 && ann.length > 1 && safeNum(ann[1].sharesOutstanding) && safeNum(p.sharesOutstanding) && p.sharesOutstanding > 0) {
+                    rawShareChangePct = ((ann[1].sharesOutstanding - p.sharesOutstanding) / p.sharesOutstanding) * 100;
+                    buybackYield = -rawShareChangePct;
+                }
 
-            const getX = (idx) => padLeft + (idx / Math.max(1, ann.length - 1)) * chartW;
-            const getY = (val) => padTop + chartH - ((val - minS) / spanS) * chartH;
+                const totalYield = divYield + buybackYield;
+                return {
+                    period: p,
+                    year: p.year || parseInt(p.date?.substring(0, 4), 10) || `FY${i + 1}`,
+                    divYield: Math.round(divYield * 10) / 10,
+                    buybackYield: Math.round(buybackYield * 10) / 10,
+                    rawShareChangePct: Math.round(rawShareChangePct * 10) / 10,
+                    totalYield: Math.round(totalYield * 10) / 10,
+                    sharesMio: p.sharesOutstanding ? (p.sharesOutstanding / 1e6).toFixed(0) : '--'
+                };
+            });
 
-            // Grid lines
+            // 2. Compute Y-Scale (including negative space for dilution / share increase)
+            const allTops = yieldData.map(d => Math.max(0, d.divYield + Math.max(0, d.buybackYield), d.totalYield));
+            const allBottoms = yieldData.map(d => Math.min(0, d.buybackYield, d.totalYield));
+            const maxYield = Math.max(6.0, ...allTops) + 1.5;
+            const minYield = Math.min(0, ...allBottoms) < -0.5 ? Math.min(0, ...allBottoms) - 1.0 : 0;
+            const spanYield = Math.max(2.0, maxYield - minYield);
+
+            const getY = (val) => padTop + chartH - ((val - minYield) / spanYield) * chartH;
+            const yZero = getY(0);
+
+            // 3. Grid Lines & Axis Ticks
             let gridHtml = '';
-            for (let i = 0; i <= 3; i++) {
-                const val = minS + (spanS / 3) * i;
-                const yPos = getY(val);
+            const step = spanYield > 15 ? 5 : (spanYield > 8 ? 3 : 2);
+            const startTick = Math.floor(minYield / step) * step;
+            const endTick = Math.ceil(maxYield / step) * step;
+
+            for (let v = startTick; v <= endTick; v += step) {
+                if (v < minYield - 0.1 || v > maxYield + 0.1) continue;
+                const yPos = getY(v);
+                const isZero = Math.abs(v) < 0.01;
                 gridHtml += `
-                    <line x1="${padLeft}" y1="${yPos}" x2="${width - padRight}" y2="${yPos}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="2,2" stroke-width="1" />
-                    <text x="${padLeft - 6}" y="${yPos + 3.5}" fill="#64748B" font-size="8.5" font-family="'JetBrains Mono', monospace" text-anchor="end">${val.toFixed(0)}M</text>
+                    <line x1="${padLeft}" y1="${yPos}" x2="${width - padRight}" y2="${yPos}" 
+                          stroke="${isZero ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.06)'}" 
+                          stroke-dasharray="${isZero ? 'none' : '2,2'}" 
+                          stroke-width="${isZero ? '1.2' : '1'}" />
+                    <text x="${padLeft - 6}" y="${yPos + 3.5}" fill="${isZero ? '#94A3B8' : '#64748B'}" font-size="8.5" font-family="'JetBrains Mono', monospace" text-anchor="end">${v > 0 ? '+' : ''}${v}%</text>
                 `;
             }
 
-            const sharePts = ann.filter(p => p.sharesOutstanding && p.sharesOutstanding > 0);
-            const sharePath = sharePts.length >= 2 ? sharePts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${getX(ann.indexOf(p))} ${getY(p.sharesOutstanding / 1e6)}`).join(' ') : '';
+            // 4. Render Bars per Year (Stacked: Dividend at base, Buyback stacked on top, Dilution below zero)
+            const slotW = chartW / yieldData.length;
+            const barW = Math.min(32, Math.max(16, slotW * 0.52));
 
-            let dotsHtml = '';
+            let barsHtml = '';
             let labelsHtml = '';
-            ann.forEach((p, i) => {
-                const x = getX(i);
-                const sVal = p.sharesOutstanding ? (p.sharesOutstanding / 1e6) : minS;
-                const y = getY(sVal);
 
-                dotsHtml += `
-                    <g class="cursor-pointer group" onclick="showInstitutionalDetailInspector(${p.year})" style="cursor: pointer;">
-                        <title>FY${p.year}: ${(sVal).toFixed(0)} Mio. Aktien | Dividendenrendite: ${p.dividendYield ? p.dividendYield.toFixed(2) : '--'}%</title>
-                        <circle cx="${x}" cy="${y}" r="3.5" fill="#A855F7" stroke="#0B0E12" stroke-width="1.5" />
+            yieldData.forEach((d, i) => {
+                const centerX = padLeft + (i + 0.5) * slotW;
+                const barX = centerX - barW / 2;
+
+                let divBarHtml = '';
+                if (d.divYield > 0.05) {
+                    const topY = getY(d.divYield);
+                    const barH = yZero - topY;
+                    const rx = d.buybackYield <= 0.05 ? 3 : 0;
+                    divBarHtml = `<rect x="${barX}" y="${topY}" width="${barW}" height="${Math.max(2, barH)}" fill="#10B981" rx="${rx}" />`;
+                }
+
+                let buybackBarHtml = '';
+                if (d.buybackYield > 0.05) {
+                    const baseVal = d.divYield;
+                    const topY = getY(baseVal + d.buybackYield);
+                    const bottomY = getY(baseVal);
+                    const barH = bottomY - topY;
+                    buybackBarHtml = `<rect x="${barX}" y="${topY}" width="${barW}" height="${Math.max(2, barH)}" fill="#A855F7" rx="3" />`;
+                } else if (d.buybackYield < -0.05) {
+                    // Dilution / Share Count Increase -> Negative bar below zero
+                    const topY = yZero;
+                    const bottomY = getY(d.buybackYield);
+                    const barH = bottomY - topY;
+                    buybackBarHtml = `<rect x="${barX}" y="${topY}" width="${barW}" height="${Math.max(2, barH)}" fill="#F43F5E" fill-opacity="0.85" rx="3" />`;
+                }
+
+                // Total Yield Label above stack
+                const stackTopYield = Math.max(0, d.divYield + Math.max(0, d.buybackYield));
+                const labelY = getY(stackTopYield) - 6;
+                const totalColor = d.totalYield > 0 ? '#F1F5F9' : (d.totalYield < 0 ? '#FCA5A5' : '#94A3B8');
+                const totalText = `${d.totalYield > 0 ? '+' : ''}${d.totalYield.toFixed(1)}%`;
+
+                const shareActionStr = d.buybackYield >= 0 
+                    ? `+${d.buybackYield.toFixed(1)}% Buyback Yield (-${Math.abs(d.rawShareChangePct).toFixed(1)}% Aktien)` 
+                    : `${d.buybackYield.toFixed(1)}% Verwässerung (+${Math.abs(d.rawShareChangePct).toFixed(1)}% Aktien)`;
+
+                const tooltip = `FY${d.year} Gesamte Aktionärsrendite: ${d.totalYield >= 0 ? '+' : ''}${d.totalYield.toFixed(1)}%\n` +
+                                `• Dividendenrendite: +${d.divYield.toFixed(1)}%\n` +
+                                `• Aktienrückkauf / Yield: ${shareActionStr}\n` +
+                                `• Ausstehende Aktien: ${d.sharesMio} Mio.`;
+
+                barsHtml += `
+                    <g class="cursor-pointer group" onclick="showInstitutionalDetailInspector(${d.year})" style="cursor: pointer;">
+                        <title>${tooltip}</title>
+                        ${divBarHtml}
+                        ${buybackBarHtml}
+                        <text x="${centerX}" y="${labelY}" fill="${totalColor}" font-size="8.5" font-weight="700" font-family="'JetBrains Mono', monospace" text-anchor="middle">${totalText}</text>
                     </g>
                 `;
-                labelsHtml += `<text x="${x}" y="${height - 8}" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle" class="cursor-pointer" onclick="showInstitutionalDetailInspector(${p.year})">${p.year}</text>`;
+
+                labelsHtml += `<text x="${centerX}" y="${height - 8}" fill="#94A3B8" font-size="9" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="middle" class="cursor-pointer" onclick="showInstitutionalDetailInspector(${d.year})">${d.year}</text>`;
             });
 
             svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
             svg.innerHTML = `
-                <text x="${padLeft}" y="${padTop - 6}" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">Ausstehende Aktien (Mio.)</text>
+                <text x="${padLeft}" y="${padTop - 8}" fill="#64748B" font-size="8" font-family="'JetBrains Mono', monospace">Aktionärsrendite (Dividende + Buyback Yield) [%]</text>
                 ${gridHtml}
-                ${sharePath ? `<path d="${sharePath}" fill="none" stroke="#A855F7" stroke-width="2.2" stroke-linejoin="round" />` : ''}
-                ${dotsHtml}
+                ${barsHtml}
                 ${labelsHtml}
             `;
         }
