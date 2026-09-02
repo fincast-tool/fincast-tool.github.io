@@ -4444,21 +4444,40 @@
             const psCurr = stats.ps?.current != null ? stats.ps.current.toFixed(1) : 'N/A';
             const psMed = stats.ps?.median != null ? stats.ps.median.toFixed(1) : 'N/A';
             
-            const pctVal = stats.pe_adj?.currentPercentile != null ? stats.pe_adj.currentPercentile : (stats.pe_rep?.currentPercentile != null ? stats.pe_rep.currentPercentile : null);
-            const pctPos = pctVal != null 
-                ? `${pctVal.toFixed(1)}% (${pctVal <= 35 ? 'DEEP DISCOUNT' : (pctVal <= 65 ? 'FAIR' : 'PREMIUM')})` 
-                : 'N/A';
+            // Value Chart Gap & Deterministic Valuation Verdict
+            const valGap = valResult?.currentValuationGap != null ? valResult.currentValuationGap : null;
+            let valVerdictText = 'FAIR BEWERTET';
+            let valVerdictEn = 'FAIRLY VALUED';
+            if (valGap !== null) {
+                if (valGap <= -25.0) {
+                    valVerdictText = 'STARK UNTERBEWERTET';
+                    valVerdictEn = 'DEEPLY UNDERVALUED';
+                } else if (valGap <= -10.0) {
+                    valVerdictText = 'MODERAT UNTERBEWERTET';
+                    valVerdictEn = 'UNDERVALUED';
+                } else if (valGap < 10.0) {
+                    valVerdictText = 'FAIR BEWERTET';
+                    valVerdictEn = 'FAIRLY VALUED';
+                } else if (valGap < 25.0) {
+                    valVerdictText = 'MODERAT ÜBERBEWERTET';
+                    valVerdictEn = 'OVERVALUED';
+                } else {
+                    valVerdictText = 'STARK ÜBERBEWERTET';
+                    valVerdictEn = 'DEEPLY OVERVALUED';
+                }
+            }
 
             const mosLine = dcfResult.hasMarginOfSafety
                 ? `- Margin of Safety zum DCF-Base-Wert: +${dcfResult.marginOfSafetyPct.toFixed(2)}% (Sicherheitsrabatt von ${dcfResult.marginOfSafetyPct.toFixed(2)}% bei aktuellem Kurs ${curPrice} ${cur} gegenüber dem fairen Wert von ${dcfResult.dcfBase.toFixed(2)} ${cur})`
                 : `- Margin of Safety zum DCF-Base-Wert: Keine Sicherheitsmarge vorhanden (Bewertungsaufschlag von +${dcfResult.premiumPct.toFixed(2)}% beim aktuellen Kurs ${curPrice} ${cur} gegenüber dem fairen DCF-Wert von ${dcfResult.dcfBase.toFixed(2)} ${cur}; ein Kaufkurs mit 15% Sicherheitsmarge läge bei ${dcfResult.entryWith15PctMoS.toFixed(2)} ${cur})`;
 
-            return `EMPIRICAL VALUATION MULTIPLES & DCF BENCHMARKS (Single Source of Truth from Engine):
+            return `EMPIRICAL VALUATION MULTIPLES & VALUE-CHART BENCHMARKS (Single Source of Truth from Engine):
 - KGV Bereinigt / Adj. P/E: Aktuell ${peAdjCurr}x (Historischer Median: ${peAdjMed}x)
 - KGV Bilanziert / GAAP P/E: Aktuell ${peRepCurr}x (Historischer Median: ${peRepMed}x)
 - KCV (Cashflow) / P/FCF: Aktuell ${pfcfCurr}x (Historischer Median: ${pfcfMed}x)
 - KUV (Umsatz) / P/S: Aktuell ${psCurr}x (Historischer Median: ${psMed}x)
-- Historische Multiple-Perzentil-Position: ${pctPos}
+- Value-Chart Bewertungsabstand zum fairen Median-Wert: ${valGap != null ? (valGap >= 0 ? '+' : '') + valGap.toFixed(1) + '%' : 'N/A'} [${valVerdictText}]
+- Deterministisches Multiple-Bewertungsurteil: [${valVerdictEn}] (Abweichungen zwischen -10% und +10% gelten als FAIR BEWERTET)
 - Aktueller Live-Kurs: ${curPrice} ${cur}
 - Empirischer DCF Bear: ${dcfResult.dcfBear.toFixed(2)} ${cur} (WACC 9.5%, g 1.5%)
 - Empirischer DCF Base: ${dcfResult.dcfBase.toFixed(2)} ${cur} (WACC 8.5%, g 2.5%)
@@ -5380,7 +5399,7 @@ You are an institutional investment committee.
 Perform the specialized institutional analyses based on the verified dataset above.
 Output each requested section in exact XML tags (${agentIds.map(id => `<${id}>...</${id}>`).join(' ')}).
 Keep each point concise, precise, and high-impact. Avoid long filler prose.
-STRICT CONSTRAINT: In <financial_quality>, adopt the exact empirical DCF Bear, Base, and Bull values from the EMPIRICAL VALUATION MULTIPLES & DCF BENCHMARKS block. Do NOT hallucinate other numbers.
+STRICT CONSTRAINT: In <financial_quality>, adopt the exact empirical DCF Bear, Base, and Bull values, and use the exact Valuation Verdict from the EMPIRICAL VALUATION MULTIPLES & VALUE-CHART BENCHMARKS block. Do NOT hallucinate other numbers or verdicts.
 
 `;
 
@@ -5437,7 +5456,7 @@ STRICT SYNTHESIS DIRECTIVES:
 1. FOCUS: Synthesize concise qualitative conclusions based strictly on the verified empirical facts above.
 2. CONCISE IMPACT: Keep each thesis and risk point to maximum 1-2 punchy sentences.
 3. HISTORIC MULTIPLE & DCF SYNTHESIS: 
-   - Under 'Market Expectations Embedded', strictly compare the current empirical P/E with the historical median P/E from the EMPIRICAL VALUATION MULTIPLES block above. Do NOT invent other P/E numbers.
+   - Under 'Market Expectations Embedded', compare the current empirical P/E with the historical median P/E, cite the Value-Chart gap in % and strictly adopt the deterministic valuation verdict from the EMPIRICAL VALUATION MULTIPLES & VALUE-CHART BENCHMARKS block above (e.g. 'FAIR BEWERTET' when the gap is within +/-10%, e.g. -7.9%). Do NOT mention percentiles or percentile categories in prose. Do NOT classify a minor discount as 'deep discount' or 'undervalued' when the engine classifies it as fair.
    - Under 'Margin of Safety', use the MANDATORY syntax:
      * If the stock trades BELOW the DCF Base value (positive Margin of Safety exists):
        "Margin of Safety: Die Margin of Safety zum DCF-Basiswert beträgt [X.X]%, dies entspricht einem aktuellen Kurs von [Aktueller Kurs mit Währung] im Vergleich zum fairen Wert von [DCF Base Kurs mit Währung]."
@@ -5448,7 +5467,7 @@ STRICT SYNTHESIS DIRECTIVES:
 
 OUTPUT FORMAT:
 <executive_summary>
-Market Expectations Embedded: [1-2 Sätze: Nutze den exakten KGV-Vergleich (Aktuell vs. Historischer Median) aus dem Faktenblock und gib ein klares Fazit, ob die Aktie laut historischem Multiple teuer, fair oder günstig bewertet ist]
+Market Expectations Embedded: [1-2 Sätze: Konkreter Vergleich des aktuellen KGV mit dem historischen Median-KGV (inkl. prozentualer Abweichung) und Übernahme des deterministischen Bewertungsurteils (z. B. 'FAIR BEWERTET' bei -7.9%)]
 Margin of Safety: [MANDATORY SYNTAX: Wenn Kurs < DCF Base: 'Die Margin of Safety zum DCF-Basiswert beträgt [X.X]%, dies entspricht einem aktuellen Kurs von [Aktueller Kurs] im Vergleich zum fairen Wert von [DCF Base Wert].' | Wenn Kurs >= DCF Base: 'Aktuell liegt keine Sicherheitsmarge vor (Bewertungsaufschlag von [X.X]% beim aktuellen Kurs von [Aktueller Kurs] gegenüber dem fairen DCF-Wert von [DCF Base Wert]; ein Einstieg mit 15% Sicherheitsmarge läge bei [Einstiegskurs mit 15% MoS]).']
 Investment Thesis: [1-2 prägnante Sätze zur Kernthese]
 Counter Thesis: [1-2 prägnante Sätze zum Bärenfall / Hauptrisiko]
