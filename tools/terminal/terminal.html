@@ -4153,13 +4153,20 @@
             const res = dataset.researchedMetrics;
 
             // 1. Ingest Official Data if provided
+            const incMapByYear = new Map();
             if (rawOfficialData && typeof rawOfficialData === 'object') {
                 const quote = rawOfficialData.quote || {};
                 const profile = rawOfficialData.profile || {};
                 const metricsList = Array.isArray(rawOfficialData.keyMetrics) ? rawOfficialData.keyMetrics : [];
                 const ratiosList = Array.isArray(rawOfficialData.financialRatios) ? rawOfficialData.financialRatios : [];
+                const incomeList = Array.isArray(rawOfficialData.incomeStatements) ? rawOfficialData.incomeStatements : [];
                 const latestMetric = metricsList.length > 0 ? metricsList[0] : {};
                 const latestRatio = ratiosList.length > 0 ? ratiosList[0] : {};
+
+                incomeList.forEach(inc => {
+                    const y = inc.calendarYear ? parseInt(inc.calendarYear, 10) : (inc.date ? parseInt(inc.date.substring(0, 4), 10) : null);
+                    if (y) incMapByYear.set(y, inc);
+                });
 
                 if (quote.price && (!dataset.currentPrice || dataset.currentPrice <= 0)) dataset.currentPrice = quote.price;
                 if (quote.marketCap && !dataset.marketCap) dataset.marketCap = quote.marketCap;
@@ -4198,6 +4205,16 @@
                 const eps = period.eps || period.epsAdj;
                 const dps = period.dividendPerShare;
 
+                // Dynamic Annual Shares & Dilution Tracking
+                const incOfficial = incMapByYear.get(period.year);
+                if (incOfficial) {
+                    const offShares = safeNum(incOfficial.weightedAverageShsOutDil) ?? safeNum(incOfficial.weightedAverageShsOut);
+                    if (offShares && offShares > 1e4) period.sharesOutstanding = offShares;
+                } else if (!period.sharesOutstanding && netInc && eps && eps > 0) {
+                    const calcShares = Math.round(Math.abs(netInc) / eps);
+                    if (calcShares > 1e4) period.sharesOutstanding = calcShares;
+                }
+
                 // Margins
                 if (period.operatingMargin == null && rev && opInc && rev > 0) {
                     period.operatingMargin = (opInc / rev) * 100;
@@ -4222,6 +4239,18 @@
                     period.payoutRatio = (dps / eps) * 100;
                 }
             });
+
+            // Recalculate dynamic shares if flatlined across all periods
+            const distinctShares = new Set(ann.map(p => p.sharesOutstanding).filter(Boolean));
+            if (distinctShares.size <= 1 && ann.length >= 2) {
+                ann.forEach(p => {
+                    const epsVal = p.epsAdj || p.eps;
+                    if (p.netIncome && epsVal && epsVal > 0) {
+                        const dynShares = Math.round(Math.abs(p.netIncome) / epsVal);
+                        if (dynShares > 1e4) p.sharesOutstanding = dynShares;
+                    }
+                });
+            }
 
             // 3. Populate Researched Metrics from Latest Annual Period if still missing
             if (ann.length > 0) {
@@ -4267,15 +4296,16 @@
                 }
             }
 
-            // 3c. Cleanse Legacy Phantom 0.8% Dividends on Non-Payers
-            if (res.dividendYield === 0.8 && (res.dividendPerShare === null || res.dividendPerShare === 0)) {
+            // 3c. Cleanse Legacy Phantom 0.8% Dividends & 25% Payout on Non-Payers
+            const isNonPayer = (res.dividendPerShare === 0 || res.dividendPerShare === null || res.dividendPerShare <= 0.001);
+            if (isNonPayer) {
                 res.dividendYield = 0;
                 res.payoutRatio = 0;
+                res.dividendPerShare = 0;
                 ann.forEach(p => {
-                    if (p.dividendYield === 0.8 && (!p.dividendPerShare || p.dividendPerShare === 0)) {
-                        p.dividendYield = 0;
-                        p.payoutRatio = 0;
-                    }
+                    p.dividendYield = 0;
+                    p.payoutRatio = 0;
+                    p.dividendPerShare = 0;
                 });
             }
 
@@ -6997,6 +7027,23 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
             const resPe = parseRegexNum(extractRegexVal(valText, /(?:^|\n)\s*(?:P\/E|KGV|Current P\/E):\s*([^\n]+)/i));
             const resNextEarnings = extractRegexVal(earnText, /(?:Next Earnings|Nächste Earnings|Earnings Date)[^:]*:\s*([^\n]+)/i);
 
+            // Genuine Dividend Resolution (Prevent Phantom 0.8% or legacy text leakage for Non-Payers)
+            let dpsNormalized = safeNum(raw.ttm?.dividendPerShare) ?? safeNum(raw.researchedMetrics?.dividendPerShare);
+            let quoteDivYield = safeNum(quote.dividendYield) !== null ? safeNum(quote.dividendYield) * 100 : null;
+            let divYieldNormalized = safeNum(raw.ttm?.dividendYield) ?? quoteDivYield ?? safeNum(raw.researchedMetrics?.dividendYield);
+            let payoutNormalized = safeNum(raw.ttm?.payoutRatio) ?? safeNum(raw.researchedMetrics?.payoutRatio);
+
+            // Cleanse phantom 0.8% and 25% if company does not have a genuine DPS
+            const hasNoGenuineDividend = (dpsNormalized === 0 || dpsNormalized === null) && (quoteDivYield === 0 || quoteDivYield === null) && (divYieldNormalized === 0.8 || resDivYield === 0.8 || divYieldNormalized === null || divYieldNormalized === 0);
+            if (hasNoGenuineDividend) {
+                dpsNormalized = 0;
+                divYieldNormalized = 0;
+                payoutNormalized = 0;
+            } else if (divYieldNormalized === null && resDivYield !== null && resDivYield !== 0.8) {
+                divYieldNormalized = resDivYield;
+                payoutNormalized = resPayout !== 25 ? resPayout : null;
+            }
+
             const researchedMetrics = {
                 marketCap,
                 range52Str,
@@ -7011,10 +7058,10 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
                 debtToEquity: safeNum(raw.ttm?.debtToEquity) ?? resDebtEquity ?? raw.researchedMetrics?.debtToEquity,
                 interestCoverage: safeNum(raw.ttm?.interestCoverage) ?? resIntCov ?? raw.researchedMetrics?.interestCoverage,
                 peRatio: safeNum(raw.ttm?.peRatio) ?? resPe ?? raw.researchedMetrics?.peRatio,
-                dividendPerShare: safeNum(raw.ttm?.dividendPerShare) ?? raw.researchedMetrics?.dividendPerShare,
-                dividendYield: safeNum(raw.ttm?.dividendYield) ?? resDivYield ?? (safeNum(quote.dividendYield) !== null ? safeNum(quote.dividendYield) * 100 : raw.researchedMetrics?.dividendYield),
-                payoutRatio: safeNum(raw.ttm?.payoutRatio) ?? resPayout ?? raw.researchedMetrics?.payoutRatio,
-                dividendCAGR: raw.growthTrajectories?.dividend?.cagr5Y ?? raw.researchedMetrics?.dividendCAGR,
+                dividendPerShare: dpsNormalized,
+                dividendYield: divYieldNormalized,
+                payoutRatio: payoutNormalized,
+                dividendCAGR: dpsNormalized > 0 ? (raw.growthTrajectories?.dividend?.cagr5Y ?? raw.researchedMetrics?.dividendCAGR) : null,
                 nextEarnings: resNextEarnings ?? raw.nextEarnings ?? raw.ttm?.nextEarnings ?? (quote.earningsAnnouncement ? quote.earningsAnnouncement.split('T')[0] : null) ?? raw.researchedMetrics?.nextEarnings
             };
 
@@ -7096,9 +7143,10 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
                     const netDebtToEbitda = isFinancialSector ? null : (safeNum(item.netDebtToEbitda) ?? ((netDebt !== null && ebitda && ebitda > 0) ? netDebt / ebitda : null));
                     const interestCoverage = safeNum(item.interestCoverage);
 
-                    const dividendPerShare = safeNum(item.dividendPerShare);
-                    const dividendYield = safeNum(item.dividendYield);
-                    const payoutRatio = safeNum(item.payoutRatio) ?? ((dividendPerShare !== null && eps && eps > 0) ? (dividendPerShare / eps) * 100 : null);
+                    const rawItemDps = safeNum(item.dividendPerShare);
+                    const dividendPerShare = (rawItemDps !== null && rawItemDps > 0) ? rawItemDps : (hasNoGenuineDividend ? 0 : rawItemDps);
+                    const dividendYield = (dividendPerShare === 0 || hasNoGenuineDividend) ? 0 : (safeNum(item.dividendYield) === 0.8 ? 0 : safeNum(item.dividendYield));
+                    const payoutRatio = (dividendPerShare === 0 || hasNoGenuineDividend) ? 0 : (safeNum(item.payoutRatio) === 25 ? 0 : (safeNum(item.payoutRatio) ?? ((dividendPerShare !== null && eps && eps > 0) ? (dividendPerShare / eps) * 100 : null)));
 
                     let periodClosePrice = safeNum(item.periodClosePrice) ?? findClosestPrice(dateStr);
                     if (periodClosePrice === null) {
@@ -9228,39 +9276,33 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
             // Pillar 5: Shareholder Return
             const dpsEl = document.getElementById('snap_dps');
             const dpsVal = (typeof latest?.dividendPerShare === 'number') ? latest.dividendPerShare : (typeof dataset?.ttm?.dividendPerShare === 'number' ? dataset.ttm.dividendPerShare : res.dividendPerShare);
-            const isNonDivPayer = (dpsVal === 0 || res.dividendYield === 0 || latest?.dividendYield === 0 || dataset?.ttm?.dividendYield === 0);
+            const isNonDivPayer = (dpsVal === 0 || dpsVal === null || dpsVal <= 0.001 || res.dividendYield === 0 || latest?.dividendYield === 0 || dataset?.ttm?.dividendYield === 0 || res.dividendYield === 0.8 || latest?.dividendYield === 0.8);
 
             if (dpsEl) {
-                if (typeof dpsVal === 'number' && dpsVal > 0) {
+                if (typeof dpsVal === 'number' && dpsVal > 0.001) {
                     dpsEl.textContent = `${dpsVal.toFixed(2)} ${cur}`;
-                } else if (isNonDivPayer || dpsVal === 0) {
-                    dpsEl.textContent = 'Keine (0.00)';
                 } else {
-                    dpsEl.textContent = '—';
+                    dpsEl.textContent = 'Keine (0.00)';
                 }
             }
 
             const divYldEl = document.getElementById('snap_div_yield');
             const divYldVal = (typeof latest?.dividendYield === 'number') ? latest.dividendYield : ((typeof dataset?.quote?.dividendYield === 'number') ? dataset.quote.dividendYield * 100 : res.dividendYield);
             if (divYldEl) {
-                if (typeof divYldVal === 'number' && divYldVal > 0) {
+                if (!isNonDivPayer && typeof divYldVal === 'number' && divYldVal > 0.001 && divYldVal !== 0.8) {
                     divYldEl.textContent = fmtPct(divYldVal);
-                } else if (isNonDivPayer || divYldVal === 0) {
-                    divYldEl.textContent = '0.00%';
                 } else {
-                    divYldEl.textContent = '—';
+                    divYldEl.textContent = '0.00%';
                 }
             }
 
             const payoutEl = document.getElementById('snap_payout');
             const payoutVal = (typeof latest?.payoutRatio === 'number') ? latest.payoutRatio : res.payoutRatio;
             if (payoutEl) {
-                if (typeof payoutVal === 'number' && payoutVal > 0 && !isNonDivPayer) {
+                if (!isNonDivPayer && typeof payoutVal === 'number' && payoutVal > 0.001 && payoutVal !== 25) {
                     payoutEl.textContent = fmtPct(payoutVal);
-                } else if (isNonDivPayer || payoutVal === 0) {
-                    payoutEl.textContent = '0.00%';
                 } else {
-                    payoutEl.textContent = '—';
+                    payoutEl.textContent = '0.00%';
                 }
             }
 
