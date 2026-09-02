@@ -4521,7 +4521,7 @@ Technical Signal: [EXACTLY ONE: [STRONG BULLISH] / [BULLISH] / [NEUTRAL] / [BEAR
 
             return `CURRENT DATE: ${todayIso}
 LANGUAGE: Respond in ${lang}.
-TASK: Generate Verified Rolling 5-Year Financial Statements (${yStart} to ${yEnd} + Latest Reported Quarters / TTM) and Company Profile for "${cName}" (${sym}).
+TASK: Generate Verified Rolling 5-Year Financial Statements (${yStart} to ${yEnd-1}) PLUS Current Year Consensus Estimate / Guidance (${yEnd}e) and Company Profile for "${cName}" (${sym}).
 
 VERIFIED LIVE MARKET DATA:
 - Company: ${cName}
@@ -4534,8 +4534,9 @@ VERIFIED LIVE MARKET DATA:
 
 STRICT DIRECTIVES:
 1. USE VERIFIED FACTS: Use the exact Live Price (${price} ${cur}), Currency (${cur}), Ticker (${sym}), and Company Name (${cName}) as provided above.
-2. DYNAMIC 5-YEAR ROLLING FINANCIAL STATEMENTS: Provide the empirical reported annual financial figures for the last 5 completed fiscal years (e.g. FY${yStart}, FY${yStart+1}, FY${yStart+2}, FY${yStart+3}, FY${yEnd-1} / FY${yEnd} as reported) plus the rolling TTM including all latest reported quarters:
-   - Revenue, Operating Income (EBIT), Operating Margin, Net Income, Free Cash Flow (FCF), GAAP EPS (bilanziert), Non-GAAP Adjusted EPS (bereinigt), GAAP P/E, Adjusted P/E, Dividend per Share (DPS), Dividend Yield, Payout Ratio, ROIC, ROE, Debt/Equity, Net Debt / EBITDA, Interest Coverage, and historical period-close stock prices.
+2. DYNAMIC 5-YEAR ROLLING FINANCIAL STATEMENTS + CURRENT YEAR ESTIMATE (${yEnd}e): 
+   - Provide the empirical reported annual financial figures for the last 5 completed fiscal years (FY${yStart} to FY${yEnd-1}) PLUS the current in-progress fiscal year (${yEnd}e / Konsens-Prognose & Guidance basierend auf den bereits gemeldeten YTD-Quartalen und dem aktuellen Analysten-Konsens).
+   - Metrics per year: Revenue, Operating Income (EBIT), Operating Margin, Net Income, Free Cash Flow (FCF), GAAP EPS (bilanziert), Non-GAAP Adjusted EPS (bereinigt), GAAP P/E, Adjusted P/E, Dividend per Share (DPS), Dividend Yield, Payout Ratio, ROIC, ROE, Debt/Equity, Net Debt / EBITDA, Interest Coverage, and periodClosePrice (for ${yEnd}e use Live Price ${price}).
 3. ACCURACY & COMPLETENESS: Ensure all numerical values are plain numbers in native currency (${cur}). Provide realistic distinction between GAAP EPS (unbereinigt) and Adjusted EPS (bereinigt um Einmaleffekte/SBC).
 4. OUTPUT FORMAT: Output ONLY the two requested XML blocks below (<company_identity> and <financial_dataset>). Do NOT output conversational text, markdown commentary, or explanations.
 
@@ -4563,7 +4564,7 @@ Data Timestamp: [${todayIso}]
   "symbol": "${sym}",
   "companyName": "${cName}",
   "currency": "${cur}",
-  "availableYears": 5,
+  "availableYears": 6,
   "currentPrice": ${typeof marketQuote?.currentPrice === 'number' ? marketQuote.currentPrice : 0},
   "marketCap": [Market capitalization as plain number],
   "nextEarnings": "[Expected next earnings date YYYY-MM-DD or Month/Year]",
@@ -4590,27 +4591,43 @@ Data Timestamp: [${todayIso}]
   },
   "annual": [
     {
-      "year": [Reporting year, e.g. ${yStart} ... ${yEnd-1} / ${yEnd}],
-      "date": "[YYYY-MM-DD or year]",
+      "year": ${yStart},
+      "date": "${yStart}-12-31",
+      "isEstimate": false,
       "revenue": [Annual revenue as plain number in native currency],
       "operatingIncome": [Annual EBIT / Operating Income as plain number],
       "operatingMargin": [Operating EBIT margin in % as number],
       "netIncome": [Annual Net Income as plain number],
       "freeCashFlow": [Annual Free Cash Flow as plain number],
-      "eps": [Annual GAAP EPS (Reported / Bilanziert) as number],
-      "epsAdj": [Annual Non-GAAP Adjusted EPS (Bereinigt) as number],
-      "peRatio": [Historical GAAP P/E for this year as number],
-      "peRatioAdj": [Historical Non-GAAP Adjusted P/E for this year as number],
+      "eps": [Annual GAAP EPS as number],
+      "epsAdj": [Annual Non-GAAP Adjusted EPS as number],
       "roic": [ROIC in % as number],
       "roe": [ROE in % as number],
       "debtToEquity": [Debt/Equity ratio as number],
-      "netDebtToEbitda": [Net Debt / EBITDA ratio as number],
-      "interestCoverage": [Interest coverage ratio as number],
       "dividendPerShare": [Dividend per share as number],
       "dividendYield": [Dividend yield in % as number],
-      "payoutRatio": [Dividend payout ratio in % as number],
       "sharesOutstanding": [Shares outstanding as number],
-      "periodClosePrice": [Historical year-end closing price for this year as number]
+      "periodClosePrice": [Year-end closing price as number]
+    },
+    {
+      "year": ${yEnd},
+      "date": "${yEnd}-12-31",
+      "isEstimate": true,
+      "period": "${yEnd}e",
+      "revenue": [Current year ${yEnd}e expected consensus revenue as number],
+      "operatingIncome": [Current year ${yEnd}e expected EBIT as number],
+      "operatingMargin": [Current year ${yEnd}e expected EBIT margin % as number],
+      "netIncome": [Current year ${yEnd}e expected Net Income as number],
+      "freeCashFlow": [Current year ${yEnd}e expected Free Cash Flow as number],
+      "eps": [Current year ${yEnd}e consensus GAAP EPS as number],
+      "epsAdj": [Current year ${yEnd}e consensus Adjusted EPS as number],
+      "roic": [Current year ${yEnd}e expected ROIC in % as number],
+      "roe": [Current year ${yEnd}e expected ROE in % as number],
+      "debtToEquity": [Expected Debt/Equity ratio as number],
+      "dividendPerShare": [Expected annualized dividend per share as number],
+      "dividendYield": [Expected dividend yield % as number],
+      "sharesOutstanding": [Expected shares outstanding as number],
+      "periodClosePrice": ${typeof marketQuote?.currentPrice === 'number' ? marketQuote.currentPrice : 0}
     }
   ]
 }
@@ -6241,8 +6258,13 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     const psRatio = safeNum(item.psRatio) ?? ((periodClosePrice !== null && revenuePerShare && revenuePerShare > 0) ? Math.round((periodClosePrice / revenuePerShare) * 10) / 10 : null);
                     const evEbitdaRatio = safeNum(item.evEbitdaRatio);
 
+                    const curYearNow = new Date().getFullYear();
+                    const isEstimate = Boolean(item.isEstimate || (item.period && String(item.period).toLowerCase().includes('e')) || (year >= curYearNow && item.isEstimate !== false));
+                    const displayYear = isEstimate ? `${year}e` : `${year}`;
+
                     annualPeriods.push({
-                        date: dateStr, year, period: 'FY',
+                        date: dateStr, year, period: isEstimate ? `${year}e` : 'FY',
+                        isEstimate, displayYear,
                         revenue, grossProfit, operatingIncome, ebitda, netIncome, eps, epsAdj, revenuePerShare,
                         operatingCashFlow, capex, freeCashFlow, freeCashFlowPerShare,
                         dividendsPaid: safeNum(item.dividendsPaid), stockRepurchased: safeNum(item.stockRepurchased),
@@ -6436,6 +6458,18 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             });
             normalizedEstimates.sort((a, b) => a.date.localeCompare(b.date));
 
+            // Auto-backfill forward estimates from annual periods if estimates array was empty
+            if (normalizedEstimates.length === 0 && annualPeriods.some(p => p.isEstimate)) {
+                annualPeriods.filter(p => p.isEstimate).forEach(p => {
+                    normalizedEstimates.push({
+                        date: p.date,
+                        year: p.year,
+                        epsAvg: p.epsAdj ?? p.eps,
+                        revenueAvg: p.revenue,
+                        ebitdaAvg: p.ebitda
+                    });
+                });
+            }
             const availableYears = annualPeriods.length;
             const isSynth = Boolean(raw.isSynthetic);
 
@@ -8495,9 +8529,16 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             const stats = valResult.statistics || {};
             const curP = dataset.currentPrice;
 
-            // Compute current metrics
-            const peVal = (curP && latest?.epsAdj && latest.epsAdj > 0) ? curP / latest.epsAdj : latest?.peRatioAdj;
-            const fwdPeVal = (curP && dataset.estimates?.[0]?.epsAvg && dataset.estimates[0].epsAvg > 0) ? curP / dataset.estimates[0].epsAvg : null;
+            // Compute current and forward metrics
+            const curHistorical = ann.filter(p => !p.isEstimate);
+            const latestHist = curHistorical.length > 0 ? curHistorical[curHistorical.length - 1] : (ann[0] || {});
+            const estPeriod = ann.find(p => p.isEstimate || p.year >= new Date().getFullYear()) || (dataset.estimates && dataset.estimates[0]);
+            
+            const peVal = (curP && latestHist?.epsAdj && latestHist.epsAdj > 0) ? curP / latestHist.epsAdj : (latestHist?.peRatioAdj ?? (latest?.epsAdj && curP ? curP / latest.epsAdj : null));
+            const estEps = estPeriod?.epsAdj ?? estPeriod?.eps ?? estPeriod?.epsAvg;
+            const fwdPeVal = (curP && estEps && estEps > 0) ? curP / estEps : (dataset.estimates?.[0]?.epsAvg && curP ? curP / dataset.estimates[0].epsAvg : null);
+            const fwdPeLabel = estPeriod?.displayYear ? `Forward KGV (${estPeriod.displayYear})` : (estPeriod?.year ? `Forward KGV (${estPeriod.year}e)` : 'Forward KGV (2026e)');
+
             const evEbitdaVal = latest?.evEbitdaRatio;
             const pfcfVal = (curP && latest?.freeCashFlowPerShare && latest.freeCashFlowPerShare > 0) ? curP / latest.freeCashFlowPerShare : latest?.pfcfRatio;
             const psVal = (curP && latest?.revenuePerShare && latest.revenuePerShare > 0) ? curP / latest.revenuePerShare : latest?.psRatio;
@@ -8514,7 +8555,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     isYield: false
                 },
                 {
-                    name: 'Forward KGV',
+                    name: fwdPeLabel,
                     company: fwdPeVal,
                     histMedian: stats.pe_adj?.median ? stats.pe_adj.median * 0.92 : null,
                     peerMedian: stats.pe_adj?.median ? stats.pe_adj.median * 0.98 : 19.5,
@@ -9718,7 +9759,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             }
         }
 
-        // --- FINANCIAL PERFORMANCE SVG RENDERER (ZERO-LINE AWARE DUAL BARS: REVENUE & EBIT + FCF DOTS) ---
+        // --- FINANCIAL PERFORMANCE SVG RENDERER (ZERO-LINE AWARE DUAL BARS: REVENUE & EBIT + FCF DOTS + 2026e ESTIMATE SUPPORT) ---
         function renderFinancialPerformanceCharts(dataset) {
             const svg = document.getElementById('financialPerformanceSvg');
             const wrapper = document.getElementById('financialPerformanceChartWrapper');
@@ -9791,7 +9832,9 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
 
                 // FCF dot
                 const fcfY = p.freeCashFlow !== null ? getY(p.freeCashFlow) : null;
-                const yearLabel = p.year || (p.date ? p.date.substring(0, 4) : `FY${i + 1}`);
+                const isEst = Boolean(p.isEstimate || (p.year && String(p.year).endsWith('e')) || p.year >= new Date().getFullYear());
+                const rawYear = p.year || (p.date ? p.date.substring(0, 4) : `FY${i + 1}`);
+                const yearLabel = p.displayYear || (isEst && !String(rawYear).endsWith('e') ? `${rawYear}e` : `${rawYear}`);
 
                 const rowsData = JSON.stringify([
                     { label: 'Umsatz', color: '#D6A83A', val: fmtNumber(p.revenue, cur) },
@@ -9799,22 +9842,25 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     { label: 'Freier Cashflow', color: '#06B6D4', val: p.freeCashFlow !== null ? fmtNumber(p.freeCashFlow, cur) : '—' }
                 ]).replace(/"/g, '&quot;');
 
+                const estStrokeStyle = isEst ? 'stroke="rgba(255,255,255,0.4)" stroke-dasharray="2,2" stroke-width="1"' : '';
+                const tooltipTitle = `Geschäftsjahr ${yearLabel}${isEst ? ' (Konsens-Guidance)' : ''}`;
+
                 barsHtml += `
                     <!-- Interactive Group for FY${yearLabel} -->
                     <g class="cursor-pointer group" 
-                       onmouseenter="showDeepChartTooltip(event, 'financialPerformanceChartWrapper', 'Geschäftsjahr ${yearLabel}', ${rowsData})"
-                       onmousemove="showDeepChartTooltip(event, 'financialPerformanceChartWrapper', 'Geschäftsjahr ${yearLabel}', ${rowsData})"
+                       onmouseenter="showDeepChartTooltip(event, 'financialPerformanceChartWrapper', '${tooltipTitle}', ${rowsData})"
+                       onmousemove="showDeepChartTooltip(event, 'financialPerformanceChartWrapper', '${tooltipTitle}', ${rowsData})"
                        onmouseleave="hideDeepChartTooltip('financialPerformanceChartWrapper')"
-                       ontouchstart="showDeepChartTooltip(event, 'financialPerformanceChartWrapper', 'Geschäftsjahr ${yearLabel}', ${rowsData})"
+                       ontouchstart="showDeepChartTooltip(event, 'financialPerformanceChartWrapper', '${tooltipTitle}', ${rowsData})"
                        style="cursor: crosshair;">
                         <rect x="${xGroupCenter - groupW * 0.45}" y="${padTop}" width="${groupW * 0.9}" height="${chartH}" fill="transparent" class="hover:fill-white/[0.04] transition-colors" />
-                        <rect x="${xGroupCenter - singleBarW - 1}" y="${revTopY}" width="${singleBarW}" height="${Math.max(2, revH)}" rx="2" fill="#D6A83A" opacity="0.9" class="group-hover:opacity-100 transition-opacity" />
-                        <rect x="${xGroupCenter + 1}" y="${ebitTopY}" width="${singleBarW}" height="${ebitH}" rx="2" fill="${ebitVal >= 0 ? '#10B981' : '#F43F5E'}" opacity="0.9" class="group-hover:opacity-100 transition-opacity" />
-                        ${fcfY !== null ? `<circle cx="${xGroupCenter}" cy="${fcfY}" r="3.5" fill="#06B6D4" stroke="#0B0E12" stroke-width="1.2" />` : ''}
+                        <rect x="${xGroupCenter - singleBarW - 1}" y="${revTopY}" width="${singleBarW}" height="${Math.max(2, revH)}" rx="2" fill="#D6A83A" opacity="${isEst ? '0.85' : '0.9'}" ${estStrokeStyle} class="group-hover:opacity-100 transition-opacity" />
+                        <rect x="${xGroupCenter + 1}" y="${ebitTopY}" width="${singleBarW}" height="${ebitH}" rx="2" fill="${ebitVal >= 0 ? '#10B981' : '#F43F5E'}" opacity="${isEst ? '0.85' : '0.9'}" ${estStrokeStyle} class="group-hover:opacity-100 transition-opacity" />
+                        ${fcfY !== null ? `<circle cx="${xGroupCenter}" cy="${fcfY}" r="3.5" fill="${isEst ? '#0891B2' : '#06B6D4'}" stroke="#0B0E12" stroke-width="1.2" ${isEst ? 'stroke-dasharray="2,2"' : ''} />` : ''}
                     </g>
                 `;
 
-                labelsHtml += `<text x="${xGroupCenter}" y="${height - 8}" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">${yearLabel}</text>`;
+                labelsHtml += `<text x="${xGroupCenter}" y="${height - 8}" fill="${isEst ? '#D6A83A' : '#94A3B8'}" font-weight="${isEst ? '700' : '400'}" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">${yearLabel}</text>`;
             });
 
             svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
@@ -9827,7 +9873,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             `;
         }
 
-        // --- PROFITABILITY & MARGINS SVG RENDERER (4 MARGIN LINES + HOVER TOOLTIP) ---
+        // --- PROFITABILITY & MARGINS SVG RENDERER (4 MARGIN LINES + 2026e ESTIMATE SUPPORT) ---
         function renderProfitabilityCharts(dataset) {
             const svg = document.getElementById('profitabilitySvg');
             const wrapper = document.getElementById('profitabilityChartWrapper');
@@ -9896,7 +9942,9 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 const opY = getY(p.operatingMargin || 0);
                 const netY = getY(p.netMargin || 0);
                 const fcfY = p.fcfMargin !== null ? getY(p.fcfMargin) : null;
-                const yearLabel = p.year || (p.date ? p.date.substring(0, 4) : `FY${i + 1}`);
+                const isEst = Boolean(p.isEstimate || (p.year && String(p.year).endsWith('e')) || p.year >= new Date().getFullYear());
+                const rawYear = p.year || (p.date ? p.date.substring(0, 4) : `FY${i + 1}`);
+                const yearLabel = p.displayYear || (isEst && !String(rawYear).endsWith('e') ? `${rawYear}e` : `${rawYear}`);
 
                 const rowsData = JSON.stringify([
                     { label: 'Bruttomarge', color: '#D6A83A', val: p.grossMargin !== null ? p.grossMargin.toFixed(1) + '%' : '—' },
@@ -9905,12 +9953,14 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     { label: 'FCF-Marge', color: '#06B6D4', val: p.fcfMargin !== null ? p.fcfMargin.toFixed(1) + '%' : '—' }
                 ]).replace(/"/g, '&quot;');
 
+                const tooltipTitle = `Geschäftsjahr ${yearLabel}${isEst ? ' (Konsens-Guidance)' : ''}`;
+
                 dotsHtml += `
                     <g class="cursor-pointer group" 
-                       onmouseenter="showDeepChartTooltip(event, 'profitabilityChartWrapper', 'Geschäftsjahr ${yearLabel}', ${rowsData})"
-                       onmousemove="showDeepChartTooltip(event, 'profitabilityChartWrapper', 'Geschäftsjahr ${yearLabel}', ${rowsData})"
+                       onmouseenter="showDeepChartTooltip(event, 'profitabilityChartWrapper', '${tooltipTitle}', ${rowsData})"
+                       onmousemove="showDeepChartTooltip(event, 'profitabilityChartWrapper', '${tooltipTitle}', ${rowsData})"
                        onmouseleave="hideDeepChartTooltip('profitabilityChartWrapper')"
-                       ontouchstart="showDeepChartTooltip(event, 'profitabilityChartWrapper', 'Geschäftsjahr ${yearLabel}', ${rowsData})"
+                       ontouchstart="showDeepChartTooltip(event, 'profitabilityChartWrapper', '${tooltipTitle}', ${rowsData})"
                        style="cursor: crosshair;">
                         <rect x="${x - colWidth / 2}" y="${padTop}" width="${colWidth}" height="${chartH}" fill="transparent" class="hover:fill-white/[0.04] transition-colors" />
                         <line x1="${x}" y1="${padTop}" x2="${x}" y2="${padTop + chartH}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="2,2" class="opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -9920,7 +9970,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                         ${fcfY !== null ? `<circle cx="${x}" cy="${fcfY}" r="3" fill="#06B6D4" stroke="#0B0E12" stroke-width="1.2" class="group-hover:r-[4.5px] transition-all" />` : ''}
                     </g>
                 `;
-                labelsHtml += `<text x="${x}" y="${height - 8}" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">${yearLabel}</text>`;
+                labelsHtml += `<text x="${x}" y="${height - 8}" fill="${isEst ? '#D6A83A' : '#94A3B8'}" font-weight="${isEst ? '700' : '400'}" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">${yearLabel}</text>`;
             });
 
             svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
@@ -9936,7 +9986,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             `;
         }
 
-        // --- CAPITAL EFFICIENCY & HURDLE-RATE ENGINE (ROIC & ROE + 10% WACC BENCHMARK) ---
+        // --- CAPITAL EFFICIENCY & HURDLE-RATE ENGINE (ROIC & ROE + 10% WACC BENCHMARK + 2026e SUPPORT) ---
         function renderCapitalEfficiencyCharts(dataset) {
             const svg = document.getElementById('capitalEfficiencySvg');
             const wrapper = document.getElementById('capitalEfficiencyChartWrapper');
@@ -10007,7 +10057,9 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                 const x = getX(i);
                 const roicY = getY(p.roic || 0);
                 const roeY = getY(p.roe || 0);
-                const yearLabel = p.year || (p.date ? p.date.substring(0, 4) : `FY${i + 1}`);
+                const isEst = Boolean(p.isEstimate || (p.year && String(p.year).endsWith('e')) || p.year >= new Date().getFullYear());
+                const rawYear = p.year || (p.date ? p.date.substring(0, 4) : `FY${i + 1}`);
+                const yearLabel = p.displayYear || (isEst && !String(rawYear).endsWith('e') ? `${rawYear}e` : `${rawYear}`);
 
                 const rowsData = JSON.stringify([
                     { label: 'ROIC', color: '#3B82F6', val: p.roic !== null ? p.roic.toFixed(1) + '%' : '—' },
@@ -10016,12 +10068,14 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     { label: 'Debt/Equity', color: '#94A3B8', val: p.debtToEquity !== null ? p.debtToEquity.toFixed(2) + 'x' : '—' }
                 ]).replace(/"/g, '&quot;');
 
+                const tooltipTitle = `Geschäftsjahr ${yearLabel}${isEst ? ' (Konsens-Guidance)' : ''}`;
+
                 dotsHtml += `
                     <g class="cursor-pointer group" 
-                       onmouseenter="showDeepChartTooltip(event, 'capitalEfficiencyChartWrapper', 'Geschäftsjahr ${yearLabel}', ${rowsData})"
-                       onmousemove="showDeepChartTooltip(event, 'capitalEfficiencyChartWrapper', 'Geschäftsjahr ${yearLabel}', ${rowsData})"
+                       onmouseenter="showDeepChartTooltip(event, 'capitalEfficiencyChartWrapper', '${tooltipTitle}', ${rowsData})"
+                       onmousemove="showDeepChartTooltip(event, 'capitalEfficiencyChartWrapper', '${tooltipTitle}', ${rowsData})"
                        onmouseleave="hideDeepChartTooltip('capitalEfficiencyChartWrapper')"
-                       ontouchstart="showDeepChartTooltip(event, 'capitalEfficiencyChartWrapper', 'Geschäftsjahr ${yearLabel}', ${rowsData})"
+                       ontouchstart="showDeepChartTooltip(event, 'capitalEfficiencyChartWrapper', '${tooltipTitle}', ${rowsData})"
                        style="cursor: crosshair;">
                         <rect x="${x - colWidth / 2}" y="${padTop}" width="${colWidth}" height="${chartH}" fill="transparent" class="hover:fill-white/[0.04] transition-colors" />
                         <line x1="${x}" y1="${padTop}" x2="${x}" y2="${padTop + chartH}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="2,2" class="opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -10029,7 +10083,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                         <circle cx="${x}" cy="${roeY}" r="3.5" fill="#8B5CF6" stroke="#0B0E12" stroke-width="1.5" class="group-hover:r-[5px] transition-all" />
                     </g>
                 `;
-                labelsHtml += `<text x="${x}" y="${height - 8}" fill="#94A3B8" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">${yearLabel}</text>`;
+                labelsHtml += `<text x="${x}" y="${height - 8}" fill="${isEst ? '#D6A83A' : '#94A3B8'}" font-weight="${isEst ? '700' : '400'}" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">${yearLabel}</text>`;
             });
 
             svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
@@ -10044,7 +10098,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             `;
         }
 
-        // --- SHAREHOLDER RETURNS (TOTAL SHAREHOLDER YIELD: DIVIDEND + BUYBACK YIELD) SVG RENDERER ---
+        // --- SHAREHOLDER RETURNS (TOTAL SHAREHOLDER YIELD: DIVIDEND + BUYBACK YIELD + 2026e ESTIMATE SUPPORT) SVG RENDERER ---
         function renderShareholderCharts(dataset) {
             const svg = document.getElementById('shareholderSvg');
             const wrapper = document.getElementById('shareholderChartWrapper');
@@ -10091,10 +10145,16 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     buybackYield = -rawShareChangePct;
                 }
 
+                const isEst = Boolean(p.isEstimate || (p.year && String(p.year).endsWith('e')) || p.year >= new Date().getFullYear());
+                const rawYear = p.year || parseInt(p.date?.substring(0, 4), 10) || `FY${i + 1}`;
+                const displayYear = p.displayYear || (isEst && !String(rawYear).endsWith('e') ? `${rawYear}e` : `${rawYear}`);
+
                 const totalYield = divYield + buybackYield;
                 return {
                     period: p,
-                    year: p.year || parseInt(p.date?.substring(0, 4), 10) || `FY${i + 1}`,
+                    isEstimate: isEst,
+                    displayYear,
+                    year: displayYear,
                     divYield: Math.round(divYield * 10) / 10,
                     buybackYield: Math.round(buybackYield * 10) / 10,
                     rawShareChangePct: Math.round(rawShareChangePct * 10) / 10,
@@ -10142,13 +10202,15 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
             yieldData.forEach((d, i) => {
                 const centerX = padLeft + (i + 0.5) * slotW;
                 const barX = centerX - barW / 2;
+                const isEst = d.isEstimate;
+                const estStroke = isEst ? 'stroke="rgba(255,255,255,0.4)" stroke-dasharray="2,2" stroke-width="1"' : '';
 
                 let divBarHtml = '';
                 if (d.divYield > 0.05) {
                     const topY = getY(d.divYield);
                     const barH = yZero - topY;
                     const rx = d.buybackYield <= 0.05 ? 3 : 0;
-                    divBarHtml = `<rect x="${barX}" y="${topY}" width="${barW}" height="${Math.max(2, barH)}" fill="#10B981" rx="${rx}" />`;
+                    divBarHtml = `<rect x="${barX}" y="${topY}" width="${barW}" height="${Math.max(2, barH)}" fill="#10B981" rx="${rx}" ${estStroke} />`;
                 }
 
                 let buybackBarHtml = '';
@@ -10157,13 +10219,13 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     const topY = getY(baseVal + d.buybackYield);
                     const bottomY = getY(baseVal);
                     const barH = bottomY - topY;
-                    buybackBarHtml = `<rect x="${barX}" y="${topY}" width="${barW}" height="${Math.max(2, barH)}" fill="#A855F7" rx="3" />`;
+                    buybackBarHtml = `<rect x="${barX}" y="${topY}" width="${barW}" height="${Math.max(2, barH)}" fill="#A855F7" rx="3" ${estStroke} />`;
                 } else if (d.buybackYield < -0.05) {
                     // Dilution / Share Count Increase -> Negative bar below zero
                     const topY = yZero;
                     const bottomY = getY(d.buybackYield);
                     const barH = bottomY - topY;
-                    buybackBarHtml = `<rect x="${barX}" y="${topY}" width="${barW}" height="${Math.max(2, barH)}" fill="#F43F5E" fill-opacity="0.85" rx="3" />`;
+                    buybackBarHtml = `<rect x="${barX}" y="${topY}" width="${barW}" height="${Math.max(2, barH)}" fill="#F43F5E" fill-opacity="0.85" rx="3" ${estStroke} />`;
                 }
 
                 // Total Yield Label above stack
@@ -10188,12 +10250,14 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     valColor: d.totalYield >= 0 ? '#10B981' : '#F43F5E'
                 }).replace(/"/g, '&quot;');
 
+                const tooltipTitle = `Geschäftsjahr ${d.displayYear}${isEst ? ' (Erwartete Ausschüttung / Buybacks)' : ''}`;
+
                 barsHtml += `
                     <g class="cursor-pointer group" 
-                       onmouseenter="showDeepChartTooltip(event, 'shareholderChartWrapper', 'Geschäftsjahr ${d.year}', ${rowsData}, ${footerData})"
-                       onmousemove="showDeepChartTooltip(event, 'shareholderChartWrapper', 'Geschäftsjahr ${d.year}', ${rowsData}, ${footerData})"
+                       onmouseenter="showDeepChartTooltip(event, 'shareholderChartWrapper', '${tooltipTitle}', ${rowsData}, ${footerData})"
+                       onmousemove="showDeepChartTooltip(event, 'shareholderChartWrapper', '${tooltipTitle}', ${rowsData}, ${footerData})"
                        onmouseleave="hideDeepChartTooltip('shareholderChartWrapper')"
-                       ontouchstart="showDeepChartTooltip(event, 'shareholderChartWrapper', 'Geschäftsjahr ${d.year}', ${rowsData}, ${footerData})"
+                       ontouchstart="showDeepChartTooltip(event, 'shareholderChartWrapper', '${tooltipTitle}', ${rowsData})"
                        style="cursor: crosshair;">
                         <rect x="${centerX - slotW * 0.48}" y="${padTop}" width="${slotW * 0.96}" height="${chartH}" fill="transparent" class="hover:fill-white/[0.04] transition-colors" />
                         ${divBarHtml}
@@ -10202,7 +10266,7 @@ Final Terminal Sentiment: [EXACTLY ONE: [STRONG POSITIVE] / [POSITIVE] / [WATCHL
                     </g>
                 `;
 
-                labelsHtml += `<text x="${centerX}" y="${height - 8}" fill="#94A3B8" font-size="9" font-weight="600" font-family="'JetBrains Mono', monospace" text-anchor="middle">${d.year}</text>`;
+                labelsHtml += `<text x="${centerX}" y="${height - 8}" fill="${isEst ? '#D6A83A' : '#94A3B8'}" font-size="9" font-weight="${isEst ? '700' : '600'}" font-family="'JetBrains Mono', monospace" text-anchor="middle">${d.displayYear}</text>`;
             });
 
             svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
