@@ -4394,15 +4394,23 @@
             if (dcfBear >= dcfBase) dcfBear = Math.round(dcfBase * 0.85 * 100) / 100;
             if (dcfBull <= dcfBase) dcfBull = Math.round(dcfBase * 1.25 * 100) / 100;
 
-            const marginOfSafetyPct = dcfBase > 0 
+            const hasMarginOfSafety = curP < dcfBase;
+            const marginOfSafetyPct = hasMarginOfSafety 
                 ? Math.round(((dcfBase - curP) / dcfBase) * 1000) / 10 
                 : 0.0;
+            const premiumPct = !hasMarginOfSafety && dcfBase > 0
+                ? Math.round(((curP - dcfBase) / dcfBase) * 1000) / 10
+                : 0.0;
+            const entryWith15PctMoS = Math.round(dcfBase * 0.85 * 100) / 100;
 
             return {
                 dcfBear,
                 dcfBase,
                 dcfBull,
+                hasMarginOfSafety,
                 marginOfSafetyPct,
+                premiumPct,
+                entryWith15PctMoS,
                 currentPrice: curP,
                 currency: cur
             };
@@ -4441,6 +4449,10 @@
                 ? `${pctVal.toFixed(1)}% (${pctVal <= 35 ? 'DEEP DISCOUNT' : (pctVal <= 65 ? 'FAIR' : 'PREMIUM')})` 
                 : 'N/A';
 
+            const mosLine = dcfResult.hasMarginOfSafety
+                ? `- Margin of Safety zum DCF-Base-Wert: +${dcfResult.marginOfSafetyPct.toFixed(2)}% (Sicherheitsrabatt von ${dcfResult.marginOfSafetyPct.toFixed(2)}% bei aktuellem Kurs ${curPrice} ${cur} gegenüber dem fairen Wert von ${dcfResult.dcfBase.toFixed(2)} ${cur})`
+                : `- Margin of Safety zum DCF-Base-Wert: Keine Sicherheitsmarge vorhanden (Bewertungsaufschlag von +${dcfResult.premiumPct.toFixed(2)}% beim aktuellen Kurs ${curPrice} ${cur} gegenüber dem fairen DCF-Wert von ${dcfResult.dcfBase.toFixed(2)} ${cur}; ein Kaufkurs mit 15% Sicherheitsmarge läge bei ${dcfResult.entryWith15PctMoS.toFixed(2)} ${cur})`;
+
             return `EMPIRICAL VALUATION MULTIPLES & DCF BENCHMARKS (Single Source of Truth from Engine):
 - KGV Bereinigt / Adj. P/E: Aktuell ${peAdjCurr}x (Historischer Median: ${peAdjMed}x)
 - KGV Bilanziert / GAAP P/E: Aktuell ${peRepCurr}x (Historischer Median: ${peRepMed}x)
@@ -4451,7 +4463,7 @@
 - Empirischer DCF Bear: ${dcfResult.dcfBear.toFixed(2)} ${cur} (WACC 9.5%, g 1.5%)
 - Empirischer DCF Base: ${dcfResult.dcfBase.toFixed(2)} ${cur} (WACC 8.5%, g 2.5%)
 - Empirischer DCF Bull: ${dcfResult.dcfBull.toFixed(2)} ${cur} (WACC 7.5%, g 3.0%)
-- Margin of Safety zum DCF-Base-Wert: ${dcfResult.marginOfSafetyPct >= 0 ? '+' : ''}${dcfResult.marginOfSafetyPct.toFixed(2)}% (entspricht aktuellem Kurs ${curPrice} ${cur} vs. Fair Value ${dcfResult.dcfBase.toFixed(2)} ${cur})`;
+${mosLine}`;
         }
 
         // ==================== SINGLE-AGENT REFRESH & SYNTHESIS FALLBACK ====================
@@ -5427,14 +5439,17 @@ STRICT SYNTHESIS DIRECTIVES:
 3. HISTORIC MULTIPLE & DCF SYNTHESIS: 
    - Under 'Market Expectations Embedded', strictly compare the current empirical P/E with the historical median P/E from the EMPIRICAL VALUATION MULTIPLES block above. Do NOT invent other P/E numbers.
    - Under 'Margin of Safety', use the MANDATORY syntax:
-     "Margin of Safety: Die Margin of Safety zum DCF-Basiswert beträgt [X.X]%, dies entspricht einem Kurs von [Aktueller Kurs mit Währung] im Vergleich zum fairen Wert von [DCF Base Kurs mit Währung]."
+     * If the stock trades BELOW the DCF Base value (positive Margin of Safety exists):
+       "Margin of Safety: Die Margin of Safety zum DCF-Basiswert beträgt [X.X]%, dies entspricht einem aktuellen Kurs von [Aktueller Kurs mit Währung] im Vergleich zum fairen Wert von [DCF Base Kurs mit Währung]."
+     * If the stock trades ABOVE the DCF Base value (no Margin of Safety / Premium):
+       "Margin of Safety: Aktuell liegt keine Sicherheitsmarge vor (Bewertungsaufschlag von [X.X]% beim aktuellen Kurs von [Aktueller Kurs mit Währung] gegenüber dem fairen DCF-Wert von [DCF Base Kurs mit Währung]; ein Einstieg mit 15% Sicherheitsmarge läge bei [Einstiegskurs mit 15% MoS mit Währung])."
    - Under 'Final Terminal Sentiment', state the overall rating and exactly 1 concise sentence synthesizing the historic P/E perspective with the DCF fair value perspective.
 4. OUTPUT FORMAT: Output ONLY the <executive_summary> XML block.
 
 OUTPUT FORMAT:
 <executive_summary>
 Market Expectations Embedded: [1-2 Sätze: Nutze den exakten KGV-Vergleich (Aktuell vs. Historischer Median) aus dem Faktenblock und gib ein klares Fazit, ob die Aktie laut historischem Multiple teuer, fair oder günstig bewertet ist]
-Margin of Safety: [MANDATORY SYNTAX: Die Margin of Safety zum DCF-Basiswert beträgt [X.X]%, dies entspricht einem Kurs von [Aktueller Kurs mit Währung] im Vergleich zum fairen Wert von [DCF Base Kurs mit Währung].]
+Margin of Safety: [MANDATORY SYNTAX: Wenn Kurs < DCF Base: 'Die Margin of Safety zum DCF-Basiswert beträgt [X.X]%, dies entspricht einem aktuellen Kurs von [Aktueller Kurs] im Vergleich zum fairen Wert von [DCF Base Wert].' | Wenn Kurs >= DCF Base: 'Aktuell liegt keine Sicherheitsmarge vor (Bewertungsaufschlag von [X.X]% beim aktuellen Kurs von [Aktueller Kurs] gegenüber dem fairen DCF-Wert von [DCF Base Wert]; ein Einstieg mit 15% Sicherheitsmarge läge bei [Einstiegskurs mit 15% MoS]).']
 Investment Thesis: [1-2 prägnante Sätze zur Kernthese]
 Counter Thesis: [1-2 prägnante Sätze zum Bärenfall / Hauptrisiko]
 Key Catalyst: [Genau 1 Hauptkatalysator]
