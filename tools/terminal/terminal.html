@@ -4472,8 +4472,20 @@
             };
         }
 
-        function formatEmpiricalValuationFacts(dataset) {
+        function formatEmpiricalValuationFacts(dataset, query = '') {
             if (!dataset) return '';
+
+            // Safety Guard: Verify that dataset belongs to the current query
+            if (query && dataset.symbol) {
+                const cleanQ = String(query).trim().toUpperCase().replace(/[\s\-_.]+/g, '');
+                const cleanSym = String(dataset.symbol).trim().toUpperCase().replace(/[\s\-_.]+/g, '');
+                const cleanName = String(dataset.companyName || '').trim().toUpperCase().replace(/[\s\-_.]+/g, '');
+                const isMatch = cleanSym.includes(cleanQ) || cleanQ.includes(cleanSym) || (cleanName.length > 3 && (cleanName.includes(cleanQ) || cleanQ.includes(cleanName)));
+                if (!isMatch) {
+                    console.warn(`[Valuation Facts Guard] Blocked dataset mismatch: Query '${query}' does not match Dataset symbol '${dataset.symbol}' / name '${dataset.companyName}'`);
+                    return '';
+                }
+            }
             
             let valResult = null;
             try {
@@ -4940,6 +4952,12 @@ Technical Signal: [NEUTRAL]`;
                 const langNames = { 'de-DE': 'DEUTSCH', 'en-US': 'ENGLISH', 'fr-FR': 'FRANÇAIS', 'es-ES': 'ESPAÑOL' };
                 const currentLangName = langNames[USER_LANG] || 'DEUTSCH';
 
+                // Strict Global State Isolation: Clear previous stock analysis caches
+                CURRENT_NORMALIZED_HISTORICAL_DATA = null;
+                CURRENT_VALUATION_RESULT = null;
+                CURRENT_INSIGHTS = null;
+                CURRENT_ANALYSIS_DATA = null;
+
                 // Activate Loading State & Ad Placement immediately
                 setUIState('loading');
                 updateLoadingStatus(
@@ -5106,6 +5124,12 @@ Technical Signal: [NEUTRAL]`;
         }
 
         async function runInstitutionalResearch(query, user, lang, historicalDataset = null) {
+            // Strict Global State Isolation: Clear previous stock analysis caches
+            CURRENT_NORMALIZED_HISTORICAL_DATA = null;
+            CURRENT_VALUATION_RESULT = null;
+            CURRENT_INSIGHTS = null;
+            CURRENT_ANALYSIS_DATA = null;
+
             const researchAgentIds = [
                 'business_quality',
                 'financial_quality',
@@ -5285,9 +5309,9 @@ OUTPUT FORMAT:
 Highlights: [1-2 Sätze: Was sticht bei Kapitaleffizienz (ROIC), operativen Margen, Free-Cashflow-Generierung, Rule of 40 (bei Tech/Software) und Bilanzverschuldung positiv oder negativ hervor?]
 ROIC vs WACC: [VALUE CREATING / VALUE NEUTRAL / VALUE DESTROYING]
 DCF Methodology: Die DCF-Szenarien basieren auf den nachhaltigen Free-Cash-Flow-Projektionen, Diskontierungssätzen (WACC) und Terminal-Wachstumsannahmen.
-DCF Bear: [Konservativer Fair Value mit Währung, z. B. '100.00 USD']
-DCF Base: [Basis Fair Value mit Währung, z. B. '120.00 USD']
-DCF Bull: [Optimistischer Fair Value mit Währung, z. B. '140.00 USD']
+DCF Bear: [Konservativer Fair Value mit Währung aus dem Faktenblock oben]
+DCF Base: [Basis Fair Value mit Währung aus dem Faktenblock oben]
+DCF Bull: [Optimistischer Fair Value mit Währung aus dem Faktenblock oben]
 Valuation Verdict: [DEEPLY UNDERVALUED / UNDERVALUED / FAIRLY VALUED / OVERVALUED / DEEPLY OVERVALUED]
 Financial Quality Verdict: [WEAK / MODERATE / STRONG / EXCEPTIONAL]
 </financial_quality>`,
@@ -5453,7 +5477,7 @@ Data Timestamp: [${todayIso}]
                 cleanDataset = rest;
             }
             const datasetJson = JSON.stringify(cleanDataset || {}, null, 2);
-            const valuationFacts = formatEmpiricalValuationFacts(dataset);
+            const valuationFacts = formatEmpiricalValuationFacts(dataset, query);
 
             let prompt = `CURRENT DATE: ${todayIso}
 LANGUAGE: Respond EXCLUSIVELY in ${lang}.
@@ -5496,8 +5520,8 @@ STRICT CONSTRAINT: In <financial_quality>, adopt the exact empirical DCF Bear, B
 
         function getExecutivePrompt(query, lang, researchData, validation, dataset = null) {
             const todayIso = new Date().toISOString().split('T')[0];
-            const targetDataset = dataset || researchData?.financial_dataset || researchData?.historical_dataset || CURRENT_NORMALIZED_HISTORICAL_DATA;
-            const valuationFacts = formatEmpiricalValuationFacts(targetDataset);
+            const targetDataset = dataset || researchData?.financial_dataset || researchData?.historical_dataset || null;
+            const valuationFacts = formatEmpiricalValuationFacts(targetDataset, query);
 
             let prompt = `CURRENT DATE: ${todayIso}
 LANGUAGE: Respond EXCLUSIVELY in ${lang}.
@@ -5536,7 +5560,7 @@ STRICT SYNTHESIS DIRECTIVES:
    - STRIKTES VERBOT VON PHRASEN-RECYCLING: Wiederhole KEINE Wörter, Phrasen oder Satzteile zwischen den Feldern (z. B. niemals Wörter aus der Investment Thesis oder Margin of Safety im Final Terminal Sentiment wiederholen).
    - GEOGRAFISCHE SPARSAMKEIT: Nenne den Kontinent/das Land des Unternehmens maximal EINMAL im gesamten Text. Vermeide es zwingend, in mehreren Aufzählungspunkten hintereinander dieselbe Region (z. B. 'in Lateinamerika') zu wiederholen. Nenne stattdessen konkrete Produkte, Segmente oder Geschäftsbereiche.
 2. HISTORIC MULTIPLE & VALUE-CHART BENCHMARK: 
-   - Gehe unter 'Market Expectations Embedded' konkret auf das aktuelle KGV im Vergleich zum historischen 5J-Median und den prozentualen Value-Chart-Abstand ein (z. B. -7.9% oder +14.2%) und übernimm das deterministische Bewertungsurteil (z. B. 'FAIR BEWERTET' bei geringer Abweichung von +/-10%).
+   - Gehe unter 'Market Expectations Embedded' konkret auf das aktuelle KGV im Vergleich zum historischen 5J-Median und den tatsächlichen prozentualen Value-Chart-Abstand aus dem Faktenblock oben ein und übernimm das dort ermittelte deterministische Multiple-Bewertungsurteil.
    - Beziehe hier auch die Rule of 40 (Reinvestitionseffizienz) ein, um die Bewertung einzuordnen. (Die Rule of 40 gehört NUR hierher und darf NICHT in der Counter Thesis wiederholt werden).
 3. DCF-SICHERHEITSMARGE & EINSTIEGSKURS:
    - Erkläre unter 'Margin of Safety' in präzisen Worten die Sicherheitsmarge (bei Unterbewertung Kurs < DCF Base) bzw. den Bewertungsaufschlag (bei Kurs >= DCF Base) mit Einstiegskurs und fairem DCF-Wert.
@@ -5547,7 +5571,7 @@ STRICT SYNTHESIS DIRECTIVES:
 5. KEY CATALYST, KEY RISK & THESIS BREAKER:
    - 'Key Catalyst': Genau 1 konkreter, operativer Wachstumstreiber (z. B. Skalierung des Werbegeschäfts, Ausbau der Logistikmarge). Vermeide generische Floskeln wie 'Beschleunigung des Wachstums'.
    - 'Key Risk': Genau 1 spezifisches Geschäfts- oder Marktrisiko (muss sich thematisch klar von der Counter Thesis unterscheiden).
-   - 'Thesis Breaker': Genau 1 harte, quantifizierbare Kennzahlenschranke mit Zeithorizont (z. B. 'Umsatzwachstum < 10% p.a. bei FCF-Marge < 15% über 2 aufeinanderfolgende Quartale').
+   - 'Thesis Breaker': Genau 1 harte, quantifizierbare Kennzahlenschranke bezogen auf die spezifische Geschäftsdynamik des Unternehmens mit klarem Zeitfenster (z. B. konkrete Schwellenwerte für Umsatzwachstum und Cashflow-Marge über eine definierte Quartalsanzahl).
 6. FINAL TERMINAL SENTIMENT (Übergeordnetes CIO-Fazit):
    - Format: [[RATING]] - [Genau 1 neuer, übergeordneter Schlusssatz aus der Vogelperspektive].
    - STRIKT VERBOTEN: Das Sentiment darf die Investment Thesis, Margin of Safety oder Kapitaleffizienz NICHT wiederholen oder zusammenfassen. Es liefert eine eigenständige Portfolio-Konklusion.
