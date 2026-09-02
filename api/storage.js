@@ -42,6 +42,20 @@ async function isCallerAdmin(redis, reqBody) {
     return false;
 }
 
+function isCompletedScreenerEntry(item) {
+    if (!item || typeof item !== 'object') return false;
+    const data = item.data || item;
+    if (!data || typeof data !== 'object') return false;
+    // Primary check: new institutional research module
+    let execText = (data.executive_summary || '').toString().trim();
+    // Fallback check for old historical records in database
+    if (!execText && (data.citadel || data.morgan_stanley || data.goldman_sachs)) {
+        execText = (data.citadel || data.morgan_stanley || data.goldman_sachs || '').toString().trim();
+    }
+    if (!execText || execText.length < 15 || execText.toUpperCase() === 'PENDING') return false;
+    return true;
+}
+
 module.exports = async function handler(req, res) {
     const { action, params, data, email, key: tickerKey } = req.body || {};
     const redis = new Redis(process.env.KV_REDIS_URL || process.env.REDIS_URL);
@@ -224,6 +238,61 @@ module.exports = async function handler(req, res) {
             return res.status(200).json({ success: true });
         }
 
+        if (action === 'save_analysis') {
+            const rawKey = (req.body && (req.body.key || req.body.tickerKey || req.body.ticker)) || tickerKey || (req.body && req.body.data && (req.body.data.ticker || req.body.data.symbol));
+            const itemData = req.body && req.body.data !== undefined ? req.body.data : data;
+            const targetEmail = (req.body && (req.body.email || req.body.userEmail || (req.body.data && req.body.data.userEmail))) || email;
+
+            if (!rawKey || itemData === undefined || itemData === null) {
+                return res.status(400).json({ error: 'Missing key or data' });
+            }
+
+            const normalizedKey = String(rawKey).trim().toUpperCase();
+            let archiveSaved = false;
+            let screenerSaved = false;
+
+            // 1. Save to Personal User Archive
+            if (targetEmail && typeof targetEmail === 'string' && targetEmail.trim().length > 0) {
+                const archiveKey = `archive:${targetEmail.trim()}`;
+                const rawArchive = await redis.get(archiveKey);
+                let archiveObj = {};
+                if (rawArchive) {
+                    try {
+                        archiveObj = JSON.parse(rawArchive);
+                        if (typeof archiveObj !== 'object' || archiveObj === null || Array.isArray(archiveObj)) {
+                            archiveObj = {};
+                        }
+                    } catch (e) {
+                        archiveObj = {};
+                    }
+                }
+                archiveObj[normalizedKey] = itemData;
+                await redis.set(archiveKey, JSON.stringify(archiveObj));
+                archiveSaved = true;
+            }
+
+            // 2. Save to Global Stock Screener Database
+            if (isCompletedScreenerEntry(itemData)) {
+                const rawScreener = await redis.get('global_stock_screener');
+                let screenerMap = {};
+                if (rawScreener) {
+                    try {
+                        screenerMap = JSON.parse(rawScreener);
+                        if (typeof screenerMap !== 'object' || screenerMap === null || Array.isArray(screenerMap)) {
+                            screenerMap = {};
+                        }
+                    } catch (e) {
+                        screenerMap = {};
+                    }
+                }
+                screenerMap[normalizedKey] = itemData;
+                await redis.set('global_stock_screener', JSON.stringify(screenerMap));
+                screenerSaved = true;
+            }
+
+            return res.status(200).json({ success: true, key: normalizedKey, archiveSaved, screenerSaved });
+        }
+
         if (action === 'delete_single_archive') {
             const key = `archive:${email}`;
             const archive = await redis.get(key);
@@ -276,20 +345,6 @@ module.exports = async function handler(req, res) {
         }
 
         // --- GLOBAL STOCK SCREENER LOGIC ---
-        function isCompletedScreenerEntry(item) {
-            if (!item || typeof item !== 'object') return false;
-            const data = item.data || item;
-            if (!data || typeof data !== 'object') return false;
-            // Primary check: new institutional research module
-            let execText = (data.executive_summary || '').toString().trim();
-            // Fallback check for old historical records in database
-            if (!execText && (data.citadel || data.morgan_stanley || data.goldman_sachs)) {
-                execText = (data.citadel || data.morgan_stanley || data.goldman_sachs || '').toString().trim();
-            }
-            if (!execText || execText.length < 15 || execText.toUpperCase() === 'PENDING') return false;
-            return true;
-        }
-
         if (action === 'get_global_screener') {
             const raw = await redis.get('global_stock_screener');
             let screenerMap = {};
