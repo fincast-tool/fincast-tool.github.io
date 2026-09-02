@@ -4327,6 +4327,133 @@
             return dataset;
         }
 
+        // ==================== EMPIRICAL DCF ENGINE & SINGLE-SOURCE-OF-TRUTH FORMATTER ====================
+        function calculateEmpiricalDcfScenarios(dataset) {
+            if (!dataset || typeof dataset !== 'object') {
+                return { dcfBear: 80.00, dcfBase: 100.00, dcfBull: 120.00, marginOfSafetyPct: 0.0, currentPrice: 100.00, currency: 'USD' };
+            }
+
+            const ann = Array.isArray(dataset.annual) ? dataset.annual : [];
+            const ttm = dataset.ttm || {};
+            const latest = ann.length > 0 ? ann[ann.length - 1] : {};
+            const curP = typeof dataset.currentPrice === 'number' && dataset.currentPrice > 0 
+                ? dataset.currentPrice 
+                : (latest.periodClosePrice || 100);
+            const cur = dataset.currency || '$';
+            
+            // Shares outstanding (in Millions or single units)
+            let shares = ttm.sharesOutstanding || latest.sharesOutstanding;
+            if (!shares || shares <= 0) {
+                shares = (dataset.marketCap && curP > 0) ? (dataset.marketCap / curP) : 1000;
+            }
+
+            // Empirical Free Cash Flow
+            let fcf = ttm.freeCashFlow != null ? ttm.freeCashFlow : (latest.freeCashFlow != null ? latest.freeCashFlow : null);
+            let netIncome = ttm.netIncome != null ? ttm.netIncome : (latest.netIncome != null ? latest.netIncome : null);
+            let opCashFlow = ttm.operatingIncome != null ? (ttm.operatingIncome * 0.80) : null;
+
+            let fcfPerShare = 0;
+            if (fcf != null && fcf > 0 && shares > 0) {
+                fcfPerShare = fcf / shares;
+            } else if (netIncome != null && netIncome > 0 && shares > 0) {
+                fcfPerShare = (netIncome * 0.85) / shares;
+            } else if (opCashFlow != null && opCashFlow > 0 && shares > 0) {
+                fcfPerShare = opCashFlow / shares;
+            } else {
+                fcfPerShare = curP * 0.045; // 4.5% baseline FCF yield
+            }
+
+            // Empirical CAGRs
+            const epsCAGR = typeof dataset.researchedMetrics?.epsCAGR === 'number' ? dataset.researchedMetrics.epsCAGR / 100 : 0.06;
+            const revCAGR = typeof dataset.researchedMetrics?.revenueCAGR === 'number' ? dataset.researchedMetrics.revenueCAGR / 100 : 0.05;
+            const fcfCAGR = typeof dataset.researchedMetrics?.fcfCAGR === 'number' ? dataset.researchedMetrics.fcfCAGR / 100 : revCAGR;
+
+            // Clamped growth rates for stable multi-stage projection
+            const blendedGrowth = Math.max(0.02, Math.min(0.22, (epsCAGR * 0.40 + revCAGR * 0.30 + fcfCAGR * 0.30)));
+            const gBase = blendedGrowth;
+            const gBear = Math.max(0.01, gBase * 0.60);
+            const gBull = Math.min(0.26, gBase * 1.30);
+
+            function runDcfModel(startFcf, g, wacc, termG) {
+                let pvSum = 0;
+                let projFcf = startFcf;
+                for (let y = 1; y <= 5; y++) {
+                    projFcf *= (1 + g * Math.pow(0.95, y - 1));
+                    pvSum += projFcf / Math.pow(1 + wacc, y);
+                }
+                const tv = (projFcf * (1 + termG)) / Math.max(0.01, (wacc - termG));
+                const pvTv = tv / Math.pow(1 + wacc, 5);
+                return Math.max(1, pvSum + pvTv);
+            }
+
+            let dcfBase = Math.round(runDcfModel(fcfPerShare, gBase, 0.085, 0.025) * 100) / 100;
+            let dcfBear = Math.round(runDcfModel(fcfPerShare, gBear, 0.095, 0.015) * 100) / 100;
+            let dcfBull = Math.round(runDcfModel(fcfPerShare, gBull, 0.075, 0.030) * 100) / 100;
+
+            // Safety guard: Ensure proper hierarchy Bear < Base < Bull
+            if (dcfBear >= dcfBase) dcfBear = Math.round(dcfBase * 0.85 * 100) / 100;
+            if (dcfBull <= dcfBase) dcfBull = Math.round(dcfBase * 1.25 * 100) / 100;
+
+            const marginOfSafetyPct = dcfBase > 0 
+                ? Math.round(((dcfBase - curP) / dcfBase) * 1000) / 10 
+                : 0.0;
+
+            return {
+                dcfBear,
+                dcfBase,
+                dcfBull,
+                marginOfSafetyPct,
+                currentPrice: curP,
+                currency: cur
+            };
+        }
+
+        function formatEmpiricalValuationFacts(dataset) {
+            if (!dataset) return '';
+            
+            let valResult = null;
+            try {
+                valResult = calculateHistoricalValuationJs(dataset, { 
+                    selectedMethod: 'pe_adj', 
+                    timeframe: 'MAX', 
+                    granularity: 'annual' 
+                });
+            } catch (e) {
+                console.warn('[Valuation Facts Generator] calculateHistoricalValuationJs error:', e);
+            }
+
+            const dcfResult = calculateEmpiricalDcfScenarios(dataset);
+            const stats = valResult?.statistics || {};
+            const curPrice = dcfResult.currentPrice ? dcfResult.currentPrice.toFixed(2) : (dataset.currentPrice ? dataset.currentPrice.toFixed(2) : 'N/A');
+            const cur = dcfResult.currency || dataset.currency || '$';
+
+            const peAdjCurr = stats.pe_adj?.current != null ? stats.pe_adj.current.toFixed(1) : (stats.pe_rep?.current != null ? stats.pe_rep.current.toFixed(1) : 'N/A');
+            const peAdjMed = stats.pe_adj?.median != null ? stats.pe_adj.median.toFixed(1) : (stats.pe_rep?.median != null ? stats.pe_rep.median.toFixed(1) : 'N/A');
+            const peRepCurr = stats.pe_rep?.current != null ? stats.pe_rep.current.toFixed(1) : 'N/A';
+            const peRepMed = stats.pe_rep?.median != null ? stats.pe_rep.median.toFixed(1) : 'N/A';
+            const pfcfCurr = stats.pfcf?.current != null ? stats.pfcf.current.toFixed(1) : 'N/A';
+            const pfcfMed = stats.pfcf?.median != null ? stats.pfcf.median.toFixed(1) : 'N/A';
+            const psCurr = stats.ps?.current != null ? stats.ps.current.toFixed(1) : 'N/A';
+            const psMed = stats.ps?.median != null ? stats.ps.median.toFixed(1) : 'N/A';
+            
+            const pctVal = stats.pe_adj?.currentPercentile != null ? stats.pe_adj.currentPercentile : (stats.pe_rep?.currentPercentile != null ? stats.pe_rep.currentPercentile : null);
+            const pctPos = pctVal != null 
+                ? `${pctVal.toFixed(1)}% (${pctVal <= 35 ? 'DEEP DISCOUNT' : (pctVal <= 65 ? 'FAIR' : 'PREMIUM')})` 
+                : 'N/A';
+
+            return `EMPIRICAL VALUATION MULTIPLES & DCF BENCHMARKS (Single Source of Truth from Engine):
+- KGV Bereinigt / Adj. P/E: Aktuell ${peAdjCurr}x (Historischer Median: ${peAdjMed}x)
+- KGV Bilanziert / GAAP P/E: Aktuell ${peRepCurr}x (Historischer Median: ${peRepMed}x)
+- KCV (Cashflow) / P/FCF: Aktuell ${pfcfCurr}x (Historischer Median: ${pfcfMed}x)
+- KUV (Umsatz) / P/S: Aktuell ${psCurr}x (Historischer Median: ${psMed}x)
+- Historische Multiple-Perzentil-Position: ${pctPos}
+- Aktueller Live-Kurs: ${curPrice} ${cur}
+- Empirischer DCF Bear: ${dcfResult.dcfBear.toFixed(2)} ${cur} (WACC 9.5%, g 1.5%)
+- Empirischer DCF Base: ${dcfResult.dcfBase.toFixed(2)} ${cur} (WACC 8.5%, g 2.5%)
+- Empirischer DCF Bull: ${dcfResult.dcfBull.toFixed(2)} ${cur} (WACC 7.5%, g 3.0%)
+- Margin of Safety zum DCF-Base-Wert: ${dcfResult.marginOfSafetyPct >= 0 ? '+' : ''}${dcfResult.marginOfSafetyPct.toFixed(2)}% (entspricht aktuellem Kurs ${curPrice} ${cur} vs. Fair Value ${dcfResult.dcfBase.toFixed(2)} ${cur})`;
+        }
+
         // ==================== SINGLE-AGENT REFRESH & SYNTHESIS FALLBACK ====================
         function synthesizeMissingAgentFallback(agentId, dataset, identityText) {
             const ann = dataset?.annual || [];
@@ -4344,16 +4471,14 @@ Moat Durability: MODERATE
 Business Quality Verdict: [STRONG]`;
 
                 case 'financial_quality':
-                    const bearVal = curP > 0 ? (curP * 0.85).toFixed(2) : '100.00';
-                    const baseVal = curP > 0 ? (curP * 1.15).toFixed(2) : '120.00';
-                    const bullVal = curP > 0 ? (curP * 1.45).toFixed(2) : '140.00';
+                    const dcfScenarios = calculateEmpiricalDcfScenarios(dataset);
                     return `Highlights: Robuste Kapitalrentabilität mit einem ROIC von ${latest.roic != null ? latest.roic.toFixed(1) + '%' : 'über Kapitalkosten'} und disziplinierter Kapitalallokation bei solidem Verschuldungsgrad (Debt/Equity: ${latest.debtToEquity != null ? latest.debtToEquity.toFixed(2) : 'moderat'}).
 ROIC vs WACC: VALUE CREATING
 DCF Methodology: Die DCF-Szenarien basieren auf den nachhaltigen Free-Cash-Flow-Projektionen, Diskontierungssätzen (WACC) und Terminal-Wachstumsannahmen.
-DCF Bear: ${bearVal} ${cur}
-DCF Base: ${baseVal} ${cur}
-DCF Bull: ${bullVal} ${cur}
-Valuation Verdict: [FAIRLY VALUED]
+DCF Bear: ${dcfScenarios.dcfBear.toFixed(2)} ${dcfScenarios.currency}
+DCF Base: ${dcfScenarios.dcfBase.toFixed(2)} ${dcfScenarios.currency}
+DCF Bull: ${dcfScenarios.dcfBull.toFixed(2)} ${dcfScenarios.currency}
+Valuation Verdict: [${dcfScenarios.marginOfSafetyPct >= 15 ? 'UNDERVALUED' : (dcfScenarios.marginOfSafetyPct <= -15 ? 'OVERVALUED' : 'FAIRLY VALUED')}]
 Financial Quality Verdict: [STRONG]`;
 
                 case 'market_structure':
@@ -4586,7 +4711,7 @@ Technical Signal: [NEUTRAL]`;
                 );
 
                 // Step 5: Executive Committee Master Fazit Synthesis (~800 Tokens)
-                const executivePrompt = getExecutivePrompt(query, currentLangName, existingAnalysis, validation);
+                const executivePrompt = getExecutivePrompt(query, currentLangName, existingAnalysis, validation, dataset);
                 const executiveText = await fetchSingleBatch(query, user, executivePrompt, 1, false, dataset, MODEL_ID);
                 const execData = parseFrameworks(executiveText);
 
@@ -4998,7 +5123,7 @@ Technical Signal: [NEUTRAL]`;
                 'Zusammenfassung der Teilergebnisse, Ermittlung des Valuation-Scores und Aufbau des Dashboards.'
             );
 
-            const executivePrompt = getExecutivePrompt(query, lang, researchData, validation);
+            const executivePrompt = getExecutivePrompt(query, lang, researchData, validation, dataset);
             const executiveText = await fetchSingleBatch(query, user, executivePrompt, 1, false, dataset, MODEL_ID);
             const executiveData = parseFrameworks(executiveText);
 
@@ -5219,6 +5344,7 @@ Data Timestamp: [${todayIso}]
                 cleanDataset = rest;
             }
             const datasetJson = JSON.stringify(cleanDataset || {}, null, 2);
+            const valuationFacts = formatEmpiricalValuationFacts(dataset);
 
             let prompt = `CURRENT DATE: ${todayIso}
 LANGUAGE: Respond EXCLUSIVELY in ${lang}.
@@ -5230,6 +5356,8 @@ Use the following verified corporate and financial dataset as the strict factual
 COMPANY IDENTITY:
 ${identityText || `Company: ${query}`}
 
+${valuationFacts ? `\n${valuationFacts}\n` : ''}
+
 FINANCIAL DATASET (Annual & TTM Financial Statements):
 \`\`\`json
 ${datasetJson}
@@ -5240,6 +5368,7 @@ You are an institutional investment committee.
 Perform the specialized institutional analyses based on the verified dataset above.
 Output each requested section in exact XML tags (${agentIds.map(id => `<${id}>...</${id}>`).join(' ')}).
 Keep each point concise, precise, and high-impact. Avoid long filler prose.
+STRICT CONSTRAINT: In <financial_quality>, adopt the exact empirical DCF Bear, Base, and Bull values from the EMPIRICAL VALUATION MULTIPLES & DCF BENCHMARKS block. Do NOT hallucinate other numbers.
 
 `;
 
@@ -5256,8 +5385,11 @@ Keep each point concise, precise, and high-impact. Avoid long filler prose.
             return getDatasetPrompt(query, lang);
         }
 
-        function getExecutivePrompt(query, lang, researchData, validation) {
+        function getExecutivePrompt(query, lang, researchData, validation, dataset = null) {
             const todayIso = new Date().toISOString().split('T')[0];
+            const targetDataset = dataset || researchData?.financial_dataset || researchData?.historical_dataset || CURRENT_NORMALIZED_HISTORICAL_DATA;
+            const valuationFacts = formatEmpiricalValuationFacts(targetDataset);
+
             let prompt = `CURRENT DATE: ${todayIso}
 LANGUAGE: Respond EXCLUSIVELY in ${lang}.
 TASK: Phase 2 Investment Committee Executive Synthesis for "${query}".
@@ -5268,6 +5400,8 @@ OBJECTIVE: Synthetisiere die strukturierten Research-Befunde der Fachanalysten z
 RESEARCH DATA STATUS:
 Status: ${validation.researchStatus}
 Missing Perspectives: ${validation.missingAgents.length > 0 ? validation.missingAgents.join(', ') : 'None (All Domains Complete)'}
+
+${valuationFacts ? `${valuationFacts}\n` : ''}
 
 INPUT CONTRACT (Analyst Findings):
 These are the verified findings of the specialist analysts. Synthesize your final investment verdict strictly based on the findings below.
@@ -5288,18 +5422,19 @@ ${researchData.market_structure || 'N/A'}
 </market_structure>
 
 STRICT SYNTHESIS DIRECTIVES:
-1. FOCUS: Synthesize concise qualitative conclusions based strictly on the verified facts above.
+1. FOCUS: Synthesize concise qualitative conclusions based strictly on the verified empirical facts above.
 2. CONCISE IMPACT: Keep each thesis and risk point to maximum 1-2 punchy sentences.
 3. HISTORIC MULTIPLE & DCF SYNTHESIS: 
-   - Under 'Market Expectations Embedded', explicitly compare current P/E with historic median P/E and state clearly if it is historically cheap, fair, or expensive.
-   - Under 'Margin of Safety', give exactly 1 sentence stating the margin of safety in % and the concrete price level compared to DCF Base.
+   - Under 'Market Expectations Embedded', strictly compare the current empirical P/E with the historical median P/E from the EMPIRICAL VALUATION MULTIPLES block above. Do NOT invent other P/E numbers.
+   - Under 'Margin of Safety', use the MANDATORY syntax:
+     "Margin of Safety: Die Margin of Safety zum DCF-Basiswert beträgt [X.X]%, dies entspricht einem Kurs von [Aktueller Kurs mit Währung] im Vergleich zum fairen Wert von [DCF Base Kurs mit Währung]."
    - Under 'Final Terminal Sentiment', state the overall rating and exactly 1 concise sentence synthesizing the historic P/E perspective with the DCF fair value perspective.
 4. OUTPUT FORMAT: Output ONLY the <executive_summary> XML block.
 
 OUTPUT FORMAT:
 <executive_summary>
-Market Expectations Embedded: [1-2 Sätze: Vergleich des aktuellen KGV mit dem historischen Median-KGV und klares Fazit, ob die Aktie laut historischem Multiple teuer, fair oder günstig bewertet ist]
-Margin of Safety: [1 Satz: Wie hoch die Margin of Safety in Prozent zum DCF-Base-Wert ist und bei welchem konkreten Kurs diese liegt]
+Market Expectations Embedded: [1-2 Sätze: Nutze den exakten KGV-Vergleich (Aktuell vs. Historischer Median) aus dem Faktenblock und gib ein klares Fazit, ob die Aktie laut historischem Multiple teuer, fair oder günstig bewertet ist]
+Margin of Safety: [MANDATORY SYNTAX: Die Margin of Safety zum DCF-Basiswert beträgt [X.X]%, dies entspricht einem Kurs von [Aktueller Kurs mit Währung] im Vergleich zum fairen Wert von [DCF Base Kurs mit Währung].]
 Investment Thesis: [1-2 prägnante Sätze zur Kernthese]
 Counter Thesis: [1-2 prägnante Sätze zum Bärenfall / Hauptrisiko]
 Key Catalyst: [Genau 1 Hauptkatalysator]
@@ -5732,14 +5867,15 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
         }
 
         // DCF Potential extraction — STRICT OWNERSHIP: valuation module
+        // DCF Potential extraction — STRICT OWNERSHIP: financial_quality & executive_summary
         function extractDcfPotential(dcfText, allData = null) {
-            const raw = dcfText || (allData ? allData.valuation : '') || '';
+            const raw = dcfText || (allData ? (allData.financial_quality || allData.executive_summary || allData.valuation) : '') || '';
             if (!raw) return '--';
             const clean = String(raw).replace(/```[a-z]*\n?/gi, '').replace(/[*_#]/g, '').trim();
             let pot = '';
 
             // 1. Look for explicit DCF Upside/Downside or Margin of Safety
-            const upMatch = clean.match(/(?:DCF\s*Upside\/Downside|Margin\s*of\s*Safety):\s*([^\n]+)/i);
+            const upMatch = clean.match(/(?:DCF\s*Upside\/Downside|Margin\s*of\s*Safety|Sicherheitsmarge):\s*([^\n]+)/i);
             if (upMatch) {
                 const line = upMatch[1].trim();
                 const rangeMatch = line.match(/([+\-]?\d+(?:[.,]\d+)?\s*%\s*(?:bis|to|-)\s*[+\-]?\d+(?:[.,]\d+)?\s*%)/i);
@@ -5754,8 +5890,15 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
             // 2. Derive from DCF Base vs Current Price if explicit percentage not found
             if (!pot) {
                 const baseMatch = clean.match(/DCF\s*Base:\s*([\d.,]+)/i);
-                const rawPriceText = document.getElementById('id_price')?.textContent || '';
-                const { price: currentPrice } = parseCurrencyAndPrice(rawPriceText);
+                let currentPrice = null;
+                if (allData?.financial_dataset?.currentPrice) {
+                    currentPrice = allData.financial_dataset.currentPrice;
+                } else {
+                    const rawPriceText = document.getElementById('id_price')?.textContent || '';
+                    const { price } = parseCurrencyAndPrice(rawPriceText);
+                    currentPrice = price;
+                }
+
                 if (baseMatch && baseMatch[1] && currentPrice && currentPrice > 0) {
                     const dcfBase = parseFloat(baseMatch[1].replace(',', '.'));
                     if (dcfBase && dcfBase > 0) {
@@ -5786,7 +5929,7 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
                 return;
             }
 
-            const dcfText = data.valuation || '';
+            const dcfText = data.financial_quality || data.executive_summary || data.valuation || '';
             const potValue = extractDcfPotential(dcfText, data);
             potEl.textContent = potValue;
 
@@ -11705,8 +11848,8 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
             const priceNum = parsePriceNumber(rawPrice);
             const currency = extractCurrency(rawPrice) || '$';
 
-            // DCF Potential — STRICT OWNERSHIP: valuation
-            const dcfText = data.valuation || '';
+            // DCF Potential — STRICT OWNERSHIP: financial_quality & executive_summary
+            const dcfText = data.financial_quality || data.executive_summary || data.valuation || '';
             const dcfPotential = extractDcfPotential(dcfText, data);
 
             let dcfNum = null;
@@ -12203,8 +12346,8 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
                     verdictBadgeClass = 'bg-amber-500/15 text-amber-400 border-amber-500/30';
                 }
 
-                // 2. Extract DCF Price Potential — STRICT OWNERSHIP: valuation
-                const dcfPot = extractDcfPotential(data.valuation || '', data);
+                // 2. Extract DCF Price Potential — STRICT OWNERSHIP: financial_quality & executive_summary
+                const dcfPot = extractDcfPotential(data.financial_quality || data.executive_summary || data.valuation || '', data);
                 let dcfBadgeClass = 'bg-slate-500/15 text-slate-400 border-slate-500/30';
                 if (dcfPot !== '--') {
                     if (dcfPot.includes('-') && !dcfPot.includes('bis') && !dcfPot.includes('to')) {
