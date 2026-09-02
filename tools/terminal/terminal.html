@@ -5531,28 +5531,38 @@ ${researchData.market_structure || 'N/A'}
 </market_structure>
 
 STRICT SYNTHESIS DIRECTIVES:
-1. FOCUS & ELOQUENT STYLE: Formuliere deine Analysen und Urteile frei, sprachlich abwechslungsreich und auf den Punkt. Vermeide starre Textbausteine oder monotone Satzschablonen. Jedes Fazit soll sich individuell, lebendig und institutionell hochprofessionell lesen.
-2. CONCISE IMPACT: Halte Thesen und Risikopunkte prägnant (1-2 kraftvolle Sätze).
-3. HISTORIC MULTIPLE & VALUE-CHART BENCHMARK: 
-   - Gehe unter 'Market Expectations Embedded' konkret auf das aktuelle KGV im Vergleich zum historischen 5J-Median und den prozentualen Value-Chart-Abstand ein (z. B. -7.9% oder +14.2%) und übernimm das institutionelle Bewertungsurteil (z. B. 'FAIR BEWERTET' bei geringer Abweichung von +/-10%).
-   - Verwende keine statistischen Perzentil-Begriffe im Fließtext.
-4. DCF-SICHERHEITSMARGE & EINSTIEGSKURS:
-   - Erkläre unter 'Margin of Safety' in eigenen, flüssigen Worten die Sicherheitsmarge (bei Unterbewertung Kurs < DCF Base) bzw. den Bewertungsaufschlag (bei Kurs >= DCF Base).
-   - Nenne dabei stets den aktuellen Einstiegskurs im Verhältnis zum fairen DCF-Basiswert (sowie bei Aufschlägen das Kursniveau, bei dem eine 15%ige Sicherheitsmarge erreicht wäre).
-5. RULE OF 40 & REINVESTITIONSKRAFT (bei Tech / Growth / Platform):
-   - Falls Rule-of-40-Daten im Faktenblock vorliegen, beziehe die Reinvestitions- und Cashflow-Effizienz (Elite >=55%, Gesund >=40%, Moderat oder Fragil) in deine Markteinschätzung oder Kernthese ein.
-6. OUTPUT FORMAT: Gib AUSSCHLIESSLICH den <executive_summary> XML-Block aus.
+1. ORTHOGONALITY & ZERO REDUNDANCY (Strikte thematische Aufgabenteilung):
+   - Jedes der 8 Ausgabefelder muss eine VÖLLIG EIGENSTÄNDIGE Informationseinheit liefern.
+   - STRIKTES VERBOT VON PHRASEN-RECYCLING: Wiederhole KEINE Wörter, Phrasen oder Satzteile zwischen den Feldern (z. B. niemals Wörter aus der Investment Thesis oder Margin of Safety im Final Terminal Sentiment wiederholen).
+   - GEOGRAFISCHE SPARSAMKEIT: Nenne den Kontinent/das Land des Unternehmens maximal EINMAL im gesamten Text. Vermeide es zwingend, in mehreren Aufzählungspunkten hintereinander dieselbe Region (z. B. 'in Lateinamerika') zu wiederholen. Nenne stattdessen konkrete Produkte, Segmente oder Geschäftsbereiche.
+2. HISTORIC MULTIPLE & VALUE-CHART BENCHMARK: 
+   - Gehe unter 'Market Expectations Embedded' konkret auf das aktuelle KGV im Vergleich zum historischen 5J-Median und den prozentualen Value-Chart-Abstand ein (z. B. -7.9% oder +14.2%) und übernimm das deterministische Bewertungsurteil (z. B. 'FAIR BEWERTET' bei geringer Abweichung von +/-10%).
+   - Beziehe hier auch die Rule of 40 (Reinvestitionseffizienz) ein, um die Bewertung einzuordnen. (Die Rule of 40 gehört NUR hierher und darf NICHT in der Counter Thesis wiederholt werden).
+3. DCF-SICHERHEITSMARGE & EINSTIEGSKURS:
+   - Erkläre unter 'Margin of Safety' in präzisen Worten die Sicherheitsmarge (bei Unterbewertung Kurs < DCF Base) bzw. den Bewertungsaufschlag (bei Kurs >= DCF Base) mit Einstiegskurs und fairem DCF-Wert.
+   - Verzichte auf werbende Floskeln (wie 'attraktive Sicherheitsmarge'), die später im Sentiment recycelt werden könnten.
+4. INVESTMENT THESIS vs. COUNTER THESIS:
+   - 'Investment Thesis': 1-2 prägnante Sätze ausschließlich zum ökonomischen Burggraben, Ertragsmechanismus und zur Kapitaleffizienz (ROIC/ROE).
+   - 'Counter Thesis': 1-2 prägnante Sätze zu strukturellen Gegenwinden oder operativen Risiken (keine Wiederholung von R40 oder generischen Wachstumsphrasen).
+5. KEY CATALYST, KEY RISK & THESIS BREAKER:
+   - 'Key Catalyst': Genau 1 konkreter, operativer Wachstumstreiber (z. B. Skalierung des Werbegeschäfts, Ausbau der Logistikmarge). Vermeide generische Floskeln wie 'Beschleunigung des Wachstums'.
+   - 'Key Risk': Genau 1 spezifisches Geschäfts- oder Marktrisiko (muss sich thematisch klar von der Counter Thesis unterscheiden).
+   - 'Thesis Breaker': Genau 1 harte, quantifizierbare Kennzahlenschranke mit Zeithorizont (z. B. 'Umsatzwachstum < 10% p.a. bei FCF-Marge < 15% über 2 aufeinanderfolgende Quartale').
+6. FINAL TERMINAL SENTIMENT (Übergeordnetes CIO-Fazit):
+   - Format: [[RATING]] - [Genau 1 neuer, übergeordneter Schlusssatz aus der Vogelperspektive].
+   - STRIKT VERBOTEN: Das Sentiment darf die Investment Thesis, Margin of Safety oder Kapitaleffizienz NICHT wiederholen oder zusammenfassen. Es liefert eine eigenständige Portfolio-Konklusion.
+7. OUTPUT FORMAT: Gib AUSSCHLIESSLICH den <executive_summary> XML-Block aus.
 
 OUTPUT FORMAT:
 <executive_summary>
-Market Expectations Embedded: [1-2 freie, abwechslungsreiche Sätze: KGV-Vergleich zum historischen Median, prozentuale Abweichung und Übernahme des Bewertungsurteils, ggf. Reinvestitionseffizienz / Rule of 40]
-Margin of Safety: [1-2 freie, flüssige Sätze: Sicherheitsmarge bzw. Bewertungsaufschlag zum fairen DCF-Basiswert mit Nennung des Einstiegskurses und fairen Wertes]
-Investment Thesis: [1-2 prägnante, eigenständige Sätze zur Kernthese]
-Counter Thesis: [1-2 prägnante Sätze zum Bärenfall / Hauptrisiko]
-Key Catalyst: [Genau 1 Hauptkatalysator]
-Key Risk: [Genau 1 Hauptrisiko]
-Thesis Breaker: [Konkretes Ereignis/Schwelle, das die These ungültig macht]
-Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRLY VALUED] / [OVERVALUED] / [HIGH RISK / VALUE TRAP] / [AVOID / UNJUSTIFIED PREMIUM] / [NEGATIVE] / [STRONG NEGATIVE]] - [1 prägnanter Satz: Individuelle Synthese aus KGV, DCF-Bewertung und Geschäftsqualität]
+Market Expectations Embedded: [1-2 Sätze: KGV-Vergleich zum historischen 5J-Median, prozentualer Value-Chart-Abstand, Übernahme des Bewertungsurteils und Einordnung anhand der Rule of 40]
+Margin of Safety: [1-2 sachliche Sätze: Sicherheitsmarge bzw. Bewertungsaufschlag zum fairen DCF-Basiswert mit exaktem Einstiegskurs und DCF-Wert]
+Investment Thesis: [1-2 Sätze: Spezifischer ökonomischer Burggraben und Ertragsmotor (ohne Phrasen, die im Sentiment recycelt werden)]
+Counter Thesis: [1-2 Sätze: Spezifische strukturelle Gegenwinde (keine R40-Wiederholung)]
+Key Catalyst: [Genau 1 spezifischer operativer Kurstreiber (keine generischen Floskeln)]
+Key Risk: [Genau 1 konkretes, nicht-überlappendes Geschäftsrisiko]
+Thesis Breaker: [Genau 1 harte, quantifizierbare Kennzahlenschranke mit Zeitfenster]
+Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRLY VALUED] / [OVERVALUED] / [HIGH RISK / VALUE TRAP] / [AVOID / UNJUSTIFIED PREMIUM] / [NEGATIVE] / [STRONG NEGATIVE]] - [1 eigenständiger Schlusssatz: Übergeordnete Portfolio-Konklusion ohne Wiederholung von Thesis oder Margin of Safety]
 </executive_summary>`;
 
             return prompt;
