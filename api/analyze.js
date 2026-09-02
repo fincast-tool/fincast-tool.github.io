@@ -509,7 +509,7 @@ Nutze Google Grounding, um alle geforderten Fundamentaldaten (Umsatzwachstum, Ma
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(geminiBody),
-            signal: AbortSignal.timeout(45000)
+            signal: AbortSignal.timeout(55000)
         });
 
         const data = await response.json().catch(() => ({}));
