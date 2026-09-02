@@ -3930,9 +3930,10 @@
                         cleanAnalysisData.historical_dataset.historicalPrices = cleanAnalysisData.historical_dataset.historicalPrices.slice(-150);
                     }
 
+                    const tickerKey = (histDataset?.symbol || query).toUpperCase();
                     const record = {
-                        ticker: query.toUpperCase(),
-                        symbol: histDataset?.symbol || query.toUpperCase(),
+                        ticker: tickerKey,
+                        symbol: tickerKey,
                         name: resolvedName,
                         date: new Date().toISOString().split('T')[0],
                         timestamp: new Date().toISOString(),
@@ -3940,7 +3941,16 @@
                         data: cleanAnalysisData
                     };
 
-                    apiCall('save_analysis', { data: record }).catch(e => console.error('Save failed:', e));
+                    apiCall('save_analysis', {
+                        email: user.email,
+                        key: tickerKey,
+                        data: record
+                    }).then(res => {
+                        console.log('[Terminal Cloud Save] Successfully saved to Archive & Screener:', res);
+                    }).catch(e => {
+                        console.error('[Terminal Cloud Save Error]:', e);
+                    });
+
                     await incrementQuery(user.email, MODEL_ID).catch(() => { });
                     await updateFooter(user).catch(() => { });
                 }
