@@ -5163,7 +5163,7 @@ Technical Signal: [NEUTRAL]`;
                 );
                 
                 const datasetPrompt = getDatasetPrompt(query, lang, marketQuote);
-                const useSearch = !marketQuote;
+                const useSearch = true; // Always enable Google Search Grounding for fundamental research
                 const datasetResponseText = await fetchSingleBatch(query, user, datasetPrompt, 1, useSearch, null, 'gemini-2.5-flash');
                 const phase1Data = parseFrameworks(datasetResponseText);
 
@@ -5171,8 +5171,12 @@ Technical Signal: [NEUTRAL]`;
 
                 const extractedDataset = phase1Data.financial_dataset || null;
                 if (extractedDataset) {
+                    extractedDataset.isGoogleGrounded = true;
                     const normalized = normalizeHistoricalFinancialData(extractedDataset, identityText, phase1Data);
-                    if (normalized && normalized.annual && normalized.annual.length > 0) dataset = normalized;
+                    if (normalized && normalized.annual && normalized.annual.length > 0) {
+                        normalized.isGoogleGrounded = true;
+                        dataset = normalized;
+                    }
                 }
 
                 if (dataset && marketQuote && Array.isArray(marketQuote.historicalPrices) && marketQuote.historicalPrices.length > 0) {
@@ -5361,6 +5365,15 @@ VERIFIED LIVE MARKET DATA:
 - Sector: ${sec}
 - Industry: ${ind}
 
+GOOGLE SEARCH GROUNDING & SOURCE PRIORITIZATION:
+- USE GOOGLE SEARCH GROUNDING ACTIVELY: Search for the real reported financial statements, 10-K filings, and balance sheets of "${cName}" (${sym}).
+- Recommended targeted search queries:
+  * "${sym} annual financial statements revenue operating income free cash flow ROIC 2020 2021 2022 2023 2024 TTM"
+  * "${cName} 10-K annual balance sheet cash flow statement shares outstanding stockanalysis macrotrends"
+- Preferred institutional financial sources:
+  * stockanalysis.com, macrotrends.net, morningstar.com, finance.yahoo.com, sec.gov, official Investor Relations
+- STRICT FACTUAL INTEGRITY: Extract the ACTUAL empirical numbers (Revenue, EBIT, FCF, Net Income, ROIC, ROE, Debt/Equity, P/E) reported by the company. Do NOT use placeholder or dummy numbers.
+
 STRICT DIRECTIVES:
 1. USE VERIFIED FACTS: Use the exact Live Price (${price} ${cur}), Currency (${cur}), Ticker (${sym}), and Company Name (${cName}) as provided above.
 2. DYNAMIC 5-YEAR ROLLING FINANCIAL STATEMENTS + CURRENT YEAR ESTIMATE (${yEnd}e): 
@@ -5370,7 +5383,7 @@ STRICT DIRECTIVES:
    - Dividends: If the company does not pay a dividend (e.g. non-dividend growth stock like MercadoLibre, Amazon, Tesla), set "dividendPerShare", "dividendYield", and "payoutRatio" strictly to 0. Do NOT invent or estimate fake dividends.
    - Shares Outstanding: Provide the real annual weighted average diluted shares outstanding ("sharesOutstanding") for each individual fiscal year from official 10-K filings, reflecting historical share issuances, SBC dilution, or share buybacks.
    - Values: Ensure all numerical values are plain numbers in native currency (${cur}). Provide realistic distinction between GAAP EPS (unbereinigt) and Adjusted EPS (bereinigt um Einmaleffekte/SBC).
-4. OUTPUT FORMAT: Output ONLY the two requested XML blocks below (<company_identity> and <financial_dataset>). Do NOT output conversational text, markdown commentary, or explanations.
+4. OUTPUT FORMAT & VALID JSON: Output ONLY the two requested XML blocks below (<company_identity> and <financial_dataset>). Ensure the JSON inside <financial_dataset> is 100% valid, well-formed JSON without comments, trailing commas, or markdown citations.
 
 <company_identity>
 Name: ${cName}
@@ -5690,7 +5703,15 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
                     if (content) {
                         if (id === 'financial_dataset') {
                             try {
-                                let jsonStr = content.replace(/```json/gi, '').replace(/```/g, '').trim();
+                                let jsonStr = content
+                                    .replace(/```json/gi, '')
+                                    .replace(/```/g, '')
+                                    .replace(/\/\/[^\n]*/g, '')
+                                    .replace(/\/\*[\s\S]*?\*\//g, '')
+                                    .replace(/\[\s*cite:[^\]]+\]/gi, '')
+                                    .replace(/\[\d+\]/g, '')
+                                    .replace(/,\s*([\}\]])/g, '$1')
+                                    .trim();
                                 const startObj = jsonStr.indexOf('{');
                                 const endObj = jsonStr.lastIndexOf('}');
                                 if (startObj !== -1 && endObj !== -1 && endObj > startObj) {
@@ -5734,11 +5755,20 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
                 const jsonMatch = rawText.match(/```json\s*(\{[\s\S]*?"annual"[\s\S]*?\})\s*```/i) || rawText.match(/(\{[\s\S]*?"annual"\s*:\s*\[[\s\S]*?\][\s\S]*?\})/);
                 if (jsonMatch && jsonMatch[1]) {
                     try {
-                        const parsed = JSON.parse(jsonMatch[1]);
+                        let cleanJ = jsonMatch[1]
+                            .replace(/\/\/[^\n]*/g, '')
+                            .replace(/\/\*[\s\S]*?\*\//g, '')
+                            .replace(/\[\s*cite:[^\]]+\]/gi, '')
+                            .replace(/\[\d+\]/g, '')
+                            .replace(/,\s*([\}\]])/g, '$1')
+                            .trim();
+                        const parsed = JSON.parse(cleanJ);
                         if (parsed && Array.isArray(parsed.annual) && parsed.annual.length > 0) {
                             data.financial_dataset = parsed;
                         }
-                    } catch (e) {}
+                    } catch (e) {
+                        console.warn('[Framework Parser] Standalone JSON parse error:', e);
+                    }
                 }
             }
 
@@ -9221,7 +9251,10 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
             const confBadge = document.getElementById('snapshotConfidenceBadge');
             const confText = document.getElementById('snapshotConfidenceText');
             if (confBadge && confText) {
-                if (dataset.isSynthetic || dataset.dataConfidence === 'SYNTHETIC') {
+                if (dataset.isGoogleGrounded || dataset.dataConfidence === 'GROUNDED' || (dataset.availableYears >= 3 && !dataset.isSynthetic)) {
+                    confBadge.className = 'px-2.5 py-0.5 rounded text-[10px] font-mono font-medium flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400';
+                    confText.textContent = 'Datenqualität: Live Recherche (Google Grounded)';
+                } else if (dataset.isSynthetic || dataset.dataConfidence === 'SYNTHETIC') {
                     confBadge.className = 'px-2.5 py-0.5 rounded text-[10px] font-mono font-medium flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/30 text-amber-300';
                     confText.textContent = 'Datenqualität: Synthetisch (KI-Modell)';
                 } else if (dataset.dataConfidence === 'HIGH') {
