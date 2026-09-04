@@ -1472,7 +1472,7 @@
                                             </button>
                                         </div>
                                         <div class="lg:mt-1 flex flex-col items-end">
-                                            <span class="text-[9px] text-slate-400 font-medium block text-right uppercase tracking-wider mb-0.5" data-de="Kurspotenzial DCF" data-en="DCF Price Potential" data-fr="Potentiel de Cours DCF" data-es="Potencial de Precio DCF">DCF Potenzial</span>
+                                            <span id="id_potential_label" class="text-[9px] text-slate-400 font-medium block text-right uppercase tracking-wider mb-0.5" data-de="Kurspotenzial (Base Case)" data-en="Upside Potential (Base Case)" data-fr="Potentiel de Cours (Base)" data-es="Potencial de Precio (Base)">Kurspotenzial (Base)</span>
                                             <div id="id_dcf_potential" class="font-mono text-xs sm:text-sm font-bold text-emerald-400 text-right truncate">--</div>
                                         </div>
                                     </div>
@@ -6161,13 +6161,13 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
             return parseFloat(numStr);
         }
 
-        // Structured Stock Screener Showcase — Disjoint domain extraction
+        // Structured Stock Screener Showcase — Disjoint domain extraction & empirical single source of truth
         function extractStockScreenerShowcase(screenerText = '', currentPriceText = '', allData = null) {
             if (!allData && !screenerText) return {
                 peLabel: 'KGV (Akt. / Ø):',
                 pe: '--',
                 growth: '--',
-                dividend: null,
+                dividend: '--',
                 targets: '--',
                 potentials: '--',
                 bullPct: null,
@@ -6179,9 +6179,11 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
                 expectationBurden: null
             };
 
-            const valText = allData?.valuation || screenerText || '';
-            const finText = allData?.financial_quality || '';
-            const earnText = allData?.earnings_expectations || '';
+            const rawData = allData?.data || allData || {};
+            const dataset = rawData.financial_dataset || rawData.historical_dataset || null;
+            const valText = rawData.valuation || screenerText || '';
+            const finText = rawData.financial_quality || '';
+            const earnText = rawData.earnings_expectations || '';
 
             let peLabel = 'KGV (Akt. / Ø):';
             let pe = '--';
@@ -6194,19 +6196,39 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
             let bullNum = null;
             let bearNum = null;
 
-            // 1. P/E Analysis from Valuation
-            const peMatch = valText.match(/(?:Current\s*P\/E|Forward\s*P\/E|P\/E|KGV):\s*([^\n]+)/i);
-            if (peMatch) {
-                const line = peMatch[1].trim();
-                const mCurr = line.match(/^(\d+(?:[.,]\d+)?)/);
-                if (mCurr) currentPe = mCurr[1];
+            // 1. P/E Analysis (Empirical First, Fallback to Text Parsing)
+            if (dataset) {
+                try {
+                    const valResult = calculateHistoricalValuationJs(dataset, { selectedMethod: 'pe_adj', timeframe: 'MAX' });
+                    const stats = valResult?.statistics || {};
+                    const peObj = (stats.pe_adj && stats.pe_adj.count > 0) ? stats.pe_adj : stats.pe_rep;
+                    if (peObj) {
+                        if (typeof peObj.current === 'number' && Number.isFinite(peObj.current) && peObj.current > 0) {
+                            currentPe = peObj.current.toFixed(1);
+                        }
+                        if (typeof peObj.median === 'number' && Number.isFinite(peObj.median) && peObj.median > 0) {
+                            avgPe = peObj.median.toFixed(1);
+                        }
+                    }
+                } catch (e) {}
             }
 
-            const avgMatch = valText.match(/(?:5Y\s*Avg\s*P\/E|5J\s*Ø\s*KGV|Historical\s*Avg\s*P\/E)[:\s]*(\d+(?:[.,]\d+)?)/i) ||
-                             valText.match(/(?:5Y\s*Avg|5J\s*Ø|5-Jahres-Ø)[^\d\n]*?(\d+(?:[.,]\d+)?)\s*x?/i);
-            if (avgMatch && avgMatch[1]) {
-                const parsedAvg = parseFloat(avgMatch[1].replace(',', '.'));
-                if (parsedAvg > 1 && parsedAvg < 300) avgPe = avgMatch[1];
+            if (!currentPe) {
+                const peMatch = valText.match(/(?:Current\s*P\/E|Forward\s*P\/E|P\/E|KGV):\s*([^\n]+)/i);
+                if (peMatch) {
+                    const line = peMatch[1].trim();
+                    const mCurr = line.match(/^(\d+(?:[.,]\d+)?)/);
+                    if (mCurr) currentPe = mCurr[1];
+                }
+            }
+
+            if (!avgPe) {
+                const avgMatch = valText.match(/(?:5Y\s*Avg\s*P\/E|5J\s*Ø\s*KGV|Historical\s*Avg\s*P\/E)[:\s]*(\d+(?:[.,]\d+)?)/i) ||
+                                 valText.match(/(?:5Y\s*Avg|5J\s*Ø|5-Jahres-Ø)[^\d\n]*?(\d+(?:[.,]\d+)?)\s*x?/i);
+                if (avgMatch && avgMatch[1]) {
+                    const parsedAvg = parseFloat(avgMatch[1].replace(',', '.'));
+                    if (parsedAvg > 1 && parsedAvg < 300) avgPe = avgMatch[1];
+                }
             }
 
             if (currentPe && avgPe && currentPe !== avgPe) {
@@ -6217,42 +6239,78 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
                 pe = `${currentPe}`;
             }
 
-            // 2. Growth from Financial Quality / Earnings Expectations
-            const growthMatch = finText.match(/(?:Revenue\s*CAGR|5Y\s*Growth|5J\s*Wachstum):\s*([^\n]+)/i) ||
-                                earnText.match(/(?:Analyst\s*Consensus\s*Growth|EPS\s*Consensus):\s*([^\n]+)/i);
-            if (growthMatch) {
-                const pctMatch = growthMatch[1].match(/([+\-]?\d+(?:[.,]\d+)?\s*%)/);
-                if (pctMatch) growth = pctMatch[1].trim();
+            // 2. Growth (5Y Revenue CAGR - Empirical First, Fallback to Text Parsing)
+            const dsCagr = dataset?.researchedMetrics?.revenueCAGR ?? dataset?.growthTrajectories?.revenue?.cagr5Y;
+            if (typeof dsCagr === 'number' && Number.isFinite(dsCagr)) {
+                growth = `${dsCagr >= 0 ? '+' : ''}${dsCagr.toFixed(1)}%`;
+            } else {
+                const growthMatch = finText.match(/(?:Revenue\s*CAGR|5Y\s*Growth|5J\s*Wachstum):\s*([^\n]+)/i) ||
+                                    earnText.match(/(?:Analyst\s*Consensus\s*Growth|EPS\s*Consensus):\s*([^\n]+)/i);
+                if (growthMatch) {
+                    const pctMatch = growthMatch[1].match(/([+\-]?\d+(?:[.,]\d+)?\s*%)/);
+                    if (pctMatch) growth = pctMatch[1].trim();
+                }
             }
 
-            // 3. Dividend from Financial Dataset or Financial Quality
-            const dsDiv = allData?.financial_dataset?.researchedMetrics?.dividendYield ?? allData?.historical_dataset?.researchedMetrics?.dividendYield;
-            if (typeof dsDiv === 'number') {
+            // 3. Dividend (Empirical First, Transparent 0.0% / Keine for Non-Payers)
+            const dsDiv = dataset?.researchedMetrics?.dividendYield;
+            const dsDps = dataset?.researchedMetrics?.dividendPerShare;
+            if (typeof dsDiv === 'number' && Number.isFinite(dsDiv)) {
                 if (dsDiv > 0.01) {
                     dividend = `${dsDiv.toFixed(1)}%`;
                 } else {
-                    dividend = null;
+                    dividend = '0.0%';
                 }
+            } else if (dsDps === 0 || dsDps === null) {
+                dividend = '0.0%';
             } else {
                 const divMatch = finText.match(/(?:Capital\s*Allocation|Dividende|Dividend):\s*([^\n]+)/i);
-                if (divMatch && !/keine|none|n\/a|0(?:.0+)?\s*%/i.test(divMatch[1])) {
-                    const yieldMatch = divMatch[1].match(/(\d+(?:[.,]\d+)?\s*%)/);
-                    if (yieldMatch && parseFloat(yieldMatch[1]) > 0.01) dividend = yieldMatch[1].trim();
+                if (divMatch) {
+                    if (/keine|none|n\/a|0(?:.0+)?\s*%/i.test(divMatch[1])) {
+                        dividend = '0.0%';
+                    } else {
+                        const yieldMatch = divMatch[1].match(/(\d+(?:[.,]\d+)?\s*%)/);
+                        if (yieldMatch && parseFloat(yieldMatch[1]) > 0.01) {
+                            dividend = yieldMatch[1].trim();
+                        } else {
+                            dividend = '0.0%';
+                        }
+                    }
+                } else {
+                    dividend = '0.0%';
                 }
             }
 
-            // 4. DCF Bull/Bear Targets from Valuation
-            let targetCurrency = '';
-            const dcfBullMatch = valText.match(/DCF\s*Bull:\s*([^\n]+)/i);
-            const dcfBearMatch = valText.match(/DCF\s*Bear:\s*([^\n]+)/i);
+            // 4. DCF Bull/Bear Targets (Empirical DCF Scenarios, Correct Order Bull / Bear)
+            if (dataset) {
+                try {
+                    const dcfScenarios = calculateEmpiricalDcfScenarios(dataset);
+                    if (dcfScenarios && dcfScenarios.dcfBull && dcfScenarios.dcfBear) {
+                        bullNum = dcfScenarios.dcfBull;
+                        bearNum = dcfScenarios.dcfBear;
+                        // Bull is higher target, Bear is conservative lower target
+                        targets = `${bullNum.toFixed(2)} / ${bearNum.toFixed(2)}`;
+                    }
+                } catch (e) {}
+            }
 
-            if (dcfBullMatch && dcfBearMatch) {
-                const bullRaw = dcfBullMatch[1].trim();
-                const bearRaw = dcfBearMatch[1].trim();
-                bullNum = parsePriceNumber(bullRaw);
-                bearNum = parsePriceNumber(bearRaw);
-                targetCurrency = extractCurrency(bullRaw) || extractCurrency(bearRaw);
-                targets = `${typeof bearNum === 'number' && Number.isFinite(bearNum) ? bearNum.toFixed(2) : bearRaw} / ${typeof bullNum === 'number' && Number.isFinite(bullNum) ? bullNum.toFixed(2) : bullRaw}`;
+            if (!bullNum || !bearNum) {
+                const dcfBullMatch = valText.match(/DCF\s*Bull:\s*([^\n]+)/i);
+                const dcfBearMatch = valText.match(/DCF\s*Bear:\s*([^\n]+)/i);
+
+                if (dcfBullMatch && dcfBearMatch) {
+                    const bullRaw = dcfBullMatch[1].trim();
+                    const bearRaw = dcfBearMatch[1].trim();
+                    const b1 = parsePriceNumber(bullRaw);
+                    const b2 = parsePriceNumber(bearRaw);
+                    if (typeof b1 === 'number' && typeof b2 === 'number') {
+                        bullNum = Math.max(b1, b2);
+                        bearNum = Math.min(b1, b2);
+                        targets = `${bullNum.toFixed(2)} / ${bearNum.toFixed(2)}`;
+                    } else {
+                        targets = `${bullRaw} / ${bearRaw}`;
+                    }
+                }
             }
 
             // 5. Reverse DCF Fields
@@ -6269,14 +6327,14 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
             const expBurdenMatch = valText.match(/Expectation\s*Burden:\s*([^\n]+)/i);
             if (expBurdenMatch) expectationBurden = expBurdenMatch[1].trim();
 
-            // 6. Bull / Bear Potentials
-            let currentPriceNum = parsePriceNumber(currentPriceText);
+            // 6. Bull / Bear Potentials (Correct Bull / Bear order)
+            let currentPriceNum = parsePriceNumber(currentPriceText) || (typeof dataset?.currentPrice === 'number' ? dataset.currentPrice : null);
             if (typeof currentPriceNum === 'number' && currentPriceNum > 0 && typeof bullNum === 'number' && typeof bearNum === 'number') {
                 const bullPct = ((bullNum - currentPriceNum) / currentPriceNum) * 100;
                 const bearPct = ((bearNum - currentPriceNum) / currentPriceNum) * 100;
                 const bullSign = bullPct >= 0 ? '+' : '';
                 const bearSign = bearPct >= 0 ? '+' : '';
-                potentials = `${bearSign}${typeof bearPct === 'number' && Number.isFinite(bearPct) ? bearPct.toFixed(1) : '—'}% / ${bullSign}${typeof bullPct === 'number' && Number.isFinite(bullPct) ? bullPct.toFixed(1) : '—'}%`;
+                potentials = `${bullSign}${typeof bullPct === 'number' && Number.isFinite(bullPct) ? bullPct.toFixed(1) : '—'}% / ${bearSign}${typeof bearPct === 'number' && Number.isFinite(bearPct) ? bearPct.toFixed(1) : '—'}%`;
             }
 
             return {
@@ -12096,8 +12154,8 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
                             <span class="w-1.5 h-1.5 rounded-full ${verdictDot}"></span>
                             ${item.verdict.label}
                         </span>
-                        <span class="px-2 py-0.5 rounded border ${dcfBadgeStyles} font-mono font-semibold text-[9px] uppercase tracking-wide truncate max-w-[130px]" title="DCF Potenzial: ${item.dcfPotential}">
-                            ${item.dcfPotential !== '--' ? `DCF: ${item.dcfPotential}` : 'DCF: --'}
+                        <span class="px-2 py-0.5 rounded border ${dcfBadgeStyles} font-mono font-semibold text-[9px] uppercase tracking-wide truncate max-w-[130px]" title="Kurspotenzial (Base Case): ${item.dcfPotential}">
+                            ${item.dcfPotential !== '--' ? `Base: ${item.dcfPotential}` : 'Base: --'}
                         </span>
                     </div>
 
@@ -12174,6 +12232,7 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
             const normalizedData = normalizeLegacyAnalysis(entry.data || entry || {});
             const data = normalizedData;
             const identityText = data.company_identity || '';
+            const dataset = data.financial_dataset || data.historical_dataset || null;
 
             // AI Verdict — STRICT OWNERSHIP: executive_summary
             const execText = (data.executive_summary || '').toString().trim();
@@ -12190,7 +12249,7 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
 
             const getName = () => {
                 const m = identityText.match(/Name:\s*(.*)/i);
-                return m && m[1] ? m[1].trim() : key;
+                return m && m[1] ? m[1].trim() : (dataset?.companyName || key);
             };
             const getField = (fieldName) => {
                 const m = identityText.match(new RegExp(`${fieldName}:\\s*(.*)`, 'i'));
@@ -12200,25 +12259,41 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
             const name = getName();
             const isin = getField('ISIN');
             const wkn = getField('WKN');
-            const sector = getField('Sector') !== '--' ? getField('Sector') : getField('Sektor');
-            const hq = getField('Country') !== '--' ? getField('Country') : getField('HQ');
+            const sector = getField('Sector') !== '--' ? getField('Sector') : (getField('Sektor') !== '--' ? getField('Sektor') : (dataset?.sector || 'Unbekannt'));
+            const hq = getField('Country') !== '--' ? getField('Country') : (getField('HQ') !== '--' ? getField('HQ') : (dataset?.profile?.country || 'Global'));
             const rawPrice = getField('Current Price') !== '--' ? getField('Current Price') : getField('Aktueller Kurs');
-            const priceNum = parsePriceNumber(rawPrice);
-            const currency = extractCurrency(rawPrice) || '$';
+            const priceNum = (typeof dataset?.currentPrice === 'number' && dataset.currentPrice > 0) ? dataset.currentPrice : parsePriceNumber(rawPrice);
+            const currency = (dataset?.currency) || extractCurrency(rawPrice) || '$';
 
-            // DCF Potential — STRICT OWNERSHIP: financial_quality & executive_summary
-            const dcfText = data.financial_quality || data.executive_summary || data.valuation || '';
-            const dcfPotential = extractDcfPotential(dcfText, data);
-
+            // Kurspotenzial (Base Case Fair Value Potential — Consistent with Analysis Header)
+            let dcfPotential = '--';
             let dcfNum = null;
-            if (dcfPotential !== '--') {
-                const mPct = dcfPotential.match(/([+\-]?\d+(?:[.,]\d+)?)\s*%/);
-                if (mPct) {
-                    dcfNum = parseFloat(mPct[1].replace(',', '.'));
+
+            if (dataset) {
+                try {
+                    const valResult = calculateHistoricalValuationJs(dataset, { selectedMethod: 'pe_adj', timeframe: 'MAX' });
+                    const basePrice = valResult?.scenarios?.base ?? valResult?.currentFairValue;
+                    const curP = valResult?.currentPrice ?? dataset.currentPrice ?? priceNum;
+                    if (basePrice !== null && curP !== null && curP > 0) {
+                        const upPct = ((basePrice - curP) / curP) * 100;
+                        dcfNum = upPct;
+                        dcfPotential = `${upPct >= 0 ? '+' : ''}${upPct.toFixed(1)}%`;
+                    }
+                } catch (e) {}
+            }
+
+            if (dcfPotential === '--') {
+                const dcfText = data.financial_quality || data.executive_summary || data.valuation || '';
+                dcfPotential = extractDcfPotential(dcfText, data);
+                if (dcfPotential !== '--') {
+                    const mPct = dcfPotential.match(/([+\-]?\d+(?:[.,]\d+)?)\s*%/);
+                    if (mPct) {
+                        dcfNum = parseFloat(mPct[1].replace(',', '.'));
+                    }
                 }
             }
 
-            // Key Data Showcase — STRICT OWNERSHIP: valuation, financial_quality, earnings_expectations
+            // Key Data Showcase — STRICT OWNERSHIP: empirical dataset first
             const showcase = extractStockScreenerShowcase('', rawPrice, data);
 
             let peNum = null;
@@ -12423,8 +12498,8 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
                                 <span class="w-1.5 h-1.5 rounded-full ${verdictDot}"></span>
                                 ${item.verdict.label}
                             </span>
-                            <span class="px-2 py-0.5 rounded border ${dcfBadgeStyles} font-mono font-semibold text-[9.5px] uppercase tracking-wide truncate max-w-[150px]" title="DCF Potenzial: ${item.dcfPotential}">
-                                ${item.dcfPotential !== '--' ? `DCF: ${item.dcfPotential}` : 'DCF: --'}
+                            <span class="px-2 py-0.5 rounded border ${dcfBadgeStyles} font-mono font-semibold text-[9.5px] uppercase tracking-wide truncate max-w-[150px]" title="Kurspotenzial (Base Case): ${item.dcfPotential}">
+                                ${item.dcfPotential !== '--' ? `Base: ${item.dcfPotential}` : 'Base: --'}
                             </span>
                         </div>
 
@@ -12444,7 +12519,7 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
                             </div>
                             <div>
                                 <span class="text-[9px] text-slate-500 block leading-tight">Dividende</span>
-                                <span class="font-mono font-semibold text-slate-300 text-xs mt-0.5 block truncate">${item.showcase.dividend || '--'}</span>
+                                <span class="font-mono font-semibold text-slate-300 text-xs mt-0.5 block truncate">${item.showcase.dividend || '0.0%'}</span>
                             </div>
                             <div class="col-span-2 pt-1.5 border-t border-[#202630] flex items-center justify-between gap-2">
                                 <span class="text-[9px] text-slate-500 shrink-0">Bull / Bear:</span>
@@ -12534,7 +12609,7 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
                     </td>
                     <td class="py-3 px-4 font-mono text-slate-300 whitespace-nowrap">${item.showcase.pe}</td>
                     <td class="py-3 px-4 font-mono text-emerald-400 whitespace-nowrap font-semibold">${item.showcase.growth}</td>
-                    <td class="py-3 px-4 font-mono text-slate-400 whitespace-nowrap">${item.showcase.dividend || '--'}</td>
+                    <td class="py-3 px-4 font-mono text-slate-400 whitespace-nowrap">${item.showcase.dividend || '0.0%'}</td>
                     <td class="py-3 px-4 text-slate-500 text-[10px] whitespace-nowrap">${item.timestamp}</td>
                     <td class="py-3 px-4 text-right whitespace-nowrap" onclick="event.stopPropagation()">
                         <div class="flex items-center justify-end gap-1.5">
