@@ -4009,7 +4009,7 @@
 
         // Primary Real-Time Market Data & Fundamental Engine
         // Options: 'DIRECT_MARKET_FEED' (Solution 2 - 150ms Direct Exchange Quote) | 'GOOGLE_GROUNDING' | 'FMP_HYBRID'
-        const DATA_PROVIDER = 'DIRECT_MARKET_FEED';
+        const DATA_PROVIDER = 'FMP_HYBRID';
 
         async function fetchMarketQuote(query) {
             if (!query) return null;
@@ -5142,9 +5142,12 @@ Technical Signal: [NEUTRAL]`;
 
             if (historicalDataset) {
                 const normOfficial = normalizeHistoricalFinancialData(historicalDataset);
-                if (normOfficial && normOfficial.annual && normOfficial.annual.length > 0) {
+                if (normOfficial && normOfficial.annual && normOfficial.annual.length >= 3) {
+                    normOfficial.isOfficialFMP = true;
+                    normOfficial.dataConfidence = 'HIGH';
                     dataset = normOfficial;
                     identityText = `Name: ${dataset.companyName}\nTicker: ${dataset.symbol}\nExchange: ${dataset.profile?.exchangeShortName || dataset.quote?.exchange || 'NASDAQ/NYSE'}\nCountry: ${dataset.profile?.country || 'USA'}\nCurrency: ${dataset.currency || 'USD'}\nSector: ${dataset.sector || 'Technology'}\nIndustry: ${dataset.industry || 'Infrastructure'}\nCurrent Price: ${dataset.currentPrice ? dataset.currentPrice.toFixed(2) + ' ' + dataset.currency : 'N/A'}`;
+                    console.log(`[Institutional Engine] FMP-First fast-path activated for ${dataset.symbol} (${dataset.annual.length} annual statements). Skipping Search Grounding.`);
                 }
             }
 
@@ -7560,6 +7563,8 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
                 availableYears,
                 dataConfidence,
                 isSynthetic: isSynth,
+                isOfficialFMP: Boolean(raw.isOfficialFMP || (Array.isArray(raw.incomeStatements) && raw.incomeStatements.length > 0)),
+                isGoogleGrounded: Boolean(raw.isGoogleGrounded),
                 dataQuality,
                 growthTrajectories: multiGrowth,
                 researchedMetrics
@@ -9251,8 +9256,11 @@ Final Terminal Sentiment: [[STRONG POSITIVE] / [POSITIVE] / [WATCHLIST] / [FAIRL
             const confBadge = document.getElementById('snapshotConfidenceBadge');
             const confText = document.getElementById('snapshotConfidenceText');
             if (confBadge && confText) {
-                if (dataset.isGoogleGrounded || dataset.dataConfidence === 'GROUNDED' || (dataset.availableYears >= 3 && !dataset.isSynthetic)) {
+                if (dataset.isOfficialFMP || (!dataset.isSynthetic && !dataset.isGoogleGrounded && dataset.availableYears >= 3)) {
                     confBadge.className = 'px-2.5 py-0.5 rounded text-[10px] font-mono font-medium flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400';
+                    confText.textContent = 'Datenqualität: Offiziell (FMP Verified)';
+                } else if (dataset.isGoogleGrounded || dataset.dataConfidence === 'GROUNDED') {
+                    confBadge.className = 'px-2.5 py-0.5 rounded text-[10px] font-mono font-medium flex items-center gap-1.5 bg-blue-500/10 border border-blue-500/30 text-blue-300';
                     confText.textContent = 'Datenqualität: Live Recherche (Google Grounded)';
                 } else if (dataset.isSynthetic || dataset.dataConfidence === 'SYNTHETIC') {
                     confBadge.className = 'px-2.5 py-0.5 rounded text-[10px] font-mono font-medium flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/30 text-amber-300';
