@@ -269,7 +269,7 @@ module.exports = async function handler(req, res) {
                 }).catch(() => null);
 
                 if (!probeRes || !probeRes.ok) {
-                    probeRes = await fetch(`https://financialmodelingprep.com/api/v3/quote/${encodeURIComponent(directSymbol)}?apikey=${fmpKey}`, {
+                    probeRes = await fetch(`https://financialmodelingprep.com/stable/profile?symbol=${encodeURIComponent(directSymbol)}&apikey=${fmpKey}`, {
                         signal: AbortSignal.timeout(1500)
                     }).catch(() => null);
                 }
@@ -298,12 +298,6 @@ module.exports = async function handler(req, res) {
 
                 if (!r1 || !r1.ok) {
                     r1 = await fetch(`https://financialmodelingprep.com/stable/search-symbol?query=${encodeURIComponent(query.trim())}&limit=10&apikey=${fmpKey}`, {
-                        signal: AbortSignal.timeout(2000)
-                    }).catch(() => null);
-                }
-
-                if (!r1 || !r1.ok) {
-                    r1 = await fetch(`https://financialmodelingprep.com/api/v3/search?query=${encodeURIComponent(query.trim())}&limit=10&apikey=${fmpKey}`, {
                         signal: AbortSignal.timeout(2000)
                     }).catch(() => null);
                 }
@@ -375,7 +369,7 @@ module.exports = async function handler(req, res) {
             let lastErr = null;
             for (const url of urls) {
                 try {
-                    const res = await fetch(url, { signal: AbortSignal.timeout(3500) });
+                    const res = await fetch(url, { signal: AbortSignal.timeout(6500) });
                     if (res && res.ok) {
                         const data = await res.json().catch(() => null);
                         if (data && data['Error Message']) {
@@ -408,7 +402,7 @@ module.exports = async function handler(req, res) {
         async function fetchPricesWithFallback(urls) {
             for (const url of urls) {
                 try {
-                    const res = await fetch(url, { signal: AbortSignal.timeout(3500) });
+                    const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
                     if (res && res.ok) {
                         const data = await res.json().catch(() => null);
                         if (data && Array.isArray(data.historical) && data.historical.length > 0) {
@@ -439,59 +433,48 @@ module.exports = async function handler(req, res) {
             metricsQuarterlyData
         ] = await Promise.all([
             fetchEndpointWithFallback([
-                `https://financialmodelingprep.com/stable/profile?symbol=${symbol}&apikey=${fmpKey}`,
-                `https://financialmodelingprep.com/api/v3/profile/${symbol}?apikey=${fmpKey}`
+                `https://financialmodelingprep.com/stable/profile?symbol=${symbol}&apikey=${fmpKey}`
             ], true),
             fetchEndpointWithFallback([
-                `https://financialmodelingprep.com/stable/quote?symbol=${symbol}&apikey=${fmpKey}`,
-                `https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=${fmpKey}`
+                `https://financialmodelingprep.com/stable/quote?symbol=${symbol}&apikey=${fmpKey}`
             ], true),
             fetchEndpointWithFallback([
-                `https://financialmodelingprep.com/stable/income-statement?symbol=${symbol}&limit=5&apikey=${fmpKey}`,
-                `https://financialmodelingprep.com/api/v3/income-statement/${symbol}?limit=5&apikey=${fmpKey}`
+                `https://financialmodelingprep.com/stable/income-statement?symbol=${symbol}&limit=5&apikey=${fmpKey}`
             ], true),
             fetchEndpointWithFallback([
-                `https://financialmodelingprep.com/stable/balance-sheet-statement?symbol=${symbol}&limit=5&apikey=${fmpKey}`,
-                `https://financialmodelingprep.com/api/v3/balance-sheet-statement/${symbol}?limit=5&apikey=${fmpKey}`
+                `https://financialmodelingprep.com/stable/balance-sheet-statement?symbol=${symbol}&limit=5&apikey=${fmpKey}`
             ], true),
             fetchEndpointWithFallback([
-                `https://financialmodelingprep.com/stable/cash-flow-statement?symbol=${symbol}&limit=5&apikey=${fmpKey}`,
-                `https://financialmodelingprep.com/api/v3/cash-flow-statement/${symbol}?limit=5&apikey=${fmpKey}`
+                `https://financialmodelingprep.com/stable/cash-flow-statement?symbol=${symbol}&limit=5&apikey=${fmpKey}`
             ], true),
             fetchEndpointWithFallback([
-                `https://financialmodelingprep.com/stable/key-metrics?symbol=${symbol}&limit=5&apikey=${fmpKey}`,
-                `https://financialmodelingprep.com/api/v3/key-metrics/${symbol}?limit=5&apikey=${fmpKey}`
+                `https://financialmodelingprep.com/stable/key-metrics?symbol=${symbol}&limit=5&apikey=${fmpKey}`
             ]),
             fetchEndpointWithFallback([
-                `https://financialmodelingprep.com/stable/ratios?symbol=${symbol}&limit=5&apikey=${fmpKey}`,
-                `https://financialmodelingprep.com/api/v3/ratios/${symbol}?limit=5&apikey=${fmpKey}`
+                `https://financialmodelingprep.com/stable/ratios?symbol=${symbol}&limit=5&apikey=${fmpKey}`
             ]),
             fetchEndpointWithFallback([
                 `https://financialmodelingprep.com/stable/income-statement-ttm?symbol=${symbol}&apikey=${fmpKey}`,
-                `https://financialmodelingprep.com/api/v3/key-metrics-ttm/${symbol}?apikey=${fmpKey}`,
-                `https://financialmodelingprep.com/api/v3/ratios-ttm/${symbol}?apikey=${fmpKey}`
+                `https://financialmodelingprep.com/stable/key-metrics-ttm?symbol=${symbol}&apikey=${fmpKey}`,
+                `https://financialmodelingprep.com/stable/ratios-ttm?symbol=${symbol}&apikey=${fmpKey}`
             ]),
             fetchPricesWithFallback([
                 `https://financialmodelingprep.com/stable/historical-price-eod/full?symbol=${symbol}&apikey=${fmpKey}`,
                 `https://financialmodelingprep.com/stable/historical-price-eod/light?symbol=${symbol}&apikey=${fmpKey}`,
-                `https://financialmodelingprep.com/api/v3/historical-price-full/${symbol}?timeseries=1260&apikey=${fmpKey}`,
-                `https://financialmodelingprep.com/api/v3/historical-price-full/${symbol}?timeseries=250&apikey=${fmpKey}`
+                `https://financialmodelingprep.com/stable/historical-price-full?symbol=${symbol}&timeseries=1260&apikey=${fmpKey}`
             ]),
             fetchEndpointWithFallback([
-                `https://financialmodelingprep.com/stable/analyst-estimates?symbol=${symbol}&limit=5&apikey=${fmpKey}`,
-                `https://financialmodelingprep.com/api/v3/analyst-estimates/${symbol}?limit=5&apikey=${fmpKey}`
+                `https://financialmodelingprep.com/stable/analyst-estimates?symbol=${symbol}&limit=5&apikey=${fmpKey}`
             ]),
             fetchEndpointWithFallback([
                 `https://financialmodelingprep.com/stable/earnings-surprises-bulk?symbol=${symbol}&apikey=${fmpKey}`,
-                `https://financialmodelingprep.com/api/v3/earnings-surprises/${symbol}?apikey=${fmpKey}`
+                `https://financialmodelingprep.com/stable/earnings-surprises?symbol=${symbol}&apikey=${fmpKey}`
             ]),
             fetchEndpointWithFallback([
-                `https://financialmodelingprep.com/stable/income-statement?symbol=${symbol}&period=quarter&limit=20&apikey=${fmpKey}`,
-                `https://financialmodelingprep.com/api/v3/income-statement/${symbol}?period=quarter&limit=20&apikey=${fmpKey}`
+                `https://financialmodelingprep.com/stable/income-statement?symbol=${symbol}&period=quarter&limit=20&apikey=${fmpKey}`
             ]),
             fetchEndpointWithFallback([
-                `https://financialmodelingprep.com/stable/key-metrics?symbol=${symbol}&period=quarter&limit=20&apikey=${fmpKey}`,
-                `https://financialmodelingprep.com/api/v3/key-metrics/${symbol}?period=quarter&limit=20&apikey=${fmpKey}`
+                `https://financialmodelingprep.com/stable/key-metrics?symbol=${symbol}&period=quarter&limit=20&apikey=${fmpKey}`
             ])
         ]);
 
@@ -520,12 +503,12 @@ module.exports = async function handler(req, res) {
         };
 
         const hasValidData = (payload.incomeStatements && payload.incomeStatements.length > 0) || (payload.quote && typeof payload.quote.price === 'number');
-        if (!hasValidData && lastFmpError) {
+        if (lastFmpError) {
             payload._fmpError = lastFmpError;
         }
 
-        // Cache in Redis ONLY if real, valid data exists (prevents cache poisoning)
-        if (redis && hasValidData) {
+        // Cache in Redis ONLY if real, valid data exists with at least 3 annual statements (prevents cache poisoning)
+        if (redis && hasValidData && payload.incomeStatements.length >= 3) {
             try {
                 await redis.set(cacheKey, JSON.stringify(payload), 'EX', 3600);
                 await redis.quit();
