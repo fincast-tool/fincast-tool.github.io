@@ -4064,7 +4064,12 @@
         // ==================== FINANCIAL DATASET GAP AUDIT & 0-TOKEN BACKFILL ====================
         function auditFinancialDatasetGap(dataset) {
             if (!dataset || typeof dataset !== 'object') {
-                return { isComplete: false, missingPillars: ['market', 'history', 'growth', 'capital_efficiency', 'leverage', 'shareholder'], missingFields: ['annual', 'marketCap', 'roic', 'debtToEquity'] };
+                return { 
+                    isComplete: false, 
+                    missingPillars: ['market', 'history', 'growth', 'capital_efficiency', 'leverage', 'shareholder', 'forward_guidance'], 
+                    missingFields: ['annual', 'marketCap', 'roic', 'debtToEquity', 'forwardEstimates2026e'],
+                    missingYears: []
+                };
             }
             const ann = Array.isArray(dataset.annual) ? dataset.annual : [];
             const latest = ann.length > 0 ? ann[ann.length - 1] : {};
@@ -4079,18 +4084,28 @@
                 if (dataset.marketCap == null) missingFields.push('marketCap');
             }
 
-            // Pillar 2: 5-Year History & Growth CAGRs
-            if (ann.length < 3) {
+            // Pillar 2: 10-Year History & Missing Fiscal Years
+            const curYear = new Date().getFullYear();
+            const existingYears = new Set(ann.filter(p => p && !p.isEstimate && String(p.period || '').toLowerCase() !== '2026e').map(p => Number(p.year)).filter(y => y > 0));
+            const targetHistoricalYears = [];
+            for (let y = curYear - 10; y <= curYear - 1; y++) {
+                targetHistoricalYears.push(y);
+            }
+            const missingYears = targetHistoricalYears.filter(y => !existingYears.has(y));
+
+            if (existingYears.size < 7) {
                 missingPillars.push('history');
-                missingFields.push('annual_history');
+                missingFields.push('historical_annual_years');
             }
             if (res.revenueCAGR == null && dataset.growthTrajectories?.revenue?.cagr5Y == null) {
                 missingFields.push('revenueCAGR');
             }
 
-            // Pillar 3: Capital Efficiency & Margins
-            if (latest.roic == null && res.roic == null) {
+            // Pillar 3: Capital Efficiency & Margins (ROIC, ROE)
+            const roicCount = ann.filter(p => p.roic != null && p.roic > 0).length;
+            if (roicCount < Math.min(3, Math.max(1, ann.length - 1)) && res.roic == null) {
                 missingFields.push('roic');
+                missingPillars.push('capital_efficiency');
             }
             if (latest.roe == null && res.roe == null) {
                 missingFields.push('roe');
@@ -4112,16 +4127,20 @@
                 missingFields.push('interestCoverage');
             }
 
-            // Pillar 5: Shareholder Return & Earnings Date
+            // Pillar 5: Shareholder Return & Buybacks (Shares, Stock Repurchased, 2026e)
+            const buybacksCount = ann.filter(p => p.stockRepurchased != null || p.dividendsPaid != null).length;
+            if (buybacksCount < 2 && !ann.some(p => p.stockRepurchased > 0)) {
+                missingFields.push('buybacks_shares');
+                missingPillars.push('shareholder');
+            }
             if (latest.dividendPerShare == null && res.dividendPerShare == null && res.dividendYield == null) {
                 missingFields.push('dividendPerShare');
             }
-            if (res.nextEarnings == null && dataset.quote?.earningsAnnouncement == null) {
+            if (res.nextEarnings == null && dataset.quote?.earningsAnnouncement == null && dataset.nextEarnings == null) {
                 missingFields.push('nextEarnings');
             }
 
-            // Pillar 6: Forward Estimates & Guidance (2026e)
-            const curYear = new Date().getFullYear();
+            // Pillar 6: Forward Estimates & Guidance (2026e + Buyback/Shares)
             const targetEstYear = Math.max(2026, curYear);
             const hasValidEstimates = Array.isArray(dataset.estimates) && dataset.estimates.some(e => {
                 const y = e.year || (e.date ? parseInt(e.date.substring(0, 4), 10) : 0);
@@ -4137,10 +4156,169 @@
             }
 
             return {
-                isComplete: missingFields.length === 0,
+                isComplete: missingFields.length === 0 && missingYears.length === 0,
                 missingFields,
-                missingPillars
+                missingPillars,
+                missingYears
             };
+        }
+
+        function getTargetedGapPrompt(query, lang, fmpDataset, gapAudit) {
+            const todayIso = new Date().toISOString().split('T')[0];
+            const curYear = new Date().getFullYear();
+            const sym = fmpDataset.symbol || query;
+            const cName = fmpDataset.companyName || query;
+            const cur = fmpDataset.currency || 'USD';
+            const curPrice = fmpDataset.currentPrice ? fmpDataset.currentPrice.toFixed(2) : 'N/A';
+
+            const existingYears = (fmpDataset.annual || []).map(p => p.year).filter(Boolean).sort((a, b) => a - b);
+            const missingYearsStr = gapAudit.missingYears && gapAudit.missingYears.length > 0 ? gapAudit.missingYears.join(', ') : `${curYear - 10} to ${curYear - 5}`;
+            const needsRoic = gapAudit.missingFields.includes('roic');
+            const needs2026e = gapAudit.missingFields.includes('forwardEstimates2026e');
+            const needsBuybacks = gapAudit.missingFields.includes('buybacks_shares');
+            const needsLeverage = gapAudit.missingFields.includes('netDebtToEbitda') || gapAudit.missingFields.includes('debtToEquity');
+            const needsNextEarnings = gapAudit.missingFields.includes('nextEarnings');
+
+            return `CURRENT DATE: ${todayIso}
+LANGUAGE: Respond in ${lang}.
+TASK: Targeted Research to Complete Missing 10-Year Historical Financials, ROIC, Share Buybacks & 2026e Consensus Guidance for "${cName}" (${sym}).
+
+VERIFIED ANCHOR DATA ALREADY RETRIEVED (DO NOT RE-INVENT OR OVERWRITE):
+- Company: ${cName} (${sym})
+- Current Price: ${curPrice} ${cur}
+- Verified Available Years in Dataset: ${existingYears.join(', ')}
+
+TARGETED MISSING DATA TO SEARCH VIA GOOGLE SEARCH GROUNDING:
+${gapAudit.missingYears && gapAudit.missingYears.length > 0 ? `1. MISSING HISTORICAL YEARS (${missingYearsStr}):
+   - Search for reported annual financial statements (10-K filings, Macrotrends, StockAnalysis, Morningstar) for the missing fiscal years (${missingYearsStr}).
+   - Required metrics per missing year: Revenue, Operating Income (EBIT), Net Income, Free Cash Flow, GAAP EPS, Adjusted EPS, Shares Outstanding, Stock Repurchased (Buybacks in ${cur}), Total Debt, Total Equity, Cash, ROIC (%), ROE (%), Dividend per Share.` : ''}
+
+${needs2026e ? `2. 2026e FORWARD CONSENSUS GUIDANCE & ESTIMATES:
+   - Search current 2026 consensus analyst estimates (Yahoo Finance, StockAnalysis, MarketWatch, Investor Relations guidance):
+   - 2026e Revenue, 2026e Non-GAAP / Adjusted EPS, 2026e Free Cash Flow, 2026e estimated Shares Outstanding & expected Stock Repurchases (Buybacks).` : ''}
+
+${needsRoic ? `3. CAPITAL EFFICIENCY & ROIC:
+   - Search reported Return on Invested Capital (ROIC %) for recent and historical years from Morningstar / StockAnalysis / Finbox.` : ''}
+
+${needsBuybacks ? `4. SHARE REPURCHASES & CAPITAL ALLOCATION:
+   - Search annual common stock repurchased (cash spent on buybacks in ${cur}) and historical share count reduction / SBC dilution.` : ''}
+
+${needsNextEarnings ? `5. NEXT EARNINGS ANNOUNCEMENT DATE:
+   - Search the confirmed or estimated next quarterly earnings date (YYYY-MM-DD) for "${sym}".` : ''}
+
+OUTPUT FORMAT & VALID JSON:
+Output ONLY the requested XML block below with valid JSON containing the searched missing pieces.
+
+<financial_dataset>
+\`\`\`json
+{
+  "symbol": "${sym}",
+  "companyName": "${cName}",
+  "currency": "${cur}",
+  "nextEarnings": "[Next earnings date YYYY-MM-DD]",
+  "researchedMetrics": {
+    "roic": [Latest TTM ROIC % as number],
+    "roe": [Latest TTM ROE % as number],
+    "netDebtToEbitda": [Net Debt / EBITDA as number or null if net cash],
+    "debtToEquity": [Debt / Equity ratio as number],
+    "interestCoverage": [Interest Coverage ratio as number],
+    "nextEarnings": "[Next earnings date YYYY-MM-DD]"
+  },
+  "annual": [
+    // Include the missing historical annual periods (${missingYearsStr}) AND the 2026e estimate period
+    {
+      "year": [Year number, e.g. 2018 or 2026],
+      "period": "[FY or 2026e]",
+      "isEstimate": [true for 2026e, false for past years],
+      "revenue": [Revenue as plain number],
+      "operatingIncome": [EBIT as number],
+      "netIncome": [Net income as number],
+      "freeCashFlow": [Free Cash Flow as number],
+      "eps": [GAAP EPS as number],
+      "epsAdj": [Adjusted EPS as number],
+      "sharesOutstanding": [Shares outstanding as number],
+      "stockRepurchased": [Cash spent on share buybacks as number in native currency, or 0],
+      "totalDebt": [Total debt as number],
+      "totalEquity": [Total equity as number],
+      "cashAndEquivalents": [Cash as number],
+      "roic": [ROIC % as number],
+      "roe": [ROE % as number],
+      "dividendPerShare": [DPS as number or 0 if non-payer]
+    }
+  ]
+}
+\`\`\`
+</financial_dataset>`;
+        }
+
+        function mergeFmpWithGroundedGaps(fmpDataset, gapDataset) {
+            if (!fmpDataset && !gapDataset) return null;
+            if (!fmpDataset) return gapDataset;
+            if (!gapDataset) return fmpDataset;
+
+            const merged = { ...fmpDataset };
+            merged.researchedMetrics = { ...(fmpDataset.researchedMetrics || {}), ...(gapDataset.researchedMetrics || {}) };
+
+            if (!merged.nextEarnings && gapDataset.nextEarnings) merged.nextEarnings = gapDataset.nextEarnings;
+            if (gapDataset.researchedMetrics?.nextEarnings && !merged.researchedMetrics.nextEarnings) {
+                merged.researchedMetrics.nextEarnings = gapDataset.researchedMetrics.nextEarnings;
+            }
+
+            const fmpAnnual = Array.isArray(fmpDataset.annual) ? fmpDataset.annual : [];
+            const gapAnnual = Array.isArray(gapDataset.annual) ? gapDataset.annual : [];
+
+            const annualMap = new Map();
+            // 1. Put FMP periods (official ground truth)
+            fmpAnnual.forEach(p => {
+                if (p && p.year) annualMap.set(Number(p.year), { ...p });
+            });
+
+            // 2. Put / merge Gap periods from Google Search
+            gapAnnual.forEach(p => {
+                if (!p || !p.year) return;
+                const y = Number(p.year);
+                if (!annualMap.has(y)) {
+                    // New missing year (e.g. 2015–2019 or 2026e)
+                    annualMap.set(y, { ...p });
+                } else {
+                    // Existing FMP year: enrich only missing fields like ROIC, stockRepurchased if FMP was missing them
+                    const existing = annualMap.get(y);
+                    if (existing.roic == null && p.roic != null) existing.roic = p.roic;
+                    if (existing.roe == null && p.roe != null) existing.roe = p.roe;
+                    if (existing.stockRepurchased == null && p.stockRepurchased != null) existing.stockRepurchased = p.stockRepurchased;
+                    if (existing.debtToEquity == null && p.debtToEquity != null) existing.debtToEquity = p.debtToEquity;
+                    if (existing.netDebtToEbitda == null && p.netDebtToEbitda != null) existing.netDebtToEbitda = p.netDebtToEbitda;
+                    if (existing.interestCoverage == null && p.interestCoverage != null) existing.interestCoverage = p.interestCoverage;
+                }
+            });
+
+            // 3. Mathematical Fallback for ROIC if still null: NOPAT / Invested Capital
+            annualMap.forEach(p => {
+                if (p.roic == null && p.operatingIncome && p.operatingIncome > 0) {
+                    const taxRate = 0.21; // Standard 21% effective corporate tax
+                    const nopat = p.operatingIncome * (1 - taxRate);
+                    const totalEq = p.totalEquity || (p.totalAssets ? p.totalAssets * 0.45 : null);
+                    const totalD = p.totalDebt || 0;
+                    const cash = p.cashAndEquivalents || 0;
+                    const investedCapital = (totalEq !== null) ? (totalEq + totalD - cash) : null;
+                    if (investedCapital && investedCapital > 0) {
+                        p.roic = Math.round((nopat / investedCapital) * 1000) / 10;
+                    }
+                }
+            });
+
+            // 4. Sort chronologically
+            const allYears = Array.from(annualMap.keys()).sort((a, b) => a - b);
+            merged.annual = allYears.map(y => annualMap.get(y));
+            merged.availableYears = merged.annual.length;
+
+            // 5. If researchedMetrics ROIC is still null, take latest annual ROIC
+            if (merged.researchedMetrics.roic == null && merged.annual.length > 0) {
+                const latestWithRoic = [...merged.annual].reverse().find(p => p.roic != null);
+                if (latestWithRoic) merged.researchedMetrics.roic = latestWithRoic.roic;
+            }
+
+            return merged;
         }
 
         function enrichAndBackfillFinancialDataset(dataset, rawOfficialData = null) {
@@ -5142,12 +5320,34 @@ Technical Signal: [NEUTRAL]`;
 
             if (historicalDataset) {
                 const normOfficial = normalizeHistoricalFinancialData(historicalDataset);
-                if (normOfficial && normOfficial.annual && normOfficial.annual.length >= 3) {
+                if (normOfficial && normOfficial.annual && normOfficial.annual.length > 0) {
                     normOfficial.isOfficialFMP = true;
                     normOfficial.dataConfidence = 'HIGH';
                     dataset = normOfficial;
                     identityText = `Name: ${dataset.companyName}\nTicker: ${dataset.symbol}\nExchange: ${dataset.profile?.exchangeShortName || dataset.quote?.exchange || 'NASDAQ/NYSE'}\nCountry: ${dataset.profile?.country || 'USA'}\nCurrency: ${dataset.currency || 'USD'}\nSector: ${dataset.sector || 'Technology'}\nIndustry: ${dataset.industry || 'Infrastructure'}\nCurrent Price: ${dataset.currentPrice ? dataset.currentPrice.toFixed(2) + ' ' + dataset.currency : 'N/A'}`;
-                    console.log(`[Institutional Engine] FMP-First fast-path activated for ${dataset.symbol} (${dataset.annual.length} annual statements). Skipping Search Grounding.`);
+                    
+                    // Comprehensive Gap-Audit on FMP data (10-year history, ROIC, buybacks, 2026e guidance)
+                    const gapAudit = auditFinancialDatasetGap(dataset);
+                    if (!gapAudit.isComplete) {
+                        console.log(`[Institutional Engine] FMP data retrieved for ${dataset.symbol}, but gap-audit found missing fields: [${gapAudit.missingFields.join(', ')}]. Launching Targeted Google Search Grounding to complete 10-year dataset...`);
+                        updateLoadingStatus(
+                            'Ergänze 10-Jahres-Bilanzen, ROIC & 2026e Guidance...',
+                            35,
+                            `Gezielte Recherche für fehlende Jahre (${gapAudit.missingYears && gapAudit.missingYears.length > 0 ? gapAudit.missingYears.join(', ') : '2015–2019'}), ROIC & Konsens via Google Search Grounding.`
+                        );
+                        try {
+                            const gapPrompt = getTargetedGapPrompt(query, lang, dataset, gapAudit);
+                            const gapResponseText = await fetchSingleBatch(query, user, gapPrompt, 1, true, null, 'gemini-2.5-flash');
+                            const gapData = parseFrameworks(gapResponseText);
+                            if (gapData.financial_dataset) {
+                                dataset = mergeFmpWithGroundedGaps(dataset, gapData.financial_dataset);
+                            }
+                        } catch (gapErr) {
+                            console.warn('[Institutional Engine] Targeted Gap-Search skipped due to error:', gapErr.message);
+                        }
+                    } else {
+                        console.log(`[Institutional Engine] FMP dataset for ${dataset.symbol} is 100% complete. Skipping Search Grounding.`);
+                    }
                 }
             }
 
