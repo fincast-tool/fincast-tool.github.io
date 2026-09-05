@@ -4412,6 +4412,22 @@ Output ONLY the requested XML block below with valid JSON containing the searche
                     period.interestCoverage = opInc / intExp;
                 }
 
+                // Capital Efficiency (ROIC = NOPAT / Invested Capital)
+                if (period.roic == null && opInc != null && opInc > 0) {
+                    const taxRate = 0.21;
+                    const nopat = opInc * (1 - taxRate);
+                    const totalEq = totalEquity || (period.totalAssets ? period.totalAssets * 0.45 : null);
+                    const totalD = totalDebt || 0;
+                    const cash = period.cashAndEquivalents || 0;
+                    const investedCapital = (totalEq !== null) ? (totalEq + totalD - cash) : null;
+                    if (investedCapital && investedCapital > 0) {
+                        period.roic = Math.round((nopat / investedCapital) * 1000) / 10;
+                    }
+                }
+                if (period.roe == null && netInc != null && totalEquity && totalEquity > 0) {
+                    period.roe = Math.round((netInc / totalEquity) * 1000) / 10;
+                }
+
                 // Shareholder Return Math
                 if (period.payoutRatio == null && dps != null && eps && eps > 0) {
                     period.payoutRatio = (dps / eps) * 100;
@@ -5320,34 +5336,12 @@ Technical Signal: [NEUTRAL]`;
 
             if (historicalDataset) {
                 const normOfficial = normalizeHistoricalFinancialData(historicalDataset);
-                if (normOfficial && normOfficial.annual && normOfficial.annual.length > 0) {
+                if (normOfficial && normOfficial.annual && normOfficial.annual.length >= 3) {
                     normOfficial.isOfficialFMP = true;
                     normOfficial.dataConfidence = 'HIGH';
                     dataset = normOfficial;
                     identityText = `Name: ${dataset.companyName}\nTicker: ${dataset.symbol}\nExchange: ${dataset.profile?.exchangeShortName || dataset.quote?.exchange || 'NASDAQ/NYSE'}\nCountry: ${dataset.profile?.country || 'USA'}\nCurrency: ${dataset.currency || 'USD'}\nSector: ${dataset.sector || 'Technology'}\nIndustry: ${dataset.industry || 'Infrastructure'}\nCurrent Price: ${dataset.currentPrice ? dataset.currentPrice.toFixed(2) + ' ' + dataset.currency : 'N/A'}`;
-                    
-                    // Comprehensive Gap-Audit on FMP data (10-year history, ROIC, buybacks, 2026e guidance)
-                    const gapAudit = auditFinancialDatasetGap(dataset);
-                    if (!gapAudit.isComplete) {
-                        console.log(`[Institutional Engine] FMP data retrieved for ${dataset.symbol}, but gap-audit found missing fields: [${gapAudit.missingFields.join(', ')}]. Launching Targeted Google Search Grounding to complete 10-year dataset...`);
-                        updateLoadingStatus(
-                            'Ergänze 10-Jahres-Bilanzen, ROIC & 2026e Guidance...',
-                            35,
-                            `Gezielte Recherche für fehlende Jahre (${gapAudit.missingYears && gapAudit.missingYears.length > 0 ? gapAudit.missingYears.join(', ') : '2015–2019'}), ROIC & Konsens via Google Search Grounding.`
-                        );
-                        try {
-                            const gapPrompt = getTargetedGapPrompt(query, lang, dataset, gapAudit);
-                            const gapResponseText = await fetchSingleBatch(query, user, gapPrompt, 1, true, null, 'gemini-2.5-flash');
-                            const gapData = parseFrameworks(gapResponseText);
-                            if (gapData.financial_dataset) {
-                                dataset = mergeFmpWithGroundedGaps(dataset, gapData.financial_dataset);
-                            }
-                        } catch (gapErr) {
-                            console.warn('[Institutional Engine] Targeted Gap-Search skipped due to error:', gapErr.message);
-                        }
-                    } else {
-                        console.log(`[Institutional Engine] FMP dataset for ${dataset.symbol} is 100% complete. Skipping Search Grounding.`);
-                    }
+                    console.log(`[Institutional Engine] FMP-First fast-path activated for ${dataset.symbol} (${dataset.annual.length} annual statements). Skipping Search Grounding.`);
                 }
             }
 
