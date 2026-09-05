@@ -4046,7 +4046,10 @@
                     signal: controller.signal
                 });
                 clearTimeout(timeoutId);
-                if (!res.ok) return null;
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => null);
+                    return { _fmpError: errData?.error || `HTTP ${res.status}` };
+                }
                 const data = await res.json().catch(() => null);
                 if (data && ((Array.isArray(data.incomeStatements) && data.incomeStatements.length > 0) || (data.quote && typeof data.quote.price === 'number'))) {
                     console.log(`[Official Data API] Successfully loaded verified market/financial data for "${targetSymbol}"`);
@@ -4054,6 +4057,7 @@
                 }
                 if (data && data._fmpError) {
                     console.warn(`[Official Data API] FMP API message for "${targetSymbol}":`, data._fmpError);
+                    return data;
                 }
                 return null;
             } catch (e) {
@@ -5354,10 +5358,22 @@ Technical Signal: [NEUTRAL]`;
             }
 
             if (!dataset) {
+                let fmpStatusDetail = 'Historische Bilanzen & Cashflows (Umsatz, EBIT, FCF, Margen, ROIC & Verschuldung) + TTM.';
+                if (historicalDataset?._fmpError) {
+                    const errStr = String(historicalDataset._fmpError);
+                    if (errStr.includes('429') || errStr.toLowerCase().includes('limit')) {
+                        fmpStatusDetail = `FMP-Limit erreicht (429). Starte automatische Web-Recherche für "${query}".`;
+                    } else {
+                        fmpStatusDetail = `FMP-Meldung (${errStr.slice(0, 50)}). Starte automatische Web-Recherche für "${query}".`;
+                    }
+                } else if (historicalDataset && (!historicalDataset.incomeStatements || historicalDataset.incomeStatements.length < 3)) {
+                    fmpStatusDetail = `FMP lieferte unvollständige Bilanzen (< 3 Jahre). Starte automatische Web-Recherche für "${query}".`;
+                }
+
                 updateLoadingStatus(
                     'Fundamentale Daten werden berechnet...', 
                     35, 
-                    'Historische Bilanzen & Cashflows (Umsatz, EBIT, FCF, Margen, ROIC & Verschuldung) + TTM.'
+                    fmpStatusDetail
                 );
                 
                 const datasetPrompt = getDatasetPrompt(query, lang, marketQuote);
