@@ -87,7 +87,8 @@ module.exports = async function handler(req, res) {
                         'ALLIANZ': 'ALV.DE', 'ALV.DE': 'ALV.DE', 'MUNICHRE': 'MUV2.DE', 'MUV2': 'MUV2.DE',
                         'DEUTSCHEBANK': 'DBK.DE', 'DBK': 'DBK.DE', 'COMMERZBANK': 'CBK.DE', 'BNP': 'BNP.PA',
                         'SANTANDER': 'SAN.MC', 'BBVA': 'BBVA', 'UBS': 'UBS', 'ZURICH': 'ZURN.SW', 'AXA': 'CS.PA',
-                        'INTESA': 'ISP.MI', 'ING': 'INGA.AS'
+                        'INTESA': 'ISP.MI', 'ING': 'INGA.AS',
+                        'ZOETIS': 'ZTS', 'ZTS': 'ZTS'
                     };
 
                     const cryptoTickers = ['BTC', 'ETH', 'SOL', 'ADA', 'DOT', 'DOGE', 'SHIB', 'XRP', 'AVAX', 'LINK', 'LTC', 'BCH', 'UNI', 'ATOM', 'ETC', 'ALGO', 'XLM', 'NEAR', 'ICP', 'FIL', 'LDO', 'GRT', 'FTM', 'RNDR', 'CRO', 'OP', 'ARB', 'TON', 'PEPE', 'WIF', 'BONK', 'FLOKI', 'SUI', 'APT', 'TIA'];
@@ -104,14 +105,60 @@ module.exports = async function handler(req, res) {
                             return cleanQ + 'USD';
                         }
 
-                        const isTickerLike = /^[A-Z0-9.\-]{1,7}$/.test(query.trim().toUpperCase()) && !['MICROSOFT', 'PEPSICO', 'ALPHABET', 'AMAZON', 'NVIDIA', 'TESLA', 'APPLE'].includes(query.trim().toUpperCase());
+                        // High-speed universal ticker resolver (Yahoo Finance Search, ~150ms, zero API key dependency)
+                        try {
+                            const yHeaders = {
+                                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                                'Accept': 'application/json'
+                            };
+                            const yRes = await fetch(`https://query1.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(query.trim())}&quotesCount=6&newsCount=0`, {
+                                headers: yHeaders,
+                                signal: AbortSignal.timeout(2000)
+                            }).catch(() => null);
+
+                            if (yRes && yRes.ok) {
+                                const yData = await yRes.json().catch(() => ({}));
+                                const quotes = Array.isArray(yData.quotes) ? yData.quotes : [];
+                                if (quotes.length > 0) {
+                                    const euExchanges = ['EURONEXT', 'XETRA', 'PARIS', 'FRANKFURT', 'SWX', 'SIX', 'LSE', 'MADRID', 'MILAN', 'AMSTERDAM', 'COPENHAGEN'];
+                                    const euMatch = quotes.find(q => {
+                                        const ex = (q.exchDisp || q.exchange || '').toUpperCase();
+                                        const sym = (q.symbol || '').toUpperCase();
+                                        return euExchanges.some(e => ex.includes(e)) || sym.includes('.PA') || sym.includes('.DE') || sym.includes('.AS') || sym.includes('.SW') || sym.includes('.MC');
+                                    });
+                                    const usMatch = quotes.find(q => {
+                                        const ex = (q.exchDisp || q.exchange || '').toUpperCase();
+                                        return ['NASDAQ', 'NYSE', 'AMEX', 'NYQ', 'NMS'].includes(ex);
+                                    });
+
+                                    const directMatch = quotes.find(q => q.symbol && q.symbol.toUpperCase() === query.trim().toUpperCase());
+                                    const bestYahoo = directMatch || usMatch || euMatch || quotes[0];
+                                    if (bestYahoo && bestYahoo.symbol) {
+                                        const resolved = bestYahoo.symbol.toUpperCase();
+                                        console.log(`[Backend] Yahoo resolver resolved: "${query}" -> ${resolved} (${bestYahoo.shortname || bestYahoo.longname || ''})`);
+                                        return resolved;
+                                    }
+                                }
+                            }
+                        } catch (yErr) {
+                            console.warn('[Backend] Yahoo search resolution warning:', yErr.message);
+                        }
+
+                        const isTickerLike = /^[A-Z0-9.\-]{1,7}$/.test(query.trim().toUpperCase()) && !['MICROSOFT', 'PEPSICO', 'ALPHABET', 'AMAZON', 'NVIDIA', 'TESLA', 'APPLE', 'ZOETIS'].includes(query.trim().toUpperCase());
                         if (isTickerLike) {
                             const directSymbol = query.trim().toUpperCase();
                             try {
-                                const probeRes = await fetch(`https://financialmodelingprep.com/api/v3/quote/${encodeURIComponent(directSymbol)}?apikey=${fmpKey}`, {
-                                    signal: AbortSignal.timeout(2000)
-                                });
-                                if (probeRes.ok) {
+                                let probeRes = await fetch(`https://financialmodelingprep.com/stable/quote?symbol=${encodeURIComponent(directSymbol)}&apikey=${fmpKey}`, {
+                                    signal: AbortSignal.timeout(1500)
+                                }).catch(() => null);
+
+                                if (!probeRes || !probeRes.ok) {
+                                    probeRes = await fetch(`https://financialmodelingprep.com/api/v3/quote/${encodeURIComponent(directSymbol)}?apikey=${fmpKey}`, {
+                                        signal: AbortSignal.timeout(1500)
+                                    }).catch(() => null);
+                                }
+
+                                if (probeRes && probeRes.ok) {
                                     const probeData = await probeRes.json().catch(() => []);
                                     if (Array.isArray(probeData) && probeData.length > 0 && typeof probeData[0]?.price === 'number') {
                                         console.log(`[Backend] Direct ticker probe verified: ${directSymbol}`);
@@ -125,10 +172,23 @@ module.exports = async function handler(req, res) {
                             console.log(`[Backend] Searching FMP for: "${query}"...`);
                             let searchData = [];
                             try {
-                                const r1 = await fetch(`https://financialmodelingprep.com/api/v3/search?query=${encodeURIComponent(query.trim())}&limit=10&apikey=${fmpKey}`, {
-                                    signal: AbortSignal.timeout(2500)
-                                });
-                                if (r1.ok) searchData = await r1.json().catch(() => []);
+                                let r1 = await fetch(`https://financialmodelingprep.com/stable/search-name?query=${encodeURIComponent(query.trim())}&limit=10&apikey=${fmpKey}`, {
+                                    signal: AbortSignal.timeout(2000)
+                                }).catch(() => null);
+
+                                if (!r1 || !r1.ok) {
+                                    r1 = await fetch(`https://financialmodelingprep.com/stable/search-symbol?query=${encodeURIComponent(query.trim())}&limit=10&apikey=${fmpKey}`, {
+                                        signal: AbortSignal.timeout(2000)
+                                    }).catch(() => null);
+                                }
+
+                                if (!r1 || !r1.ok) {
+                                    r1 = await fetch(`https://financialmodelingprep.com/api/v3/search?query=${encodeURIComponent(query.trim())}&limit=10&apikey=${fmpKey}`, {
+                                        signal: AbortSignal.timeout(2000)
+                                    }).catch(() => null);
+                                }
+
+                                if (r1 && r1.ok) searchData = await r1.json().catch(() => []);
                             } catch (e) {}
 
                             if (Array.isArray(searchData) && searchData.length > 0) {
@@ -181,37 +241,47 @@ module.exports = async function handler(req, res) {
 
                     const [profileDataRes, quoteDataRes, metricsDataRes, ttmDataRes, earnDataRes, rsiDataRawRes, macdDataRawRes, cfDataRes, incomeDataRes, balanceDataRes, ratiosDataRes, histRes, estDataRes] = await Promise.all([
                         fetchEndpointWithFallback([
+                            `https://financialmodelingprep.com/stable/profile?symbol=${symbol}&apikey=${fmpKey}`,
                             `https://financialmodelingprep.com/api/v3/profile/${symbol}?apikey=${fmpKey}`
                         ]),
                         fetchEndpointWithFallback([
+                            `https://financialmodelingprep.com/stable/quote?symbol=${symbol}&apikey=${fmpKey}`,
                             `https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=${fmpKey}`
                         ]),
                         fetchEndpointWithFallback([
+                            `https://financialmodelingprep.com/stable/key-metrics?symbol=${symbol}&limit=5&apikey=${fmpKey}`,
                             `https://financialmodelingprep.com/api/v3/key-metrics/${symbol}?limit=5&apikey=${fmpKey}`
                         ]),
                         fetchEndpointWithFallback([
+                            `https://financialmodelingprep.com/stable/income-statement-ttm?symbol=${symbol}&apikey=${fmpKey}`,
                             `https://financialmodelingprep.com/api/v3/key-metrics-ttm/${symbol}?apikey=${fmpKey}`,
                             `https://financialmodelingprep.com/api/v3/ratios-ttm/${symbol}?apikey=${fmpKey}`
                         ]),
                         fetchEndpointWithFallback([
+                            `https://financialmodelingprep.com/stable/earnings-surprises-bulk?symbol=${symbol}&apikey=${fmpKey}`,
                             `https://financialmodelingprep.com/api/v3/earnings-surprises/${symbol}?apikey=${fmpKey}`
                         ]),
                         fetch(`https://financialmodelingprep.com/api/v3/technical-indicators/daily/${symbol}?type=rsi&period=14&apikey=${fmpKey}`).then(r => r.ok ? r.json() : []).catch(() => []),
                         fetch(`https://financialmodelingprep.com/api/v3/technical-indicators/daily/${symbol}?type=macd&apikey=${fmpKey}`).then(r => r.ok ? r.json() : []).catch(() => []),
                         fetchEndpointWithFallback([
+                            `https://financialmodelingprep.com/stable/cash-flow-statement?symbol=${symbol}&limit=5&apikey=${fmpKey}`,
                             `https://financialmodelingprep.com/api/v3/cash-flow-statement/${symbol}?limit=5&apikey=${fmpKey}`
                         ]),
                         fetchEndpointWithFallback([
+                            `https://financialmodelingprep.com/stable/income-statement?symbol=${symbol}&limit=5&apikey=${fmpKey}`,
                             `https://financialmodelingprep.com/api/v3/income-statement/${symbol}?limit=5&apikey=${fmpKey}`
                         ]),
                         fetchEndpointWithFallback([
+                            `https://financialmodelingprep.com/stable/balance-sheet-statement?symbol=${symbol}&limit=5&apikey=${fmpKey}`,
                             `https://financialmodelingprep.com/api/v3/balance-sheet-statement/${symbol}?limit=5&apikey=${fmpKey}`
                         ]),
                         fetchEndpointWithFallback([
+                            `https://financialmodelingprep.com/stable/ratios?symbol=${symbol}&limit=5&apikey=${fmpKey}`,
                             `https://financialmodelingprep.com/api/v3/ratios/${symbol}?limit=5&apikey=${fmpKey}`
                         ]),
                         fetch(`https://financialmodelingprep.com/api/v3/historical-price-full/${symbol}?timeseries=30&apikey=${fmpKey}`).then(r => r.ok ? r.json() : null).catch(() => null),
                         fetchEndpointWithFallback([
+                            `https://financialmodelingprep.com/stable/analyst-estimates?symbol=${symbol}&limit=5&apikey=${fmpKey}`,
                             `https://financialmodelingprep.com/api/v3/analyst-estimates/${symbol}?limit=5&apikey=${fmpKey}`
                         ])
                     ]);

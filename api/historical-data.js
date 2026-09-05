@@ -88,6 +88,8 @@ module.exports = async function handler(req, res) {
         'VISA': 'V',
         'MASTERCARD': 'MA',
         'PAYPAL': 'PYPL',
+        'ZOETIS': 'ZTS',
+        'ZTS': 'ZTS',
 
         // Luxury & Consumer
         'LVMH': 'MC.PA',
@@ -216,19 +218,59 @@ module.exports = async function handler(req, res) {
         if (cryptoTickers.includes(cleanQ)) {
             return cleanQ + 'USD';
         }
+
+        // 2. High-speed universal ticker resolver (Yahoo Finance Search, ~150ms, zero API key dependency)
+        try {
+            const yHeaders = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'application/json'
+            };
+            const yRes = await fetch(`https://query1.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(query.trim())}&quotesCount=6&newsCount=0`, {
+                headers: yHeaders,
+                signal: AbortSignal.timeout(2000)
+            }).catch(() => null);
+
+            if (yRes && yRes.ok) {
+                const yData = await yRes.json().catch(() => ({}));
+                const quotes = Array.isArray(yData.quotes) ? yData.quotes : [];
+                if (quotes.length > 0) {
+                    const euExchanges = ['EURONEXT', 'XETRA', 'PARIS', 'FRANKFURT', 'SWX', 'SIX', 'LSE', 'MADRID', 'MILAN', 'AMSTERDAM', 'COPENHAGEN'];
+                    const euMatch = quotes.find(q => {
+                        const ex = (q.exchDisp || q.exchange || '').toUpperCase();
+                        const sym = (q.symbol || '').toUpperCase();
+                        return euExchanges.some(e => ex.includes(e)) || sym.includes('.PA') || sym.includes('.DE') || sym.includes('.AS') || sym.includes('.SW') || sym.includes('.MC');
+                    });
+                    const usMatch = quotes.find(q => {
+                        const ex = (q.exchDisp || q.exchange || '').toUpperCase();
+                        return ['NASDAQ', 'NYSE', 'AMEX', 'NYQ', 'NMS'].includes(ex);
+                    });
+
+                    // If user entered a known ticker directly, prioritize exact ticker match
+                    const directMatch = quotes.find(q => q.symbol && q.symbol.toUpperCase() === query.trim().toUpperCase());
+                    const bestYahoo = directMatch || usMatch || euMatch || quotes[0];
+                    if (bestYahoo && bestYahoo.symbol) {
+                        const resolved = bestYahoo.symbol.toUpperCase();
+                        console.log(`[Historical Data] Yahoo resolver resolved: "${query}" -> ${resolved} (${bestYahoo.shortname || bestYahoo.longname || ''})`);
+                        return resolved;
+                    }
+                }
+            }
+        } catch (yErr) {
+            console.warn('[Historical Data] Yahoo search resolution warning:', yErr.message);
+        }
         
-        // 2. Direct Probe for 1-7 char tickers (e.g. AAPL, NVDA, SAP, MC.PA)
-        const isTickerLike = /^[A-Z0-9.\-]{1,7}$/.test(query.trim().toUpperCase()) && !['MICROSOFT', 'PEPSICO', 'ALPHABET', 'AMAZON', 'NVIDIA', 'TESLA', 'APPLE'].includes(query.trim().toUpperCase());
+        // 3. Direct Probe for 1-7 char tickers (e.g. AAPL, NVDA, SAP, MC.PA)
+        const isTickerLike = /^[A-Z0-9.\-]{1,7}$/.test(query.trim().toUpperCase()) && !['MICROSOFT', 'PEPSICO', 'ALPHABET', 'AMAZON', 'NVIDIA', 'TESLA', 'APPLE', 'ZOETIS'].includes(query.trim().toUpperCase());
         if (isTickerLike) {
             const directSymbol = query.trim().toUpperCase();
             try {
                 let probeRes = await fetch(`https://financialmodelingprep.com/stable/quote?symbol=${encodeURIComponent(directSymbol)}&apikey=${fmpKey}`, {
-                    signal: AbortSignal.timeout(2000)
+                    signal: AbortSignal.timeout(1500)
                 }).catch(() => null);
 
                 if (!probeRes || !probeRes.ok) {
                     probeRes = await fetch(`https://financialmodelingprep.com/api/v3/quote/${encodeURIComponent(directSymbol)}?apikey=${fmpKey}`, {
-                        signal: AbortSignal.timeout(2000)
+                        signal: AbortSignal.timeout(1500)
                     }).catch(() => null);
                 }
 
@@ -244,19 +286,25 @@ module.exports = async function handler(req, res) {
             }
         }
 
-        // 3. FMP Search (stable / v3 search)
+        // 4. FMP Stable Search (search-name / search-symbol)
         try {
             console.log(`[Historical Data] Searching FMP for: "${query}"...`);
             let searchData = [];
 
             try {
-                let r1 = await fetch(`https://financialmodelingprep.com/stable/search?query=${encodeURIComponent(query.trim())}&limit=10&apikey=${fmpKey}`, {
-                    signal: AbortSignal.timeout(2500)
+                let r1 = await fetch(`https://financialmodelingprep.com/stable/search-name?query=${encodeURIComponent(query.trim())}&limit=10&apikey=${fmpKey}`, {
+                    signal: AbortSignal.timeout(2000)
                 }).catch(() => null);
 
                 if (!r1 || !r1.ok) {
+                    r1 = await fetch(`https://financialmodelingprep.com/stable/search-symbol?query=${encodeURIComponent(query.trim())}&limit=10&apikey=${fmpKey}`, {
+                        signal: AbortSignal.timeout(2000)
+                    }).catch(() => null);
+                }
+
+                if (!r1 || !r1.ok) {
                     r1 = await fetch(`https://financialmodelingprep.com/api/v3/search?query=${encodeURIComponent(query.trim())}&limit=10&apikey=${fmpKey}`, {
-                        signal: AbortSignal.timeout(2500)
+                        signal: AbortSignal.timeout(2000)
                     }).catch(() => null);
                 }
 
@@ -280,7 +328,7 @@ module.exports = async function handler(req, res) {
                 const bestMatch = euMatch || usMatch || searchData[0];
                 if (bestMatch && bestMatch.symbol) {
                     const resSym = bestMatch.symbol.toUpperCase();
-                    console.log(`[Historical Data] Successfully resolved "${query}" -> ${resSym}`);
+                    console.log(`[Historical Data] Successfully resolved via FMP search "${query}" -> ${resSym}`);
                     return resSym;
                 }
             }
