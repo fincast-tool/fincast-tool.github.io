@@ -3982,6 +3982,7 @@
             'STARBUCKS': 'SBUX', 'NIKE': 'NKE', 'DISNEY': 'DIS', 'WALTDISNEY': 'DIS', 'JNJ': 'JNJ',
             'JOHNSONJOHNSON': 'JNJ', 'PFIZER': 'PFE', 'ELILILLY': 'LLY', 'LILLY': 'LLY', 'JPMORGAN': 'JPM',
             'JPM': 'JPM', 'GOLDMAN': 'GS', 'GOLDMANSACHS': 'GS', 'VISA': 'V', 'MASTERCARD': 'MA', 'PAYPAL': 'PYPL',
+            'ZOETIS': 'ZTS', 'ZTS': 'ZTS',
 
             // Luxury & Consumer
             'LVMH': 'MC.PA', 'LVMUY': 'LVMUY', 'MC.PA': 'MC.PA', 'HERMES': 'RMS.PA', 'RMS.PA': 'RMS.PA',
@@ -4040,7 +4041,7 @@
                 const targetSymbol = FRONTEND_KNOWN_SYMBOL_MAP[cleanQ] || symbol.trim();
 
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 12000);
+                const timeoutId = setTimeout(() => controller.abort(), 18000);
                 const res = await fetch(`/api/historical-data?symbol=${encodeURIComponent(targetSymbol)}`, {
                     signal: controller.signal
                 });
