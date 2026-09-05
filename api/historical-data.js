@@ -399,24 +399,24 @@ module.exports = async function handler(req, res) {
                 `https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=${fmpKey}`
             ], true),
             fetchEndpointWithFallback([
-                `https://financialmodelingprep.com/stable/income-statement?symbol=${symbol}&limit=5&apikey=${fmpKey}`,
-                `https://financialmodelingprep.com/api/v3/income-statement/${symbol}?limit=5&apikey=${fmpKey}`
+                `https://financialmodelingprep.com/stable/income-statement?symbol=${symbol}&limit=10&apikey=${fmpKey}`,
+                `https://financialmodelingprep.com/api/v3/income-statement/${symbol}?limit=10&apikey=${fmpKey}`
             ], true),
             fetchEndpointWithFallback([
-                `https://financialmodelingprep.com/stable/balance-sheet-statement?symbol=${symbol}&limit=5&apikey=${fmpKey}`,
-                `https://financialmodelingprep.com/api/v3/balance-sheet-statement/${symbol}?limit=5&apikey=${fmpKey}`
+                `https://financialmodelingprep.com/stable/balance-sheet-statement?symbol=${symbol}&limit=10&apikey=${fmpKey}`,
+                `https://financialmodelingprep.com/api/v3/balance-sheet-statement/${symbol}?limit=10&apikey=${fmpKey}`
             ], true),
             fetchEndpointWithFallback([
-                `https://financialmodelingprep.com/stable/cash-flow-statement?symbol=${symbol}&limit=5&apikey=${fmpKey}`,
-                `https://financialmodelingprep.com/api/v3/cash-flow-statement/${symbol}?limit=5&apikey=${fmpKey}`
+                `https://financialmodelingprep.com/stable/cash-flow-statement?symbol=${symbol}&limit=10&apikey=${fmpKey}`,
+                `https://financialmodelingprep.com/api/v3/cash-flow-statement/${symbol}?limit=10&apikey=${fmpKey}`
             ], true),
             fetchEndpointWithFallback([
-                `https://financialmodelingprep.com/stable/key-metrics?symbol=${symbol}&limit=5&apikey=${fmpKey}`,
-                `https://financialmodelingprep.com/api/v3/key-metrics/${symbol}?limit=5&apikey=${fmpKey}`
+                `https://financialmodelingprep.com/stable/key-metrics?symbol=${symbol}&limit=10&apikey=${fmpKey}`,
+                `https://financialmodelingprep.com/api/v3/key-metrics/${symbol}?limit=10&apikey=${fmpKey}`
             ]),
             fetchEndpointWithFallback([
-                `https://financialmodelingprep.com/stable/ratios?symbol=${symbol}&limit=5&apikey=${fmpKey}`,
-                `https://financialmodelingprep.com/api/v3/ratios/${symbol}?limit=5&apikey=${fmpKey}`
+                `https://financialmodelingprep.com/stable/ratios?symbol=${symbol}&limit=10&apikey=${fmpKey}`,
+                `https://financialmodelingprep.com/api/v3/ratios/${symbol}?limit=10&apikey=${fmpKey}`
             ]),
             fetchEndpointWithFallback([
                 `https://financialmodelingprep.com/stable/income-statement-ttm?symbol=${symbol}&apikey=${fmpKey}`,
@@ -426,12 +426,12 @@ module.exports = async function handler(req, res) {
             fetchPricesWithFallback([
                 `https://financialmodelingprep.com/stable/historical-price-eod/full?symbol=${symbol}&apikey=${fmpKey}`,
                 `https://financialmodelingprep.com/stable/historical-price-eod/light?symbol=${symbol}&apikey=${fmpKey}`,
-                `https://financialmodelingprep.com/api/v3/historical-price-full/${symbol}?timeseries=1260&apikey=${fmpKey}`,
-                `https://financialmodelingprep.com/api/v3/historical-price-full/${symbol}?timeseries=250&apikey=${fmpKey}`
+                `https://financialmodelingprep.com/api/v3/historical-price-full/${symbol}?timeseries=2520&apikey=${fmpKey}`,
+                `https://financialmodelingprep.com/api/v3/historical-price-full/${symbol}?timeseries=1260&apikey=${fmpKey}`
             ]),
             fetchEndpointWithFallback([
-                `https://financialmodelingprep.com/stable/analyst-estimates?symbol=${symbol}&limit=5&apikey=${fmpKey}`,
-                `https://financialmodelingprep.com/api/v3/analyst-estimates/${symbol}?limit=5&apikey=${fmpKey}`
+                `https://financialmodelingprep.com/stable/analyst-estimates?symbol=${symbol}&limit=10&apikey=${fmpKey}`,
+                `https://financialmodelingprep.com/api/v3/analyst-estimates/${symbol}?limit=10&apikey=${fmpKey}`
             ]),
             fetchEndpointWithFallback([
                 `https://financialmodelingprep.com/stable/earnings-surprises-bulk?symbol=${symbol}&apikey=${fmpKey}`,
